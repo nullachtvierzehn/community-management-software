@@ -1,4 +1,6 @@
 secret-key
+build/*
+!build/.gitkeep
 
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 
