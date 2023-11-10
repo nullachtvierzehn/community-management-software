@@ -23,7 +23,7 @@ export default defineNuxtPlugin((nuxt) => {
   if (process.client) {
     nuxt.hook("app:created", () => {
       const data = markRaw(nuxt.payload[ssrKey] as SSRData);
-      console.log("restored data", data);
+      console.debug("restored graphql data from server", data);
       ssr.restoreData(data);
     });
   }
@@ -32,7 +32,7 @@ export default defineNuxtPlugin((nuxt) => {
   if (process.server) {
     nuxt.hook("app:rendered", () => {
       const data = markRaw(ssr.extractData());
-      console.log("data is ", data);
+      console.debug("restore graphql data for client", data);
       nuxt.payload[ssrKey] = data;
     });
   }
