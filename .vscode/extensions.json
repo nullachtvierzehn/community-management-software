@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "oven.bun-vscode", // support for https://bun.sh/
-    "MisterJ.vue-volar-extention-pack" // support for Vue projects
+    "MisterJ.vue-volar-extention-pack", // support for Vue projects
+    "apollographql.vscode-apollo" // support for graphql
   ]
 }
