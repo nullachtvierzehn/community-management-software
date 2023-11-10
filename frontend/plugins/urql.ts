@@ -11,6 +11,7 @@ import type { SSRData } from "@urql/vue";
 
 export default defineNuxtPlugin((nuxt) => {
   const ssrKey = "__URQL_DATA__";
+  const requestHeaders = useRequestHeaders(["cookie", "authorization"]);
 
   const ssr = ssrExchange({
     isClient: process.client,
@@ -44,6 +45,12 @@ export default defineNuxtPlugin((nuxt) => {
       ssr, // Add `ssr` in front of the `fetchExchange`
       fetchExchange,
     ],
+    fetchOptions() {
+      const headers: HeadersInit = { ...requestHeaders };
+      console.debug("delegate request headers to graphql", requestHeaders);
+      //headers["csrf-token"] = requestHeaders
+      return { headers };
+    },
   });
 
   nuxt.provide("urql", client);
