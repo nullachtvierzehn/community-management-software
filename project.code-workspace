@@ -5,12 +5,16 @@
       "path": "."
     },
     {
-      "name": "Frontend",
-      "path": "./frontend"
-    },
-    {
       "name": "Backend",
       "path": "./backend"
+    },
+    {
+      "name": "Database",
+      "path": "./database"
+    },
+    {
+      "name": "Frontend",
+      "path": "./frontend"
     }
   ]
 }

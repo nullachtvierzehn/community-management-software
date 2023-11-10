@@ -11,14 +11,18 @@ import { makePgService } from "postgraphile/adaptors/pg";
 
 import { pool, ownerPool } from "../database/pool";
 import PassportLoginPlugin from "./plugins/PassportLoginPlugin";
+import config from "../config";
 
 export const preset: GraphileConfig.Preset = {
   extends: [
     PostGraphileAmberPreset,
     makeV4Preset({
+      watchPg: true,
       allowExplain: true,
       graphiql: true,
       enhanceGraphiql: true,
+      exportGqlSchemaPath: "./schema.graphql",
+      sortExport: true,
     }),
     PgSimplifyInflectionPreset,
   ],
@@ -31,6 +35,7 @@ export const preset: GraphileConfig.Preset = {
           // copy pgSettings that were already applied
           // https://postgraphile.org/postgraphile/next/config/#pgsettings
           ...args.contextValue?.pgSettings,
+          role: config.database.roles.visitor.username,
         },
       };
 

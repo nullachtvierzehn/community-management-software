@@ -10,9 +10,21 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
+    "@graphql-codegen/add": "^5.0.0",
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-document-nodes": "^4.0.1",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@graphql-codegen/typescript-vue-urql": "^3.0.0",
     "@nuxt/devtools": "latest",
     "nuxt": "^3.8.0",
     "vue": "^3.3.7",
     "vue-router": "^4.2.5"
+  },
+  "dependencies": {
+    "@nuxt-alt/proxy": "^2.3.2",
+    "@urql/exchange-graphcache": "^6.3.3",
+    "@urql/vue": "^1.1.2",
+    "graphql": "^16.8.1"
   }
 }
