@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   proxy: {
     proxies: {
       "/graphql": { target: "http://localhost:3001", changeOrigin: true },
+      "/graphiql": { target: "http://localhost:3001", changeOrigin: true },
     },
   },
 });
