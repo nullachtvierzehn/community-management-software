@@ -150,9 +150,8 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
             pgSettings!["jwt.claims.session_id"] = details.session_id;
 
             // Tell Passport.js we're logged in
-            await fastifySession.regenerate();
             fastifySession.graphileSessionId = details.session_id;
-            await fastifySession.save();
+            await fastifySession.regenerate(["graphileSessionId"]);
           }
 
           return {
@@ -199,9 +198,10 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
           }
 
           if (session.uuid) {
-            await fastifySession.regenerate();
+            // Set the graphile session id, then regenerate the session.
+            // See here: https://github.com/fastify/session/blob/a8b1aaa1c04809e13b8fff260a3e67a1ef6e3288/test/session.test.js#L218
             fastifySession.graphileSessionId = session.uuid;
-            await fastifySession.save();
+            await fastifySession.regenerate(["graphileSessionId"]);
           }
 
           // Update pgSettings so future queries will use the new session
