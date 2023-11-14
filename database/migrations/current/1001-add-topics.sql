@@ -8,7 +8,6 @@ create table app_public.topics (
   id uuid primary key default uuid_generate_v1mc(),
   slug text
     not null
-    constraint topics_have_an_unique_slug unique
     constraint valid_slug check (slug ~ '^[\w\d-]+(/[\w\d-]+)*$'),
   author_id uuid
     default app_public.current_user_id()
@@ -35,6 +34,8 @@ comment on column app_public.topics.slug is
 comment on column app_public.topics.content is
   E'The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html';
 
+create unique index topics_have_an_unique_slug on app_public.topics (slug) where (organization_id is null);
+create unique index topics_have_an_unique_slug_within_organizations on app_public.topics (slug, organization_id);
 create index topics_on_title on app_public.topics (title);
 create index topics_on_author_id on app_public.topics (author_id);
 create index topics_on_organization_id on app_public.topics (organization_id);
