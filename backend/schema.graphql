@@ -23,6 +23,13 @@ type AcceptInvitationToOrganizationPayload {
   query: Query
 }
 
+"""
+A signed eight-byte integer. The upper big integer values are greater than the
+max value for a JavaScript number. Therefore all big integers will be output as
+strings and not numbers.
+"""
+scalar BigInt
+
 """All input for the `changePassword` mutation."""
 input ChangePasswordInput {
   """
@@ -199,6 +206,126 @@ type CreateOrganizationPayload {
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
+}
+
+"""All input for the create `Room` mutation."""
+input CreateRoomInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `Room` to be created by this mutation."""
+  room: RoomInput!
+}
+
+"""The output of our create `Room` mutation."""
+type CreateRoomPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """Each room can optionally belong to an organization."""
+  organization: Organization
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """The `Room` that was created by this mutation."""
+  room: Room
+
+  """An edge for our `Room`. May be used by Relay 1."""
+  roomEdge(
+    """The method to use when ordering `Room`."""
+    orderBy: [RoomsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomsEdge
+}
+
+"""All input for the create `RoomSubscription` mutation."""
+input CreateRoomSubscriptionInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `RoomSubscription` to be created by this mutation."""
+  roomSubscription: RoomSubscriptionInput!
+}
+
+"""The output of our create `RoomSubscription` mutation."""
+type CreateRoomSubscriptionPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single `Room` that is related to this `RoomSubscription`."""
+  room: Room
+
+  """The `RoomSubscription` that was created by this mutation."""
+  roomSubscription: RoomSubscription
+
+  """An edge for our `RoomSubscription`. May be used by Relay 1."""
+  roomSubscriptionEdge(
+    """The method to use when ordering `RoomSubscription`."""
+    orderBy: [RoomSubscriptionsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomSubscriptionsEdge
+
+  """Reads a single `User` that is related to this `RoomSubscription`."""
+  subscriber: User
+}
+
+"""All input for the create `Topic` mutation."""
+input CreateTopicInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `Topic` to be created by this mutation."""
+  topic: TopicInput!
+}
+
+"""The output of our create `Topic` mutation."""
+type CreateTopicPayload {
+  """Reads a single `User` that is related to this `Topic`."""
+  author: User
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """Reads a single `Organization` that is related to this `Topic`."""
+  organization: Organization
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """The `Topic` that was created by this mutation."""
+  topic: Topic
+
+  """An edge for our `Topic`. May be used by Relay 1."""
+  topicEdge(
+    """The method to use when ordering `Topic`."""
+    orderBy: [TopicsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): TopicsEdge
 }
 
 """All input for the create `UserAuthentication` mutation."""
@@ -589,6 +716,194 @@ type DeleteOrganizationPayload {
   query: Query
 }
 
+"""All input for the `deleteRoomByNodeId` mutation."""
+input DeleteRoomByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `Room` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""All input for the `deleteRoom` mutation."""
+input DeleteRoomInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+}
+
+"""The output of our delete `Room` mutation."""
+type DeleteRoomPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  deletedRoomNodeId: ID
+
+  """Each room can optionally belong to an organization."""
+  organization: Organization
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """The `Room` that was deleted by this mutation."""
+  room: Room
+
+  """An edge for our `Room`. May be used by Relay 1."""
+  roomEdge(
+    """The method to use when ordering `Room`."""
+    orderBy: [RoomsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomsEdge
+}
+
+"""All input for the `deleteRoomSubscriptionByNodeId` mutation."""
+input DeleteRoomSubscriptionByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `RoomSubscription` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""
+All input for the `deleteRoomSubscriptionBySubscriberIdAndRoomId` mutation.
+"""
+input DeleteRoomSubscriptionBySubscriberIdAndRoomIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  roomId: UUID!
+
+  """The subscribing user."""
+  subscriberId: UUID!
+}
+
+"""All input for the `deleteRoomSubscription` mutation."""
+input DeleteRoomSubscriptionInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+}
+
+"""The output of our delete `RoomSubscription` mutation."""
+type DeleteRoomSubscriptionPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  deletedRoomSubscriptionNodeId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single `Room` that is related to this `RoomSubscription`."""
+  room: Room
+
+  """The `RoomSubscription` that was deleted by this mutation."""
+  roomSubscription: RoomSubscription
+
+  """An edge for our `RoomSubscription`. May be used by Relay 1."""
+  roomSubscriptionEdge(
+    """The method to use when ordering `RoomSubscription`."""
+    orderBy: [RoomSubscriptionsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomSubscriptionsEdge
+
+  """Reads a single `User` that is related to this `RoomSubscription`."""
+  subscriber: User
+}
+
+"""All input for the `deleteTopicByNodeId` mutation."""
+input DeleteTopicByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `Topic` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""All input for the `deleteTopicBySlug` mutation."""
+input DeleteTopicBySlugInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
+  """
+  slug: String!
+}
+
+"""All input for the `deleteTopic` mutation."""
+input DeleteTopicInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+}
+
+"""The output of our delete `Topic` mutation."""
+type DeleteTopicPayload {
+  """Reads a single `User` that is related to this `Topic`."""
+  author: User
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  deletedTopicNodeId: ID
+
+  """Reads a single `Organization` that is related to this `Topic`."""
+  organization: Organization
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """The `Topic` that was deleted by this mutation."""
+  topic: Topic
+
+  """An edge for our `Topic`. May be used by Relay 1."""
+  topicEdge(
+    """The method to use when ordering `Topic`."""
+    orderBy: [TopicsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): TopicsEdge
+}
+
 """All input for the `deleteUserAuthenticationByNodeId` mutation."""
 input DeleteUserAuthenticationByNodeIdInput {
   """
@@ -807,6 +1122,60 @@ type ForgotPasswordPayload {
   query: Query
 }
 
+"""
+An interval of time that has passed where the smallest distinct unit is a second.
+"""
+type Interval {
+  """A quantity of days."""
+  days: Int
+
+  """A quantity of hours."""
+  hours: Int
+
+  """A quantity of minutes."""
+  minutes: Int
+
+  """A quantity of months."""
+  months: Int
+
+  """
+  A quantity of seconds. This is the only non-integer field, as all the other
+  fields will dump their overflow into a smaller unit of time. Intervals don’t
+  have a smaller unit than seconds.
+  """
+  seconds: Float
+
+  """A quantity of years."""
+  years: Int
+}
+
+"""
+An interval of time that has passed where the smallest distinct unit is a second.
+"""
+input IntervalInput {
+  """A quantity of days."""
+  days: Int
+
+  """A quantity of hours."""
+  hours: Int
+
+  """A quantity of minutes."""
+  minutes: Int
+
+  """A quantity of months."""
+  months: Int
+
+  """
+  A quantity of seconds. This is the only non-integer field, as all the other
+  fields will dump their overflow into a smaller unit of time. Intervals don’t
+  have a smaller unit than seconds.
+  """
+  seconds: Float
+
+  """A quantity of years."""
+  years: Int
+}
+
 """All input for the `inviteToOrganization` mutation."""
 input InviteToOrganizationInput {
   """
@@ -938,6 +1307,30 @@ type Mutation {
     input: CreateOrganizationMembershipInput!
   ): CreateOrganizationMembershipPayload
 
+  """Creates a single `Room`."""
+  createRoom(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateRoomInput!
+  ): CreateRoomPayload
+
+  """Creates a single `RoomSubscription`."""
+  createRoomSubscription(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateRoomSubscriptionInput!
+  ): CreateRoomSubscriptionPayload
+
+  """Creates a single `Topic`."""
+  createTopic(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateTopicInput!
+  ): CreateTopicPayload
+
   """Creates a single `User`."""
   createUser(
     """
@@ -1045,6 +1438,70 @@ type Mutation {
     """
     input: DeleteOrganizationMembershipByOrganizationIdAndUserIdInput!
   ): DeleteOrganizationMembershipPayload
+
+  """Deletes a single `Room` using a unique key."""
+  deleteRoom(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomInput!
+  ): DeleteRoomPayload
+
+  """Deletes a single `Room` using its globally unique id."""
+  deleteRoomByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomByNodeIdInput!
+  ): DeleteRoomPayload
+
+  """Deletes a single `RoomSubscription` using a unique key."""
+  deleteRoomSubscription(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomSubscriptionInput!
+  ): DeleteRoomSubscriptionPayload
+
+  """Deletes a single `RoomSubscription` using its globally unique id."""
+  deleteRoomSubscriptionByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomSubscriptionByNodeIdInput!
+  ): DeleteRoomSubscriptionPayload
+
+  """Deletes a single `RoomSubscription` using a unique key."""
+  deleteRoomSubscriptionBySubscriberIdAndRoomId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomSubscriptionBySubscriberIdAndRoomIdInput!
+  ): DeleteRoomSubscriptionPayload
+
+  """Deletes a single `Topic` using a unique key."""
+  deleteTopic(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteTopicInput!
+  ): DeleteTopicPayload
+
+  """Deletes a single `Topic` using its globally unique id."""
+  deleteTopicByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteTopicByNodeIdInput!
+  ): DeleteTopicPayload
+
+  """Deletes a single `Topic` using a unique key."""
+  deleteTopicBySlug(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteTopicBySlugInput!
+  ): DeleteTopicPayload
 
   """Deletes a single `User` using a unique key."""
   deleteUser(
@@ -1311,6 +1768,72 @@ type Mutation {
     input: UpdateOrganizationMembershipByOrganizationIdAndUserIdInput!
   ): UpdateOrganizationMembershipPayload
 
+  """Updates a single `Room` using a unique key and a patch."""
+  updateRoom(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateRoomInput!
+  ): UpdateRoomPayload
+
+  """Updates a single `Room` using its globally unique id and a patch."""
+  updateRoomByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateRoomByNodeIdInput!
+  ): UpdateRoomPayload
+
+  """Updates a single `RoomSubscription` using a unique key and a patch."""
+  updateRoomSubscription(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateRoomSubscriptionInput!
+  ): UpdateRoomSubscriptionPayload
+
+  """
+  Updates a single `RoomSubscription` using its globally unique id and a patch.
+  """
+  updateRoomSubscriptionByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateRoomSubscriptionByNodeIdInput!
+  ): UpdateRoomSubscriptionPayload
+
+  """Updates a single `RoomSubscription` using a unique key and a patch."""
+  updateRoomSubscriptionBySubscriberIdAndRoomId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateRoomSubscriptionBySubscriberIdAndRoomIdInput!
+  ): UpdateRoomSubscriptionPayload
+
+  """Updates a single `Topic` using a unique key and a patch."""
+  updateTopic(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateTopicInput!
+  ): UpdateTopicPayload
+
+  """Updates a single `Topic` using its globally unique id and a patch."""
+  updateTopicByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateTopicByNodeIdInput!
+  ): UpdateTopicPayload
+
+  """Updates a single `Topic` using a unique key and a patch."""
+  updateTopicBySlug(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateTopicBySlugInput!
+  ): UpdateTopicPayload
+
   """Updates a single `User` using a unique key and a patch."""
   updateUser(
     """
@@ -1396,12 +1919,45 @@ type Mutation {
   ): VerifyEmailPayload
 }
 
+"""A connection to a list of `UUID` values."""
+type MySubscribedRoomIdsConnection {
+  """
+  A list of edges which contains the `UUID` and cursor to aid in pagination.
+  """
+  edges: [MySubscribedRoomIdsEdge]!
+
+  """A list of `UUID` objects."""
+  nodes: [UUID]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `UUID` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `UUID` edge in the connection."""
+type MySubscribedRoomIdsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `UUID` at the end of the edge."""
+  node: UUID
+}
+
 """An object with a globally unique `ID`."""
 interface Node {
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
+}
+
+enum NotificationSetting {
+  DEFAULT
+  DEFERRED
+  IMMEDIATE
+  SILENCED
 }
 
 type Organization implements Node {
@@ -1477,7 +2033,65 @@ type Organization implements Node {
     """The method to use when ordering `OrganizationMembership`."""
     orderBy: [OrganizationMembershipsOrderBy!] = [PRIMARY_KEY_ASC]
   ): OrganizationMembershipsConnection!
+
+  """Reads and enables pagination through a set of `Room`."""
+  rooms(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomCondition
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Room`."""
+    orderBy: [RoomsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomsConnection!
   slug: String!
+
+  """Reads and enables pagination through a set of `Topic`."""
+  topics(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: TopicCondition
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Topic`."""
+    orderBy: [TopicsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): TopicsConnection!
 }
 
 """
@@ -1805,6 +2419,7 @@ type Query implements Node {
 
   """The currently logged in user (or null if not logged in)."""
   currentUser: User
+  currentUserFirstOrganizationId: UUID
 
   """
   Handy method to get the current user ID for use in RLS policies, etc; in GraphQL, use `currentUser{id}` instead.
@@ -1852,6 +2467,50 @@ type Query implements Node {
     """
     offset: Int
   ): CurrentUserMemberOrganizationIdsConnection
+
+  """Reads and enables pagination through a set of `RoomSubscription`."""
+  myRoomSubscriptions(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+    minimumRole: RoomRole
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+  ): RoomSubscriptionsConnection
+
+  """Reads and enables pagination through a set of `Uuid`."""
+  mySubscribedRoomIds(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+    minimumRole: RoomRole
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+  ): MySubscribedRoomIdsConnection
 
   """Fetches an object given its globally unique `ID`."""
   node(
@@ -2010,6 +2669,128 @@ type Query implements Node {
   which can only query top level fields if they are in a particular form.
   """
   query: Query!
+
+  """Get a single `Room`."""
+  room(id: UUID!): Room
+
+  """Reads a single `Room` using its globally unique `ID`."""
+  roomByNodeId(
+    """The globally unique `ID` to be used in selecting a single `Room`."""
+    nodeId: ID!
+  ): Room
+
+  """Get a single `RoomSubscription`."""
+  roomSubscription(id: UUID!): RoomSubscription
+
+  """Reads a single `RoomSubscription` using its globally unique `ID`."""
+  roomSubscriptionByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `RoomSubscription`.
+    """
+    nodeId: ID!
+  ): RoomSubscription
+
+  """Get a single `RoomSubscription`."""
+  roomSubscriptionBySubscriberIdAndRoomId(roomId: UUID!, subscriberId: UUID!): RoomSubscription
+
+  """Reads and enables pagination through a set of `RoomSubscription`."""
+  roomSubscriptions(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomSubscriptionCondition
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomSubscription`."""
+    orderBy: [RoomSubscriptionsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomSubscriptionsConnection
+
+  """Reads and enables pagination through a set of `Room`."""
+  rooms(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomCondition
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Room`."""
+    orderBy: [RoomsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomsConnection
+
+  """Get a single `Topic`."""
+  topic(id: UUID!): Topic
+
+  """Reads a single `Topic` using its globally unique `ID`."""
+  topicByNodeId(
+    """The globally unique `ID` to be used in selecting a single `Topic`."""
+    nodeId: ID!
+  ): Topic
+
+  """Get a single `Topic`."""
+  topicBySlug(slug: String!): Topic
+
+  """Reads and enables pagination through a set of `Topic`."""
+  topics(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: TopicCondition
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Topic`."""
+    orderBy: [TopicsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): TopicsConnection
 
   """Get a single `User`."""
   user(id: UUID!): User
@@ -2250,6 +3031,572 @@ type ResetPasswordPayload {
   """
   query: Query
   success: Boolean
+}
+
+"""
+A room is a place where users meet. At the same time, it is a container for messages and handed-out materials.
+"""
+type Room implements Node {
+  """Each room has an optional abstract."""
+  abstract: String
+  createdAt: Datetime!
+  id: UUID!
+  isAnonymousPostingAllowed: Boolean!
+  myRoomSubscription: RoomSubscription
+  nRoomSubscriptions: BigInt
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """Each room can optionally belong to an organization."""
+  organization: Organization
+  organizationId: UUID
+
+  """Reads and enables pagination through a set of `RoomSubscription`."""
+  subscriptions(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomSubscriptionCondition
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomSubscription`."""
+    orderBy: [RoomSubscriptionsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomSubscriptionsConnection!
+
+  """Each room has an optional title."""
+  title: String
+  updatedAt: Datetime!
+
+  """
+  Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.
+  """
+  visibility: RoomVisibility!
+
+  """
+  Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.
+  """
+  visibilityOfHistory: RoomHistoryVisibility!
+  visibilityOfHistoryExtendedBy: Interval!
+  visibilityOfHistorySince: Datetime!
+}
+
+"""
+A condition to be used against `Room` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input RoomCondition {
+  """Checks for equality with the object’s `abstract` field."""
+  abstract: String
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """
+  Checks for equality with the object’s `isAnonymousPostingAllowed` field.
+  """
+  isAnonymousPostingAllowed: Boolean
+
+  """Checks for equality with the object’s `nRoomSubscriptions` field."""
+  nRoomSubscriptions: BigInt
+
+  """Checks for equality with the object’s `organizationId` field."""
+  organizationId: UUID
+
+  """Checks for equality with the object’s `title` field."""
+  title: String
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `visibility` field."""
+  visibility: RoomVisibility
+
+  """Checks for equality with the object’s `visibilityOfHistory` field."""
+  visibilityOfHistory: RoomHistoryVisibility
+
+  """
+  Checks for equality with the object’s `visibilityOfHistoryExtendedBy` field.
+  """
+  visibilityOfHistoryExtendedBy: IntervalInput
+
+  """
+  Checks for equality with the object’s `visibilityOfHistorySince` field.
+  """
+  visibilityOfHistorySince: Datetime
+}
+
+enum RoomHistoryVisibility {
+  PUBLIC
+  SINCE_INVITATION
+  SINCE_SPECIFIED_DATE
+  SINCE_SUBSCRIPTION
+}
+
+"""An input for mutations affecting `Room`"""
+input RoomInput {
+  """Each room has an optional abstract."""
+  abstract: String
+  createdAt: Datetime
+  id: UUID
+  isAnonymousPostingAllowed: Boolean
+  organizationId: UUID
+
+  """Each room has an optional title."""
+  title: String
+  updatedAt: Datetime
+
+  """
+  Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.
+  """
+  visibility: RoomVisibility
+
+  """
+  Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.
+  """
+  visibilityOfHistory: RoomHistoryVisibility
+  visibilityOfHistoryExtendedBy: IntervalInput
+  visibilityOfHistorySince: Datetime
+}
+
+"""Represents an update to a `Room`. Fields that are set will be updated."""
+input RoomPatch {
+  """Each room has an optional abstract."""
+  abstract: String
+  createdAt: Datetime
+  id: UUID
+  isAnonymousPostingAllowed: Boolean
+  organizationId: UUID
+
+  """Each room has an optional title."""
+  title: String
+  updatedAt: Datetime
+
+  """
+  Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.
+  """
+  visibility: RoomVisibility
+
+  """
+  Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.
+  """
+  visibilityOfHistory: RoomHistoryVisibility
+  visibilityOfHistoryExtendedBy: IntervalInput
+  visibilityOfHistorySince: Datetime
+}
+
+enum RoomRole {
+  ADMIN
+  BANNED
+  MEMBER
+  MODERATOR
+  PROSPECT
+}
+
+"""Users can be subscribed to rooms."""
+type RoomSubscription implements Node {
+  createdAt: Datetime!
+  id: UUID!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  notifications: NotificationSetting!
+
+  """Maintainers can manage subscriptions and delete the room."""
+  role: RoomRole!
+
+  """Reads a single `Room` that is related to this `RoomSubscription`."""
+  room: Room
+  roomId: UUID!
+
+  """Reads a single `User` that is related to this `RoomSubscription`."""
+  subscriber: User
+
+  """The subscribing user."""
+  subscriberId: UUID!
+  updatedAt: Datetime!
+}
+
+"""
+A condition to be used against `RoomSubscription` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input RoomSubscriptionCondition {
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `notifications` field."""
+  notifications: NotificationSetting
+
+  """Checks for equality with the object’s `role` field."""
+  role: RoomRole
+
+  """Checks for equality with the object’s `roomId` field."""
+  roomId: UUID
+
+  """Checks for equality with the object’s `subscriberId` field."""
+  subscriberId: UUID
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+"""An input for mutations affecting `RoomSubscription`"""
+input RoomSubscriptionInput {
+  createdAt: Datetime
+  id: UUID
+  notifications: NotificationSetting
+
+  """Maintainers can manage subscriptions and delete the room."""
+  role: RoomRole
+  roomId: UUID!
+
+  """The subscribing user."""
+  subscriberId: UUID
+  updatedAt: Datetime
+}
+
+"""
+Represents an update to a `RoomSubscription`. Fields that are set will be updated.
+"""
+input RoomSubscriptionPatch {
+  createdAt: Datetime
+  id: UUID
+  notifications: NotificationSetting
+
+  """Maintainers can manage subscriptions and delete the room."""
+  role: RoomRole
+  roomId: UUID
+
+  """The subscribing user."""
+  subscriberId: UUID
+  updatedAt: Datetime
+}
+
+"""A connection to a list of `RoomSubscription` values."""
+type RoomSubscriptionsConnection {
+  """
+  A list of edges which contains the `RoomSubscription` and cursor to aid in pagination.
+  """
+  edges: [RoomSubscriptionsEdge]!
+
+  """A list of `RoomSubscription` objects."""
+  nodes: [RoomSubscription]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `RoomSubscription` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `RoomSubscription` edge in the connection."""
+type RoomSubscriptionsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `RoomSubscription` at the end of the edge."""
+  node: RoomSubscription
+}
+
+"""Methods to use when ordering `RoomSubscription`."""
+enum RoomSubscriptionsOrderBy {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  ID_ASC
+  ID_DESC
+  NATURAL
+  NOTIFICATIONS_ASC
+  NOTIFICATIONS_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ROLE_ASC
+  ROLE_DESC
+  ROOM_ID_ASC
+  ROOM_ID_DESC
+  SUBSCRIBER_ID_ASC
+  SUBSCRIBER_ID_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+enum RoomVisibility {
+  FOR_SUBSCRIBERS
+  IF_SIGNED_IN
+  PUBLIC
+  WITHIN_ORGANIZATION
+}
+
+"""A connection to a list of `Room` values."""
+type RoomsConnection {
+  """
+  A list of edges which contains the `Room` and cursor to aid in pagination.
+  """
+  edges: [RoomsEdge]!
+
+  """A list of `Room` objects."""
+  nodes: [Room]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Room` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Room` edge in the connection."""
+type RoomsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Room` at the end of the edge."""
+  node: Room
+}
+
+"""Methods to use when ordering `Room`."""
+enum RoomsOrderBy {
+  ABSTRACT_ASC
+  ABSTRACT_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  ID_ASC
+  ID_DESC
+  IS_ANONYMOUS_POSTING_ALLOWED_ASC
+  IS_ANONYMOUS_POSTING_ALLOWED_DESC
+  NATURAL
+  N_ROOM_SUBSCRIPTIONS_ASC
+  N_ROOM_SUBSCRIPTIONS_DESC
+  ORGANIZATION_ID_ASC
+  ORGANIZATION_ID_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  TITLE_ASC
+  TITLE_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  VISIBILITY_ASC
+  VISIBILITY_DESC
+  VISIBILITY_OF_HISTORY_ASC
+  VISIBILITY_OF_HISTORY_DESC
+  VISIBILITY_OF_HISTORY_EXTENDED_BY_ASC
+  VISIBILITY_OF_HISTORY_EXTENDED_BY_DESC
+  VISIBILITY_OF_HISTORY_SINCE_ASC
+  VISIBILITY_OF_HISTORY_SINCE_DESC
+}
+
+"""
+The exact time of day, does not include the date. May or may not have a timezone offset.
+"""
+scalar Time
+
+"""
+A topic is a short text about something. Most topics should have the scope of a micro learning unit.
+"""
+type Topic implements Node {
+  """Reads a single `User` that is related to this `Topic`."""
+  author: User
+  authorId: UUID
+
+  """
+  The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html
+  """
+  content: JSON!
+  createdAt: Datetime!
+  id: UUID!
+  license: String
+  meta: JSON
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """Reads a single `Organization` that is related to this `Topic`."""
+  organization: Organization
+  organizationId: UUID
+
+  """
+  Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
+  """
+  slug: String!
+  title: String
+  updatedAt: Datetime!
+  visibility: TopicVisibility!
+}
+
+"""
+A condition to be used against `Topic` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input TopicCondition {
+  """Checks for equality with the object’s `authorId` field."""
+  authorId: UUID
+
+  """Checks for equality with the object’s `content` field."""
+  content: JSON
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `license` field."""
+  license: String
+
+  """Checks for equality with the object’s `meta` field."""
+  meta: JSON
+
+  """Checks for equality with the object’s `organizationId` field."""
+  organizationId: UUID
+
+  """Checks for equality with the object’s `slug` field."""
+  slug: String
+
+  """Checks for equality with the object’s `title` field."""
+  title: String
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `visibility` field."""
+  visibility: TopicVisibility
+}
+
+"""An input for mutations affecting `Topic`"""
+input TopicInput {
+  authorId: UUID
+
+  """
+  The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html
+  """
+  content: JSON!
+  createdAt: Datetime
+  id: UUID
+  license: String
+  meta: JSON
+  organizationId: UUID
+
+  """
+  Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
+  """
+  slug: String!
+  title: String
+  updatedAt: Datetime
+  visibility: TopicVisibility
+}
+
+"""
+Represents an update to a `Topic`. Fields that are set will be updated.
+"""
+input TopicPatch {
+  authorId: UUID
+
+  """
+  The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html
+  """
+  content: JSON
+  createdAt: Datetime
+  id: UUID
+  license: String
+  meta: JSON
+  organizationId: UUID
+
+  """
+  Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
+  """
+  slug: String
+  title: String
+  updatedAt: Datetime
+  visibility: TopicVisibility
+}
+
+enum TopicVisibility {
+  IF_SIGNED_IN
+  PUBLIC
+  WITHIN_ORGANIZATION
+}
+
+"""A connection to a list of `Topic` values."""
+type TopicsConnection {
+  """
+  A list of edges which contains the `Topic` and cursor to aid in pagination.
+  """
+  edges: [TopicsEdge]!
+
+  """A list of `Topic` objects."""
+  nodes: [Topic]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Topic` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Topic` edge in the connection."""
+type TopicsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Topic` at the end of the edge."""
+  node: Topic
+}
+
+"""Methods to use when ordering `Topic`."""
+enum TopicsOrderBy {
+  AUTHOR_ID_ASC
+  AUTHOR_ID_DESC
+  CONTENT_ASC
+  CONTENT_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  ID_ASC
+  ID_DESC
+  LICENSE_ASC
+  LICENSE_DESC
+  META_ASC
+  META_DESC
+  NATURAL
+  ORGANIZATION_ID_ASC
+  ORGANIZATION_ID_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  SLUG_ASC
+  SLUG_DESC
+  TITLE_ASC
+  TITLE_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  VISIBILITY_ASC
+  VISIBILITY_DESC
 }
 
 """All input for the `transferOrganizationBillingContact` mutation."""
@@ -2581,6 +3928,231 @@ type UpdateOrganizationPayload {
   query: Query
 }
 
+"""All input for the `updateRoomByNodeId` mutation."""
+input UpdateRoomByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `Room` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the `Room` being updated.
+  """
+  patch: RoomPatch!
+}
+
+"""All input for the `updateRoom` mutation."""
+input UpdateRoomInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+
+  """
+  An object where the defined keys will be set on the `Room` being updated.
+  """
+  patch: RoomPatch!
+}
+
+"""The output of our update `Room` mutation."""
+type UpdateRoomPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """Each room can optionally belong to an organization."""
+  organization: Organization
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """The `Room` that was updated by this mutation."""
+  room: Room
+
+  """An edge for our `Room`. May be used by Relay 1."""
+  roomEdge(
+    """The method to use when ordering `Room`."""
+    orderBy: [RoomsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomsEdge
+}
+
+"""All input for the `updateRoomSubscriptionByNodeId` mutation."""
+input UpdateRoomSubscriptionByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `RoomSubscription` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the `RoomSubscription` being updated.
+  """
+  patch: RoomSubscriptionPatch!
+}
+
+"""
+All input for the `updateRoomSubscriptionBySubscriberIdAndRoomId` mutation.
+"""
+input UpdateRoomSubscriptionBySubscriberIdAndRoomIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the `RoomSubscription` being updated.
+  """
+  patch: RoomSubscriptionPatch!
+  roomId: UUID!
+
+  """The subscribing user."""
+  subscriberId: UUID!
+}
+
+"""All input for the `updateRoomSubscription` mutation."""
+input UpdateRoomSubscriptionInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+
+  """
+  An object where the defined keys will be set on the `RoomSubscription` being updated.
+  """
+  patch: RoomSubscriptionPatch!
+}
+
+"""The output of our update `RoomSubscription` mutation."""
+type UpdateRoomSubscriptionPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single `Room` that is related to this `RoomSubscription`."""
+  room: Room
+
+  """The `RoomSubscription` that was updated by this mutation."""
+  roomSubscription: RoomSubscription
+
+  """An edge for our `RoomSubscription`. May be used by Relay 1."""
+  roomSubscriptionEdge(
+    """The method to use when ordering `RoomSubscription`."""
+    orderBy: [RoomSubscriptionsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomSubscriptionsEdge
+
+  """Reads a single `User` that is related to this `RoomSubscription`."""
+  subscriber: User
+}
+
+"""All input for the `updateTopicByNodeId` mutation."""
+input UpdateTopicByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `Topic` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the `Topic` being updated.
+  """
+  patch: TopicPatch!
+}
+
+"""All input for the `updateTopicBySlug` mutation."""
+input UpdateTopicBySlugInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the `Topic` being updated.
+  """
+  patch: TopicPatch!
+
+  """
+  Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
+  """
+  slug: String!
+}
+
+"""All input for the `updateTopic` mutation."""
+input UpdateTopicInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+
+  """
+  An object where the defined keys will be set on the `Topic` being updated.
+  """
+  patch: TopicPatch!
+}
+
+"""The output of our update `Topic` mutation."""
+type UpdateTopicPayload {
+  """Reads a single `User` that is related to this `Topic`."""
+  author: User
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """Reads a single `Organization` that is related to this `Topic`."""
+  organization: Organization
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """The `Topic` that was updated by this mutation."""
+  topic: Topic
+
+  """An edge for our `Topic`. May be used by Relay 1."""
+  topicEdge(
+    """The method to use when ordering `Topic`."""
+    orderBy: [TopicsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): TopicsEdge
+}
+
 """All input for the `updateUserAuthenticationByNodeId` mutation."""
 input UpdateUserAuthenticationByNodeIdInput {
   """
@@ -2819,9 +4391,43 @@ type UpdateUserPayload {
 
 """A user who can log in to the application."""
 type User implements Node {
+  """Reads and enables pagination through a set of `Topic`."""
+  authoredTopics(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: TopicCondition
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Topic`."""
+    orderBy: [TopicsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): TopicsConnection!
+
   """Optional avatar URL."""
   avatarUrl: String
   createdAt: Datetime!
+
+  """
+  Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room.
+  """
+  defaultHandlingOfNotifications: NotificationSetting!
   hasPassword: Boolean
 
   """Unique identifier for the user."""
@@ -2900,6 +4506,40 @@ type User implements Node {
     """The method to use when ordering `OrganizationMembership`."""
     orderBy: [OrganizationMembershipsOrderBy!] = [PRIMARY_KEY_ASC]
   ): OrganizationMembershipsConnection!
+
+  """Reads and enables pagination through a set of `RoomSubscription`."""
+  roomSubscriptionsBySubscriberId(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomSubscriptionCondition
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomSubscription`."""
+    orderBy: [RoomSubscriptionsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomSubscriptionsConnection!
+
+  """
+  If there are any delayed notifications, they are sent at this time every day.
+  """
+  sendingTimeForDeferredNotifications: Time!
   updatedAt: Datetime!
 
   """Reads and enables pagination through a set of `UserAuthentication`."""
@@ -3113,6 +4753,11 @@ input UserCondition {
   """Checks for equality with the object’s `createdAt` field."""
   createdAt: Datetime
 
+  """
+  Checks for equality with the object’s `defaultHandlingOfNotifications` field.
+  """
+  defaultHandlingOfNotifications: NotificationSetting
+
   """Checks for equality with the object’s `id` field."""
   id: UUID
 
@@ -3124,6 +4769,11 @@ input UserCondition {
 
   """Checks for equality with the object’s `name` field."""
   name: String
+
+  """
+  Checks for equality with the object’s `sendingTimeForDeferredNotifications` field.
+  """
+  sendingTimeForDeferredNotifications: Time
 
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
@@ -3273,6 +4923,11 @@ input UserInput {
   avatarUrl: String
   createdAt: Datetime
 
+  """
+  Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room.
+  """
+  defaultHandlingOfNotifications: NotificationSetting
+
   """Unique identifier for the user."""
   id: UUID
 
@@ -3282,6 +4937,11 @@ input UserInput {
 
   """Public-facing name (or pseudonym) of the user."""
   name: String
+
+  """
+  If there are any delayed notifications, they are sent at this time every day.
+  """
+  sendingTimeForDeferredNotifications: Time
   updatedAt: Datetime
 
   """Public-facing username (or 'handle') of the user."""
@@ -3294,6 +4954,11 @@ input UserPatch {
   avatarUrl: String
   createdAt: Datetime
 
+  """
+  Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room.
+  """
+  defaultHandlingOfNotifications: NotificationSetting
+
   """Unique identifier for the user."""
   id: UUID
 
@@ -3303,6 +4968,11 @@ input UserPatch {
 
   """Public-facing name (or pseudonym) of the user."""
   name: String
+
+  """
+  If there are any delayed notifications, they are sent at this time every day.
+  """
+  sendingTimeForDeferredNotifications: Time
   updatedAt: Datetime
 
   """Public-facing username (or 'handle') of the user."""
@@ -3341,6 +5011,8 @@ enum UsersOrderBy {
   AVATAR_URL_DESC
   CREATED_AT_ASC
   CREATED_AT_DESC
+  DEFAULT_HANDLING_OF_NOTIFICATIONS_ASC
+  DEFAULT_HANDLING_OF_NOTIFICATIONS_DESC
   ID_ASC
   ID_DESC
   IS_ADMIN_ASC
@@ -3352,6 +5024,8 @@ enum UsersOrderBy {
   NATURAL
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
+  SENDING_TIME_FOR_DEFERRED_NOTIFICATIONS_ASC
+  SENDING_TIME_FOR_DEFERRED_NOTIFICATIONS_DESC
   UPDATED_AT_ASC
   UPDATED_AT_DESC
   USERNAME_ASC
