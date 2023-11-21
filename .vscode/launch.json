@@ -1,0 +1,14 @@
+{
+  "compounds": [
+    {
+      "name": "all processes",
+      "configurations": [
+        "fastify backend",
+        "nuxt client (Chrome)",
+        "nuxt server",
+        "current migrations",
+        "graphql codegenerator"
+      ]
+    }
+  ]
+}

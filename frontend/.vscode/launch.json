@@ -1,0 +1,39 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "nuxt client (Chrome)",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder:Frontend}",
+      "userDataDir": false
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "nuxt server",
+      "outputCapture": "std",
+      "program": "${workspaceFolder:Root}/node_modules/nuxi/bin/nuxi.mjs",
+      "cwd": "${workspaceFolder:Frontend}",
+      "args": ["dev"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "graphql codegenerator",
+      "outputCapture": "std",
+      "program": "${workspaceFolder:Root}/node_modules/@graphql-codegen/cli/cjs/bin.js",
+      "cwd": "${workspaceFolder:Frontend}",
+      "args": ["--watch", "--config", "codegen.yml"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "nuxt fullstack",
+      "configurations": ["nuxt server", "nuxt client (Chrome)"]
+    }
+  ]
+}
