@@ -17,7 +17,7 @@ create table if not exists app_public.rooms (
   title text,
   abstract text,
   organization_id uuid
-    default app_public.current_user_first_organization_id()
+    default app_public.current_user_first_owned_organization_id()
     constraint organization
       references app_public.organizations (id)
       on update cascade on delete cascade,
@@ -56,11 +56,21 @@ grant delete on app_public.rooms to :DATABASE_VISITOR;
 alter table app_public.rooms enable row level security;
 
 create policy select_public on app_public.rooms for select using (visibility = 'public');
-create policy select_if_signed_in on app_public.rooms for select using (visibility = 'if_signed_in' and app_public.current_user_id() is not null);
-create policy allow_create on app_public.rooms for insert with check (
+
+create policy select_if_signed_in on app_public.rooms for select using (
+  visibility = 'if_signed_in' 
+  and app_public.current_user_id() is not null
+);
+
+create policy select_within_organization on app_public.rooms for select using (
   visibility = 'within_organization' 
   and organization_id in (select app_public.current_user_member_organization_ids())
 );
+
+create policy insert_as_admin
+on app_public.rooms
+for insert
+with check (exists (select from app_public.current_user() where is_admin));
 
 create trigger _100_timestamps
   before insert or update on app_public.rooms

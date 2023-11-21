@@ -30,6 +30,90 @@ strings and not numbers.
 """
 scalar BigInt
 
+"""
+A filter to be used against BigInt fields. All fields are combined with a logical ‘and.’
+"""
+input BigIntFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: BigInt
+
+  """Equal to the specified value."""
+  equalTo: BigInt
+
+  """Greater than the specified value."""
+  greaterThan: BigInt
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: BigInt
+
+  """Included in the specified list."""
+  in: [BigInt!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: BigInt
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: BigInt
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: BigInt
+
+  """Not equal to the specified value."""
+  notEqualTo: BigInt
+
+  """Not included in the specified list."""
+  notIn: [BigInt!]
+}
+
+"""
+A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’
+"""
+input BooleanFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Boolean
+
+  """Greater than the specified value."""
+  greaterThan: Boolean
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Boolean
+
+  """Included in the specified list."""
+  in: [Boolean!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: Boolean
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Boolean
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Boolean
+
+  """Not equal to the specified value."""
+  notEqualTo: Boolean
+
+  """Not included in the specified list."""
+  notIn: [Boolean!]
+}
+
 """All input for the `changePassword` mutation."""
 input ChangePasswordInput {
   """
@@ -83,117 +167,24 @@ type ConfirmAccountDeletionPayload {
   query: Query
 }
 
-"""All input for the create `Organization` mutation."""
+"""All input for the `createOrganization` mutation."""
 input CreateOrganizationInput {
   """
   An arbitrary string value with no semantic meaning. Will be included in the
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
-
-  """The `Organization` to be created by this mutation."""
-  organization: OrganizationInput!
+  name: String
+  slug: String
 }
 
-"""All input for the create `OrganizationInvitation` mutation."""
-input CreateOrganizationInvitationInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """The `OrganizationInvitation` to be created by this mutation."""
-  organizationInvitation: OrganizationInvitationInput!
-}
-
-"""The output of our create `OrganizationInvitation` mutation."""
-type CreateOrganizationInvitationPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """
-  Reads a single `Organization` that is related to this `OrganizationInvitation`.
-  """
-  organization: Organization
-
-  """The `OrganizationInvitation` that was created by this mutation."""
-  organizationInvitation: OrganizationInvitation
-
-  """An edge for our `OrganizationInvitation`. May be used by Relay 1."""
-  organizationInvitationEdge(
-    """The method to use when ordering `OrganizationInvitation`."""
-    orderBy: [OrganizationInvitationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): OrganizationInvitationsEdge
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """
-  Reads a single `User` that is related to this `OrganizationInvitation`.
-  """
-  user: User
-}
-
-"""All input for the create `OrganizationMembership` mutation."""
-input CreateOrganizationMembershipInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """The `OrganizationMembership` to be created by this mutation."""
-  organizationMembership: OrganizationMembershipInput!
-}
-
-"""The output of our create `OrganizationMembership` mutation."""
-type CreateOrganizationMembershipPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """
-  Reads a single `Organization` that is related to this `OrganizationMembership`.
-  """
-  organization: Organization
-
-  """The `OrganizationMembership` that was created by this mutation."""
-  organizationMembership: OrganizationMembership
-
-  """An edge for our `OrganizationMembership`. May be used by Relay 1."""
-  organizationMembershipEdge(
-    """The method to use when ordering `OrganizationMembership`."""
-    orderBy: [OrganizationMembershipsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): OrganizationMembershipsEdge
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """
-  Reads a single `User` that is related to this `OrganizationMembership`.
-  """
-  user: User
-}
-
-"""The output of our create `Organization` mutation."""
+"""The output of our `createOrganization` mutation."""
 type CreateOrganizationPayload {
   """
   The exact same `clientMutationId` that was provided in the mutation input,
   unchanged and unused. May be used by a client to track mutations.
   """
   clientMutationId: String
-
-  """The `Organization` that was created by this mutation."""
   organization: Organization
 
   """An edge for our `Organization`. May be used by Relay 1."""
@@ -218,6 +209,95 @@ input CreateRoomInput {
 
   """The `Room` to be created by this mutation."""
   room: RoomInput!
+}
+
+"""All input for the create `RoomMessageAttachment` mutation."""
+input CreateRoomMessageAttachmentInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `RoomMessageAttachment` to be created by this mutation."""
+  roomMessageAttachment: RoomMessageAttachmentInput!
+}
+
+"""The output of our create `RoomMessageAttachment` mutation."""
+type CreateRoomMessageAttachmentPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Reads a single `RoomMessage` that is related to this `RoomMessageAttachment`.
+  """
+  message: RoomMessage
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """The `RoomMessageAttachment` that was created by this mutation."""
+  roomMessageAttachment: RoomMessageAttachment
+
+  """An edge for our `RoomMessageAttachment`. May be used by Relay 1."""
+  roomMessageAttachmentEdge(
+    """The method to use when ordering `RoomMessageAttachment`."""
+    orderBy: [RoomMessageAttachmentsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomMessageAttachmentsEdge
+
+  """
+  Reads a single `Topic` that is related to this `RoomMessageAttachment`.
+  """
+  topic: Topic
+}
+
+"""All input for the create `RoomMessage` mutation."""
+input CreateRoomMessageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `RoomMessage` to be created by this mutation."""
+  roomMessage: RoomMessageInput!
+}
+
+"""The output of our create `RoomMessage` mutation."""
+type CreateRoomMessagePayload {
+  """Reads a single `RoomMessage` that is related to this `RoomMessage`."""
+  answeredMessage: RoomMessage
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single `Room` that is related to this `RoomMessage`."""
+  room: Room
+
+  """The `RoomMessage` that was created by this mutation."""
+  roomMessage: RoomMessage
+
+  """An edge for our `RoomMessage`. May be used by Relay 1."""
+  roomMessageEdge(
+    """The method to use when ordering `RoomMessage`."""
+    orderBy: [RoomMessagesOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomMessagesEdge
+
+  """Reads a single `User` that is related to this `RoomMessage`."""
+  sender: User
 }
 
 """The output of our create `Room` mutation."""
@@ -301,7 +381,9 @@ input CreateTopicInput {
 
 """The output of our create `Topic` mutation."""
 type CreateTopicPayload {
-  """Reads a single `User` that is related to this `Topic`."""
+  """
+  Each topic has an author. The field might be null when the original author has unregistered from the application.
+  """
   author: User
 
   """
@@ -326,44 +408,6 @@ type CreateTopicPayload {
     """The method to use when ordering `Topic`."""
     orderBy: [TopicsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): TopicsEdge
-}
-
-"""All input for the create `UserAuthentication` mutation."""
-input CreateUserAuthenticationInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """The `UserAuthentication` to be created by this mutation."""
-  userAuthentication: UserAuthenticationInput!
-}
-
-"""The output of our create `UserAuthentication` mutation."""
-type CreateUserAuthenticationPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """Reads a single `User` that is related to this `UserAuthentication`."""
-  user: User
-
-  """The `UserAuthentication` that was created by this mutation."""
-  userAuthentication: UserAuthentication
-
-  """An edge for our `UserAuthentication`. May be used by Relay 1."""
-  userAuthenticationEdge(
-    """The method to use when ordering `UserAuthentication`."""
-    orderBy: [UserAuthenticationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UserAuthenticationsEdge
 }
 
 """All input for the create `UserEmail` mutation."""
@@ -503,28 +547,46 @@ to unexpected results.
 """
 scalar Datetime
 
-"""All input for the `deleteOrganizationByNodeId` mutation."""
-input DeleteOrganizationByNodeIdInput {
+"""
+A filter to be used against Datetime fields. All fields are combined with a logical ‘and.’
+"""
+input DatetimeFilter {
   """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
+  Not equal to the specified value, treating null like an ordinary value.
   """
-  clientMutationId: String
+  distinctFrom: Datetime
+
+  """Equal to the specified value."""
+  equalTo: Datetime
+
+  """Greater than the specified value."""
+  greaterThan: Datetime
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Datetime
+
+  """Included in the specified list."""
+  in: [Datetime!]
 
   """
-  The globally unique `ID` which will identify a single `Organization` to be deleted.
+  Is null (if `true` is specified) or is not null (if `false` is specified).
   """
-  nodeId: ID!
-}
+  isNull: Boolean
 
-"""All input for the `deleteOrganizationBySlug` mutation."""
-input DeleteOrganizationBySlugInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  slug: String!
+  """Less than the specified value."""
+  lessThan: Datetime
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Datetime
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Datetime
+
+  """Not equal to the specified value."""
+  notEqualTo: Datetime
+
+  """Not included in the specified list."""
+  notIn: [Datetime!]
 }
 
 """All input for the `deleteOrganization` mutation."""
@@ -534,181 +596,16 @@ input DeleteOrganizationInput {
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
-  id: UUID!
+  organizationId: UUID
 }
 
-"""All input for the `deleteOrganizationInvitationByNodeId` mutation."""
-input DeleteOrganizationInvitationByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `OrganizationInvitation` to be deleted.
-  """
-  nodeId: ID!
-}
-
-"""
-All input for the `deleteOrganizationInvitationByOrganizationIdAndEmail` mutation.
-"""
-input DeleteOrganizationInvitationByOrganizationIdAndEmailInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  email: String!
-  organizationId: UUID!
-}
-
-"""
-All input for the `deleteOrganizationInvitationByOrganizationIdAndUserId` mutation.
-"""
-input DeleteOrganizationInvitationByOrganizationIdAndUserIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  organizationId: UUID!
-  userId: UUID!
-}
-
-"""All input for the `deleteOrganizationInvitation` mutation."""
-input DeleteOrganizationInvitationInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-}
-
-"""The output of our delete `OrganizationInvitation` mutation."""
-type DeleteOrganizationInvitationPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-  deletedOrganizationInvitationNodeId: ID
-
-  """
-  Reads a single `Organization` that is related to this `OrganizationInvitation`.
-  """
-  organization: Organization
-
-  """The `OrganizationInvitation` that was deleted by this mutation."""
-  organizationInvitation: OrganizationInvitation
-
-  """An edge for our `OrganizationInvitation`. May be used by Relay 1."""
-  organizationInvitationEdge(
-    """The method to use when ordering `OrganizationInvitation`."""
-    orderBy: [OrganizationInvitationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): OrganizationInvitationsEdge
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """
-  Reads a single `User` that is related to this `OrganizationInvitation`.
-  """
-  user: User
-}
-
-"""All input for the `deleteOrganizationMembershipByNodeId` mutation."""
-input DeleteOrganizationMembershipByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `OrganizationMembership` to be deleted.
-  """
-  nodeId: ID!
-}
-
-"""
-All input for the `deleteOrganizationMembershipByOrganizationIdAndUserId` mutation.
-"""
-input DeleteOrganizationMembershipByOrganizationIdAndUserIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  organizationId: UUID!
-  userId: UUID!
-}
-
-"""All input for the `deleteOrganizationMembership` mutation."""
-input DeleteOrganizationMembershipInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-}
-
-"""The output of our delete `OrganizationMembership` mutation."""
-type DeleteOrganizationMembershipPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-  deletedOrganizationMembershipNodeId: ID
-
-  """
-  Reads a single `Organization` that is related to this `OrganizationMembership`.
-  """
-  organization: Organization
-
-  """The `OrganizationMembership` that was deleted by this mutation."""
-  organizationMembership: OrganizationMembership
-
-  """An edge for our `OrganizationMembership`. May be used by Relay 1."""
-  organizationMembershipEdge(
-    """The method to use when ordering `OrganizationMembership`."""
-    orderBy: [OrganizationMembershipsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): OrganizationMembershipsEdge
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """
-  Reads a single `User` that is related to this `OrganizationMembership`.
-  """
-  user: User
-}
-
-"""The output of our delete `Organization` mutation."""
+"""The output of our `deleteOrganization` mutation."""
 type DeleteOrganizationPayload {
   """
   The exact same `clientMutationId` that was provided in the mutation input,
   unchanged and unused. May be used by a client to track mutations.
   """
   clientMutationId: String
-  deletedOrganizationNodeId: ID
-
-  """The `Organization` that was deleted by this mutation."""
-  organization: Organization
-
-  """An edge for our `Organization`. May be used by Relay 1."""
-  organizationEdge(
-    """The method to use when ordering `Organization`."""
-    orderBy: [OrganizationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): OrganizationsEdge
 
   """
   Our root query field type. Allows us to run any query from our mutation payload.
@@ -738,6 +635,134 @@ input DeleteRoomInput {
   """
   clientMutationId: String
   id: UUID!
+}
+
+"""All input for the `deleteRoomMessageAttachmentByNodeId` mutation."""
+input DeleteRoomMessageAttachmentByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `RoomMessageAttachment` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""
+All input for the `deleteRoomMessageAttachmentByTopicIdAndRoomMessageId` mutation.
+"""
+input DeleteRoomMessageAttachmentByTopicIdAndRoomMessageIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  roomMessageId: UUID!
+  topicId: UUID!
+}
+
+"""All input for the `deleteRoomMessageAttachment` mutation."""
+input DeleteRoomMessageAttachmentInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+}
+
+"""The output of our delete `RoomMessageAttachment` mutation."""
+type DeleteRoomMessageAttachmentPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  deletedRoomMessageAttachmentNodeId: ID
+
+  """
+  Reads a single `RoomMessage` that is related to this `RoomMessageAttachment`.
+  """
+  message: RoomMessage
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """The `RoomMessageAttachment` that was deleted by this mutation."""
+  roomMessageAttachment: RoomMessageAttachment
+
+  """An edge for our `RoomMessageAttachment`. May be used by Relay 1."""
+  roomMessageAttachmentEdge(
+    """The method to use when ordering `RoomMessageAttachment`."""
+    orderBy: [RoomMessageAttachmentsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomMessageAttachmentsEdge
+
+  """
+  Reads a single `Topic` that is related to this `RoomMessageAttachment`.
+  """
+  topic: Topic
+}
+
+"""All input for the `deleteRoomMessageByNodeId` mutation."""
+input DeleteRoomMessageByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `RoomMessage` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""All input for the `deleteRoomMessage` mutation."""
+input DeleteRoomMessageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+}
+
+"""The output of our delete `RoomMessage` mutation."""
+type DeleteRoomMessagePayload {
+  """Reads a single `RoomMessage` that is related to this `RoomMessage`."""
+  answeredMessage: RoomMessage
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  deletedRoomMessageNodeId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single `Room` that is related to this `RoomMessage`."""
+  room: Room
+
+  """The `RoomMessage` that was deleted by this mutation."""
+  roomMessage: RoomMessage
+
+  """An edge for our `RoomMessage`. May be used by Relay 1."""
+  roomMessageEdge(
+    """The method to use when ordering `RoomMessage`."""
+    orderBy: [RoomMessagesOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomMessagesEdge
+
+  """Reads a single `User` that is related to this `RoomMessage`."""
+  sender: User
 }
 
 """The output of our delete `Room` mutation."""
@@ -850,13 +875,14 @@ input DeleteTopicByNodeIdInput {
   nodeId: ID!
 }
 
-"""All input for the `deleteTopicBySlug` mutation."""
-input DeleteTopicBySlugInput {
+"""All input for the `deleteTopicBySlugAndOrganizationId` mutation."""
+input DeleteTopicBySlugAndOrganizationIdInput {
   """
   An arbitrary string value with no semantic meaning. Will be included in the
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
+  organizationId: UUID!
 
   """
   Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
@@ -876,7 +902,9 @@ input DeleteTopicInput {
 
 """The output of our delete `Topic` mutation."""
 type DeleteTopicPayload {
-  """Reads a single `User` that is related to this `Topic`."""
+  """
+  Each topic has an author. The field might be null when the original author has unregistered from the application.
+  """
   author: User
 
   """
@@ -972,32 +1000,6 @@ type DeleteUserAuthenticationPayload {
   ): UserAuthenticationsEdge
 }
 
-"""All input for the `deleteUserByNodeId` mutation."""
-input DeleteUserByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `User` to be deleted.
-  """
-  nodeId: ID!
-}
-
-"""All input for the `deleteUserByUsername` mutation."""
-input DeleteUserByUsernameInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """Public-facing username (or 'handle') of the user."""
-  username: String!
-}
-
 """All input for the `deleteUserEmailByNodeId` mutation."""
 input DeleteUserEmailByNodeIdInput {
   """
@@ -1062,42 +1064,6 @@ type DeleteUserEmailPayload {
   ): UserEmailsEdge
 }
 
-"""All input for the `deleteUser` mutation."""
-input DeleteUserInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """Unique identifier for the user."""
-  id: UUID!
-}
-
-"""The output of our delete `User` mutation."""
-type DeleteUserPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-  deletedUserNodeId: ID
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """The `User` that was deleted by this mutation."""
-  user: User
-
-  """An edge for our `User`. May be used by Relay 1."""
-  userEdge(
-    """The method to use when ordering `User`."""
-    orderBy: [UsersOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UsersEdge
-}
-
 """All input for the `forgotPassword` mutation."""
 input ForgotPasswordInput {
   """
@@ -1147,6 +1113,48 @@ type Interval {
 
   """A quantity of years."""
   years: Int
+}
+
+"""
+A filter to be used against Interval fields. All fields are combined with a logical ‘and.’
+"""
+input IntervalFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: IntervalInput
+
+  """Equal to the specified value."""
+  equalTo: IntervalInput
+
+  """Greater than the specified value."""
+  greaterThan: IntervalInput
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: IntervalInput
+
+  """Included in the specified list."""
+  in: [IntervalInput!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: IntervalInput
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: IntervalInput
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: IntervalInput
+
+  """Not equal to the specified value."""
+  notEqualTo: IntervalInput
+
+  """Not included in the specified list."""
+  notIn: [IntervalInput!]
 }
 
 """
@@ -1203,9 +1211,66 @@ type InviteToOrganizationPayload {
 }
 
 """
-A JavaScript object encoded in the JSON format as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
 scalar JSON
+
+"""
+A filter to be used against JSON fields. All fields are combined with a logical ‘and.’
+"""
+input JSONFilter {
+  """Contained by the specified JSON."""
+  containedBy: JSON
+
+  """Contains the specified JSON."""
+  contains: JSON
+
+  """Contains all of the specified keys."""
+  containsAllKeys: [String!]
+
+  """Contains any of the specified keys."""
+  containsAnyKeys: [String!]
+
+  """Contains the specified key."""
+  containsKey: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: JSON
+
+  """Equal to the specified value."""
+  equalTo: JSON
+
+  """Greater than the specified value."""
+  greaterThan: JSON
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: JSON
+
+  """Included in the specified list."""
+  in: [JSON!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: JSON
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: JSON
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: JSON
+
+  """Not equal to the specified value."""
+  notEqualTo: JSON
+
+  """Not included in the specified list."""
+  notIn: [JSON!]
+}
 
 input LoginInput {
   password: String!
@@ -1282,30 +1347,12 @@ type Mutation {
     """
     input: ConfirmAccountDeletionInput!
   ): ConfirmAccountDeletionPayload
-
-  """Creates a single `Organization`."""
   createOrganization(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
     input: CreateOrganizationInput!
   ): CreateOrganizationPayload
-
-  """Creates a single `OrganizationInvitation`."""
-  createOrganizationInvitation(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: CreateOrganizationInvitationInput!
-  ): CreateOrganizationInvitationPayload
-
-  """Creates a single `OrganizationMembership`."""
-  createOrganizationMembership(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: CreateOrganizationMembershipInput!
-  ): CreateOrganizationMembershipPayload
 
   """Creates a single `Room`."""
   createRoom(
@@ -1314,6 +1361,22 @@ type Mutation {
     """
     input: CreateRoomInput!
   ): CreateRoomPayload
+
+  """Creates a single `RoomMessage`."""
+  createRoomMessage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateRoomMessageInput!
+  ): CreateRoomMessagePayload
+
+  """Creates a single `RoomMessageAttachment`."""
+  createRoomMessageAttachment(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateRoomMessageAttachmentInput!
+  ): CreateRoomMessageAttachmentPayload
 
   """Creates a single `RoomSubscription`."""
   createRoomSubscription(
@@ -1339,14 +1402,6 @@ type Mutation {
     input: CreateUserInput!
   ): CreateUserPayload
 
-  """Creates a single `UserAuthentication`."""
-  createUserAuthentication(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: CreateUserAuthenticationInput!
-  ): CreateUserAuthenticationPayload
-
   """Creates a single `UserEmail`."""
   createUserEmail(
     """
@@ -1354,90 +1409,12 @@ type Mutation {
     """
     input: CreateUserEmailInput!
   ): CreateUserEmailPayload
-
-  """Deletes a single `Organization` using a unique key."""
   deleteOrganization(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
     input: DeleteOrganizationInput!
   ): DeleteOrganizationPayload
-
-  """Deletes a single `Organization` using its globally unique id."""
-  deleteOrganizationByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteOrganizationByNodeIdInput!
-  ): DeleteOrganizationPayload
-
-  """Deletes a single `Organization` using a unique key."""
-  deleteOrganizationBySlug(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteOrganizationBySlugInput!
-  ): DeleteOrganizationPayload
-
-  """Deletes a single `OrganizationInvitation` using a unique key."""
-  deleteOrganizationInvitation(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteOrganizationInvitationInput!
-  ): DeleteOrganizationInvitationPayload
-
-  """
-  Deletes a single `OrganizationInvitation` using its globally unique id.
-  """
-  deleteOrganizationInvitationByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteOrganizationInvitationByNodeIdInput!
-  ): DeleteOrganizationInvitationPayload
-
-  """Deletes a single `OrganizationInvitation` using a unique key."""
-  deleteOrganizationInvitationByOrganizationIdAndEmail(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteOrganizationInvitationByOrganizationIdAndEmailInput!
-  ): DeleteOrganizationInvitationPayload
-
-  """Deletes a single `OrganizationInvitation` using a unique key."""
-  deleteOrganizationInvitationByOrganizationIdAndUserId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteOrganizationInvitationByOrganizationIdAndUserIdInput!
-  ): DeleteOrganizationInvitationPayload
-
-  """Deletes a single `OrganizationMembership` using a unique key."""
-  deleteOrganizationMembership(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteOrganizationMembershipInput!
-  ): DeleteOrganizationMembershipPayload
-
-  """
-  Deletes a single `OrganizationMembership` using its globally unique id.
-  """
-  deleteOrganizationMembershipByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteOrganizationMembershipByNodeIdInput!
-  ): DeleteOrganizationMembershipPayload
-
-  """Deletes a single `OrganizationMembership` using a unique key."""
-  deleteOrganizationMembershipByOrganizationIdAndUserId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteOrganizationMembershipByOrganizationIdAndUserIdInput!
-  ): DeleteOrganizationMembershipPayload
 
   """Deletes a single `Room` using a unique key."""
   deleteRoom(
@@ -1454,6 +1431,46 @@ type Mutation {
     """
     input: DeleteRoomByNodeIdInput!
   ): DeleteRoomPayload
+
+  """Deletes a single `RoomMessage` using a unique key."""
+  deleteRoomMessage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomMessageInput!
+  ): DeleteRoomMessagePayload
+
+  """Deletes a single `RoomMessageAttachment` using a unique key."""
+  deleteRoomMessageAttachment(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomMessageAttachmentInput!
+  ): DeleteRoomMessageAttachmentPayload
+
+  """Deletes a single `RoomMessageAttachment` using its globally unique id."""
+  deleteRoomMessageAttachmentByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomMessageAttachmentByNodeIdInput!
+  ): DeleteRoomMessageAttachmentPayload
+
+  """Deletes a single `RoomMessageAttachment` using a unique key."""
+  deleteRoomMessageAttachmentByTopicIdAndRoomMessageId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomMessageAttachmentByTopicIdAndRoomMessageIdInput!
+  ): DeleteRoomMessageAttachmentPayload
+
+  """Deletes a single `RoomMessage` using its globally unique id."""
+  deleteRoomMessageByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteRoomMessageByNodeIdInput!
+  ): DeleteRoomMessagePayload
 
   """Deletes a single `RoomSubscription` using a unique key."""
   deleteRoomSubscription(
@@ -1496,20 +1513,12 @@ type Mutation {
   ): DeleteTopicPayload
 
   """Deletes a single `Topic` using a unique key."""
-  deleteTopicBySlug(
+  deleteTopicBySlugAndOrganizationId(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
-    input: DeleteTopicBySlugInput!
+    input: DeleteTopicBySlugAndOrganizationIdInput!
   ): DeleteTopicPayload
-
-  """Deletes a single `User` using a unique key."""
-  deleteUser(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserInput!
-  ): DeleteUserPayload
 
   """Deletes a single `UserAuthentication` using a unique key."""
   deleteUserAuthentication(
@@ -1534,22 +1543,6 @@ type Mutation {
     """
     input: DeleteUserAuthenticationByServiceAndIdentifierInput!
   ): DeleteUserAuthenticationPayload
-
-  """Deletes a single `User` using its globally unique id."""
-  deleteUserByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserByNodeIdInput!
-  ): DeleteUserPayload
-
-  """Deletes a single `User` using a unique key."""
-  deleteUserByUsername(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserByUsernameInput!
-  ): DeleteUserPayload
 
   """Deletes a single `UserEmail` using a unique key."""
   deleteUserEmail(
@@ -1659,6 +1652,12 @@ type Mutation {
     """
     input: ResetPasswordInput!
   ): ResetPasswordPayload
+  sendRoomMessage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: SendRoomMessageInput!
+  ): SendRoomMessagePayload
   transferOrganizationBillingContact(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
@@ -1698,76 +1697,6 @@ type Mutation {
     input: UpdateOrganizationBySlugInput!
   ): UpdateOrganizationPayload
 
-  """
-  Updates a single `OrganizationInvitation` using a unique key and a patch.
-  """
-  updateOrganizationInvitation(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationInvitationInput!
-  ): UpdateOrganizationInvitationPayload
-
-  """
-  Updates a single `OrganizationInvitation` using its globally unique id and a patch.
-  """
-  updateOrganizationInvitationByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationInvitationByNodeIdInput!
-  ): UpdateOrganizationInvitationPayload
-
-  """
-  Updates a single `OrganizationInvitation` using a unique key and a patch.
-  """
-  updateOrganizationInvitationByOrganizationIdAndEmail(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationInvitationByOrganizationIdAndEmailInput!
-  ): UpdateOrganizationInvitationPayload
-
-  """
-  Updates a single `OrganizationInvitation` using a unique key and a patch.
-  """
-  updateOrganizationInvitationByOrganizationIdAndUserId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationInvitationByOrganizationIdAndUserIdInput!
-  ): UpdateOrganizationInvitationPayload
-
-  """
-  Updates a single `OrganizationMembership` using a unique key and a patch.
-  """
-  updateOrganizationMembership(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationMembershipInput!
-  ): UpdateOrganizationMembershipPayload
-
-  """
-  Updates a single `OrganizationMembership` using its globally unique id and a patch.
-  """
-  updateOrganizationMembershipByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationMembershipByNodeIdInput!
-  ): UpdateOrganizationMembershipPayload
-
-  """
-  Updates a single `OrganizationMembership` using a unique key and a patch.
-  """
-  updateOrganizationMembershipByOrganizationIdAndUserId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationMembershipByOrganizationIdAndUserIdInput!
-  ): UpdateOrganizationMembershipPayload
-
   """Updates a single `Room` using a unique key and a patch."""
   updateRoom(
     """
@@ -1783,6 +1712,24 @@ type Mutation {
     """
     input: UpdateRoomByNodeIdInput!
   ): UpdateRoomPayload
+
+  """Updates a single `RoomMessage` using a unique key and a patch."""
+  updateRoomMessage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateRoomMessageInput!
+  ): UpdateRoomMessagePayload
+
+  """
+  Updates a single `RoomMessage` using its globally unique id and a patch.
+  """
+  updateRoomMessageByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateRoomMessageByNodeIdInput!
+  ): UpdateRoomMessagePayload
 
   """Updates a single `RoomSubscription` using a unique key and a patch."""
   updateRoomSubscription(
@@ -1827,11 +1774,11 @@ type Mutation {
   ): UpdateTopicPayload
 
   """Updates a single `Topic` using a unique key and a patch."""
-  updateTopicBySlug(
+  updateTopicBySlugAndOrganizationId(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
-    input: UpdateTopicBySlugInput!
+    input: UpdateTopicBySlugAndOrganizationIdInput!
   ): UpdateTopicPayload
 
   """Updates a single `User` using a unique key and a patch."""
@@ -1841,32 +1788,6 @@ type Mutation {
     """
     input: UpdateUserInput!
   ): UpdateUserPayload
-
-  """Updates a single `UserAuthentication` using a unique key and a patch."""
-  updateUserAuthentication(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserAuthenticationInput!
-  ): UpdateUserAuthenticationPayload
-
-  """
-  Updates a single `UserAuthentication` using its globally unique id and a patch.
-  """
-  updateUserAuthenticationByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserAuthenticationByNodeIdInput!
-  ): UpdateUserAuthenticationPayload
-
-  """Updates a single `UserAuthentication` using a unique key and a patch."""
-  updateUserAuthenticationByServiceAndIdentifier(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserAuthenticationByServiceAndIdentifierInput!
-  ): UpdateUserAuthenticationPayload
 
   """Updates a single `User` using its globally unique id and a patch."""
   updateUserByNodeId(
@@ -1883,30 +1804,6 @@ type Mutation {
     """
     input: UpdateUserByUsernameInput!
   ): UpdateUserPayload
-
-  """Updates a single `UserEmail` using a unique key and a patch."""
-  updateUserEmail(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserEmailInput!
-  ): UpdateUserEmailPayload
-
-  """Updates a single `UserEmail` using its globally unique id and a patch."""
-  updateUserEmailByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserEmailByNodeIdInput!
-  ): UpdateUserEmailPayload
-
-  """Updates a single `UserEmail` using a unique key and a patch."""
-  updateUserEmailByUserIdAndEmail(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserEmailByUserIdAndEmailInput!
-  ): UpdateUserEmailPayload
 
   """
   Once you have received a verification token for your email, you may call this mutation with that token to make your email verified.
@@ -1960,6 +1857,48 @@ enum NotificationSetting {
   SILENCED
 }
 
+"""
+A filter to be used against NotificationSetting fields. All fields are combined with a logical ‘and.’
+"""
+input NotificationSettingFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: NotificationSetting
+
+  """Equal to the specified value."""
+  equalTo: NotificationSetting
+
+  """Greater than the specified value."""
+  greaterThan: NotificationSetting
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: NotificationSetting
+
+  """Included in the specified list."""
+  in: [NotificationSetting!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: NotificationSetting
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: NotificationSetting
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: NotificationSetting
+
+  """Not equal to the specified value."""
+  notEqualTo: NotificationSetting
+
+  """Not included in the specified list."""
+  notIn: [NotificationSetting!]
+}
+
 type Organization implements Node {
   createdAt: Datetime!
   currentUserIsBillingContact: Boolean
@@ -1971,37 +1910,6 @@ type Organization implements Node {
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
-
-  """
-  Reads and enables pagination through a set of `OrganizationInvitation`.
-  """
-  organizationInvitations(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: OrganizationInvitationCondition
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `OrganizationInvitation`."""
-    orderBy: [OrganizationInvitationsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): OrganizationInvitationsConnection!
 
   """
   Reads and enables pagination through a set of `OrganizationMembership`.
@@ -2017,6 +1925,11 @@ type Organization implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: OrganizationMembershipCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrganizationMembershipFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2046,6 +1959,11 @@ type Organization implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: RoomCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2077,6 +1995,11 @@ type Organization implements Node {
     """
     condition: TopicCondition
 
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: TopicFilter
+
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -2102,6 +2025,14 @@ input OrganizationCondition {
   """Checks for equality with the object’s `createdAt` field."""
   createdAt: Datetime
 
+  """
+  Checks for equality with the object’s `currentUserIsBillingContact` field.
+  """
+  currentUserIsBillingContact: Boolean
+
+  """Checks for equality with the object’s `currentUserIsOwner` field."""
+  currentUserIsOwner: Boolean
+
   """Checks for equality with the object’s `id` field."""
   id: UUID
 
@@ -2112,121 +2043,54 @@ input OrganizationCondition {
   slug: String
 }
 
-"""An input for mutations affecting `Organization`"""
-input OrganizationInput {
-  createdAt: Datetime
-  id: UUID
-  name: String!
-  slug: String!
-}
-
-type OrganizationInvitation implements Node {
-  code: String
-  email: String
-  id: UUID!
-
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-
-  """
-  Reads a single `Organization` that is related to this `OrganizationInvitation`.
-  """
-  organization: Organization
-  organizationId: UUID!
-
-  """
-  Reads a single `User` that is related to this `OrganizationInvitation`.
-  """
-  user: User
-  userId: UUID
-}
-
 """
-A condition to be used against `OrganizationInvitation` object types. All fields
-are tested for equality and combined with a logical ‘and.’
+A filter to be used against `Organization` object types. All fields are combined with a logical ‘and.’
 """
-input OrganizationInvitationCondition {
-  """Checks for equality with the object’s `code` field."""
-  code: String
+input OrganizationFilter {
+  """Checks for all expressions in this list."""
+  and: [OrganizationFilter!]
 
-  """Checks for equality with the object’s `email` field."""
-  email: String
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
 
-  """Checks for equality with the object’s `id` field."""
-  id: UUID
+  """Filter by the object’s `currentUserIsBillingContact` field."""
+  currentUserIsBillingContact: BooleanFilter
 
-  """Checks for equality with the object’s `organizationId` field."""
-  organizationId: UUID
+  """Filter by the object’s `currentUserIsOwner` field."""
+  currentUserIsOwner: BooleanFilter
 
-  """Checks for equality with the object’s `userId` field."""
-  userId: UUID
-}
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
 
-"""An input for mutations affecting `OrganizationInvitation`"""
-input OrganizationInvitationInput {
-  code: String
-  email: String
-  id: UUID
-  organizationId: UUID!
-  userId: UUID
-}
+  """Filter by the object’s `name` field."""
+  name: StringFilter
 
-"""
-Represents an update to a `OrganizationInvitation`. Fields that are set will be updated.
-"""
-input OrganizationInvitationPatch {
-  code: String
-  email: String
-  id: UUID
-  organizationId: UUID
-  userId: UUID
-}
+  """Negates the expression."""
+  not: OrganizationFilter
 
-"""A connection to a list of `OrganizationInvitation` values."""
-type OrganizationInvitationsConnection {
-  """
-  A list of edges which contains the `OrganizationInvitation` and cursor to aid in pagination.
-  """
-  edges: [OrganizationInvitationsEdge]!
+  """Checks for any expressions in this list."""
+  or: [OrganizationFilter!]
 
-  """A list of `OrganizationInvitation` objects."""
-  nodes: [OrganizationInvitation]!
+  """Filter by the object’s `organizationMemberships` relation."""
+  organizationMemberships: OrganizationToManyOrganizationMembershipFilter
 
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
+  """Some related `organizationMemberships` exist."""
+  organizationMembershipsExist: Boolean
 
-  """
-  The count of *all* `OrganizationInvitation` you could get from the connection.
-  """
-  totalCount: Int!
-}
+  """Filter by the object’s `rooms` relation."""
+  rooms: OrganizationToManyRoomFilter
 
-"""A `OrganizationInvitation` edge in the connection."""
-type OrganizationInvitationsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
+  """Some related `rooms` exist."""
+  roomsExist: Boolean
 
-  """The `OrganizationInvitation` at the end of the edge."""
-  node: OrganizationInvitation
-}
+  """Filter by the object’s `slug` field."""
+  slug: StringFilter
 
-"""Methods to use when ordering `OrganizationInvitation`."""
-enum OrganizationInvitationsOrderBy {
-  CODE_ASC
-  CODE_DESC
-  EMAIL_ASC
-  EMAIL_DESC
-  ID_ASC
-  ID_DESC
-  NATURAL
-  ORGANIZATION_ID_ASC
-  ORGANIZATION_ID_DESC
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  USER_ID_ASC
-  USER_ID_DESC
+  """Filter by the object’s `topics` relation."""
+  topics: OrganizationToManyTopicFilter
+
+  """Some related `topics` exist."""
+  topicsExist: Boolean
 }
 
 type OrganizationMembership implements Node {
@@ -2277,26 +2141,42 @@ input OrganizationMembershipCondition {
   userId: UUID
 }
 
-"""An input for mutations affecting `OrganizationMembership`"""
-input OrganizationMembershipInput {
-  createdAt: Datetime
-  id: UUID
-  isBillingContact: Boolean
-  isOwner: Boolean
-  organizationId: UUID!
-  userId: UUID!
-}
+"""
+A filter to be used against `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
+"""
+input OrganizationMembershipFilter {
+  """Checks for all expressions in this list."""
+  and: [OrganizationMembershipFilter!]
 
-"""
-Represents an update to a `OrganizationMembership`. Fields that are set will be updated.
-"""
-input OrganizationMembershipPatch {
-  createdAt: Datetime
-  id: UUID
-  isBillingContact: Boolean
-  isOwner: Boolean
-  organizationId: UUID
-  userId: UUID
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `isBillingContact` field."""
+  isBillingContact: BooleanFilter
+
+  """Filter by the object’s `isOwner` field."""
+  isOwner: BooleanFilter
+
+  """Negates the expression."""
+  not: OrganizationMembershipFilter
+
+  """Checks for any expressions in this list."""
+  or: [OrganizationMembershipFilter!]
+
+  """Filter by the object’s `organization` relation."""
+  organization: OrganizationFilter
+
+  """Filter by the object’s `organizationId` field."""
+  organizationId: UUIDFilter
+
+  """Filter by the object’s `user` relation."""
+  user: UserFilter
+
+  """Filter by the object’s `userId` field."""
+  userId: UUIDFilter
 }
 
 """A connection to a list of `OrganizationMembership` values."""
@@ -2304,10 +2184,10 @@ type OrganizationMembershipsConnection {
   """
   A list of edges which contains the `OrganizationMembership` and cursor to aid in pagination.
   """
-  edges: [OrganizationMembershipsEdge]!
+  edges: [OrganizationMembershipsEdge!]!
 
   """A list of `OrganizationMembership` objects."""
-  nodes: [OrganizationMembership]!
+  nodes: [OrganizationMembership!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -2324,7 +2204,7 @@ type OrganizationMembershipsEdge {
   cursor: Cursor
 
   """The `OrganizationMembership` at the end of the edge."""
-  node: OrganizationMembership
+  node: OrganizationMembership!
 }
 
 """Methods to use when ordering `OrganizationMembership`."""
@@ -2350,10 +2230,68 @@ enum OrganizationMembershipsOrderBy {
 Represents an update to a `Organization`. Fields that are set will be updated.
 """
 input OrganizationPatch {
-  createdAt: Datetime
-  id: UUID
   name: String
   slug: String
+}
+
+"""
+A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
+"""
+input OrganizationToManyOrganizationMembershipFilter {
+  """
+  Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: OrganizationMembershipFilter
+
+  """
+  No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: OrganizationMembershipFilter
+
+  """
+  Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: OrganizationMembershipFilter
+}
+
+"""
+A filter to be used against many `Room` object types. All fields are combined with a logical ‘and.’
+"""
+input OrganizationToManyRoomFilter {
+  """
+  Every related `Room` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RoomFilter
+
+  """
+  No related `Room` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RoomFilter
+
+  """
+  Some related `Room` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RoomFilter
+}
+
+"""
+A filter to be used against many `Topic` object types. All fields are combined with a logical ‘and.’
+"""
+input OrganizationToManyTopicFilter {
+  """
+  Every related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: TopicFilter
+
+  """
+  No related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: TopicFilter
+
+  """
+  Some related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: TopicFilter
 }
 
 """A connection to a list of `Organization` values."""
@@ -2361,10 +2299,10 @@ type OrganizationsConnection {
   """
   A list of edges which contains the `Organization` and cursor to aid in pagination.
   """
-  edges: [OrganizationsEdge]!
+  edges: [OrganizationsEdge!]!
 
   """A list of `Organization` objects."""
-  nodes: [Organization]!
+  nodes: [Organization!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -2379,7 +2317,7 @@ type OrganizationsEdge {
   cursor: Cursor
 
   """The `Organization` at the end of the edge."""
-  node: Organization
+  node: Organization!
 }
 
 """Methods to use when ordering `Organization`."""
@@ -2419,7 +2357,7 @@ type Query implements Node {
 
   """The currently logged in user (or null if not logged in)."""
   currentUser: User
-  currentUserFirstOrganizationId: UUID
+  currentUserFirstOwnedOrganizationId: UUID
 
   """
   Handy method to get the current user ID for use in RLS policies, etc; in GraphQL, use `currentUser{id}` instead.
@@ -2433,6 +2371,11 @@ type Query implements Node {
 
     """Read all values in the set before (above) this cursor."""
     before: Cursor
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UUIDFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2455,6 +2398,11 @@ type Query implements Node {
     """Read all values in the set before (above) this cursor."""
     before: Cursor
 
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UUIDFilter
+
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -2467,6 +2415,7 @@ type Query implements Node {
     """
     offset: Int
   ): CurrentUserMemberOrganizationIdsConnection
+  fetchDraftInRoom(roomId: UUID): RoomMessage
 
   """Reads and enables pagination through a set of `RoomSubscription`."""
   myRoomSubscriptions(
@@ -2475,6 +2424,11 @@ type Query implements Node {
 
     """Read all values in the set before (above) this cursor."""
     before: Cursor
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomSubscriptionFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2497,6 +2451,11 @@ type Query implements Node {
 
     """Read all values in the set before (above) this cursor."""
     before: Cursor
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UUIDFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2538,56 +2497,6 @@ type Query implements Node {
   organizationBySlug(slug: String!): Organization
   organizationForInvitation(code: String, invitationId: UUID): Organization
 
-  """Get a single `OrganizationInvitation`."""
-  organizationInvitation(id: UUID!): OrganizationInvitation
-
-  """
-  Reads a single `OrganizationInvitation` using its globally unique `ID`.
-  """
-  organizationInvitationByNodeId(
-    """
-    The globally unique `ID` to be used in selecting a single `OrganizationInvitation`.
-    """
-    nodeId: ID!
-  ): OrganizationInvitation
-
-  """Get a single `OrganizationInvitation`."""
-  organizationInvitationByOrganizationIdAndEmail(email: String!, organizationId: UUID!): OrganizationInvitation
-
-  """Get a single `OrganizationInvitation`."""
-  organizationInvitationByOrganizationIdAndUserId(organizationId: UUID!, userId: UUID!): OrganizationInvitation
-
-  """
-  Reads and enables pagination through a set of `OrganizationInvitation`.
-  """
-  organizationInvitations(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: OrganizationInvitationCondition
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `OrganizationInvitation`."""
-    orderBy: [OrganizationInvitationsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): OrganizationInvitationsConnection
-
   """Get a single `OrganizationMembership`."""
   organizationMembership(id: UUID!): OrganizationMembership
 
@@ -2619,6 +2528,11 @@ type Query implements Node {
     """
     condition: OrganizationMembershipCondition
 
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrganizationMembershipFilter
+
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -2647,6 +2561,11 @@ type Query implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: OrganizationCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrganizationFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2679,6 +2598,99 @@ type Query implements Node {
     nodeId: ID!
   ): Room
 
+  """Get a single `RoomMessage`."""
+  roomMessage(id: UUID!): RoomMessage
+
+  """Get a single `RoomMessageAttachment`."""
+  roomMessageAttachment(id: UUID!): RoomMessageAttachment
+
+  """Reads a single `RoomMessageAttachment` using its globally unique `ID`."""
+  roomMessageAttachmentByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `RoomMessageAttachment`.
+    """
+    nodeId: ID!
+  ): RoomMessageAttachment
+
+  """Get a single `RoomMessageAttachment`."""
+  roomMessageAttachmentByTopicIdAndRoomMessageId(roomMessageId: UUID!, topicId: UUID!): RoomMessageAttachment
+
+  """Reads and enables pagination through a set of `RoomMessageAttachment`."""
+  roomMessageAttachments(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomMessageAttachmentCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomMessageAttachmentFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomMessageAttachment`."""
+    orderBy: [RoomMessageAttachmentsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomMessageAttachmentsConnection
+
+  """Reads a single `RoomMessage` using its globally unique `ID`."""
+  roomMessageByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `RoomMessage`.
+    """
+    nodeId: ID!
+  ): RoomMessage
+
+  """Reads and enables pagination through a set of `RoomMessage`."""
+  roomMessages(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomMessageCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomMessageFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomMessage`."""
+    orderBy: [RoomMessagesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomMessagesConnection
+
   """Get a single `RoomSubscription`."""
   roomSubscription(id: UUID!): RoomSubscription
 
@@ -2705,6 +2717,11 @@ type Query implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: RoomSubscriptionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomSubscriptionFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2735,6 +2752,11 @@ type Query implements Node {
     """
     condition: RoomCondition
 
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomFilter
+
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -2761,7 +2783,7 @@ type Query implements Node {
   ): Topic
 
   """Get a single `Topic`."""
-  topicBySlug(slug: String!): Topic
+  topicBySlugAndOrganizationId(organizationId: UUID!, slug: String!): Topic
 
   """Reads and enables pagination through a set of `Topic`."""
   topics(
@@ -2775,6 +2797,11 @@ type Query implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: TopicCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: TopicFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2821,6 +2848,11 @@ type Query implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: UserAuthenticationCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserAuthenticationFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2872,6 +2904,11 @@ type Query implements Node {
     """
     condition: UserEmailCondition
 
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserEmailFilter
+
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -2900,6 +2937,11 @@ type Query implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: UserCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -3042,8 +3084,46 @@ type Room implements Node {
   createdAt: Datetime!
   id: UUID!
   isAnonymousPostingAllowed: Boolean!
+  latestMessage: RoomMessage
+
+  """Reads and enables pagination through a set of `RoomMessage`."""
+  messages(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomMessageCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomMessageFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomMessage`."""
+    orderBy: [RoomMessagesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomMessagesConnection!
+
+  "\nDate of subscription or first sent message, whatever is earlier.\n"
+  myFirstInteraction: Datetime
   myRoomSubscription: RoomSubscription
-  nRoomSubscriptions: BigInt
+  nSubscriptions(minRole: RoomRole): BigInt
 
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
@@ -3066,6 +3146,11 @@ type Room implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: RoomSubscriptionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomSubscriptionFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -3118,8 +3203,14 @@ input RoomCondition {
   """
   isAnonymousPostingAllowed: Boolean
 
-  """Checks for equality with the object’s `nRoomSubscriptions` field."""
-  nRoomSubscriptions: BigInt
+  """Checks for equality with the object’s `myFirstInteraction` field."""
+  myFirstInteraction: Datetime
+
+  """Checks for equality with the object’s `myRoomSubscriptionId` field."""
+  myRoomSubscriptionId: UUID
+
+  """Checks for equality with the object’s `nSubscriptions` field."""
+  nSubscriptions: BigInt
 
   """Checks for equality with the object’s `organizationId` field."""
   organizationId: UUID
@@ -3147,6 +3238,80 @@ input RoomCondition {
   visibilityOfHistorySince: Datetime
 }
 
+"""
+A filter to be used against `Room` object types. All fields are combined with a logical ‘and.’
+"""
+input RoomFilter {
+  """Filter by the object’s `abstract` field."""
+  abstract: StringFilter
+
+  """Checks for all expressions in this list."""
+  and: [RoomFilter!]
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `isAnonymousPostingAllowed` field."""
+  isAnonymousPostingAllowed: BooleanFilter
+
+  """Filter by the object’s `messages` relation."""
+  messages: RoomToManyRoomMessageFilter
+
+  """Some related `messages` exist."""
+  messagesExist: Boolean
+
+  """Filter by the object’s `myFirstInteraction` field."""
+  myFirstInteraction: DatetimeFilter
+
+  """Filter by the object’s `myRoomSubscriptionId` field."""
+  myRoomSubscriptionId: UUIDFilter
+
+  """Filter by the object’s `nSubscriptions` field."""
+  nSubscriptions: BigIntFilter
+
+  """Negates the expression."""
+  not: RoomFilter
+
+  """Checks for any expressions in this list."""
+  or: [RoomFilter!]
+
+  """Filter by the object’s `organization` relation."""
+  organization: OrganizationFilter
+
+  """A related `organization` exists."""
+  organizationExists: Boolean
+
+  """Filter by the object’s `organizationId` field."""
+  organizationId: UUIDFilter
+
+  """Filter by the object’s `subscriptions` relation."""
+  subscriptions: RoomToManyRoomSubscriptionFilter
+
+  """Some related `subscriptions` exist."""
+  subscriptionsExist: Boolean
+
+  """Filter by the object’s `title` field."""
+  title: StringFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `visibility` field."""
+  visibility: RoomVisibilityFilter
+
+  """Filter by the object’s `visibilityOfHistory` field."""
+  visibilityOfHistory: RoomHistoryVisibilityFilter
+
+  """Filter by the object’s `visibilityOfHistoryExtendedBy` field."""
+  visibilityOfHistoryExtendedBy: IntervalFilter
+
+  """Filter by the object’s `visibilityOfHistorySince` field."""
+  visibilityOfHistorySince: DatetimeFilter
+}
+
 enum RoomHistoryVisibility {
   PUBLIC
   SINCE_INVITATION
@@ -3154,18 +3319,56 @@ enum RoomHistoryVisibility {
   SINCE_SUBSCRIPTION
 }
 
+"""
+A filter to be used against RoomHistoryVisibility fields. All fields are combined with a logical ‘and.’
+"""
+input RoomHistoryVisibilityFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: RoomHistoryVisibility
+
+  """Equal to the specified value."""
+  equalTo: RoomHistoryVisibility
+
+  """Greater than the specified value."""
+  greaterThan: RoomHistoryVisibility
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: RoomHistoryVisibility
+
+  """Included in the specified list."""
+  in: [RoomHistoryVisibility!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: RoomHistoryVisibility
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: RoomHistoryVisibility
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: RoomHistoryVisibility
+
+  """Not equal to the specified value."""
+  notEqualTo: RoomHistoryVisibility
+
+  """Not included in the specified list."""
+  notIn: [RoomHistoryVisibility!]
+}
+
 """An input for mutations affecting `Room`"""
 input RoomInput {
   """Each room has an optional abstract."""
   abstract: String
-  createdAt: Datetime
-  id: UUID
   isAnonymousPostingAllowed: Boolean
-  organizationId: UUID
 
   """Each room has an optional title."""
   title: String
-  updatedAt: Datetime
 
   """
   Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.
@@ -3176,22 +3379,443 @@ input RoomInput {
   Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.
   """
   visibilityOfHistory: RoomHistoryVisibility
-  visibilityOfHistoryExtendedBy: IntervalInput
-  visibilityOfHistorySince: Datetime
+}
+
+type RoomMessage implements Node {
+  """Reads a single `RoomMessage` that is related to this `RoomMessage`."""
+  answeredMessage: RoomMessage
+  answeredMessageId: UUID
+
+  """Reads and enables pagination through a set of `RoomMessage`."""
+  answers(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomMessageCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomMessageFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomMessage`."""
+    orderBy: [RoomMessagesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomMessagesConnection!
+
+  """Reads and enables pagination through a set of `RoomMessageAttachment`."""
+  attachments(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomMessageAttachmentCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomMessageAttachmentFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomMessageAttachment`."""
+    orderBy: [RoomMessageAttachmentsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomMessageAttachmentsConnection!
+  body: String
+  createdAt: Datetime!
+  id: UUID!
+  language: String!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+
+  """Reads a single `Room` that is related to this `RoomMessage`."""
+  room: Room
+  roomId: UUID!
+
+  """Reads a single `User` that is related to this `RoomMessage`."""
+  sender: User
+  senderId: UUID
+  sentAt: Datetime
+  updatedAt: Datetime!
+}
+
+type RoomMessageAttachment implements Node {
+  createdAt: Datetime!
+  id: UUID!
+
+  """
+  Reads a single `RoomMessage` that is related to this `RoomMessageAttachment`.
+  """
+  message: RoomMessage
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  roomMessageId: UUID!
+
+  """
+  Reads a single `Topic` that is related to this `RoomMessageAttachment`.
+  """
+  topic: Topic
+  topicId: UUID!
+}
+
+"""
+A condition to be used against `RoomMessageAttachment` object types. All fields
+are tested for equality and combined with a logical ‘and.’
+"""
+input RoomMessageAttachmentCondition {
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `roomMessageId` field."""
+  roomMessageId: UUID
+
+  """Checks for equality with the object’s `topicId` field."""
+  topicId: UUID
+}
+
+"""
+A filter to be used against `RoomMessageAttachment` object types. All fields are combined with a logical ‘and.’
+"""
+input RoomMessageAttachmentFilter {
+  """Checks for all expressions in this list."""
+  and: [RoomMessageAttachmentFilter!]
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `message` relation."""
+  message: RoomMessageFilter
+
+  """Negates the expression."""
+  not: RoomMessageAttachmentFilter
+
+  """Checks for any expressions in this list."""
+  or: [RoomMessageAttachmentFilter!]
+
+  """Filter by the object’s `roomMessageId` field."""
+  roomMessageId: UUIDFilter
+
+  """Filter by the object’s `topic` relation."""
+  topic: TopicFilter
+
+  """Filter by the object’s `topicId` field."""
+  topicId: UUIDFilter
+}
+
+"""An input for mutations affecting `RoomMessageAttachment`"""
+input RoomMessageAttachmentInput {
+  id: UUID
+  roomMessageId: UUID!
+  topicId: UUID!
+}
+
+"""A connection to a list of `RoomMessageAttachment` values."""
+type RoomMessageAttachmentsConnection {
+  """
+  A list of edges which contains the `RoomMessageAttachment` and cursor to aid in pagination.
+  """
+  edges: [RoomMessageAttachmentsEdge!]!
+
+  """A list of `RoomMessageAttachment` objects."""
+  nodes: [RoomMessageAttachment!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `RoomMessageAttachment` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `RoomMessageAttachment` edge in the connection."""
+type RoomMessageAttachmentsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `RoomMessageAttachment` at the end of the edge."""
+  node: RoomMessageAttachment!
+}
+
+"""Methods to use when ordering `RoomMessageAttachment`."""
+enum RoomMessageAttachmentsOrderBy {
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  ID_ASC
+  ID_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ROOM_MESSAGE_ID_ASC
+  ROOM_MESSAGE_ID_DESC
+  TOPIC_ID_ASC
+  TOPIC_ID_DESC
+}
+
+"""
+A condition to be used against `RoomMessage` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input RoomMessageCondition {
+  """Checks for equality with the object’s `answeredMessageId` field."""
+  answeredMessageId: UUID
+
+  """Checks for equality with the object’s `body` field."""
+  body: String
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `language` field."""
+  language: String
+
+  """Checks for equality with the object’s `roomId` field."""
+  roomId: UUID
+
+  """Checks for equality with the object’s `senderId` field."""
+  senderId: UUID
+
+  """Checks for equality with the object’s `sentAt` field."""
+  sentAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+"""
+A filter to be used against `RoomMessage` object types. All fields are combined with a logical ‘and.’
+"""
+input RoomMessageFilter {
+  """Checks for all expressions in this list."""
+  and: [RoomMessageFilter!]
+
+  """Filter by the object’s `answeredMessage` relation."""
+  answeredMessage: RoomMessageFilter
+
+  """A related `answeredMessage` exists."""
+  answeredMessageExists: Boolean
+
+  """Filter by the object’s `answeredMessageId` field."""
+  answeredMessageId: UUIDFilter
+
+  """Filter by the object’s `answers` relation."""
+  answers: RoomMessageToManyRoomMessageFilter
+
+  """Some related `answers` exist."""
+  answersExist: Boolean
+
+  """Filter by the object’s `attachments` relation."""
+  attachments: RoomMessageToManyRoomMessageAttachmentFilter
+
+  """Some related `attachments` exist."""
+  attachmentsExist: Boolean
+
+  """Filter by the object’s `body` field."""
+  body: StringFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `language` field."""
+  language: StringFilter
+
+  """Negates the expression."""
+  not: RoomMessageFilter
+
+  """Checks for any expressions in this list."""
+  or: [RoomMessageFilter!]
+
+  """Filter by the object’s `room` relation."""
+  room: RoomFilter
+
+  """Filter by the object’s `roomId` field."""
+  roomId: UUIDFilter
+
+  """Filter by the object’s `sender` relation."""
+  sender: UserFilter
+
+  """A related `sender` exists."""
+  senderExists: Boolean
+
+  """Filter by the object’s `senderId` field."""
+  senderId: UUIDFilter
+
+  """Filter by the object’s `sentAt` field."""
+  sentAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+}
+
+"""An input for mutations affecting `RoomMessage`"""
+input RoomMessageInput {
+  answeredMessageId: UUID
+  body: String
+  language: String
+  roomId: UUID!
+  senderId: UUID
+  sentAt: Datetime
+}
+
+"""
+Represents an update to a `RoomMessage`. Fields that are set will be updated.
+"""
+input RoomMessagePatch {
+  answeredMessageId: UUID
+  body: String
+  language: String
+  sentAt: Datetime
+}
+
+"""
+A filter to be used against many `RoomMessageAttachment` object types. All fields are combined with a logical ‘and.’
+"""
+input RoomMessageToManyRoomMessageAttachmentFilter {
+  """
+  Every related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RoomMessageAttachmentFilter
+
+  """
+  No related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RoomMessageAttachmentFilter
+
+  """
+  Some related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RoomMessageAttachmentFilter
+}
+
+"""
+A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’
+"""
+input RoomMessageToManyRoomMessageFilter {
+  """
+  Every related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RoomMessageFilter
+
+  """
+  No related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RoomMessageFilter
+
+  """
+  Some related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RoomMessageFilter
+}
+
+"""A connection to a list of `RoomMessage` values."""
+type RoomMessagesConnection {
+  """
+  A list of edges which contains the `RoomMessage` and cursor to aid in pagination.
+  """
+  edges: [RoomMessagesEdge!]!
+
+  """A list of `RoomMessage` objects."""
+  nodes: [RoomMessage!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `RoomMessage` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `RoomMessage` edge in the connection."""
+type RoomMessagesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `RoomMessage` at the end of the edge."""
+  node: RoomMessage!
+}
+
+"""Methods to use when ordering `RoomMessage`."""
+enum RoomMessagesOrderBy {
+  ANSWERED_MESSAGE_ID_ASC
+  ANSWERED_MESSAGE_ID_DESC
+  BODY_ASC
+  BODY_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  ID_ASC
+  ID_DESC
+  LANGUAGE_ASC
+  LANGUAGE_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ROOM_ID_ASC
+  ROOM_ID_DESC
+  SENDER_ID_ASC
+  SENDER_ID_DESC
+  SENT_AT_ASC
+  SENT_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
 }
 
 """Represents an update to a `Room`. Fields that are set will be updated."""
 input RoomPatch {
   """Each room has an optional abstract."""
   abstract: String
-  createdAt: Datetime
-  id: UUID
   isAnonymousPostingAllowed: Boolean
-  organizationId: UUID
 
   """Each room has an optional title."""
   title: String
-  updatedAt: Datetime
 
   """
   Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.
@@ -3202,8 +3826,6 @@ input RoomPatch {
   Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.
   """
   visibilityOfHistory: RoomHistoryVisibility
-  visibilityOfHistoryExtendedBy: IntervalInput
-  visibilityOfHistorySince: Datetime
 }
 
 enum RoomRole {
@@ -3212,6 +3834,48 @@ enum RoomRole {
   MEMBER
   MODERATOR
   PROSPECT
+}
+
+"""
+A filter to be used against RoomRole fields. All fields are combined with a logical ‘and.’
+"""
+input RoomRoleFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: RoomRole
+
+  """Equal to the specified value."""
+  equalTo: RoomRole
+
+  """Greater than the specified value."""
+  greaterThan: RoomRole
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: RoomRole
+
+  """Included in the specified list."""
+  in: [RoomRole!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: RoomRole
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: RoomRole
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: RoomRole
+
+  """Not equal to the specified value."""
+  notEqualTo: RoomRole
+
+  """Not included in the specified list."""
+  notIn: [RoomRole!]
 }
 
 """Users can be subscribed to rooms."""
@@ -3267,10 +3931,49 @@ input RoomSubscriptionCondition {
   updatedAt: Datetime
 }
 
+"""
+A filter to be used against `RoomSubscription` object types. All fields are combined with a logical ‘and.’
+"""
+input RoomSubscriptionFilter {
+  """Checks for all expressions in this list."""
+  and: [RoomSubscriptionFilter!]
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Negates the expression."""
+  not: RoomSubscriptionFilter
+
+  """Filter by the object’s `notifications` field."""
+  notifications: NotificationSettingFilter
+
+  """Checks for any expressions in this list."""
+  or: [RoomSubscriptionFilter!]
+
+  """Filter by the object’s `role` field."""
+  role: RoomRoleFilter
+
+  """Filter by the object’s `room` relation."""
+  room: RoomFilter
+
+  """Filter by the object’s `roomId` field."""
+  roomId: UUIDFilter
+
+  """Filter by the object’s `subscriber` relation."""
+  subscriber: UserFilter
+
+  """Filter by the object’s `subscriberId` field."""
+  subscriberId: UUIDFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+}
+
 """An input for mutations affecting `RoomSubscription`"""
 input RoomSubscriptionInput {
-  createdAt: Datetime
-  id: UUID
   notifications: NotificationSetting
 
   """Maintainers can manage subscriptions and delete the room."""
@@ -3279,24 +3982,16 @@ input RoomSubscriptionInput {
 
   """The subscribing user."""
   subscriberId: UUID
-  updatedAt: Datetime
 }
 
 """
 Represents an update to a `RoomSubscription`. Fields that are set will be updated.
 """
 input RoomSubscriptionPatch {
-  createdAt: Datetime
-  id: UUID
   notifications: NotificationSetting
 
   """Maintainers can manage subscriptions and delete the room."""
   role: RoomRole
-  roomId: UUID
-
-  """The subscribing user."""
-  subscriberId: UUID
-  updatedAt: Datetime
 }
 
 """A connection to a list of `RoomSubscription` values."""
@@ -3304,10 +3999,10 @@ type RoomSubscriptionsConnection {
   """
   A list of edges which contains the `RoomSubscription` and cursor to aid in pagination.
   """
-  edges: [RoomSubscriptionsEdge]!
+  edges: [RoomSubscriptionsEdge!]!
 
   """A list of `RoomSubscription` objects."""
-  nodes: [RoomSubscription]!
+  nodes: [RoomSubscription!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -3324,7 +4019,7 @@ type RoomSubscriptionsEdge {
   cursor: Cursor
 
   """The `RoomSubscription` at the end of the edge."""
-  node: RoomSubscription
+  node: RoomSubscription!
 }
 
 """Methods to use when ordering `RoomSubscription`."""
@@ -3342,10 +4037,52 @@ enum RoomSubscriptionsOrderBy {
   ROLE_DESC
   ROOM_ID_ASC
   ROOM_ID_DESC
+  SUBSCRIBERS_USERNAME_ASC
+  SUBSCRIBERS_USERNAME_DESC
   SUBSCRIBER_ID_ASC
   SUBSCRIBER_ID_DESC
   UPDATED_AT_ASC
   UPDATED_AT_DESC
+}
+
+"""
+A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’
+"""
+input RoomToManyRoomMessageFilter {
+  """
+  Every related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RoomMessageFilter
+
+  """
+  No related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RoomMessageFilter
+
+  """
+  Some related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RoomMessageFilter
+}
+
+"""
+A filter to be used against many `RoomSubscription` object types. All fields are combined with a logical ‘and.’
+"""
+input RoomToManyRoomSubscriptionFilter {
+  """
+  Every related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RoomSubscriptionFilter
+
+  """
+  No related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RoomSubscriptionFilter
+
+  """
+  Some related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RoomSubscriptionFilter
 }
 
 enum RoomVisibility {
@@ -3355,15 +4092,57 @@ enum RoomVisibility {
   WITHIN_ORGANIZATION
 }
 
+"""
+A filter to be used against RoomVisibility fields. All fields are combined with a logical ‘and.’
+"""
+input RoomVisibilityFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: RoomVisibility
+
+  """Equal to the specified value."""
+  equalTo: RoomVisibility
+
+  """Greater than the specified value."""
+  greaterThan: RoomVisibility
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: RoomVisibility
+
+  """Included in the specified list."""
+  in: [RoomVisibility!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: RoomVisibility
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: RoomVisibility
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: RoomVisibility
+
+  """Not equal to the specified value."""
+  notEqualTo: RoomVisibility
+
+  """Not included in the specified list."""
+  notIn: [RoomVisibility!]
+}
+
 """A connection to a list of `Room` values."""
 type RoomsConnection {
   """
   A list of edges which contains the `Room` and cursor to aid in pagination.
   """
-  edges: [RoomsEdge]!
+  edges: [RoomsEdge!]!
 
   """A list of `Room` objects."""
-  nodes: [Room]!
+  nodes: [Room!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -3378,7 +4157,7 @@ type RoomsEdge {
   cursor: Cursor
 
   """The `Room` at the end of the edge."""
-  node: Room
+  node: Room!
 }
 
 """Methods to use when ordering `Room`."""
@@ -3392,8 +4171,8 @@ enum RoomsOrderBy {
   IS_ANONYMOUS_POSTING_ALLOWED_ASC
   IS_ANONYMOUS_POSTING_ALLOWED_DESC
   NATURAL
-  N_ROOM_SUBSCRIPTIONS_ASC
-  N_ROOM_SUBSCRIPTIONS_DESC
+  N_SUBSCRIPTIONS_ASC
+  N_SUBSCRIPTIONS_DESC
   ORGANIZATION_ID_ASC
   ORGANIZATION_ID_DESC
   PRIMARY_KEY_ASC
@@ -3412,16 +4191,295 @@ enum RoomsOrderBy {
   VISIBILITY_OF_HISTORY_SINCE_DESC
 }
 
+"""All input for the `sendRoomMessage` mutation."""
+input SendRoomMessageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  draftId: UUID
+}
+
+"""The output of our `sendRoomMessage` mutation."""
+type SendRoomMessagePayload {
+  """Reads a single `RoomMessage` that is related to this `RoomMessage`."""
+  answeredMessage: RoomMessage
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single `Room` that is related to this `RoomMessage`."""
+  room: Room
+  roomMessage: RoomMessage
+
+  """An edge for our `RoomMessage`. May be used by Relay 1."""
+  roomMessageEdge(
+    """The method to use when ordering `RoomMessage`."""
+    orderBy: [RoomMessagesOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomMessagesEdge
+
+  """Reads a single `User` that is related to this `RoomMessage`."""
+  sender: User
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  distinctFromInsensitive: String
+
+  """Ends with the specified string (case-sensitive)."""
+  endsWith: String
+
+  """Ends with the specified string (case-insensitive)."""
+  endsWithInsensitive: String
+
+  """Equal to the specified value."""
+  equalTo: String
+
+  """Equal to the specified value (case-insensitive)."""
+  equalToInsensitive: String
+
+  """Greater than the specified value."""
+  greaterThan: String
+
+  """Greater than the specified value (case-insensitive)."""
+  greaterThanInsensitive: String
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: String
+
+  """Greater than or equal to the specified value (case-insensitive)."""
+  greaterThanOrEqualToInsensitive: String
+
+  """Included in the specified list."""
+  in: [String!]
+
+  """Included in the specified list (case-insensitive)."""
+  inInsensitive: [String!]
+
+  """Contains the specified string (case-sensitive)."""
+  includes: String
+
+  """Contains the specified string (case-insensitive)."""
+  includesInsensitive: String
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: String
+
+  """Less than the specified value (case-insensitive)."""
+  lessThanInsensitive: String
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: String
+
+  """Less than or equal to the specified value (case-insensitive)."""
+  lessThanOrEqualToInsensitive: String
+
+  """
+  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  like: String
+
+  """
+  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  likeInsensitive: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: String
+
+  """
+  Equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  notDistinctFromInsensitive: String
+
+  """Does not end with the specified string (case-sensitive)."""
+  notEndsWith: String
+
+  """Does not end with the specified string (case-insensitive)."""
+  notEndsWithInsensitive: String
+
+  """Not equal to the specified value."""
+  notEqualTo: String
+
+  """Not equal to the specified value (case-insensitive)."""
+  notEqualToInsensitive: String
+
+  """Not included in the specified list."""
+  notIn: [String!]
+
+  """Not included in the specified list (case-insensitive)."""
+  notInInsensitive: [String!]
+
+  """Does not contain the specified string (case-sensitive)."""
+  notIncludes: String
+
+  """Does not contain the specified string (case-insensitive)."""
+  notIncludesInsensitive: String
+
+  """
+  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLike: String
+
+  """
+  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLikeInsensitive: String
+
+  """Does not start with the specified string (case-sensitive)."""
+  notStartsWith: String
+
+  """Does not start with the specified string (case-insensitive)."""
+  notStartsWithInsensitive: String
+
+  """Starts with the specified string (case-sensitive)."""
+  startsWith: String
+
+  """Starts with the specified string (case-insensitive)."""
+  startsWithInsensitive: String
+}
+
+"""
+A filter to be used against String List fields. All fields are combined with a logical ‘and.’
+"""
+input StringListFilter {
+  """Any array item is equal to the specified value."""
+  anyEqualTo: String
+
+  """Any array item is greater than the specified value."""
+  anyGreaterThan: String
+
+  """Any array item is greater than or equal to the specified value."""
+  anyGreaterThanOrEqualTo: String
+
+  """Any array item is less than the specified value."""
+  anyLessThan: String
+
+  """Any array item is less than or equal to the specified value."""
+  anyLessThanOrEqualTo: String
+
+  """Any array item is not equal to the specified value."""
+  anyNotEqualTo: String
+
+  """Contained by the specified list of values."""
+  containedBy: [String]
+
+  """Contains the specified list of values."""
+  contains: [String]
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: [String]
+
+  """Equal to the specified value."""
+  equalTo: [String]
+
+  """Greater than the specified value."""
+  greaterThan: [String]
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: [String]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: [String]
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: [String]
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: [String]
+
+  """Not equal to the specified value."""
+  notEqualTo: [String]
+
+  """Overlaps the specified list of values."""
+  overlaps: [String]
+}
+
 """
 The exact time of day, does not include the date. May or may not have a timezone offset.
 """
 scalar Time
 
 """
+A filter to be used against Time fields. All fields are combined with a logical ‘and.’
+"""
+input TimeFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Time
+
+  """Equal to the specified value."""
+  equalTo: Time
+
+  """Greater than the specified value."""
+  greaterThan: Time
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Time
+
+  """Included in the specified list."""
+  in: [Time!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: Time
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Time
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Time
+
+  """Not equal to the specified value."""
+  notEqualTo: Time
+
+  """Not included in the specified list."""
+  notIn: [Time!]
+}
+
+"""
 A topic is a short text about something. Most topics should have the scope of a micro learning unit.
 """
 type Topic implements Node {
-  """Reads a single `User` that is related to this `Topic`."""
+  """
+  Each topic has an author. The field might be null when the original author has unregistered from the application.
+  """
   author: User
   authorId: UUID
 
@@ -3431,8 +4489,9 @@ type Topic implements Node {
   content: JSON!
   createdAt: Datetime!
   id: UUID!
+
+  """Each topic can optionally be licensed. Hyperlinks are allowed."""
   license: String
-  meta: JSON
 
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
@@ -3443,12 +4502,57 @@ type Topic implements Node {
   organization: Organization
   organizationId: UUID
 
+  """Reads and enables pagination through a set of `RoomMessageAttachment`."""
+  roomMessageAttachments(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomMessageAttachmentCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomMessageAttachmentFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomMessageAttachment`."""
+    orderBy: [RoomMessageAttachmentsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomMessageAttachmentsConnection!
+
   """
   Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
   """
   slug: String!
+
+  """Each topic can be categorized using tags."""
+  tags: [String]!
+
+  """
+  Each topic has an optional title. In case of an article, this would be the headline.
+  """
   title: String
   updatedAt: Datetime!
+
+  """
+  Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).
+  """
   visibility: TopicVisibility!
 }
 
@@ -3471,14 +4575,14 @@ input TopicCondition {
   """Checks for equality with the object’s `license` field."""
   license: String
 
-  """Checks for equality with the object’s `meta` field."""
-  meta: JSON
-
   """Checks for equality with the object’s `organizationId` field."""
   organizationId: UUID
 
   """Checks for equality with the object’s `slug` field."""
   slug: String
+
+  """Checks for equality with the object’s `tags` field."""
+  tags: [String]
 
   """Checks for equality with the object’s `title` field."""
   title: String
@@ -3490,6 +4594,71 @@ input TopicCondition {
   visibility: TopicVisibility
 }
 
+"""
+A filter to be used against `Topic` object types. All fields are combined with a logical ‘and.’
+"""
+input TopicFilter {
+  """Checks for all expressions in this list."""
+  and: [TopicFilter!]
+
+  """Filter by the object’s `author` relation."""
+  author: UserFilter
+
+  """A related `author` exists."""
+  authorExists: Boolean
+
+  """Filter by the object’s `authorId` field."""
+  authorId: UUIDFilter
+
+  """Filter by the object’s `content` field."""
+  content: JSONFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `license` field."""
+  license: StringFilter
+
+  """Negates the expression."""
+  not: TopicFilter
+
+  """Checks for any expressions in this list."""
+  or: [TopicFilter!]
+
+  """Filter by the object’s `organization` relation."""
+  organization: OrganizationFilter
+
+  """A related `organization` exists."""
+  organizationExists: Boolean
+
+  """Filter by the object’s `organizationId` field."""
+  organizationId: UUIDFilter
+
+  """Filter by the object’s `roomMessageAttachments` relation."""
+  roomMessageAttachments: TopicToManyRoomMessageAttachmentFilter
+
+  """Some related `roomMessageAttachments` exist."""
+  roomMessageAttachmentsExist: Boolean
+
+  """Filter by the object’s `slug` field."""
+  slug: StringFilter
+
+  """Filter by the object’s `tags` field."""
+  tags: StringListFilter
+
+  """Filter by the object’s `title` field."""
+  title: StringFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `visibility` field."""
+  visibility: TopicVisibilityFilter
+}
+
 """An input for mutations affecting `Topic`"""
 input TopicInput {
   authorId: UUID
@@ -3498,18 +4667,24 @@ input TopicInput {
   The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html
   """
   content: JSON!
-  createdAt: Datetime
-  id: UUID
+
+  """Each topic can optionally be licensed. Hyperlinks are allowed."""
   license: String
-  meta: JSON
   organizationId: UUID
 
   """
   Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
   """
   slug: String!
+
+  """
+  Each topic has an optional title. In case of an article, this would be the headline.
+  """
   title: String
-  updatedAt: Datetime
+
+  """
+  Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).
+  """
   visibility: TopicVisibility
 }
 
@@ -3523,19 +4698,45 @@ input TopicPatch {
   The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html
   """
   content: JSON
-  createdAt: Datetime
-  id: UUID
+
+  """Each topic can optionally be licensed. Hyperlinks are allowed."""
   license: String
-  meta: JSON
   organizationId: UUID
 
   """
   Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
   """
   slug: String
+
+  """
+  Each topic has an optional title. In case of an article, this would be the headline.
+  """
   title: String
-  updatedAt: Datetime
+
+  """
+  Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).
+  """
   visibility: TopicVisibility
+}
+
+"""
+A filter to be used against many `RoomMessageAttachment` object types. All fields are combined with a logical ‘and.’
+"""
+input TopicToManyRoomMessageAttachmentFilter {
+  """
+  Every related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RoomMessageAttachmentFilter
+
+  """
+  No related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RoomMessageAttachmentFilter
+
+  """
+  Some related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RoomMessageAttachmentFilter
 }
 
 enum TopicVisibility {
@@ -3544,15 +4745,57 @@ enum TopicVisibility {
   WITHIN_ORGANIZATION
 }
 
+"""
+A filter to be used against TopicVisibility fields. All fields are combined with a logical ‘and.’
+"""
+input TopicVisibilityFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: TopicVisibility
+
+  """Equal to the specified value."""
+  equalTo: TopicVisibility
+
+  """Greater than the specified value."""
+  greaterThan: TopicVisibility
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: TopicVisibility
+
+  """Included in the specified list."""
+  in: [TopicVisibility!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: TopicVisibility
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: TopicVisibility
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: TopicVisibility
+
+  """Not equal to the specified value."""
+  notEqualTo: TopicVisibility
+
+  """Not included in the specified list."""
+  notIn: [TopicVisibility!]
+}
+
 """A connection to a list of `Topic` values."""
 type TopicsConnection {
   """
   A list of edges which contains the `Topic` and cursor to aid in pagination.
   """
-  edges: [TopicsEdge]!
+  edges: [TopicsEdge!]!
 
   """A list of `Topic` objects."""
-  nodes: [Topic]!
+  nodes: [Topic!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -3567,7 +4810,7 @@ type TopicsEdge {
   cursor: Cursor
 
   """The `Topic` at the end of the edge."""
-  node: Topic
+  node: Topic!
 }
 
 """Methods to use when ordering `Topic`."""
@@ -3582,8 +4825,6 @@ enum TopicsOrderBy {
   ID_DESC
   LICENSE_ASC
   LICENSE_DESC
-  META_ASC
-  META_DESC
   NATURAL
   ORGANIZATION_ID_ASC
   ORGANIZATION_ID_DESC
@@ -3668,6 +4909,48 @@ A universally unique identifier as defined by [RFC 4122](https://tools.ietf.org/
 """
 scalar UUID
 
+"""
+A filter to be used against UUID fields. All fields are combined with a logical ‘and.’
+"""
+input UUIDFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: UUID
+
+  """Equal to the specified value."""
+  equalTo: UUID
+
+  """Greater than the specified value."""
+  greaterThan: UUID
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: UUID
+
+  """Included in the specified list."""
+  in: [UUID!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: UUID
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: UUID
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: UUID
+
+  """Not equal to the specified value."""
+  notEqualTo: UUID
+
+  """Not included in the specified list."""
+  notIn: [UUID!]
+}
+
 """All input for the `updateOrganizationByNodeId` mutation."""
 input UpdateOrganizationByNodeIdInput {
   """
@@ -3715,194 +4998,6 @@ input UpdateOrganizationInput {
   An object where the defined keys will be set on the `Organization` being updated.
   """
   patch: OrganizationPatch!
-}
-
-"""All input for the `updateOrganizationInvitationByNodeId` mutation."""
-input UpdateOrganizationInvitationByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `OrganizationInvitation` to be updated.
-  """
-  nodeId: ID!
-
-  """
-  An object where the defined keys will be set on the `OrganizationInvitation` being updated.
-  """
-  patch: OrganizationInvitationPatch!
-}
-
-"""
-All input for the `updateOrganizationInvitationByOrganizationIdAndEmail` mutation.
-"""
-input UpdateOrganizationInvitationByOrganizationIdAndEmailInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  email: String!
-  organizationId: UUID!
-
-  """
-  An object where the defined keys will be set on the `OrganizationInvitation` being updated.
-  """
-  patch: OrganizationInvitationPatch!
-}
-
-"""
-All input for the `updateOrganizationInvitationByOrganizationIdAndUserId` mutation.
-"""
-input UpdateOrganizationInvitationByOrganizationIdAndUserIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  organizationId: UUID!
-
-  """
-  An object where the defined keys will be set on the `OrganizationInvitation` being updated.
-  """
-  patch: OrganizationInvitationPatch!
-  userId: UUID!
-}
-
-"""All input for the `updateOrganizationInvitation` mutation."""
-input UpdateOrganizationInvitationInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-
-  """
-  An object where the defined keys will be set on the `OrganizationInvitation` being updated.
-  """
-  patch: OrganizationInvitationPatch!
-}
-
-"""The output of our update `OrganizationInvitation` mutation."""
-type UpdateOrganizationInvitationPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """
-  Reads a single `Organization` that is related to this `OrganizationInvitation`.
-  """
-  organization: Organization
-
-  """The `OrganizationInvitation` that was updated by this mutation."""
-  organizationInvitation: OrganizationInvitation
-
-  """An edge for our `OrganizationInvitation`. May be used by Relay 1."""
-  organizationInvitationEdge(
-    """The method to use when ordering `OrganizationInvitation`."""
-    orderBy: [OrganizationInvitationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): OrganizationInvitationsEdge
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """
-  Reads a single `User` that is related to this `OrganizationInvitation`.
-  """
-  user: User
-}
-
-"""All input for the `updateOrganizationMembershipByNodeId` mutation."""
-input UpdateOrganizationMembershipByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `OrganizationMembership` to be updated.
-  """
-  nodeId: ID!
-
-  """
-  An object where the defined keys will be set on the `OrganizationMembership` being updated.
-  """
-  patch: OrganizationMembershipPatch!
-}
-
-"""
-All input for the `updateOrganizationMembershipByOrganizationIdAndUserId` mutation.
-"""
-input UpdateOrganizationMembershipByOrganizationIdAndUserIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  organizationId: UUID!
-
-  """
-  An object where the defined keys will be set on the `OrganizationMembership` being updated.
-  """
-  patch: OrganizationMembershipPatch!
-  userId: UUID!
-}
-
-"""All input for the `updateOrganizationMembership` mutation."""
-input UpdateOrganizationMembershipInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-
-  """
-  An object where the defined keys will be set on the `OrganizationMembership` being updated.
-  """
-  patch: OrganizationMembershipPatch!
-}
-
-"""The output of our update `OrganizationMembership` mutation."""
-type UpdateOrganizationMembershipPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """
-  Reads a single `Organization` that is related to this `OrganizationMembership`.
-  """
-  organization: Organization
-
-  """The `OrganizationMembership` that was updated by this mutation."""
-  organizationMembership: OrganizationMembership
-
-  """An edge for our `OrganizationMembership`. May be used by Relay 1."""
-  organizationMembershipEdge(
-    """The method to use when ordering `OrganizationMembership`."""
-    orderBy: [OrganizationMembershipsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): OrganizationMembershipsEdge
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """
-  Reads a single `User` that is related to this `OrganizationMembership`.
-  """
-  user: User
 }
 
 """The output of our update `Organization` mutation."""
@@ -3960,6 +5055,72 @@ input UpdateRoomInput {
   An object where the defined keys will be set on the `Room` being updated.
   """
   patch: RoomPatch!
+}
+
+"""All input for the `updateRoomMessageByNodeId` mutation."""
+input UpdateRoomMessageByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `RoomMessage` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the `RoomMessage` being updated.
+  """
+  patch: RoomMessagePatch!
+}
+
+"""All input for the `updateRoomMessage` mutation."""
+input UpdateRoomMessageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+
+  """
+  An object where the defined keys will be set on the `RoomMessage` being updated.
+  """
+  patch: RoomMessagePatch!
+}
+
+"""The output of our update `RoomMessage` mutation."""
+type UpdateRoomMessagePayload {
+  """Reads a single `RoomMessage` that is related to this `RoomMessage`."""
+  answeredMessage: RoomMessage
+
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single `Room` that is related to this `RoomMessage`."""
+  room: Room
+
+  """The `RoomMessage` that was updated by this mutation."""
+  roomMessage: RoomMessage
+
+  """An edge for our `RoomMessage`. May be used by Relay 1."""
+  roomMessageEdge(
+    """The method to use when ordering `RoomMessage`."""
+    orderBy: [RoomMessagesOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): RoomMessagesEdge
+
+  """Reads a single `User` that is related to this `RoomMessage`."""
+  sender: User
 }
 
 """The output of our update `Room` mutation."""
@@ -4090,13 +5251,14 @@ input UpdateTopicByNodeIdInput {
   patch: TopicPatch!
 }
 
-"""All input for the `updateTopicBySlug` mutation."""
-input UpdateTopicBySlugInput {
+"""All input for the `updateTopicBySlugAndOrganizationId` mutation."""
+input UpdateTopicBySlugAndOrganizationIdInput {
   """
   An arbitrary string value with no semantic meaning. Will be included in the
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
+  organizationId: UUID!
 
   """
   An object where the defined keys will be set on the `Topic` being updated.
@@ -4126,7 +5288,9 @@ input UpdateTopicInput {
 
 """The output of our update `Topic` mutation."""
 type UpdateTopicPayload {
-  """Reads a single `User` that is related to this `Topic`."""
+  """
+  Each topic has an author. The field might be null when the original author has unregistered from the application.
+  """
   author: User
 
   """
@@ -4151,88 +5315,6 @@ type UpdateTopicPayload {
     """The method to use when ordering `Topic`."""
     orderBy: [TopicsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): TopicsEdge
-}
-
-"""All input for the `updateUserAuthenticationByNodeId` mutation."""
-input UpdateUserAuthenticationByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `UserAuthentication` to be updated.
-  """
-  nodeId: ID!
-
-  """
-  An object where the defined keys will be set on the `UserAuthentication` being updated.
-  """
-  patch: UserAuthenticationPatch!
-}
-
-"""
-All input for the `updateUserAuthenticationByServiceAndIdentifier` mutation.
-"""
-input UpdateUserAuthenticationByServiceAndIdentifierInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """A unique identifier for the user within the login service."""
-  identifier: String!
-
-  """
-  An object where the defined keys will be set on the `UserAuthentication` being updated.
-  """
-  patch: UserAuthenticationPatch!
-
-  """The login service used, e.g. `twitter` or `github`."""
-  service: String!
-}
-
-"""All input for the `updateUserAuthentication` mutation."""
-input UpdateUserAuthenticationInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-
-  """
-  An object where the defined keys will be set on the `UserAuthentication` being updated.
-  """
-  patch: UserAuthenticationPatch!
-}
-
-"""The output of our update `UserAuthentication` mutation."""
-type UpdateUserAuthenticationPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """Reads a single `User` that is related to this `UserAuthentication`."""
-  user: User
-
-  """The `UserAuthentication` that was updated by this mutation."""
-  userAuthentication: UserAuthentication
-
-  """An edge for our `UserAuthentication`. May be used by Relay 1."""
-  userAuthenticationEdge(
-    """The method to use when ordering `UserAuthentication`."""
-    orderBy: [UserAuthenticationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UserAuthenticationsEdge
 }
 
 """All input for the `updateUserByNodeId` mutation."""
@@ -4269,84 +5351,6 @@ input UpdateUserByUsernameInput {
 
   """Public-facing username (or 'handle') of the user."""
   username: String!
-}
-
-"""All input for the `updateUserEmailByNodeId` mutation."""
-input UpdateUserEmailByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `UserEmail` to be updated.
-  """
-  nodeId: ID!
-
-  """
-  An object where the defined keys will be set on the `UserEmail` being updated.
-  """
-  patch: UserEmailPatch!
-}
-
-"""All input for the `updateUserEmailByUserIdAndEmail` mutation."""
-input UpdateUserEmailByUserIdAndEmailInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """The users email address, in `a@b.c` format."""
-  email: String!
-
-  """
-  An object where the defined keys will be set on the `UserEmail` being updated.
-  """
-  patch: UserEmailPatch!
-  userId: UUID!
-}
-
-"""All input for the `updateUserEmail` mutation."""
-input UpdateUserEmailInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-
-  """
-  An object where the defined keys will be set on the `UserEmail` being updated.
-  """
-  patch: UserEmailPatch!
-}
-
-"""The output of our update `UserEmail` mutation."""
-type UpdateUserEmailPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """Reads a single `User` that is related to this `UserEmail`."""
-  user: User
-
-  """The `UserEmail` that was updated by this mutation."""
-  userEmail: UserEmail
-
-  """An edge for our `UserEmail`. May be used by Relay 1."""
-  userEmailEdge(
-    """The method to use when ordering `UserEmail`."""
-    orderBy: [UserEmailsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UserEmailsEdge
 }
 
 """All input for the `updateUser` mutation."""
@@ -4404,6 +5408,11 @@ type User implements Node {
     """
     condition: TopicCondition
 
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: TopicFilter
+
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -4446,37 +5455,6 @@ type User implements Node {
   nodeId: ID!
 
   """
-  Reads and enables pagination through a set of `OrganizationInvitation`.
-  """
-  organizationInvitations(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: OrganizationInvitationCondition
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `OrganizationInvitation`."""
-    orderBy: [OrganizationInvitationsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): OrganizationInvitationsConnection!
-
-  """
   Reads and enables pagination through a set of `OrganizationMembership`.
   """
   organizationMemberships(
@@ -4490,6 +5468,11 @@ type User implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: OrganizationMembershipCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrganizationMembershipFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -4507,6 +5490,40 @@ type User implements Node {
     orderBy: [OrganizationMembershipsOrderBy!] = [PRIMARY_KEY_ASC]
   ): OrganizationMembershipsConnection!
 
+  """Reads and enables pagination through a set of `RoomMessage`."""
+  roomMessagesBySenderId(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomMessageCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomMessageFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomMessage`."""
+    orderBy: [RoomMessagesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomMessagesConnection!
+
   """Reads and enables pagination through a set of `RoomSubscription`."""
   roomSubscriptionsBySubscriberId(
     """Read all values in the set after (below) this cursor."""
@@ -4519,6 +5536,11 @@ type User implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: RoomSubscriptionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomSubscriptionFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -4555,6 +5577,11 @@ type User implements Node {
     """
     condition: UserAuthenticationCondition
 
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserAuthenticationFilter
+
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -4583,6 +5610,11 @@ type User implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: UserEmailCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserEmailFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -4658,40 +5690,42 @@ input UserAuthenticationCondition {
   userId: UUID
 }
 
-"""An input for mutations affecting `UserAuthentication`"""
-input UserAuthenticationInput {
-  createdAt: Datetime
-
-  """Additional profile details extracted from this login method"""
-  details: JSON
-  id: UUID
-
-  """A unique identifier for the user within the login service."""
-  identifier: String!
-
-  """The login service used, e.g. `twitter` or `github`."""
-  service: String!
-  updatedAt: Datetime
-  userId: UUID!
-}
-
 """
-Represents an update to a `UserAuthentication`. Fields that are set will be updated.
+A filter to be used against `UserAuthentication` object types. All fields are combined with a logical ‘and.’
 """
-input UserAuthenticationPatch {
-  createdAt: Datetime
+input UserAuthenticationFilter {
+  """Checks for all expressions in this list."""
+  and: [UserAuthenticationFilter!]
 
-  """Additional profile details extracted from this login method"""
-  details: JSON
-  id: UUID
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
 
-  """A unique identifier for the user within the login service."""
-  identifier: String
+  """Filter by the object’s `details` field."""
+  details: JSONFilter
 
-  """The login service used, e.g. `twitter` or `github`."""
-  service: String
-  updatedAt: Datetime
-  userId: UUID
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `identifier` field."""
+  identifier: StringFilter
+
+  """Negates the expression."""
+  not: UserAuthenticationFilter
+
+  """Checks for any expressions in this list."""
+  or: [UserAuthenticationFilter!]
+
+  """Filter by the object’s `service` field."""
+  service: StringFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `user` relation."""
+  user: UserFilter
+
+  """Filter by the object’s `userId` field."""
+  userId: UUIDFilter
 }
 
 """A connection to a list of `UserAuthentication` values."""
@@ -4699,10 +5733,10 @@ type UserAuthenticationsConnection {
   """
   A list of edges which contains the `UserAuthentication` and cursor to aid in pagination.
   """
-  edges: [UserAuthenticationsEdge]!
+  edges: [UserAuthenticationsEdge!]!
 
   """A list of `UserAuthentication` objects."""
-  nodes: [UserAuthentication]!
+  nodes: [UserAuthentication!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -4719,7 +5753,7 @@ type UserAuthenticationsEdge {
   cursor: Cursor
 
   """The `UserAuthentication` at the end of the edge."""
-  node: UserAuthentication
+  node: UserAuthentication!
 }
 
 """Methods to use when ordering `UserAuthentication`."""
@@ -4757,6 +5791,9 @@ input UserCondition {
   Checks for equality with the object’s `defaultHandlingOfNotifications` field.
   """
   defaultHandlingOfNotifications: NotificationSetting
+
+  """Checks for equality with the object’s `hasPassword` field."""
+  hasPassword: Boolean
 
   """Checks for equality with the object’s `id` field."""
   id: UUID
@@ -4834,40 +5871,48 @@ input UserEmailCondition {
   userId: UUID
 }
 
-"""An input for mutations affecting `UserEmail`"""
-input UserEmailInput {
-  createdAt: Datetime
+"""
+A filter to be used against `UserEmail` object types. All fields are combined with a logical ‘and.’
+"""
+input UserEmailFilter {
+  """Checks for all expressions in this list."""
+  and: [UserEmailFilter!]
 
-  """The users email address, in `a@b.c` format."""
-  email: String!
-  id: UUID
-  isPrimary: Boolean
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
 
-  """
-  True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise.
-  """
-  isVerified: Boolean
-  updatedAt: Datetime
-  userId: UUID
+  """Filter by the object’s `email` field."""
+  email: StringFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `isPrimary` field."""
+  isPrimary: BooleanFilter
+
+  """Filter by the object’s `isVerified` field."""
+  isVerified: BooleanFilter
+
+  """Negates the expression."""
+  not: UserEmailFilter
+
+  """Checks for any expressions in this list."""
+  or: [UserEmailFilter!]
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `user` relation."""
+  user: UserFilter
+
+  """Filter by the object’s `userId` field."""
+  userId: UUIDFilter
 }
 
-"""
-Represents an update to a `UserEmail`. Fields that are set will be updated.
-"""
-input UserEmailPatch {
-  createdAt: Datetime
-
+"""An input for mutations affecting `UserEmail`"""
+input UserEmailInput {
   """The users email address, in `a@b.c` format."""
-  email: String
-  id: UUID
-  isPrimary: Boolean
-
-  """
-  True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise.
-  """
-  isVerified: Boolean
-  updatedAt: Datetime
-  userId: UUID
+  email: String!
 }
 
 """A connection to a list of `UserEmail` values."""
@@ -4875,10 +5920,10 @@ type UserEmailsConnection {
   """
   A list of edges which contains the `UserEmail` and cursor to aid in pagination.
   """
-  edges: [UserEmailsEdge]!
+  edges: [UserEmailsEdge!]!
 
   """A list of `UserEmail` objects."""
-  nodes: [UserEmail]!
+  nodes: [UserEmail!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -4893,7 +5938,7 @@ type UserEmailsEdge {
   cursor: Cursor
 
   """The `UserEmail` at the end of the edge."""
-  node: UserEmail
+  node: UserEmail!
 }
 
 """Methods to use when ordering `UserEmail`."""
@@ -4917,54 +5962,111 @@ enum UserEmailsOrderBy {
   USER_ID_DESC
 }
 
+"""
+A filter to be used against `User` object types. All fields are combined with a logical ‘and.’
+"""
+input UserFilter {
+  """Checks for all expressions in this list."""
+  and: [UserFilter!]
+
+  """Filter by the object’s `authoredTopics` relation."""
+  authoredTopics: UserToManyTopicFilter
+
+  """Some related `authoredTopics` exist."""
+  authoredTopicsExist: Boolean
+
+  """Filter by the object’s `avatarUrl` field."""
+  avatarUrl: StringFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `defaultHandlingOfNotifications` field."""
+  defaultHandlingOfNotifications: NotificationSettingFilter
+
+  """Filter by the object’s `hasPassword` field."""
+  hasPassword: BooleanFilter
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `isAdmin` field."""
+  isAdmin: BooleanFilter
+
+  """Filter by the object’s `isVerified` field."""
+  isVerified: BooleanFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Negates the expression."""
+  not: UserFilter
+
+  """Checks for any expressions in this list."""
+  or: [UserFilter!]
+
+  """Filter by the object’s `organizationMemberships` relation."""
+  organizationMemberships: UserToManyOrganizationMembershipFilter
+
+  """Some related `organizationMemberships` exist."""
+  organizationMembershipsExist: Boolean
+
+  """Filter by the object’s `roomMessagesBySenderId` relation."""
+  roomMessagesBySenderId: UserToManyRoomMessageFilter
+
+  """Some related `roomMessagesBySenderId` exist."""
+  roomMessagesBySenderIdExist: Boolean
+
+  """Filter by the object’s `roomSubscriptionsBySubscriberId` relation."""
+  roomSubscriptionsBySubscriberId: UserToManyRoomSubscriptionFilter
+
+  """Some related `roomSubscriptionsBySubscriberId` exist."""
+  roomSubscriptionsBySubscriberIdExist: Boolean
+
+  """Filter by the object’s `sendingTimeForDeferredNotifications` field."""
+  sendingTimeForDeferredNotifications: TimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `userAuthentications` relation."""
+  userAuthentications: UserToManyUserAuthenticationFilter
+
+  """Some related `userAuthentications` exist."""
+  userAuthenticationsExist: Boolean
+
+  """Filter by the object’s `userEmails` relation."""
+  userEmails: UserToManyUserEmailFilter
+
+  """Some related `userEmails` exist."""
+  userEmailsExist: Boolean
+
+  """Filter by the object’s `username` field."""
+  username: StringFilter
+}
+
 """An input for mutations affecting `User`"""
 input UserInput {
-  """Optional avatar URL."""
-  avatarUrl: String
-  createdAt: Datetime
-
   """
   Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room.
   """
   defaultHandlingOfNotifications: NotificationSetting
 
-  """Unique identifier for the user."""
-  id: UUID
-
-  """If true, the user has elevated privileges."""
-  isAdmin: Boolean
-  isVerified: Boolean
-
-  """Public-facing name (or pseudonym) of the user."""
-  name: String
-
   """
   If there are any delayed notifications, they are sent at this time every day.
   """
   sendingTimeForDeferredNotifications: Time
-  updatedAt: Datetime
-
-  """Public-facing username (or 'handle') of the user."""
-  username: String!
 }
 
 """Represents an update to a `User`. Fields that are set will be updated."""
 input UserPatch {
   """Optional avatar URL."""
   avatarUrl: String
-  createdAt: Datetime
 
   """
   Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room.
   """
   defaultHandlingOfNotifications: NotificationSetting
-
-  """Unique identifier for the user."""
-  id: UUID
-
-  """If true, the user has elevated privileges."""
-  isAdmin: Boolean
-  isVerified: Boolean
 
   """Public-facing name (or pseudonym) of the user."""
   name: String
@@ -4973,10 +6075,129 @@ input UserPatch {
   If there are any delayed notifications, they are sent at this time every day.
   """
   sendingTimeForDeferredNotifications: Time
-  updatedAt: Datetime
 
   """Public-facing username (or 'handle') of the user."""
   username: String
+}
+
+"""
+A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyOrganizationMembershipFilter {
+  """
+  Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: OrganizationMembershipFilter
+
+  """
+  No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: OrganizationMembershipFilter
+
+  """
+  Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: OrganizationMembershipFilter
+}
+
+"""
+A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyRoomMessageFilter {
+  """
+  Every related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RoomMessageFilter
+
+  """
+  No related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RoomMessageFilter
+
+  """
+  Some related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RoomMessageFilter
+}
+
+"""
+A filter to be used against many `RoomSubscription` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyRoomSubscriptionFilter {
+  """
+  Every related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RoomSubscriptionFilter
+
+  """
+  No related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RoomSubscriptionFilter
+
+  """
+  Some related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RoomSubscriptionFilter
+}
+
+"""
+A filter to be used against many `Topic` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyTopicFilter {
+  """
+  Every related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: TopicFilter
+
+  """
+  No related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: TopicFilter
+
+  """
+  Some related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: TopicFilter
+}
+
+"""
+A filter to be used against many `UserAuthentication` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyUserAuthenticationFilter {
+  """
+  Every related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: UserAuthenticationFilter
+
+  """
+  No related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: UserAuthenticationFilter
+
+  """
+  Some related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: UserAuthenticationFilter
+}
+
+"""
+A filter to be used against many `UserEmail` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyUserEmailFilter {
+  """
+  Every related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: UserEmailFilter
+
+  """
+  No related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: UserEmailFilter
+
+  """
+  Some related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: UserEmailFilter
 }
 
 """A connection to a list of `User` values."""
@@ -4984,10 +6205,10 @@ type UsersConnection {
   """
   A list of edges which contains the `User` and cursor to aid in pagination.
   """
-  edges: [UsersEdge]!
+  edges: [UsersEdge!]!
 
   """A list of `User` objects."""
-  nodes: [User]!
+  nodes: [User!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -5002,7 +6223,7 @@ type UsersEdge {
   cursor: Cursor
 
   """The `User` at the end of the edge."""
-  node: User
+  node: User!
 }
 
 """Methods to use when ordering `User`."""

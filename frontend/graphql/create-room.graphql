@@ -1,0 +1,7 @@
+mutation CreateRoom($room: RoomInput!) {
+  createRoom(input: { room: $room }) {
+    room {
+      id
+    }
+  }
+}

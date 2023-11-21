@@ -1,0 +1,10 @@
+query GetRoomMessage($id: UUID!) {
+  roomMessage(id: $id) {
+    id
+    body
+    sender {
+      id
+      username
+    }
+  }
+}

@@ -1,0 +1,18 @@
+query FetchRooms {
+  rooms {
+    nodes {
+      id
+      title
+      abstract
+      createdAt
+      latestMessage {
+        createdAt
+        sender {
+          id
+          username
+        }
+      }
+      nSubscriptions
+    }
+  }
+}

@@ -46,7 +46,7 @@ comment on constraint room on app_public.room_subscriptions is
   E'@foreignFieldName subscriptions';
 
 grant select on app_public.room_subscriptions to :DATABASE_VISITOR;
-grant insert (room_id, subscriber_id) on app_public.room_subscriptions to :DATABASE_VISITOR;
+grant insert (room_id, subscriber_id, "role", notifications) on app_public.room_subscriptions to :DATABASE_VISITOR;
 grant update ("role", notifications) on app_public.room_subscriptions to :DATABASE_VISITOR;
 grant delete on app_public.room_subscriptions to :DATABASE_VISITOR;
 
@@ -70,7 +70,7 @@ $$ language sql stable parallel safe security definer set search_path to pg_cata
 
 create or replace function app_public.my_room_subscriptions(minimum_role app_public.room_role default 'member') returns setof app_public.room_subscriptions as $$
   select * from app_public.room_subscriptions where subscriber_id = app_public.current_user_id() and "role" >= minimum_role;
-$$ language sql stable parallel safe security definer;
+$$ language sql stable parallel safe security definer set search_path = pg_catalog, public, pg_temp;
 
 create function app_public.my_room_subscription(in_room app_public.rooms)
   returns app_public.room_subscriptions
@@ -107,7 +107,7 @@ comment on function app_public.my_room_subscription(app_public.rooms) is $$
 @name mySubscriptionId
 $$;
 
-create function app_public.n_room_subscriptions(room app_public.rooms)
+create function app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role default 'member')
 returns bigint
 language sql
 stable
@@ -115,14 +115,16 @@ parallel safe
 as $$
   select count(*)
   from app_public.room_subscriptions
-  where room_id = room.id
+  where 
+    room_id = room.id 
+    and "role" >= min_role
 $$;
 
-comment on function app_public.n_room_subscriptions(room app_public.rooms) is $$
+comment on function app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role) is $$
 @behavior typeField
 @sortable
 @filterable
-@name nSubscriptions
+@fieldName nSubscriptions
 $$;
 
 -- Every subscriber should be able to see her or his rooms, even if private.

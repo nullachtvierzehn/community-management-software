@@ -1,0 +1,21 @@
+mutation CreateRoomMessage($message: RoomMessageInput!) {
+  createRoomMessage(input: { roomMessage: $message }) {
+    roomMessage {
+      id
+      createdAt
+      sender {
+        id
+        username
+      }
+      body
+    }
+    room {
+      latestMessage {
+        id
+      }
+      messages {
+        totalCount
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@ export interface DbRole {
 
 export interface Config {
   database: {
+    rootUrl?: string;
     host: string;
     name: string;
     roles: {

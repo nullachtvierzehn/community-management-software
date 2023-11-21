@@ -16,6 +16,12 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /**
+   * A signed eight-byte integer. The upper big integer values are greater than the
+   * max value for a JavaScript number. Therefore all big integers will be output as
+   * strings and not numbers.
+   */
+  BigInt: { input: any; output: any; }
   /** A location in a connection that can be used for resuming pagination. */
   Cursor: { input: any; output: any; }
   /**
@@ -26,8 +32,10 @@ export type Scalars = {
    * to unexpected results.
    */
   Datetime: { input: string; output: string; }
-  /** A JavaScript object encoded in the JSON format as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  /** Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: { input: any; output: any; }
+  /** The exact time of day, does not include the date. May or may not have a timezone offset. */
+  Time: { input: any; output: any; }
   /** A universally unique identifier as defined by [RFC 4122](https://tools.ietf.org/html/rfc4122). */
   UUID: { input: string; output: string; }
 };
@@ -53,6 +61,58 @@ export type AcceptInvitationToOrganizationPayload = {
   clientMutationId: Maybe<Scalars['String']['output']>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
+};
+
+/** A filter to be used against BigInt fields. All fields are combined with a logical ‘and.’ */
+export type BigIntFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+};
+
+/** A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’ */
+export type BooleanFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['Boolean']['input']>>;
 };
 
 /** All input for the `changePassword` mutation. */
@@ -102,92 +162,18 @@ export type ConfirmAccountDeletionPayload = {
   query: Maybe<Query>;
 };
 
-/** All input for the create `Organization` mutation. */
+/** All input for the `createOrganization` mutation. */
 export type CreateOrganizationInput = {
   /**
    * An arbitrary string value with no semantic meaning. Will be included in the
    * payload verbatim. May be used to track mutations by the client.
    */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The `Organization` to be created by this mutation. */
-  organization: OrganizationInput;
+  name?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
 };
 
-/** All input for the create `OrganizationInvitation` mutation. */
-export type CreateOrganizationInvitationInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The `OrganizationInvitation` to be created by this mutation. */
-  organizationInvitation: OrganizationInvitationInput;
-};
-
-/** The output of our create `OrganizationInvitation` mutation. */
-export type CreateOrganizationInvitationPayload = {
-  __typename?: 'CreateOrganizationInvitationPayload';
-  /**
-   * The exact same `clientMutationId` that was provided in the mutation input,
-   * unchanged and unused. May be used by a client to track mutations.
-   */
-  clientMutationId: Maybe<Scalars['String']['output']>;
-  /** Reads a single `Organization` that is related to this `OrganizationInvitation`. */
-  organization: Maybe<Organization>;
-  /** The `OrganizationInvitation` that was created by this mutation. */
-  organizationInvitation: Maybe<OrganizationInvitation>;
-  /** An edge for our `OrganizationInvitation`. May be used by Relay 1. */
-  organizationInvitationEdge: Maybe<OrganizationInvitationsEdge>;
-  /** Our root query field type. Allows us to run any query from our mutation payload. */
-  query: Maybe<Query>;
-  /** Reads a single `User` that is related to this `OrganizationInvitation`. */
-  user: Maybe<User>;
-};
-
-
-/** The output of our create `OrganizationInvitation` mutation. */
-export type CreateOrganizationInvitationPayloadOrganizationInvitationEdgeArgs = {
-  orderBy?: Array<OrganizationInvitationsOrderBy>;
-};
-
-/** All input for the create `OrganizationMembership` mutation. */
-export type CreateOrganizationMembershipInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The `OrganizationMembership` to be created by this mutation. */
-  organizationMembership: OrganizationMembershipInput;
-};
-
-/** The output of our create `OrganizationMembership` mutation. */
-export type CreateOrganizationMembershipPayload = {
-  __typename?: 'CreateOrganizationMembershipPayload';
-  /**
-   * The exact same `clientMutationId` that was provided in the mutation input,
-   * unchanged and unused. May be used by a client to track mutations.
-   */
-  clientMutationId: Maybe<Scalars['String']['output']>;
-  /** Reads a single `Organization` that is related to this `OrganizationMembership`. */
-  organization: Maybe<Organization>;
-  /** The `OrganizationMembership` that was created by this mutation. */
-  organizationMembership: Maybe<OrganizationMembership>;
-  /** An edge for our `OrganizationMembership`. May be used by Relay 1. */
-  organizationMembershipEdge: Maybe<OrganizationMembershipsEdge>;
-  /** Our root query field type. Allows us to run any query from our mutation payload. */
-  query: Maybe<Query>;
-  /** Reads a single `User` that is related to this `OrganizationMembership`. */
-  user: Maybe<User>;
-};
-
-
-/** The output of our create `OrganizationMembership` mutation. */
-export type CreateOrganizationMembershipPayloadOrganizationMembershipEdgeArgs = {
-  orderBy?: Array<OrganizationMembershipsOrderBy>;
-};
-
-/** The output of our create `Organization` mutation. */
+/** The output of our `createOrganization` mutation. */
 export type CreateOrganizationPayload = {
   __typename?: 'CreateOrganizationPayload';
   /**
@@ -195,7 +181,6 @@ export type CreateOrganizationPayload = {
    * unchanged and unused. May be used by a client to track mutations.
    */
   clientMutationId: Maybe<Scalars['String']['output']>;
-  /** The `Organization` that was created by this mutation. */
   organization: Maybe<Organization>;
   /** An edge for our `Organization`. May be used by Relay 1. */
   organizationEdge: Maybe<OrganizationsEdge>;
@@ -204,25 +189,75 @@ export type CreateOrganizationPayload = {
 };
 
 
-/** The output of our create `Organization` mutation. */
+/** The output of our `createOrganization` mutation. */
 export type CreateOrganizationPayloadOrganizationEdgeArgs = {
   orderBy?: Array<OrganizationsOrderBy>;
 };
 
-/** All input for the create `UserAuthentication` mutation. */
-export type CreateUserAuthenticationInput = {
+/** All input for the create `Room` mutation. */
+export type CreateRoomInput = {
   /**
    * An arbitrary string value with no semantic meaning. Will be included in the
    * payload verbatim. May be used to track mutations by the client.
    */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The `UserAuthentication` to be created by this mutation. */
-  userAuthentication: UserAuthenticationInput;
+  /** The `Room` to be created by this mutation. */
+  room: RoomInput;
 };
 
-/** The output of our create `UserAuthentication` mutation. */
-export type CreateUserAuthenticationPayload = {
-  __typename?: 'CreateUserAuthenticationPayload';
+/** All input for the create `RoomMessageAttachment` mutation. */
+export type CreateRoomMessageAttachmentInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `RoomMessageAttachment` to be created by this mutation. */
+  roomMessageAttachment: RoomMessageAttachmentInput;
+};
+
+/** The output of our create `RoomMessageAttachment` mutation. */
+export type CreateRoomMessageAttachmentPayload = {
+  __typename?: 'CreateRoomMessageAttachmentPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `RoomMessage` that is related to this `RoomMessageAttachment`. */
+  message: Maybe<RoomMessage>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `RoomMessageAttachment` that was created by this mutation. */
+  roomMessageAttachment: Maybe<RoomMessageAttachment>;
+  /** An edge for our `RoomMessageAttachment`. May be used by Relay 1. */
+  roomMessageAttachmentEdge: Maybe<RoomMessageAttachmentsEdge>;
+  /** Reads a single `Topic` that is related to this `RoomMessageAttachment`. */
+  topic: Maybe<Topic>;
+};
+
+
+/** The output of our create `RoomMessageAttachment` mutation. */
+export type CreateRoomMessageAttachmentPayloadRoomMessageAttachmentEdgeArgs = {
+  orderBy?: Array<RoomMessageAttachmentsOrderBy>;
+};
+
+/** All input for the create `RoomMessage` mutation. */
+export type CreateRoomMessageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `RoomMessage` to be created by this mutation. */
+  roomMessage: RoomMessageInput;
+};
+
+/** The output of our create `RoomMessage` mutation. */
+export type CreateRoomMessagePayload = {
+  __typename?: 'CreateRoomMessagePayload';
+  /** Reads a single `RoomMessage` that is related to this `RoomMessage`. */
+  answeredMessage: Maybe<RoomMessage>;
   /**
    * The exact same `clientMutationId` that was provided in the mutation input,
    * unchanged and unused. May be used by a client to track mutations.
@@ -230,18 +265,118 @@ export type CreateUserAuthenticationPayload = {
   clientMutationId: Maybe<Scalars['String']['output']>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
-  /** Reads a single `User` that is related to this `UserAuthentication`. */
-  user: Maybe<User>;
-  /** The `UserAuthentication` that was created by this mutation. */
-  userAuthentication: Maybe<UserAuthentication>;
-  /** An edge for our `UserAuthentication`. May be used by Relay 1. */
-  userAuthenticationEdge: Maybe<UserAuthenticationsEdge>;
+  /** Reads a single `Room` that is related to this `RoomMessage`. */
+  room: Maybe<Room>;
+  /** The `RoomMessage` that was created by this mutation. */
+  roomMessage: Maybe<RoomMessage>;
+  /** An edge for our `RoomMessage`. May be used by Relay 1. */
+  roomMessageEdge: Maybe<RoomMessagesEdge>;
+  /** Reads a single `User` that is related to this `RoomMessage`. */
+  sender: Maybe<User>;
 };
 
 
-/** The output of our create `UserAuthentication` mutation. */
-export type CreateUserAuthenticationPayloadUserAuthenticationEdgeArgs = {
-  orderBy?: Array<UserAuthenticationsOrderBy>;
+/** The output of our create `RoomMessage` mutation. */
+export type CreateRoomMessagePayloadRoomMessageEdgeArgs = {
+  orderBy?: Array<RoomMessagesOrderBy>;
+};
+
+/** The output of our create `Room` mutation. */
+export type CreateRoomPayload = {
+  __typename?: 'CreateRoomPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Each room can optionally belong to an organization. */
+  organization: Maybe<Organization>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `Room` that was created by this mutation. */
+  room: Maybe<Room>;
+  /** An edge for our `Room`. May be used by Relay 1. */
+  roomEdge: Maybe<RoomsEdge>;
+};
+
+
+/** The output of our create `Room` mutation. */
+export type CreateRoomPayloadRoomEdgeArgs = {
+  orderBy?: Array<RoomsOrderBy>;
+};
+
+/** All input for the create `RoomSubscription` mutation. */
+export type CreateRoomSubscriptionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `RoomSubscription` to be created by this mutation. */
+  roomSubscription: RoomSubscriptionInput;
+};
+
+/** The output of our create `RoomSubscription` mutation. */
+export type CreateRoomSubscriptionPayload = {
+  __typename?: 'CreateRoomSubscriptionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `Room` that is related to this `RoomSubscription`. */
+  room: Maybe<Room>;
+  /** The `RoomSubscription` that was created by this mutation. */
+  roomSubscription: Maybe<RoomSubscription>;
+  /** An edge for our `RoomSubscription`. May be used by Relay 1. */
+  roomSubscriptionEdge: Maybe<RoomSubscriptionsEdge>;
+  /** Reads a single `User` that is related to this `RoomSubscription`. */
+  subscriber: Maybe<User>;
+};
+
+
+/** The output of our create `RoomSubscription` mutation. */
+export type CreateRoomSubscriptionPayloadRoomSubscriptionEdgeArgs = {
+  orderBy?: Array<RoomSubscriptionsOrderBy>;
+};
+
+/** All input for the create `Topic` mutation. */
+export type CreateTopicInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `Topic` to be created by this mutation. */
+  topic: TopicInput;
+};
+
+/** The output of our create `Topic` mutation. */
+export type CreateTopicPayload = {
+  __typename?: 'CreateTopicPayload';
+  /** Each topic has an author. The field might be null when the original author has unregistered from the application. */
+  author: Maybe<User>;
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `Organization` that is related to this `Topic`. */
+  organization: Maybe<Organization>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `Topic` that was created by this mutation. */
+  topic: Maybe<Topic>;
+  /** An edge for our `Topic`. May be used by Relay 1. */
+  topicEdge: Maybe<TopicsEdge>;
+};
+
+
+/** The output of our create `Topic` mutation. */
+export type CreateTopicPayloadTopicEdgeArgs = {
+  orderBy?: Array<TopicsOrderBy>;
 };
 
 /** All input for the create `UserEmail` mutation. */
@@ -356,25 +491,30 @@ export type CurrentUserMemberOrganizationIdsEdge = {
   node: Maybe<Scalars['UUID']['output']>;
 };
 
-/** All input for the `deleteOrganizationByNodeId` mutation. */
-export type DeleteOrganizationByNodeIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The globally unique `ID` which will identify a single `Organization` to be deleted. */
-  nodeId: Scalars['ID']['input'];
-};
-
-/** All input for the `deleteOrganizationBySlug` mutation. */
-export type DeleteOrganizationBySlugInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  slug: Scalars['String']['input'];
+/** A filter to be used against Datetime fields. All fields are combined with a logical ‘and.’ */
+export type DatetimeFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['Datetime']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['Datetime']['input']>>;
 };
 
 /** All input for the `deleteOrganization` mutation. */
@@ -384,139 +524,10 @@ export type DeleteOrganizationInput = {
    * payload verbatim. May be used to track mutations by the client.
    */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['UUID']['input'];
+  organizationId?: InputMaybe<Scalars['UUID']['input']>;
 };
 
-/** All input for the `deleteOrganizationInvitationByNodeId` mutation. */
-export type DeleteOrganizationInvitationByNodeIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The globally unique `ID` which will identify a single `OrganizationInvitation` to be deleted. */
-  nodeId: Scalars['ID']['input'];
-};
-
-/** All input for the `deleteOrganizationInvitationByOrganizationIdAndEmail` mutation. */
-export type DeleteOrganizationInvitationByOrganizationIdAndEmailInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  email: Scalars['String']['input'];
-  organizationId: Scalars['UUID']['input'];
-};
-
-/** All input for the `deleteOrganizationInvitationByOrganizationIdAndUserId` mutation. */
-export type DeleteOrganizationInvitationByOrganizationIdAndUserIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  organizationId: Scalars['UUID']['input'];
-  userId: Scalars['UUID']['input'];
-};
-
-/** All input for the `deleteOrganizationInvitation` mutation. */
-export type DeleteOrganizationInvitationInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['UUID']['input'];
-};
-
-/** The output of our delete `OrganizationInvitation` mutation. */
-export type DeleteOrganizationInvitationPayload = {
-  __typename?: 'DeleteOrganizationInvitationPayload';
-  /**
-   * The exact same `clientMutationId` that was provided in the mutation input,
-   * unchanged and unused. May be used by a client to track mutations.
-   */
-  clientMutationId: Maybe<Scalars['String']['output']>;
-  deletedOrganizationInvitationNodeId: Maybe<Scalars['ID']['output']>;
-  /** Reads a single `Organization` that is related to this `OrganizationInvitation`. */
-  organization: Maybe<Organization>;
-  /** The `OrganizationInvitation` that was deleted by this mutation. */
-  organizationInvitation: Maybe<OrganizationInvitation>;
-  /** An edge for our `OrganizationInvitation`. May be used by Relay 1. */
-  organizationInvitationEdge: Maybe<OrganizationInvitationsEdge>;
-  /** Our root query field type. Allows us to run any query from our mutation payload. */
-  query: Maybe<Query>;
-  /** Reads a single `User` that is related to this `OrganizationInvitation`. */
-  user: Maybe<User>;
-};
-
-
-/** The output of our delete `OrganizationInvitation` mutation. */
-export type DeleteOrganizationInvitationPayloadOrganizationInvitationEdgeArgs = {
-  orderBy?: Array<OrganizationInvitationsOrderBy>;
-};
-
-/** All input for the `deleteOrganizationMembershipByNodeId` mutation. */
-export type DeleteOrganizationMembershipByNodeIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The globally unique `ID` which will identify a single `OrganizationMembership` to be deleted. */
-  nodeId: Scalars['ID']['input'];
-};
-
-/** All input for the `deleteOrganizationMembershipByOrganizationIdAndUserId` mutation. */
-export type DeleteOrganizationMembershipByOrganizationIdAndUserIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  organizationId: Scalars['UUID']['input'];
-  userId: Scalars['UUID']['input'];
-};
-
-/** All input for the `deleteOrganizationMembership` mutation. */
-export type DeleteOrganizationMembershipInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['UUID']['input'];
-};
-
-/** The output of our delete `OrganizationMembership` mutation. */
-export type DeleteOrganizationMembershipPayload = {
-  __typename?: 'DeleteOrganizationMembershipPayload';
-  /**
-   * The exact same `clientMutationId` that was provided in the mutation input,
-   * unchanged and unused. May be used by a client to track mutations.
-   */
-  clientMutationId: Maybe<Scalars['String']['output']>;
-  deletedOrganizationMembershipNodeId: Maybe<Scalars['ID']['output']>;
-  /** Reads a single `Organization` that is related to this `OrganizationMembership`. */
-  organization: Maybe<Organization>;
-  /** The `OrganizationMembership` that was deleted by this mutation. */
-  organizationMembership: Maybe<OrganizationMembership>;
-  /** An edge for our `OrganizationMembership`. May be used by Relay 1. */
-  organizationMembershipEdge: Maybe<OrganizationMembershipsEdge>;
-  /** Our root query field type. Allows us to run any query from our mutation payload. */
-  query: Maybe<Query>;
-  /** Reads a single `User` that is related to this `OrganizationMembership`. */
-  user: Maybe<User>;
-};
-
-
-/** The output of our delete `OrganizationMembership` mutation. */
-export type DeleteOrganizationMembershipPayloadOrganizationMembershipEdgeArgs = {
-  orderBy?: Array<OrganizationMembershipsOrderBy>;
-};
-
-/** The output of our delete `Organization` mutation. */
+/** The output of our `deleteOrganization` mutation. */
 export type DeleteOrganizationPayload = {
   __typename?: 'DeleteOrganizationPayload';
   /**
@@ -524,19 +535,283 @@ export type DeleteOrganizationPayload = {
    * unchanged and unused. May be used by a client to track mutations.
    */
   clientMutationId: Maybe<Scalars['String']['output']>;
-  deletedOrganizationNodeId: Maybe<Scalars['ID']['output']>;
-  /** The `Organization` that was deleted by this mutation. */
-  organization: Maybe<Organization>;
-  /** An edge for our `Organization`. May be used by Relay 1. */
-  organizationEdge: Maybe<OrganizationsEdge>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
 };
 
+/** All input for the `deleteRoomByNodeId` mutation. */
+export type DeleteRoomByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `Room` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
 
-/** The output of our delete `Organization` mutation. */
-export type DeleteOrganizationPayloadOrganizationEdgeArgs = {
-  orderBy?: Array<OrganizationsOrderBy>;
+/** All input for the `deleteRoom` mutation. */
+export type DeleteRoomInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** All input for the `deleteRoomMessageAttachmentByNodeId` mutation. */
+export type DeleteRoomMessageAttachmentByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `RoomMessageAttachment` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
+/** All input for the `deleteRoomMessageAttachmentByTopicIdAndRoomMessageId` mutation. */
+export type DeleteRoomMessageAttachmentByTopicIdAndRoomMessageIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  roomMessageId: Scalars['UUID']['input'];
+  topicId: Scalars['UUID']['input'];
+};
+
+/** All input for the `deleteRoomMessageAttachment` mutation. */
+export type DeleteRoomMessageAttachmentInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `RoomMessageAttachment` mutation. */
+export type DeleteRoomMessageAttachmentPayload = {
+  __typename?: 'DeleteRoomMessageAttachmentPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedRoomMessageAttachmentNodeId: Maybe<Scalars['ID']['output']>;
+  /** Reads a single `RoomMessage` that is related to this `RoomMessageAttachment`. */
+  message: Maybe<RoomMessage>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `RoomMessageAttachment` that was deleted by this mutation. */
+  roomMessageAttachment: Maybe<RoomMessageAttachment>;
+  /** An edge for our `RoomMessageAttachment`. May be used by Relay 1. */
+  roomMessageAttachmentEdge: Maybe<RoomMessageAttachmentsEdge>;
+  /** Reads a single `Topic` that is related to this `RoomMessageAttachment`. */
+  topic: Maybe<Topic>;
+};
+
+
+/** The output of our delete `RoomMessageAttachment` mutation. */
+export type DeleteRoomMessageAttachmentPayloadRoomMessageAttachmentEdgeArgs = {
+  orderBy?: Array<RoomMessageAttachmentsOrderBy>;
+};
+
+/** All input for the `deleteRoomMessageByNodeId` mutation. */
+export type DeleteRoomMessageByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `RoomMessage` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
+/** All input for the `deleteRoomMessage` mutation. */
+export type DeleteRoomMessageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `RoomMessage` mutation. */
+export type DeleteRoomMessagePayload = {
+  __typename?: 'DeleteRoomMessagePayload';
+  /** Reads a single `RoomMessage` that is related to this `RoomMessage`. */
+  answeredMessage: Maybe<RoomMessage>;
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedRoomMessageNodeId: Maybe<Scalars['ID']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `Room` that is related to this `RoomMessage`. */
+  room: Maybe<Room>;
+  /** The `RoomMessage` that was deleted by this mutation. */
+  roomMessage: Maybe<RoomMessage>;
+  /** An edge for our `RoomMessage`. May be used by Relay 1. */
+  roomMessageEdge: Maybe<RoomMessagesEdge>;
+  /** Reads a single `User` that is related to this `RoomMessage`. */
+  sender: Maybe<User>;
+};
+
+
+/** The output of our delete `RoomMessage` mutation. */
+export type DeleteRoomMessagePayloadRoomMessageEdgeArgs = {
+  orderBy?: Array<RoomMessagesOrderBy>;
+};
+
+/** The output of our delete `Room` mutation. */
+export type DeleteRoomPayload = {
+  __typename?: 'DeleteRoomPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedRoomNodeId: Maybe<Scalars['ID']['output']>;
+  /** Each room can optionally belong to an organization. */
+  organization: Maybe<Organization>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `Room` that was deleted by this mutation. */
+  room: Maybe<Room>;
+  /** An edge for our `Room`. May be used by Relay 1. */
+  roomEdge: Maybe<RoomsEdge>;
+};
+
+
+/** The output of our delete `Room` mutation. */
+export type DeleteRoomPayloadRoomEdgeArgs = {
+  orderBy?: Array<RoomsOrderBy>;
+};
+
+/** All input for the `deleteRoomSubscriptionByNodeId` mutation. */
+export type DeleteRoomSubscriptionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `RoomSubscription` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
+/** All input for the `deleteRoomSubscriptionBySubscriberIdAndRoomId` mutation. */
+export type DeleteRoomSubscriptionBySubscriberIdAndRoomIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  roomId: Scalars['UUID']['input'];
+  /** The subscribing user. */
+  subscriberId: Scalars['UUID']['input'];
+};
+
+/** All input for the `deleteRoomSubscription` mutation. */
+export type DeleteRoomSubscriptionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `RoomSubscription` mutation. */
+export type DeleteRoomSubscriptionPayload = {
+  __typename?: 'DeleteRoomSubscriptionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedRoomSubscriptionNodeId: Maybe<Scalars['ID']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `Room` that is related to this `RoomSubscription`. */
+  room: Maybe<Room>;
+  /** The `RoomSubscription` that was deleted by this mutation. */
+  roomSubscription: Maybe<RoomSubscription>;
+  /** An edge for our `RoomSubscription`. May be used by Relay 1. */
+  roomSubscriptionEdge: Maybe<RoomSubscriptionsEdge>;
+  /** Reads a single `User` that is related to this `RoomSubscription`. */
+  subscriber: Maybe<User>;
+};
+
+
+/** The output of our delete `RoomSubscription` mutation. */
+export type DeleteRoomSubscriptionPayloadRoomSubscriptionEdgeArgs = {
+  orderBy?: Array<RoomSubscriptionsOrderBy>;
+};
+
+/** All input for the `deleteTopicByNodeId` mutation. */
+export type DeleteTopicByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `Topic` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
+/** All input for the `deleteTopicBySlugAndOrganizationId` mutation. */
+export type DeleteTopicBySlugAndOrganizationIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  organizationId: Scalars['UUID']['input'];
+  /** Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with. */
+  slug: Scalars['String']['input'];
+};
+
+/** All input for the `deleteTopic` mutation. */
+export type DeleteTopicInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `Topic` mutation. */
+export type DeleteTopicPayload = {
+  __typename?: 'DeleteTopicPayload';
+  /** Each topic has an author. The field might be null when the original author has unregistered from the application. */
+  author: Maybe<User>;
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedTopicNodeId: Maybe<Scalars['ID']['output']>;
+  /** Reads a single `Organization` that is related to this `Topic`. */
+  organization: Maybe<Organization>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `Topic` that was deleted by this mutation. */
+  topic: Maybe<Topic>;
+  /** An edge for our `Topic`. May be used by Relay 1. */
+  topicEdge: Maybe<TopicsEdge>;
+};
+
+
+/** The output of our delete `Topic` mutation. */
+export type DeleteTopicPayloadTopicEdgeArgs = {
+  orderBy?: Array<TopicsOrderBy>;
 };
 
 /** All input for the `deleteUserAuthenticationByNodeId` mutation. */
@@ -598,28 +873,6 @@ export type DeleteUserAuthenticationPayloadUserAuthenticationEdgeArgs = {
   orderBy?: Array<UserAuthenticationsOrderBy>;
 };
 
-/** All input for the `deleteUserByNodeId` mutation. */
-export type DeleteUserByNodeIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The globally unique `ID` which will identify a single `User` to be deleted. */
-  nodeId: Scalars['ID']['input'];
-};
-
-/** All input for the `deleteUserByUsername` mutation. */
-export type DeleteUserByUsernameInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** Public-facing username (or 'handle') of the user. */
-  username: Scalars['String']['input'];
-};
-
 /** All input for the `deleteUserEmailByNodeId` mutation. */
 export type DeleteUserEmailByNodeIdInput = {
   /**
@@ -678,40 +931,6 @@ export type DeleteUserEmailPayloadUserEmailEdgeArgs = {
   orderBy?: Array<UserEmailsOrderBy>;
 };
 
-/** All input for the `deleteUser` mutation. */
-export type DeleteUserInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** Unique identifier for the user. */
-  id: Scalars['UUID']['input'];
-};
-
-/** The output of our delete `User` mutation. */
-export type DeleteUserPayload = {
-  __typename?: 'DeleteUserPayload';
-  /**
-   * The exact same `clientMutationId` that was provided in the mutation input,
-   * unchanged and unused. May be used by a client to track mutations.
-   */
-  clientMutationId: Maybe<Scalars['String']['output']>;
-  deletedUserNodeId: Maybe<Scalars['ID']['output']>;
-  /** Our root query field type. Allows us to run any query from our mutation payload. */
-  query: Maybe<Query>;
-  /** The `User` that was deleted by this mutation. */
-  user: Maybe<User>;
-  /** An edge for our `User`. May be used by Relay 1. */
-  userEdge: Maybe<UsersEdge>;
-};
-
-
-/** The output of our delete `User` mutation. */
-export type DeleteUserPayloadUserEdgeArgs = {
-  orderBy?: Array<UsersOrderBy>;
-};
-
 /** All input for the `forgotPassword` mutation. */
 export type ForgotPasswordInput = {
   /**
@@ -732,6 +951,73 @@ export type ForgotPasswordPayload = {
   clientMutationId: Maybe<Scalars['String']['output']>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
+};
+
+/** An interval of time that has passed where the smallest distinct unit is a second. */
+export type Interval = {
+  __typename?: 'Interval';
+  /** A quantity of days. */
+  days: Maybe<Scalars['Int']['output']>;
+  /** A quantity of hours. */
+  hours: Maybe<Scalars['Int']['output']>;
+  /** A quantity of minutes. */
+  minutes: Maybe<Scalars['Int']['output']>;
+  /** A quantity of months. */
+  months: Maybe<Scalars['Int']['output']>;
+  /**
+   * A quantity of seconds. This is the only non-integer field, as all the other
+   * fields will dump their overflow into a smaller unit of time. Intervals don’t
+   * have a smaller unit than seconds.
+   */
+  seconds: Maybe<Scalars['Float']['output']>;
+  /** A quantity of years. */
+  years: Maybe<Scalars['Int']['output']>;
+};
+
+/** A filter to be used against Interval fields. All fields are combined with a logical ‘and.’ */
+export type IntervalFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<IntervalInput>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<IntervalInput>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<IntervalInput>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<IntervalInput>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<IntervalInput>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<IntervalInput>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<IntervalInput>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<IntervalInput>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<IntervalInput>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<IntervalInput>>;
+};
+
+/** An interval of time that has passed where the smallest distinct unit is a second. */
+export type IntervalInput = {
+  /** A quantity of days. */
+  days?: InputMaybe<Scalars['Int']['input']>;
+  /** A quantity of hours. */
+  hours?: InputMaybe<Scalars['Int']['input']>;
+  /** A quantity of minutes. */
+  minutes?: InputMaybe<Scalars['Int']['input']>;
+  /** A quantity of months. */
+  months?: InputMaybe<Scalars['Int']['input']>;
+  /**
+   * A quantity of seconds. This is the only non-integer field, as all the other
+   * fields will dump their overflow into a smaller unit of time. Intervals don’t
+   * have a smaller unit than seconds.
+   */
+  seconds?: InputMaybe<Scalars['Float']['input']>;
+  /** A quantity of years. */
+  years?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** All input for the `inviteToOrganization` mutation. */
@@ -756,6 +1042,42 @@ export type InviteToOrganizationPayload = {
   clientMutationId: Maybe<Scalars['String']['output']>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
+};
+
+/** A filter to be used against JSON fields. All fields are combined with a logical ‘and.’ */
+export type JsonFilter = {
+  /** Contained by the specified JSON. */
+  containedBy?: InputMaybe<Scalars['JSON']['input']>;
+  /** Contains the specified JSON. */
+  contains?: InputMaybe<Scalars['JSON']['input']>;
+  /** Contains all of the specified keys. */
+  containsAllKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Contains any of the specified keys. */
+  containsAnyKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Contains the specified key. */
+  containsKey?: InputMaybe<Scalars['String']['input']>;
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['JSON']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['JSON']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['JSON']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['JSON']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['JSON']['input']>>;
 };
 
 export type LoginInput = {
@@ -814,50 +1136,54 @@ export type Mutation = {
   changePassword: Maybe<ChangePasswordPayload>;
   /** If you're certain you want to delete your account, use `requestAccountDeletion` to request an account deletion token, and then supply the token through this mutation to complete account deletion. */
   confirmAccountDeletion: Maybe<ConfirmAccountDeletionPayload>;
-  /** Creates a single `Organization`. */
   createOrganization: Maybe<CreateOrganizationPayload>;
-  /** Creates a single `OrganizationInvitation`. */
-  createOrganizationInvitation: Maybe<CreateOrganizationInvitationPayload>;
-  /** Creates a single `OrganizationMembership`. */
-  createOrganizationMembership: Maybe<CreateOrganizationMembershipPayload>;
+  /** Creates a single `Room`. */
+  createRoom: Maybe<CreateRoomPayload>;
+  /** Creates a single `RoomMessage`. */
+  createRoomMessage: Maybe<CreateRoomMessagePayload>;
+  /** Creates a single `RoomMessageAttachment`. */
+  createRoomMessageAttachment: Maybe<CreateRoomMessageAttachmentPayload>;
+  /** Creates a single `RoomSubscription`. */
+  createRoomSubscription: Maybe<CreateRoomSubscriptionPayload>;
+  /** Creates a single `Topic`. */
+  createTopic: Maybe<CreateTopicPayload>;
   /** Creates a single `User`. */
   createUser: Maybe<CreateUserPayload>;
-  /** Creates a single `UserAuthentication`. */
-  createUserAuthentication: Maybe<CreateUserAuthenticationPayload>;
   /** Creates a single `UserEmail`. */
   createUserEmail: Maybe<CreateUserEmailPayload>;
-  /** Deletes a single `Organization` using a unique key. */
   deleteOrganization: Maybe<DeleteOrganizationPayload>;
-  /** Deletes a single `Organization` using its globally unique id. */
-  deleteOrganizationByNodeId: Maybe<DeleteOrganizationPayload>;
-  /** Deletes a single `Organization` using a unique key. */
-  deleteOrganizationBySlug: Maybe<DeleteOrganizationPayload>;
-  /** Deletes a single `OrganizationInvitation` using a unique key. */
-  deleteOrganizationInvitation: Maybe<DeleteOrganizationInvitationPayload>;
-  /** Deletes a single `OrganizationInvitation` using its globally unique id. */
-  deleteOrganizationInvitationByNodeId: Maybe<DeleteOrganizationInvitationPayload>;
-  /** Deletes a single `OrganizationInvitation` using a unique key. */
-  deleteOrganizationInvitationByOrganizationIdAndEmail: Maybe<DeleteOrganizationInvitationPayload>;
-  /** Deletes a single `OrganizationInvitation` using a unique key. */
-  deleteOrganizationInvitationByOrganizationIdAndUserId: Maybe<DeleteOrganizationInvitationPayload>;
-  /** Deletes a single `OrganizationMembership` using a unique key. */
-  deleteOrganizationMembership: Maybe<DeleteOrganizationMembershipPayload>;
-  /** Deletes a single `OrganizationMembership` using its globally unique id. */
-  deleteOrganizationMembershipByNodeId: Maybe<DeleteOrganizationMembershipPayload>;
-  /** Deletes a single `OrganizationMembership` using a unique key. */
-  deleteOrganizationMembershipByOrganizationIdAndUserId: Maybe<DeleteOrganizationMembershipPayload>;
-  /** Deletes a single `User` using a unique key. */
-  deleteUser: Maybe<DeleteUserPayload>;
+  /** Deletes a single `Room` using a unique key. */
+  deleteRoom: Maybe<DeleteRoomPayload>;
+  /** Deletes a single `Room` using its globally unique id. */
+  deleteRoomByNodeId: Maybe<DeleteRoomPayload>;
+  /** Deletes a single `RoomMessage` using a unique key. */
+  deleteRoomMessage: Maybe<DeleteRoomMessagePayload>;
+  /** Deletes a single `RoomMessageAttachment` using a unique key. */
+  deleteRoomMessageAttachment: Maybe<DeleteRoomMessageAttachmentPayload>;
+  /** Deletes a single `RoomMessageAttachment` using its globally unique id. */
+  deleteRoomMessageAttachmentByNodeId: Maybe<DeleteRoomMessageAttachmentPayload>;
+  /** Deletes a single `RoomMessageAttachment` using a unique key. */
+  deleteRoomMessageAttachmentByTopicIdAndRoomMessageId: Maybe<DeleteRoomMessageAttachmentPayload>;
+  /** Deletes a single `RoomMessage` using its globally unique id. */
+  deleteRoomMessageByNodeId: Maybe<DeleteRoomMessagePayload>;
+  /** Deletes a single `RoomSubscription` using a unique key. */
+  deleteRoomSubscription: Maybe<DeleteRoomSubscriptionPayload>;
+  /** Deletes a single `RoomSubscription` using its globally unique id. */
+  deleteRoomSubscriptionByNodeId: Maybe<DeleteRoomSubscriptionPayload>;
+  /** Deletes a single `RoomSubscription` using a unique key. */
+  deleteRoomSubscriptionBySubscriberIdAndRoomId: Maybe<DeleteRoomSubscriptionPayload>;
+  /** Deletes a single `Topic` using a unique key. */
+  deleteTopic: Maybe<DeleteTopicPayload>;
+  /** Deletes a single `Topic` using its globally unique id. */
+  deleteTopicByNodeId: Maybe<DeleteTopicPayload>;
+  /** Deletes a single `Topic` using a unique key. */
+  deleteTopicBySlugAndOrganizationId: Maybe<DeleteTopicPayload>;
   /** Deletes a single `UserAuthentication` using a unique key. */
   deleteUserAuthentication: Maybe<DeleteUserAuthenticationPayload>;
   /** Deletes a single `UserAuthentication` using its globally unique id. */
   deleteUserAuthenticationByNodeId: Maybe<DeleteUserAuthenticationPayload>;
   /** Deletes a single `UserAuthentication` using a unique key. */
   deleteUserAuthenticationByServiceAndIdentifier: Maybe<DeleteUserAuthenticationPayload>;
-  /** Deletes a single `User` using its globally unique id. */
-  deleteUserByNodeId: Maybe<DeleteUserPayload>;
-  /** Deletes a single `User` using a unique key. */
-  deleteUserByUsername: Maybe<DeleteUserPayload>;
   /** Deletes a single `UserEmail` using a unique key. */
   deleteUserEmail: Maybe<DeleteUserEmailPayload>;
   /** Deletes a single `UserEmail` using its globally unique id. */
@@ -882,6 +1208,7 @@ export type Mutation = {
   resendEmailVerificationCode: Maybe<ResendEmailVerificationCodePayload>;
   /** After triggering forgotPassword, you'll be sent a reset token. Combine this with your user ID and a new password to reset your password. */
   resetPassword: Maybe<ResetPasswordPayload>;
+  sendRoomMessage: Maybe<SendRoomMessagePayload>;
   transferOrganizationBillingContact: Maybe<TransferOrganizationBillingContactPayload>;
   transferOrganizationOwnership: Maybe<TransferOrganizationOwnershipPayload>;
   /** Updates a single `Organization` using a unique key and a patch. */
@@ -890,38 +1217,32 @@ export type Mutation = {
   updateOrganizationByNodeId: Maybe<UpdateOrganizationPayload>;
   /** Updates a single `Organization` using a unique key and a patch. */
   updateOrganizationBySlug: Maybe<UpdateOrganizationPayload>;
-  /** Updates a single `OrganizationInvitation` using a unique key and a patch. */
-  updateOrganizationInvitation: Maybe<UpdateOrganizationInvitationPayload>;
-  /** Updates a single `OrganizationInvitation` using its globally unique id and a patch. */
-  updateOrganizationInvitationByNodeId: Maybe<UpdateOrganizationInvitationPayload>;
-  /** Updates a single `OrganizationInvitation` using a unique key and a patch. */
-  updateOrganizationInvitationByOrganizationIdAndEmail: Maybe<UpdateOrganizationInvitationPayload>;
-  /** Updates a single `OrganizationInvitation` using a unique key and a patch. */
-  updateOrganizationInvitationByOrganizationIdAndUserId: Maybe<UpdateOrganizationInvitationPayload>;
-  /** Updates a single `OrganizationMembership` using a unique key and a patch. */
-  updateOrganizationMembership: Maybe<UpdateOrganizationMembershipPayload>;
-  /** Updates a single `OrganizationMembership` using its globally unique id and a patch. */
-  updateOrganizationMembershipByNodeId: Maybe<UpdateOrganizationMembershipPayload>;
-  /** Updates a single `OrganizationMembership` using a unique key and a patch. */
-  updateOrganizationMembershipByOrganizationIdAndUserId: Maybe<UpdateOrganizationMembershipPayload>;
+  /** Updates a single `Room` using a unique key and a patch. */
+  updateRoom: Maybe<UpdateRoomPayload>;
+  /** Updates a single `Room` using its globally unique id and a patch. */
+  updateRoomByNodeId: Maybe<UpdateRoomPayload>;
+  /** Updates a single `RoomMessage` using a unique key and a patch. */
+  updateRoomMessage: Maybe<UpdateRoomMessagePayload>;
+  /** Updates a single `RoomMessage` using its globally unique id and a patch. */
+  updateRoomMessageByNodeId: Maybe<UpdateRoomMessagePayload>;
+  /** Updates a single `RoomSubscription` using a unique key and a patch. */
+  updateRoomSubscription: Maybe<UpdateRoomSubscriptionPayload>;
+  /** Updates a single `RoomSubscription` using its globally unique id and a patch. */
+  updateRoomSubscriptionByNodeId: Maybe<UpdateRoomSubscriptionPayload>;
+  /** Updates a single `RoomSubscription` using a unique key and a patch. */
+  updateRoomSubscriptionBySubscriberIdAndRoomId: Maybe<UpdateRoomSubscriptionPayload>;
+  /** Updates a single `Topic` using a unique key and a patch. */
+  updateTopic: Maybe<UpdateTopicPayload>;
+  /** Updates a single `Topic` using its globally unique id and a patch. */
+  updateTopicByNodeId: Maybe<UpdateTopicPayload>;
+  /** Updates a single `Topic` using a unique key and a patch. */
+  updateTopicBySlugAndOrganizationId: Maybe<UpdateTopicPayload>;
   /** Updates a single `User` using a unique key and a patch. */
   updateUser: Maybe<UpdateUserPayload>;
-  /** Updates a single `UserAuthentication` using a unique key and a patch. */
-  updateUserAuthentication: Maybe<UpdateUserAuthenticationPayload>;
-  /** Updates a single `UserAuthentication` using its globally unique id and a patch. */
-  updateUserAuthenticationByNodeId: Maybe<UpdateUserAuthenticationPayload>;
-  /** Updates a single `UserAuthentication` using a unique key and a patch. */
-  updateUserAuthenticationByServiceAndIdentifier: Maybe<UpdateUserAuthenticationPayload>;
   /** Updates a single `User` using its globally unique id and a patch. */
   updateUserByNodeId: Maybe<UpdateUserPayload>;
   /** Updates a single `User` using a unique key and a patch. */
   updateUserByUsername: Maybe<UpdateUserPayload>;
-  /** Updates a single `UserEmail` using a unique key and a patch. */
-  updateUserEmail: Maybe<UpdateUserEmailPayload>;
-  /** Updates a single `UserEmail` using its globally unique id and a patch. */
-  updateUserEmailByNodeId: Maybe<UpdateUserEmailPayload>;
-  /** Updates a single `UserEmail` using a unique key and a patch. */
-  updateUserEmailByUserIdAndEmail: Maybe<UpdateUserEmailPayload>;
   /** Once you have received a verification token for your email, you may call this mutation with that token to make your email verified. */
   verifyEmail: Maybe<VerifyEmailPayload>;
 };
@@ -952,26 +1273,38 @@ export type MutationCreateOrganizationArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationCreateOrganizationInvitationArgs = {
-  input: CreateOrganizationInvitationInput;
+export type MutationCreateRoomArgs = {
+  input: CreateRoomInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationCreateOrganizationMembershipArgs = {
-  input: CreateOrganizationMembershipInput;
+export type MutationCreateRoomMessageArgs = {
+  input: CreateRoomMessageInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateRoomMessageAttachmentArgs = {
+  input: CreateRoomMessageAttachmentInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateRoomSubscriptionArgs = {
+  input: CreateRoomSubscriptionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateTopicArgs = {
+  input: CreateTopicInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
-};
-
-
-/** The root mutation type which contains root level fields which mutate data. */
-export type MutationCreateUserAuthenticationArgs = {
-  input: CreateUserAuthenticationInput;
 };
 
 
@@ -988,62 +1321,80 @@ export type MutationDeleteOrganizationArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteOrganizationByNodeIdArgs = {
-  input: DeleteOrganizationByNodeIdInput;
+export type MutationDeleteRoomArgs = {
+  input: DeleteRoomInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteOrganizationBySlugArgs = {
-  input: DeleteOrganizationBySlugInput;
+export type MutationDeleteRoomByNodeIdArgs = {
+  input: DeleteRoomByNodeIdInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteOrganizationInvitationArgs = {
-  input: DeleteOrganizationInvitationInput;
+export type MutationDeleteRoomMessageArgs = {
+  input: DeleteRoomMessageInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteOrganizationInvitationByNodeIdArgs = {
-  input: DeleteOrganizationInvitationByNodeIdInput;
+export type MutationDeleteRoomMessageAttachmentArgs = {
+  input: DeleteRoomMessageAttachmentInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteOrganizationInvitationByOrganizationIdAndEmailArgs = {
-  input: DeleteOrganizationInvitationByOrganizationIdAndEmailInput;
+export type MutationDeleteRoomMessageAttachmentByNodeIdArgs = {
+  input: DeleteRoomMessageAttachmentByNodeIdInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteOrganizationInvitationByOrganizationIdAndUserIdArgs = {
-  input: DeleteOrganizationInvitationByOrganizationIdAndUserIdInput;
+export type MutationDeleteRoomMessageAttachmentByTopicIdAndRoomMessageIdArgs = {
+  input: DeleteRoomMessageAttachmentByTopicIdAndRoomMessageIdInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteOrganizationMembershipArgs = {
-  input: DeleteOrganizationMembershipInput;
+export type MutationDeleteRoomMessageByNodeIdArgs = {
+  input: DeleteRoomMessageByNodeIdInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteOrganizationMembershipByNodeIdArgs = {
-  input: DeleteOrganizationMembershipByNodeIdInput;
+export type MutationDeleteRoomSubscriptionArgs = {
+  input: DeleteRoomSubscriptionInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteOrganizationMembershipByOrganizationIdAndUserIdArgs = {
-  input: DeleteOrganizationMembershipByOrganizationIdAndUserIdInput;
+export type MutationDeleteRoomSubscriptionByNodeIdArgs = {
+  input: DeleteRoomSubscriptionByNodeIdInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteUserArgs = {
-  input: DeleteUserInput;
+export type MutationDeleteRoomSubscriptionBySubscriberIdAndRoomIdArgs = {
+  input: DeleteRoomSubscriptionBySubscriberIdAndRoomIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteTopicArgs = {
+  input: DeleteTopicInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteTopicByNodeIdArgs = {
+  input: DeleteTopicByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteTopicBySlugAndOrganizationIdArgs = {
+  input: DeleteTopicBySlugAndOrganizationIdInput;
 };
 
 
@@ -1062,18 +1413,6 @@ export type MutationDeleteUserAuthenticationByNodeIdArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationDeleteUserAuthenticationByServiceAndIdentifierArgs = {
   input: DeleteUserAuthenticationByServiceAndIdentifierInput;
-};
-
-
-/** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteUserByNodeIdArgs = {
-  input: DeleteUserByNodeIdInput;
-};
-
-
-/** The root mutation type which contains root level fields which mutate data. */
-export type MutationDeleteUserByUsernameArgs = {
-  input: DeleteUserByUsernameInput;
 };
 
 
@@ -1150,6 +1489,12 @@ export type MutationResetPasswordArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationSendRoomMessageArgs = {
+  input: SendRoomMessageInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationTransferOrganizationBillingContactArgs = {
   input: TransferOrganizationBillingContactInput;
 };
@@ -1180,68 +1525,68 @@ export type MutationUpdateOrganizationBySlugArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateOrganizationInvitationArgs = {
-  input: UpdateOrganizationInvitationInput;
+export type MutationUpdateRoomArgs = {
+  input: UpdateRoomInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateOrganizationInvitationByNodeIdArgs = {
-  input: UpdateOrganizationInvitationByNodeIdInput;
+export type MutationUpdateRoomByNodeIdArgs = {
+  input: UpdateRoomByNodeIdInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateOrganizationInvitationByOrganizationIdAndEmailArgs = {
-  input: UpdateOrganizationInvitationByOrganizationIdAndEmailInput;
+export type MutationUpdateRoomMessageArgs = {
+  input: UpdateRoomMessageInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateOrganizationInvitationByOrganizationIdAndUserIdArgs = {
-  input: UpdateOrganizationInvitationByOrganizationIdAndUserIdInput;
+export type MutationUpdateRoomMessageByNodeIdArgs = {
+  input: UpdateRoomMessageByNodeIdInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateOrganizationMembershipArgs = {
-  input: UpdateOrganizationMembershipInput;
+export type MutationUpdateRoomSubscriptionArgs = {
+  input: UpdateRoomSubscriptionInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateOrganizationMembershipByNodeIdArgs = {
-  input: UpdateOrganizationMembershipByNodeIdInput;
+export type MutationUpdateRoomSubscriptionByNodeIdArgs = {
+  input: UpdateRoomSubscriptionByNodeIdInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateOrganizationMembershipByOrganizationIdAndUserIdArgs = {
-  input: UpdateOrganizationMembershipByOrganizationIdAndUserIdInput;
+export type MutationUpdateRoomSubscriptionBySubscriberIdAndRoomIdArgs = {
+  input: UpdateRoomSubscriptionBySubscriberIdAndRoomIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateTopicArgs = {
+  input: UpdateTopicInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateTopicByNodeIdArgs = {
+  input: UpdateTopicByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateTopicBySlugAndOrganizationIdArgs = {
+  input: UpdateTopicBySlugAndOrganizationIdInput;
 };
 
 
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationUpdateUserArgs = {
   input: UpdateUserInput;
-};
-
-
-/** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateUserAuthenticationArgs = {
-  input: UpdateUserAuthenticationInput;
-};
-
-
-/** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateUserAuthenticationByNodeIdArgs = {
-  input: UpdateUserAuthenticationByNodeIdInput;
-};
-
-
-/** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateUserAuthenticationByServiceAndIdentifierArgs = {
-  input: UpdateUserAuthenticationByServiceAndIdentifierInput;
 };
 
 
@@ -1258,32 +1603,68 @@ export type MutationUpdateUserByUsernameArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateUserEmailArgs = {
-  input: UpdateUserEmailInput;
-};
-
-
-/** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateUserEmailByNodeIdArgs = {
-  input: UpdateUserEmailByNodeIdInput;
-};
-
-
-/** The root mutation type which contains root level fields which mutate data. */
-export type MutationUpdateUserEmailByUserIdAndEmailArgs = {
-  input: UpdateUserEmailByUserIdAndEmailInput;
-};
-
-
-/** The root mutation type which contains root level fields which mutate data. */
 export type MutationVerifyEmailArgs = {
   input: VerifyEmailInput;
+};
+
+/** A connection to a list of `UUID` values. */
+export type MySubscribedRoomIdsConnection = {
+  __typename?: 'MySubscribedRoomIdsConnection';
+  /** A list of edges which contains the `UUID` and cursor to aid in pagination. */
+  edges: Array<Maybe<MySubscribedRoomIdsEdge>>;
+  /** A list of `UUID` objects. */
+  nodes: Array<Maybe<Scalars['UUID']['output']>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `UUID` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `UUID` edge in the connection. */
+export type MySubscribedRoomIdsEdge = {
+  __typename?: 'MySubscribedRoomIdsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `UUID` at the end of the edge. */
+  node: Maybe<Scalars['UUID']['output']>;
 };
 
 /** An object with a globally unique `ID`. */
 export type Node = {
   /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
   nodeId: Scalars['ID']['output'];
+};
+
+export type NotificationSetting =
+  | 'DEFAULT'
+  | 'DEFERRED'
+  | 'IMMEDIATE'
+  | 'SILENCED';
+
+/** A filter to be used against NotificationSetting fields. All fields are combined with a logical ‘and.’ */
+export type NotificationSettingFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<NotificationSetting>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<NotificationSetting>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<NotificationSetting>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<NotificationSetting>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<NotificationSetting>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<NotificationSetting>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<NotificationSetting>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<NotificationSetting>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<NotificationSetting>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<NotificationSetting>>;
 };
 
 export type Organization = Node & {
@@ -1295,22 +1676,13 @@ export type Organization = Node & {
   name: Scalars['String']['output'];
   /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
   nodeId: Scalars['ID']['output'];
-  /** Reads and enables pagination through a set of `OrganizationInvitation`. */
-  organizationInvitations: OrganizationInvitationsConnection;
   /** Reads and enables pagination through a set of `OrganizationMembership`. */
   organizationMemberships: OrganizationMembershipsConnection;
+  /** Reads and enables pagination through a set of `Room`. */
+  rooms: RoomsConnection;
   slug: Scalars['String']['output'];
-};
-
-
-export type OrganizationOrganizationInvitationsArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<OrganizationInvitationCondition>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<OrganizationInvitationsOrderBy>>;
+  /** Reads and enables pagination through a set of `Topic`. */
+  topics: TopicsConnection;
 };
 
 
@@ -1318,10 +1690,35 @@ export type OrganizationOrganizationMembershipsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<OrganizationMembershipCondition>;
+  filter?: InputMaybe<OrganizationMembershipFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<OrganizationMembershipsOrderBy>>;
+};
+
+
+export type OrganizationRoomsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomCondition>;
+  filter?: InputMaybe<RoomFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomsOrderBy>>;
+};
+
+
+export type OrganizationTopicsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<TopicCondition>;
+  filter?: InputMaybe<TopicFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<TopicsOrderBy>>;
 };
 
 /**
@@ -1331,6 +1728,10 @@ export type OrganizationOrganizationMembershipsArgs = {
 export type OrganizationCondition = {
   /** Checks for equality with the object’s `createdAt` field. */
   createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `currentUserIsBillingContact` field. */
+  currentUserIsBillingContact?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Checks for equality with the object’s `currentUserIsOwner` field. */
+  currentUserIsOwner?: InputMaybe<Scalars['Boolean']['input']>;
   /** Checks for equality with the object’s `id` field. */
   id?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `name` field. */
@@ -1339,101 +1740,39 @@ export type OrganizationCondition = {
   slug?: InputMaybe<Scalars['String']['input']>;
 };
 
-/** An input for mutations affecting `Organization` */
-export type OrganizationInput = {
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  name: Scalars['String']['input'];
-  slug: Scalars['String']['input'];
+/** A filter to be used against `Organization` object types. All fields are combined with a logical ‘and.’ */
+export type OrganizationFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<OrganizationFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `currentUserIsBillingContact` field. */
+  currentUserIsBillingContact?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `currentUserIsOwner` field. */
+  currentUserIsOwner?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `name` field. */
+  name?: InputMaybe<StringFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<OrganizationFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<OrganizationFilter>>;
+  /** Filter by the object’s `organizationMemberships` relation. */
+  organizationMemberships?: InputMaybe<OrganizationToManyOrganizationMembershipFilter>;
+  /** Some related `organizationMemberships` exist. */
+  organizationMembershipsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `rooms` relation. */
+  rooms?: InputMaybe<OrganizationToManyRoomFilter>;
+  /** Some related `rooms` exist. */
+  roomsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `slug` field. */
+  slug?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `topics` relation. */
+  topics?: InputMaybe<OrganizationToManyTopicFilter>;
+  /** Some related `topics` exist. */
+  topicsExist?: InputMaybe<Scalars['Boolean']['input']>;
 };
-
-export type OrganizationInvitation = Node & {
-  __typename?: 'OrganizationInvitation';
-  code: Maybe<Scalars['String']['output']>;
-  email: Maybe<Scalars['String']['output']>;
-  id: Scalars['UUID']['output'];
-  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
-  nodeId: Scalars['ID']['output'];
-  /** Reads a single `Organization` that is related to this `OrganizationInvitation`. */
-  organization: Maybe<Organization>;
-  organizationId: Scalars['UUID']['output'];
-  /** Reads a single `User` that is related to this `OrganizationInvitation`. */
-  user: Maybe<User>;
-  userId: Maybe<Scalars['UUID']['output']>;
-};
-
-/**
- * A condition to be used against `OrganizationInvitation` object types. All fields
- * are tested for equality and combined with a logical ‘and.’
- */
-export type OrganizationInvitationCondition = {
-  /** Checks for equality with the object’s `code` field. */
-  code?: InputMaybe<Scalars['String']['input']>;
-  /** Checks for equality with the object’s `email` field. */
-  email?: InputMaybe<Scalars['String']['input']>;
-  /** Checks for equality with the object’s `id` field. */
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `organizationId` field. */
-  organizationId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `userId` field. */
-  userId?: InputMaybe<Scalars['UUID']['input']>;
-};
-
-/** An input for mutations affecting `OrganizationInvitation` */
-export type OrganizationInvitationInput = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  email?: InputMaybe<Scalars['String']['input']>;
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  organizationId: Scalars['UUID']['input'];
-  userId?: InputMaybe<Scalars['UUID']['input']>;
-};
-
-/** Represents an update to a `OrganizationInvitation`. Fields that are set will be updated. */
-export type OrganizationInvitationPatch = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  email?: InputMaybe<Scalars['String']['input']>;
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  organizationId?: InputMaybe<Scalars['UUID']['input']>;
-  userId?: InputMaybe<Scalars['UUID']['input']>;
-};
-
-/** A connection to a list of `OrganizationInvitation` values. */
-export type OrganizationInvitationsConnection = {
-  __typename?: 'OrganizationInvitationsConnection';
-  /** A list of edges which contains the `OrganizationInvitation` and cursor to aid in pagination. */
-  edges: Array<Maybe<OrganizationInvitationsEdge>>;
-  /** A list of `OrganizationInvitation` objects. */
-  nodes: Array<Maybe<OrganizationInvitation>>;
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo;
-  /** The count of *all* `OrganizationInvitation` you could get from the connection. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** A `OrganizationInvitation` edge in the connection. */
-export type OrganizationInvitationsEdge = {
-  __typename?: 'OrganizationInvitationsEdge';
-  /** A cursor for use in pagination. */
-  cursor: Maybe<Scalars['Cursor']['output']>;
-  /** The `OrganizationInvitation` at the end of the edge. */
-  node: Maybe<OrganizationInvitation>;
-};
-
-/** Methods to use when ordering `OrganizationInvitation`. */
-export type OrganizationInvitationsOrderBy =
-  | 'CODE_ASC'
-  | 'CODE_DESC'
-  | 'EMAIL_ASC'
-  | 'EMAIL_DESC'
-  | 'ID_ASC'
-  | 'ID_DESC'
-  | 'NATURAL'
-  | 'ORGANIZATION_ID_ASC'
-  | 'ORGANIZATION_ID_DESC'
-  | 'PRIMARY_KEY_ASC'
-  | 'PRIMARY_KEY_DESC'
-  | 'USER_ID_ASC'
-  | 'USER_ID_DESC';
 
 export type OrganizationMembership = Node & {
   __typename?: 'OrganizationMembership';
@@ -1470,33 +1809,39 @@ export type OrganizationMembershipCondition = {
   userId?: InputMaybe<Scalars['UUID']['input']>;
 };
 
-/** An input for mutations affecting `OrganizationMembership` */
-export type OrganizationMembershipInput = {
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  isBillingContact?: InputMaybe<Scalars['Boolean']['input']>;
-  isOwner?: InputMaybe<Scalars['Boolean']['input']>;
-  organizationId: Scalars['UUID']['input'];
-  userId: Scalars['UUID']['input'];
-};
-
-/** Represents an update to a `OrganizationMembership`. Fields that are set will be updated. */
-export type OrganizationMembershipPatch = {
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  isBillingContact?: InputMaybe<Scalars['Boolean']['input']>;
-  isOwner?: InputMaybe<Scalars['Boolean']['input']>;
-  organizationId?: InputMaybe<Scalars['UUID']['input']>;
-  userId?: InputMaybe<Scalars['UUID']['input']>;
+/** A filter to be used against `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
+export type OrganizationMembershipFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<OrganizationMembershipFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isBillingContact` field. */
+  isBillingContact?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `isOwner` field. */
+  isOwner?: InputMaybe<BooleanFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<OrganizationMembershipFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<OrganizationMembershipFilter>>;
+  /** Filter by the object’s `organization` relation. */
+  organization?: InputMaybe<OrganizationFilter>;
+  /** Filter by the object’s `organizationId` field. */
+  organizationId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `user` relation. */
+  user?: InputMaybe<UserFilter>;
+  /** Filter by the object’s `userId` field. */
+  userId?: InputMaybe<UuidFilter>;
 };
 
 /** A connection to a list of `OrganizationMembership` values. */
 export type OrganizationMembershipsConnection = {
   __typename?: 'OrganizationMembershipsConnection';
   /** A list of edges which contains the `OrganizationMembership` and cursor to aid in pagination. */
-  edges: Array<Maybe<OrganizationMembershipsEdge>>;
+  edges: Array<OrganizationMembershipsEdge>;
   /** A list of `OrganizationMembership` objects. */
-  nodes: Array<Maybe<OrganizationMembership>>;
+  nodes: Array<OrganizationMembership>;
   /** Information to aid in pagination. */
   pageInfo: PageInfo;
   /** The count of *all* `OrganizationMembership` you could get from the connection. */
@@ -1509,7 +1854,7 @@ export type OrganizationMembershipsEdge = {
   /** A cursor for use in pagination. */
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `OrganizationMembership` at the end of the edge. */
-  node: Maybe<OrganizationMembership>;
+  node: OrganizationMembership;
 };
 
 /** Methods to use when ordering `OrganizationMembership`. */
@@ -1532,19 +1877,47 @@ export type OrganizationMembershipsOrderBy =
 
 /** Represents an update to a `Organization`. Fields that are set will be updated. */
 export type OrganizationPatch = {
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  id?: InputMaybe<Scalars['UUID']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
+export type OrganizationToManyOrganizationMembershipFilter = {
+  /** Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<OrganizationMembershipFilter>;
+  /** No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<OrganizationMembershipFilter>;
+  /** Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<OrganizationMembershipFilter>;
+};
+
+/** A filter to be used against many `Room` object types. All fields are combined with a logical ‘and.’ */
+export type OrganizationToManyRoomFilter = {
+  /** Every related `Room` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomFilter>;
+  /** No related `Room` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomFilter>;
+  /** Some related `Room` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomFilter>;
+};
+
+/** A filter to be used against many `Topic` object types. All fields are combined with a logical ‘and.’ */
+export type OrganizationToManyTopicFilter = {
+  /** Every related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<TopicFilter>;
+  /** No related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<TopicFilter>;
+  /** Some related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<TopicFilter>;
 };
 
 /** A connection to a list of `Organization` values. */
 export type OrganizationsConnection = {
   __typename?: 'OrganizationsConnection';
   /** A list of edges which contains the `Organization` and cursor to aid in pagination. */
-  edges: Array<Maybe<OrganizationsEdge>>;
+  edges: Array<OrganizationsEdge>;
   /** A list of `Organization` objects. */
-  nodes: Array<Maybe<Organization>>;
+  nodes: Array<Organization>;
   /** Information to aid in pagination. */
   pageInfo: PageInfo;
   /** The count of *all* `Organization` you could get from the connection. */
@@ -1557,7 +1930,7 @@ export type OrganizationsEdge = {
   /** A cursor for use in pagination. */
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `Organization` at the end of the edge. */
-  node: Maybe<Organization>;
+  node: Organization;
 };
 
 /** Methods to use when ordering `Organization`. */
@@ -1594,12 +1967,18 @@ export type Query = Node & {
   currentSessionId: Maybe<Scalars['UUID']['output']>;
   /** The currently logged in user (or null if not logged in). */
   currentUser: Maybe<User>;
+  currentUserFirstOwnedOrganizationId: Maybe<Scalars['UUID']['output']>;
   /** Handy method to get the current user ID for use in RLS policies, etc; in GraphQL, use `currentUser{id}` instead. */
   currentUserId: Maybe<Scalars['UUID']['output']>;
   /** Reads and enables pagination through a set of `Uuid`. */
   currentUserInvitedOrganizationIds: Maybe<CurrentUserInvitedOrganizationIdsConnection>;
   /** Reads and enables pagination through a set of `Uuid`. */
   currentUserMemberOrganizationIds: Maybe<CurrentUserMemberOrganizationIdsConnection>;
+  fetchDraftInRoom: Maybe<RoomMessage>;
+  /** Reads and enables pagination through a set of `RoomSubscription`. */
+  myRoomSubscriptions: Maybe<RoomSubscriptionsConnection>;
+  /** Reads and enables pagination through a set of `Uuid`. */
+  mySubscribedRoomIds: Maybe<MySubscribedRoomIdsConnection>;
   /** Fetches an object given its globally unique `ID`. */
   node: Maybe<Node>;
   /** The root query type must be a `Node` to work well with Relay 1 mutations. This just resolves to `query`. */
@@ -1611,16 +1990,6 @@ export type Query = Node & {
   /** Get a single `Organization`. */
   organizationBySlug: Maybe<Organization>;
   organizationForInvitation: Maybe<Organization>;
-  /** Get a single `OrganizationInvitation`. */
-  organizationInvitation: Maybe<OrganizationInvitation>;
-  /** Reads a single `OrganizationInvitation` using its globally unique `ID`. */
-  organizationInvitationByNodeId: Maybe<OrganizationInvitation>;
-  /** Get a single `OrganizationInvitation`. */
-  organizationInvitationByOrganizationIdAndEmail: Maybe<OrganizationInvitation>;
-  /** Get a single `OrganizationInvitation`. */
-  organizationInvitationByOrganizationIdAndUserId: Maybe<OrganizationInvitation>;
-  /** Reads and enables pagination through a set of `OrganizationInvitation`. */
-  organizationInvitations: Maybe<OrganizationInvitationsConnection>;
   /** Get a single `OrganizationMembership`. */
   organizationMembership: Maybe<OrganizationMembership>;
   /** Reads a single `OrganizationMembership` using its globally unique `ID`. */
@@ -1636,6 +2005,42 @@ export type Query = Node & {
    * which can only query top level fields if they are in a particular form.
    */
   query: Query;
+  /** Get a single `Room`. */
+  room: Maybe<Room>;
+  /** Reads a single `Room` using its globally unique `ID`. */
+  roomByNodeId: Maybe<Room>;
+  /** Get a single `RoomMessage`. */
+  roomMessage: Maybe<RoomMessage>;
+  /** Get a single `RoomMessageAttachment`. */
+  roomMessageAttachment: Maybe<RoomMessageAttachment>;
+  /** Reads a single `RoomMessageAttachment` using its globally unique `ID`. */
+  roomMessageAttachmentByNodeId: Maybe<RoomMessageAttachment>;
+  /** Get a single `RoomMessageAttachment`. */
+  roomMessageAttachmentByTopicIdAndRoomMessageId: Maybe<RoomMessageAttachment>;
+  /** Reads and enables pagination through a set of `RoomMessageAttachment`. */
+  roomMessageAttachments: Maybe<RoomMessageAttachmentsConnection>;
+  /** Reads a single `RoomMessage` using its globally unique `ID`. */
+  roomMessageByNodeId: Maybe<RoomMessage>;
+  /** Reads and enables pagination through a set of `RoomMessage`. */
+  roomMessages: Maybe<RoomMessagesConnection>;
+  /** Get a single `RoomSubscription`. */
+  roomSubscription: Maybe<RoomSubscription>;
+  /** Reads a single `RoomSubscription` using its globally unique `ID`. */
+  roomSubscriptionByNodeId: Maybe<RoomSubscription>;
+  /** Get a single `RoomSubscription`. */
+  roomSubscriptionBySubscriberIdAndRoomId: Maybe<RoomSubscription>;
+  /** Reads and enables pagination through a set of `RoomSubscription`. */
+  roomSubscriptions: Maybe<RoomSubscriptionsConnection>;
+  /** Reads and enables pagination through a set of `Room`. */
+  rooms: Maybe<RoomsConnection>;
+  /** Get a single `Topic`. */
+  topic: Maybe<Topic>;
+  /** Reads a single `Topic` using its globally unique `ID`. */
+  topicByNodeId: Maybe<Topic>;
+  /** Get a single `Topic`. */
+  topicBySlugAndOrganizationId: Maybe<Topic>;
+  /** Reads and enables pagination through a set of `Topic`. */
+  topics: Maybe<TopicsConnection>;
   /** Get a single `User`. */
   user: Maybe<User>;
   /** Get a single `UserAuthentication`. */
@@ -1667,6 +2072,7 @@ export type Query = Node & {
 export type QueryCurrentUserInvitedOrganizationIdsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
+  filter?: InputMaybe<UuidFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -1677,8 +2083,39 @@ export type QueryCurrentUserInvitedOrganizationIdsArgs = {
 export type QueryCurrentUserMemberOrganizationIdsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
+  filter?: InputMaybe<UuidFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryFetchDraftInRoomArgs = {
+  roomId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryMyRoomSubscriptionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  filter?: InputMaybe<RoomSubscriptionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minimumRole?: InputMaybe<RoomRole>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryMySubscribedRoomIdsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  filter?: InputMaybe<UuidFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minimumRole?: InputMaybe<RoomRole>;
   offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -1715,44 +2152,6 @@ export type QueryOrganizationForInvitationArgs = {
 
 
 /** The root query type which gives access points into the data universe. */
-export type QueryOrganizationInvitationArgs = {
-  id: Scalars['UUID']['input'];
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QueryOrganizationInvitationByNodeIdArgs = {
-  nodeId: Scalars['ID']['input'];
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QueryOrganizationInvitationByOrganizationIdAndEmailArgs = {
-  email: Scalars['String']['input'];
-  organizationId: Scalars['UUID']['input'];
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QueryOrganizationInvitationByOrganizationIdAndUserIdArgs = {
-  organizationId: Scalars['UUID']['input'];
-  userId: Scalars['UUID']['input'];
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QueryOrganizationInvitationsArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<OrganizationInvitationCondition>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<OrganizationInvitationsOrderBy>>;
-};
-
-
-/** The root query type which gives access points into the data universe. */
 export type QueryOrganizationMembershipArgs = {
   id: Scalars['UUID']['input'];
 };
@@ -1776,6 +2175,7 @@ export type QueryOrganizationMembershipsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<OrganizationMembershipCondition>;
+  filter?: InputMaybe<OrganizationMembershipFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -1788,10 +2188,157 @@ export type QueryOrganizationsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<OrganizationCondition>;
+  filter?: InputMaybe<OrganizationFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<OrganizationsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomMessageArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomMessageAttachmentArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomMessageAttachmentByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomMessageAttachmentByTopicIdAndRoomMessageIdArgs = {
+  roomMessageId: Scalars['UUID']['input'];
+  topicId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomMessageAttachmentsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomMessageAttachmentCondition>;
+  filter?: InputMaybe<RoomMessageAttachmentFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomMessageAttachmentsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomMessageByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomMessagesArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomMessageCondition>;
+  filter?: InputMaybe<RoomMessageFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomMessagesOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomSubscriptionArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomSubscriptionByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomSubscriptionBySubscriberIdAndRoomIdArgs = {
+  roomId: Scalars['UUID']['input'];
+  subscriberId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomSubscriptionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomSubscriptionCondition>;
+  filter?: InputMaybe<RoomSubscriptionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomSubscriptionsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRoomsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomCondition>;
+  filter?: InputMaybe<RoomFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryTopicArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryTopicByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryTopicBySlugAndOrganizationIdArgs = {
+  organizationId: Scalars['UUID']['input'];
+  slug: Scalars['String']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryTopicsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<TopicCondition>;
+  filter?: InputMaybe<TopicFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<TopicsOrderBy>>;
 };
 
 
@@ -1825,6 +2372,7 @@ export type QueryUserAuthenticationsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<UserAuthenticationCondition>;
+  filter?: InputMaybe<UserAuthenticationFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -1868,6 +2416,7 @@ export type QueryUserEmailsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<UserEmailCondition>;
+  filter?: InputMaybe<UserEmailFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -1880,6 +2429,7 @@ export type QueryUsersArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<UserCondition>;
+  filter?: InputMaybe<UserFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -1992,6 +2542,1195 @@ export type ResetPasswordPayload = {
   success: Maybe<Scalars['Boolean']['output']>;
 };
 
+/** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
+export type Room = Node & {
+  __typename?: 'Room';
+  /** Each room has an optional abstract. */
+  abstract: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  isAnonymousPostingAllowed: Scalars['Boolean']['output'];
+  latestMessage: Maybe<RoomMessage>;
+  /** Reads and enables pagination through a set of `RoomMessage`. */
+  messages: RoomMessagesConnection;
+  /**
+   *
+   * Date of subscription or first sent message, whatever is earlier.
+   *
+   */
+  myFirstInteraction: Maybe<Scalars['Datetime']['output']>;
+  myRoomSubscription: Maybe<RoomSubscription>;
+  nSubscriptions: Maybe<Scalars['BigInt']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  /** Each room can optionally belong to an organization. */
+  organization: Maybe<Organization>;
+  organizationId: Maybe<Scalars['UUID']['output']>;
+  /** Reads and enables pagination through a set of `RoomSubscription`. */
+  subscriptions: RoomSubscriptionsConnection;
+  /** Each room has an optional title. */
+  title: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['Datetime']['output'];
+  /** Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`. */
+  visibility: RoomVisibility;
+  /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public. */
+  visibilityOfHistory: RoomHistoryVisibility;
+  visibilityOfHistoryExtendedBy: Interval;
+  visibilityOfHistorySince: Scalars['Datetime']['output'];
+};
+
+
+/** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
+export type RoomMessagesArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomMessageCondition>;
+  filter?: InputMaybe<RoomMessageFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomMessagesOrderBy>>;
+};
+
+
+/** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
+export type RoomNSubscriptionsArgs = {
+  minRole?: InputMaybe<RoomRole>;
+};
+
+
+/** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
+export type RoomSubscriptionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomSubscriptionCondition>;
+  filter?: InputMaybe<RoomSubscriptionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomSubscriptionsOrderBy>>;
+};
+
+/** A condition to be used against `Room` object types. All fields are tested for equality and combined with a logical ‘and.’ */
+export type RoomCondition = {
+  /** Checks for equality with the object’s `abstract` field. */
+  abstract?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `isAnonymousPostingAllowed` field. */
+  isAnonymousPostingAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Checks for equality with the object’s `myFirstInteraction` field. */
+  myFirstInteraction?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `myRoomSubscriptionId` field. */
+  myRoomSubscriptionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `nSubscriptions` field. */
+  nSubscriptions?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Checks for equality with the object’s `organizationId` field. */
+  organizationId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `title` field. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `visibility` field. */
+  visibility?: InputMaybe<RoomVisibility>;
+  /** Checks for equality with the object’s `visibilityOfHistory` field. */
+  visibilityOfHistory?: InputMaybe<RoomHistoryVisibility>;
+  /** Checks for equality with the object’s `visibilityOfHistoryExtendedBy` field. */
+  visibilityOfHistoryExtendedBy?: InputMaybe<IntervalInput>;
+  /** Checks for equality with the object’s `visibilityOfHistorySince` field. */
+  visibilityOfHistorySince?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** A filter to be used against `Room` object types. All fields are combined with a logical ‘and.’ */
+export type RoomFilter = {
+  /** Filter by the object’s `abstract` field. */
+  abstract?: InputMaybe<StringFilter>;
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<RoomFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isAnonymousPostingAllowed` field. */
+  isAnonymousPostingAllowed?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `messages` relation. */
+  messages?: InputMaybe<RoomToManyRoomMessageFilter>;
+  /** Some related `messages` exist. */
+  messagesExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `myFirstInteraction` field. */
+  myFirstInteraction?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `myRoomSubscriptionId` field. */
+  myRoomSubscriptionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `nSubscriptions` field. */
+  nSubscriptions?: InputMaybe<BigIntFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<RoomFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<RoomFilter>>;
+  /** Filter by the object’s `organization` relation. */
+  organization?: InputMaybe<OrganizationFilter>;
+  /** A related `organization` exists. */
+  organizationExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `organizationId` field. */
+  organizationId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `subscriptions` relation. */
+  subscriptions?: InputMaybe<RoomToManyRoomSubscriptionFilter>;
+  /** Some related `subscriptions` exist. */
+  subscriptionsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `title` field. */
+  title?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `visibility` field. */
+  visibility?: InputMaybe<RoomVisibilityFilter>;
+  /** Filter by the object’s `visibilityOfHistory` field. */
+  visibilityOfHistory?: InputMaybe<RoomHistoryVisibilityFilter>;
+  /** Filter by the object’s `visibilityOfHistoryExtendedBy` field. */
+  visibilityOfHistoryExtendedBy?: InputMaybe<IntervalFilter>;
+  /** Filter by the object’s `visibilityOfHistorySince` field. */
+  visibilityOfHistorySince?: InputMaybe<DatetimeFilter>;
+};
+
+export type RoomHistoryVisibility =
+  | 'PUBLIC'
+  | 'SINCE_INVITATION'
+  | 'SINCE_SPECIFIED_DATE'
+  | 'SINCE_SUBSCRIPTION';
+
+/** A filter to be used against RoomHistoryVisibility fields. All fields are combined with a logical ‘and.’ */
+export type RoomHistoryVisibilityFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<RoomHistoryVisibility>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<RoomHistoryVisibility>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<RoomHistoryVisibility>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<RoomHistoryVisibility>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<RoomHistoryVisibility>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<RoomHistoryVisibility>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<RoomHistoryVisibility>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<RoomHistoryVisibility>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<RoomHistoryVisibility>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<RoomHistoryVisibility>>;
+};
+
+/** An input for mutations affecting `Room` */
+export type RoomInput = {
+  /** Each room has an optional abstract. */
+  abstract?: InputMaybe<Scalars['String']['input']>;
+  isAnonymousPostingAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Each room has an optional title. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`. */
+  visibility?: InputMaybe<RoomVisibility>;
+  /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public. */
+  visibilityOfHistory?: InputMaybe<RoomHistoryVisibility>;
+};
+
+export type RoomMessage = Node & {
+  __typename?: 'RoomMessage';
+  /** Reads a single `RoomMessage` that is related to this `RoomMessage`. */
+  answeredMessage: Maybe<RoomMessage>;
+  answeredMessageId: Maybe<Scalars['UUID']['output']>;
+  /** Reads and enables pagination through a set of `RoomMessage`. */
+  answers: RoomMessagesConnection;
+  /** Reads and enables pagination through a set of `RoomMessageAttachment`. */
+  attachments: RoomMessageAttachmentsConnection;
+  body: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  language: Scalars['String']['output'];
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  /** Reads a single `Room` that is related to this `RoomMessage`. */
+  room: Maybe<Room>;
+  roomId: Scalars['UUID']['output'];
+  /** Reads a single `User` that is related to this `RoomMessage`. */
+  sender: Maybe<User>;
+  senderId: Maybe<Scalars['UUID']['output']>;
+  sentAt: Maybe<Scalars['Datetime']['output']>;
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+
+export type RoomMessageAnswersArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomMessageCondition>;
+  filter?: InputMaybe<RoomMessageFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomMessagesOrderBy>>;
+};
+
+
+export type RoomMessageAttachmentsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomMessageAttachmentCondition>;
+  filter?: InputMaybe<RoomMessageAttachmentFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomMessageAttachmentsOrderBy>>;
+};
+
+export type RoomMessageAttachment = Node & {
+  __typename?: 'RoomMessageAttachment';
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  /** Reads a single `RoomMessage` that is related to this `RoomMessageAttachment`. */
+  message: Maybe<RoomMessage>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  roomMessageId: Scalars['UUID']['output'];
+  /** Reads a single `Topic` that is related to this `RoomMessageAttachment`. */
+  topic: Maybe<Topic>;
+  topicId: Scalars['UUID']['output'];
+};
+
+/**
+ * A condition to be used against `RoomMessageAttachment` object types. All fields
+ * are tested for equality and combined with a logical ‘and.’
+ */
+export type RoomMessageAttachmentCondition = {
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `roomMessageId` field. */
+  roomMessageId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `topicId` field. */
+  topicId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+/** A filter to be used against `RoomMessageAttachment` object types. All fields are combined with a logical ‘and.’ */
+export type RoomMessageAttachmentFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<RoomMessageAttachmentFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `message` relation. */
+  message?: InputMaybe<RoomMessageFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<RoomMessageAttachmentFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<RoomMessageAttachmentFilter>>;
+  /** Filter by the object’s `roomMessageId` field. */
+  roomMessageId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `topic` relation. */
+  topic?: InputMaybe<TopicFilter>;
+  /** Filter by the object’s `topicId` field. */
+  topicId?: InputMaybe<UuidFilter>;
+};
+
+/** An input for mutations affecting `RoomMessageAttachment` */
+export type RoomMessageAttachmentInput = {
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  roomMessageId: Scalars['UUID']['input'];
+  topicId: Scalars['UUID']['input'];
+};
+
+/** A connection to a list of `RoomMessageAttachment` values. */
+export type RoomMessageAttachmentsConnection = {
+  __typename?: 'RoomMessageAttachmentsConnection';
+  /** A list of edges which contains the `RoomMessageAttachment` and cursor to aid in pagination. */
+  edges: Array<RoomMessageAttachmentsEdge>;
+  /** A list of `RoomMessageAttachment` objects. */
+  nodes: Array<RoomMessageAttachment>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `RoomMessageAttachment` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `RoomMessageAttachment` edge in the connection. */
+export type RoomMessageAttachmentsEdge = {
+  __typename?: 'RoomMessageAttachmentsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `RoomMessageAttachment` at the end of the edge. */
+  node: RoomMessageAttachment;
+};
+
+/** Methods to use when ordering `RoomMessageAttachment`. */
+export type RoomMessageAttachmentsOrderBy =
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'NATURAL'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'ROOM_MESSAGE_ID_ASC'
+  | 'ROOM_MESSAGE_ID_DESC'
+  | 'TOPIC_ID_ASC'
+  | 'TOPIC_ID_DESC';
+
+/**
+ * A condition to be used against `RoomMessage` object types. All fields are tested
+ * for equality and combined with a logical ‘and.’
+ */
+export type RoomMessageCondition = {
+  /** Checks for equality with the object’s `answeredMessageId` field. */
+  answeredMessageId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `body` field. */
+  body?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `language` field. */
+  language?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `roomId` field. */
+  roomId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `senderId` field. */
+  senderId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `sentAt` field. */
+  sentAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** A filter to be used against `RoomMessage` object types. All fields are combined with a logical ‘and.’ */
+export type RoomMessageFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<RoomMessageFilter>>;
+  /** Filter by the object’s `answeredMessage` relation. */
+  answeredMessage?: InputMaybe<RoomMessageFilter>;
+  /** A related `answeredMessage` exists. */
+  answeredMessageExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `answeredMessageId` field. */
+  answeredMessageId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `answers` relation. */
+  answers?: InputMaybe<RoomMessageToManyRoomMessageFilter>;
+  /** Some related `answers` exist. */
+  answersExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `attachments` relation. */
+  attachments?: InputMaybe<RoomMessageToManyRoomMessageAttachmentFilter>;
+  /** Some related `attachments` exist. */
+  attachmentsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `body` field. */
+  body?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `language` field. */
+  language?: InputMaybe<StringFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<RoomMessageFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<RoomMessageFilter>>;
+  /** Filter by the object’s `room` relation. */
+  room?: InputMaybe<RoomFilter>;
+  /** Filter by the object’s `roomId` field. */
+  roomId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `sender` relation. */
+  sender?: InputMaybe<UserFilter>;
+  /** A related `sender` exists. */
+  senderExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `senderId` field. */
+  senderId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `sentAt` field. */
+  sentAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** An input for mutations affecting `RoomMessage` */
+export type RoomMessageInput = {
+  answeredMessageId?: InputMaybe<Scalars['UUID']['input']>;
+  body?: InputMaybe<Scalars['String']['input']>;
+  language?: InputMaybe<Scalars['String']['input']>;
+  roomId: Scalars['UUID']['input'];
+  senderId?: InputMaybe<Scalars['UUID']['input']>;
+  sentAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Represents an update to a `RoomMessage`. Fields that are set will be updated. */
+export type RoomMessagePatch = {
+  answeredMessageId?: InputMaybe<Scalars['UUID']['input']>;
+  body?: InputMaybe<Scalars['String']['input']>;
+  language?: InputMaybe<Scalars['String']['input']>;
+  sentAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** A filter to be used against many `RoomMessageAttachment` object types. All fields are combined with a logical ‘and.’ */
+export type RoomMessageToManyRoomMessageAttachmentFilter = {
+  /** Every related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomMessageAttachmentFilter>;
+  /** No related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomMessageAttachmentFilter>;
+  /** Some related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomMessageAttachmentFilter>;
+};
+
+/** A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’ */
+export type RoomMessageToManyRoomMessageFilter = {
+  /** Every related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomMessageFilter>;
+  /** No related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomMessageFilter>;
+  /** Some related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomMessageFilter>;
+};
+
+/** A connection to a list of `RoomMessage` values. */
+export type RoomMessagesConnection = {
+  __typename?: 'RoomMessagesConnection';
+  /** A list of edges which contains the `RoomMessage` and cursor to aid in pagination. */
+  edges: Array<RoomMessagesEdge>;
+  /** A list of `RoomMessage` objects. */
+  nodes: Array<RoomMessage>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `RoomMessage` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `RoomMessage` edge in the connection. */
+export type RoomMessagesEdge = {
+  __typename?: 'RoomMessagesEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `RoomMessage` at the end of the edge. */
+  node: RoomMessage;
+};
+
+/** Methods to use when ordering `RoomMessage`. */
+export type RoomMessagesOrderBy =
+  | 'ANSWERED_MESSAGE_ID_ASC'
+  | 'ANSWERED_MESSAGE_ID_DESC'
+  | 'BODY_ASC'
+  | 'BODY_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'LANGUAGE_ASC'
+  | 'LANGUAGE_DESC'
+  | 'NATURAL'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'ROOM_ID_ASC'
+  | 'ROOM_ID_DESC'
+  | 'SENDER_ID_ASC'
+  | 'SENDER_ID_DESC'
+  | 'SENT_AT_ASC'
+  | 'SENT_AT_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** Represents an update to a `Room`. Fields that are set will be updated. */
+export type RoomPatch = {
+  /** Each room has an optional abstract. */
+  abstract?: InputMaybe<Scalars['String']['input']>;
+  isAnonymousPostingAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Each room has an optional title. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`. */
+  visibility?: InputMaybe<RoomVisibility>;
+  /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public. */
+  visibilityOfHistory?: InputMaybe<RoomHistoryVisibility>;
+};
+
+export type RoomRole =
+  | 'ADMIN'
+  | 'BANNED'
+  | 'MEMBER'
+  | 'MODERATOR'
+  | 'PROSPECT';
+
+/** A filter to be used against RoomRole fields. All fields are combined with a logical ‘and.’ */
+export type RoomRoleFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<RoomRole>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<RoomRole>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<RoomRole>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<RoomRole>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<RoomRole>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<RoomRole>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<RoomRole>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<RoomRole>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<RoomRole>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<RoomRole>>;
+};
+
+/** Users can be subscribed to rooms. */
+export type RoomSubscription = Node & {
+  __typename?: 'RoomSubscription';
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  notifications: NotificationSetting;
+  /** Maintainers can manage subscriptions and delete the room. */
+  role: RoomRole;
+  /** Reads a single `Room` that is related to this `RoomSubscription`. */
+  room: Maybe<Room>;
+  roomId: Scalars['UUID']['output'];
+  /** Reads a single `User` that is related to this `RoomSubscription`. */
+  subscriber: Maybe<User>;
+  /** The subscribing user. */
+  subscriberId: Scalars['UUID']['output'];
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+/**
+ * A condition to be used against `RoomSubscription` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type RoomSubscriptionCondition = {
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `notifications` field. */
+  notifications?: InputMaybe<NotificationSetting>;
+  /** Checks for equality with the object’s `role` field. */
+  role?: InputMaybe<RoomRole>;
+  /** Checks for equality with the object’s `roomId` field. */
+  roomId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `subscriberId` field. */
+  subscriberId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** A filter to be used against `RoomSubscription` object types. All fields are combined with a logical ‘and.’ */
+export type RoomSubscriptionFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<RoomSubscriptionFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<RoomSubscriptionFilter>;
+  /** Filter by the object’s `notifications` field. */
+  notifications?: InputMaybe<NotificationSettingFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<RoomSubscriptionFilter>>;
+  /** Filter by the object’s `role` field. */
+  role?: InputMaybe<RoomRoleFilter>;
+  /** Filter by the object’s `room` relation. */
+  room?: InputMaybe<RoomFilter>;
+  /** Filter by the object’s `roomId` field. */
+  roomId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `subscriber` relation. */
+  subscriber?: InputMaybe<UserFilter>;
+  /** Filter by the object’s `subscriberId` field. */
+  subscriberId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** An input for mutations affecting `RoomSubscription` */
+export type RoomSubscriptionInput = {
+  notifications?: InputMaybe<NotificationSetting>;
+  /** Maintainers can manage subscriptions and delete the room. */
+  role?: InputMaybe<RoomRole>;
+  roomId: Scalars['UUID']['input'];
+  /** The subscribing user. */
+  subscriberId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+/** Represents an update to a `RoomSubscription`. Fields that are set will be updated. */
+export type RoomSubscriptionPatch = {
+  notifications?: InputMaybe<NotificationSetting>;
+  /** Maintainers can manage subscriptions and delete the room. */
+  role?: InputMaybe<RoomRole>;
+};
+
+/** A connection to a list of `RoomSubscription` values. */
+export type RoomSubscriptionsConnection = {
+  __typename?: 'RoomSubscriptionsConnection';
+  /** A list of edges which contains the `RoomSubscription` and cursor to aid in pagination. */
+  edges: Array<RoomSubscriptionsEdge>;
+  /** A list of `RoomSubscription` objects. */
+  nodes: Array<RoomSubscription>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `RoomSubscription` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `RoomSubscription` edge in the connection. */
+export type RoomSubscriptionsEdge = {
+  __typename?: 'RoomSubscriptionsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `RoomSubscription` at the end of the edge. */
+  node: RoomSubscription;
+};
+
+/** Methods to use when ordering `RoomSubscription`. */
+export type RoomSubscriptionsOrderBy =
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'NATURAL'
+  | 'NOTIFICATIONS_ASC'
+  | 'NOTIFICATIONS_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'ROLE_ASC'
+  | 'ROLE_DESC'
+  | 'ROOM_ID_ASC'
+  | 'ROOM_ID_DESC'
+  | 'SUBSCRIBERS_USERNAME_ASC'
+  | 'SUBSCRIBERS_USERNAME_DESC'
+  | 'SUBSCRIBER_ID_ASC'
+  | 'SUBSCRIBER_ID_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’ */
+export type RoomToManyRoomMessageFilter = {
+  /** Every related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomMessageFilter>;
+  /** No related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomMessageFilter>;
+  /** Some related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomMessageFilter>;
+};
+
+/** A filter to be used against many `RoomSubscription` object types. All fields are combined with a logical ‘and.’ */
+export type RoomToManyRoomSubscriptionFilter = {
+  /** Every related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomSubscriptionFilter>;
+  /** No related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomSubscriptionFilter>;
+  /** Some related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomSubscriptionFilter>;
+};
+
+export type RoomVisibility =
+  | 'FOR_SUBSCRIBERS'
+  | 'IF_SIGNED_IN'
+  | 'PUBLIC'
+  | 'WITHIN_ORGANIZATION';
+
+/** A filter to be used against RoomVisibility fields. All fields are combined with a logical ‘and.’ */
+export type RoomVisibilityFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<RoomVisibility>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<RoomVisibility>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<RoomVisibility>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<RoomVisibility>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<RoomVisibility>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<RoomVisibility>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<RoomVisibility>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<RoomVisibility>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<RoomVisibility>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<RoomVisibility>>;
+};
+
+/** A connection to a list of `Room` values. */
+export type RoomsConnection = {
+  __typename?: 'RoomsConnection';
+  /** A list of edges which contains the `Room` and cursor to aid in pagination. */
+  edges: Array<RoomsEdge>;
+  /** A list of `Room` objects. */
+  nodes: Array<Room>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `Room` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `Room` edge in the connection. */
+export type RoomsEdge = {
+  __typename?: 'RoomsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `Room` at the end of the edge. */
+  node: Room;
+};
+
+/** Methods to use when ordering `Room`. */
+export type RoomsOrderBy =
+  | 'ABSTRACT_ASC'
+  | 'ABSTRACT_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'IS_ANONYMOUS_POSTING_ALLOWED_ASC'
+  | 'IS_ANONYMOUS_POSTING_ALLOWED_DESC'
+  | 'NATURAL'
+  | 'N_SUBSCRIPTIONS_ASC'
+  | 'N_SUBSCRIPTIONS_DESC'
+  | 'ORGANIZATION_ID_ASC'
+  | 'ORGANIZATION_ID_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'TITLE_ASC'
+  | 'TITLE_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC'
+  | 'VISIBILITY_ASC'
+  | 'VISIBILITY_DESC'
+  | 'VISIBILITY_OF_HISTORY_ASC'
+  | 'VISIBILITY_OF_HISTORY_DESC'
+  | 'VISIBILITY_OF_HISTORY_EXTENDED_BY_ASC'
+  | 'VISIBILITY_OF_HISTORY_EXTENDED_BY_DESC'
+  | 'VISIBILITY_OF_HISTORY_SINCE_ASC'
+  | 'VISIBILITY_OF_HISTORY_SINCE_DESC';
+
+/** All input for the `sendRoomMessage` mutation. */
+export type SendRoomMessageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  draftId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+/** The output of our `sendRoomMessage` mutation. */
+export type SendRoomMessagePayload = {
+  __typename?: 'SendRoomMessagePayload';
+  /** Reads a single `RoomMessage` that is related to this `RoomMessage`. */
+  answeredMessage: Maybe<RoomMessage>;
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `Room` that is related to this `RoomMessage`. */
+  room: Maybe<Room>;
+  roomMessage: Maybe<RoomMessage>;
+  /** An edge for our `RoomMessage`. May be used by Relay 1. */
+  roomMessageEdge: Maybe<RoomMessagesEdge>;
+  /** Reads a single `User` that is related to this `RoomMessage`. */
+  sender: Maybe<User>;
+};
+
+
+/** The output of our `sendRoomMessage` mutation. */
+export type SendRoomMessagePayloadRoomMessageEdgeArgs = {
+  orderBy?: Array<RoomMessagesOrderBy>;
+};
+
+/** A filter to be used against String fields. All fields are combined with a logical ‘and.’ */
+export type StringFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['String']['input']>;
+  /** Not equal to the specified value, treating null like an ordinary value (case-insensitive). */
+  distinctFromInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Ends with the specified string (case-sensitive). */
+  endsWith?: InputMaybe<Scalars['String']['input']>;
+  /** Ends with the specified string (case-insensitive). */
+  endsWithInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['String']['input']>;
+  /** Equal to the specified value (case-insensitive). */
+  equalToInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['String']['input']>;
+  /** Greater than the specified value (case-insensitive). */
+  greaterThanInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Greater than or equal to the specified value (case-insensitive). */
+  greaterThanOrEqualToInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Included in the specified list (case-insensitive). */
+  inInsensitive?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Contains the specified string (case-sensitive). */
+  includes?: InputMaybe<Scalars['String']['input']>;
+  /** Contains the specified string (case-insensitive). */
+  includesInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['String']['input']>;
+  /** Less than the specified value (case-insensitive). */
+  lessThanInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Less than or equal to the specified value (case-insensitive). */
+  lessThanOrEqualToInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters. */
+  like?: InputMaybe<Scalars['String']['input']>;
+  /** Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters. */
+  likeInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['String']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value (case-insensitive). */
+  notDistinctFromInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Does not end with the specified string (case-sensitive). */
+  notEndsWith?: InputMaybe<Scalars['String']['input']>;
+  /** Does not end with the specified string (case-insensitive). */
+  notEndsWithInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Not equal to the specified value (case-insensitive). */
+  notEqualToInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Not included in the specified list (case-insensitive). */
+  notInInsensitive?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Does not contain the specified string (case-sensitive). */
+  notIncludes?: InputMaybe<Scalars['String']['input']>;
+  /** Does not contain the specified string (case-insensitive). */
+  notIncludesInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters. */
+  notLike?: InputMaybe<Scalars['String']['input']>;
+  /** Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters. */
+  notLikeInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Does not start with the specified string (case-sensitive). */
+  notStartsWith?: InputMaybe<Scalars['String']['input']>;
+  /** Does not start with the specified string (case-insensitive). */
+  notStartsWithInsensitive?: InputMaybe<Scalars['String']['input']>;
+  /** Starts with the specified string (case-sensitive). */
+  startsWith?: InputMaybe<Scalars['String']['input']>;
+  /** Starts with the specified string (case-insensitive). */
+  startsWithInsensitive?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A filter to be used against String List fields. All fields are combined with a logical ‘and.’ */
+export type StringListFilter = {
+  /** Any array item is equal to the specified value. */
+  anyEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is greater than the specified value. */
+  anyGreaterThan?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is greater than or equal to the specified value. */
+  anyGreaterThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is less than the specified value. */
+  anyLessThan?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is less than or equal to the specified value. */
+  anyLessThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is not equal to the specified value. */
+  anyNotEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Contained by the specified list of values. */
+  containedBy?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Contains the specified list of values. */
+  contains?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Overlaps the specified list of values. */
+  overlaps?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+/** A filter to be used against Time fields. All fields are combined with a logical ‘and.’ */
+export type TimeFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['Time']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['Time']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['Time']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['Time']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['Time']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['Time']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['Time']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['Time']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['Time']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['Time']['input']>>;
+};
+
+/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+export type Topic = Node & {
+  __typename?: 'Topic';
+  /** Each topic has an author. The field might be null when the original author has unregistered from the application. */
+  author: Maybe<User>;
+  authorId: Maybe<Scalars['UUID']['output']>;
+  /** The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html */
+  content: Scalars['JSON']['output'];
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  /** Each topic can optionally be licensed. Hyperlinks are allowed. */
+  license: Maybe<Scalars['String']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  /** Reads a single `Organization` that is related to this `Topic`. */
+  organization: Maybe<Organization>;
+  organizationId: Maybe<Scalars['UUID']['output']>;
+  /** Reads and enables pagination through a set of `RoomMessageAttachment`. */
+  roomMessageAttachments: RoomMessageAttachmentsConnection;
+  /** Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with. */
+  slug: Scalars['String']['output'];
+  /** Each topic can be categorized using tags. */
+  tags: Array<Maybe<Scalars['String']['output']>>;
+  /** Each topic has an optional title. In case of an article, this would be the headline. */
+  title: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['Datetime']['output'];
+  /** Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`). */
+  visibility: TopicVisibility;
+};
+
+
+/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+export type TopicRoomMessageAttachmentsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomMessageAttachmentCondition>;
+  filter?: InputMaybe<RoomMessageAttachmentFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomMessageAttachmentsOrderBy>>;
+};
+
+/** A condition to be used against `Topic` object types. All fields are tested for equality and combined with a logical ‘and.’ */
+export type TopicCondition = {
+  /** Checks for equality with the object’s `authorId` field. */
+  authorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `content` field. */
+  content?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `license` field. */
+  license?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `organizationId` field. */
+  organizationId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `slug` field. */
+  slug?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `tags` field. */
+  tags?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Checks for equality with the object’s `title` field. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `visibility` field. */
+  visibility?: InputMaybe<TopicVisibility>;
+};
+
+/** A filter to be used against `Topic` object types. All fields are combined with a logical ‘and.’ */
+export type TopicFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<TopicFilter>>;
+  /** Filter by the object’s `author` relation. */
+  author?: InputMaybe<UserFilter>;
+  /** A related `author` exists. */
+  authorExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `authorId` field. */
+  authorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `content` field. */
+  content?: InputMaybe<JsonFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `license` field. */
+  license?: InputMaybe<StringFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<TopicFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<TopicFilter>>;
+  /** Filter by the object’s `organization` relation. */
+  organization?: InputMaybe<OrganizationFilter>;
+  /** A related `organization` exists. */
+  organizationExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `organizationId` field. */
+  organizationId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `roomMessageAttachments` relation. */
+  roomMessageAttachments?: InputMaybe<TopicToManyRoomMessageAttachmentFilter>;
+  /** Some related `roomMessageAttachments` exist. */
+  roomMessageAttachmentsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `slug` field. */
+  slug?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `tags` field. */
+  tags?: InputMaybe<StringListFilter>;
+  /** Filter by the object’s `title` field. */
+  title?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `visibility` field. */
+  visibility?: InputMaybe<TopicVisibilityFilter>;
+};
+
+/** An input for mutations affecting `Topic` */
+export type TopicInput = {
+  authorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html */
+  content: Scalars['JSON']['input'];
+  /** Each topic can optionally be licensed. Hyperlinks are allowed. */
+  license?: InputMaybe<Scalars['String']['input']>;
+  organizationId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with. */
+  slug: Scalars['String']['input'];
+  /** Each topic has an optional title. In case of an article, this would be the headline. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`). */
+  visibility?: InputMaybe<TopicVisibility>;
+};
+
+/** Represents an update to a `Topic`. Fields that are set will be updated. */
+export type TopicPatch = {
+  authorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html */
+  content?: InputMaybe<Scalars['JSON']['input']>;
+  /** Each topic can optionally be licensed. Hyperlinks are allowed. */
+  license?: InputMaybe<Scalars['String']['input']>;
+  organizationId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with. */
+  slug?: InputMaybe<Scalars['String']['input']>;
+  /** Each topic has an optional title. In case of an article, this would be the headline. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`). */
+  visibility?: InputMaybe<TopicVisibility>;
+};
+
+/** A filter to be used against many `RoomMessageAttachment` object types. All fields are combined with a logical ‘and.’ */
+export type TopicToManyRoomMessageAttachmentFilter = {
+  /** Every related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomMessageAttachmentFilter>;
+  /** No related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomMessageAttachmentFilter>;
+  /** Some related `RoomMessageAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomMessageAttachmentFilter>;
+};
+
+export type TopicVisibility =
+  | 'IF_SIGNED_IN'
+  | 'PUBLIC'
+  | 'WITHIN_ORGANIZATION';
+
+/** A filter to be used against TopicVisibility fields. All fields are combined with a logical ‘and.’ */
+export type TopicVisibilityFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<TopicVisibility>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<TopicVisibility>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<TopicVisibility>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<TopicVisibility>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<TopicVisibility>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<TopicVisibility>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<TopicVisibility>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<TopicVisibility>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<TopicVisibility>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<TopicVisibility>>;
+};
+
+/** A connection to a list of `Topic` values. */
+export type TopicsConnection = {
+  __typename?: 'TopicsConnection';
+  /** A list of edges which contains the `Topic` and cursor to aid in pagination. */
+  edges: Array<TopicsEdge>;
+  /** A list of `Topic` objects. */
+  nodes: Array<Topic>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `Topic` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `Topic` edge in the connection. */
+export type TopicsEdge = {
+  __typename?: 'TopicsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `Topic` at the end of the edge. */
+  node: Topic;
+};
+
+/** Methods to use when ordering `Topic`. */
+export type TopicsOrderBy =
+  | 'AUTHOR_ID_ASC'
+  | 'AUTHOR_ID_DESC'
+  | 'CONTENT_ASC'
+  | 'CONTENT_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'LICENSE_ASC'
+  | 'LICENSE_DESC'
+  | 'NATURAL'
+  | 'ORGANIZATION_ID_ASC'
+  | 'ORGANIZATION_ID_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'SLUG_ASC'
+  | 'SLUG_DESC'
+  | 'TITLE_ASC'
+  | 'TITLE_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC'
+  | 'VISIBILITY_ASC'
+  | 'VISIBILITY_DESC';
+
 /** All input for the `transferOrganizationBillingContact` mutation. */
 export type TransferOrganizationBillingContactInput = {
   /**
@@ -2056,6 +3795,32 @@ export type TransferOrganizationOwnershipPayloadOrganizationEdgeArgs = {
   orderBy?: Array<OrganizationsOrderBy>;
 };
 
+/** A filter to be used against UUID fields. All fields are combined with a logical ‘and.’ */
+export type UuidFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['UUID']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['UUID']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['UUID']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['UUID']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['UUID']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['UUID']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['UUID']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['UUID']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['UUID']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['UUID']['input']>>;
+};
+
 /** All input for the `updateOrganizationByNodeId` mutation. */
 export type UpdateOrganizationByNodeIdInput = {
   /**
@@ -2093,147 +3858,6 @@ export type UpdateOrganizationInput = {
   patch: OrganizationPatch;
 };
 
-/** All input for the `updateOrganizationInvitationByNodeId` mutation. */
-export type UpdateOrganizationInvitationByNodeIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The globally unique `ID` which will identify a single `OrganizationInvitation` to be updated. */
-  nodeId: Scalars['ID']['input'];
-  /** An object where the defined keys will be set on the `OrganizationInvitation` being updated. */
-  patch: OrganizationInvitationPatch;
-};
-
-/** All input for the `updateOrganizationInvitationByOrganizationIdAndEmail` mutation. */
-export type UpdateOrganizationInvitationByOrganizationIdAndEmailInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  email: Scalars['String']['input'];
-  organizationId: Scalars['UUID']['input'];
-  /** An object where the defined keys will be set on the `OrganizationInvitation` being updated. */
-  patch: OrganizationInvitationPatch;
-};
-
-/** All input for the `updateOrganizationInvitationByOrganizationIdAndUserId` mutation. */
-export type UpdateOrganizationInvitationByOrganizationIdAndUserIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  organizationId: Scalars['UUID']['input'];
-  /** An object where the defined keys will be set on the `OrganizationInvitation` being updated. */
-  patch: OrganizationInvitationPatch;
-  userId: Scalars['UUID']['input'];
-};
-
-/** All input for the `updateOrganizationInvitation` mutation. */
-export type UpdateOrganizationInvitationInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['UUID']['input'];
-  /** An object where the defined keys will be set on the `OrganizationInvitation` being updated. */
-  patch: OrganizationInvitationPatch;
-};
-
-/** The output of our update `OrganizationInvitation` mutation. */
-export type UpdateOrganizationInvitationPayload = {
-  __typename?: 'UpdateOrganizationInvitationPayload';
-  /**
-   * The exact same `clientMutationId` that was provided in the mutation input,
-   * unchanged and unused. May be used by a client to track mutations.
-   */
-  clientMutationId: Maybe<Scalars['String']['output']>;
-  /** Reads a single `Organization` that is related to this `OrganizationInvitation`. */
-  organization: Maybe<Organization>;
-  /** The `OrganizationInvitation` that was updated by this mutation. */
-  organizationInvitation: Maybe<OrganizationInvitation>;
-  /** An edge for our `OrganizationInvitation`. May be used by Relay 1. */
-  organizationInvitationEdge: Maybe<OrganizationInvitationsEdge>;
-  /** Our root query field type. Allows us to run any query from our mutation payload. */
-  query: Maybe<Query>;
-  /** Reads a single `User` that is related to this `OrganizationInvitation`. */
-  user: Maybe<User>;
-};
-
-
-/** The output of our update `OrganizationInvitation` mutation. */
-export type UpdateOrganizationInvitationPayloadOrganizationInvitationEdgeArgs = {
-  orderBy?: Array<OrganizationInvitationsOrderBy>;
-};
-
-/** All input for the `updateOrganizationMembershipByNodeId` mutation. */
-export type UpdateOrganizationMembershipByNodeIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The globally unique `ID` which will identify a single `OrganizationMembership` to be updated. */
-  nodeId: Scalars['ID']['input'];
-  /** An object where the defined keys will be set on the `OrganizationMembership` being updated. */
-  patch: OrganizationMembershipPatch;
-};
-
-/** All input for the `updateOrganizationMembershipByOrganizationIdAndUserId` mutation. */
-export type UpdateOrganizationMembershipByOrganizationIdAndUserIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  organizationId: Scalars['UUID']['input'];
-  /** An object where the defined keys will be set on the `OrganizationMembership` being updated. */
-  patch: OrganizationMembershipPatch;
-  userId: Scalars['UUID']['input'];
-};
-
-/** All input for the `updateOrganizationMembership` mutation. */
-export type UpdateOrganizationMembershipInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['UUID']['input'];
-  /** An object where the defined keys will be set on the `OrganizationMembership` being updated. */
-  patch: OrganizationMembershipPatch;
-};
-
-/** The output of our update `OrganizationMembership` mutation. */
-export type UpdateOrganizationMembershipPayload = {
-  __typename?: 'UpdateOrganizationMembershipPayload';
-  /**
-   * The exact same `clientMutationId` that was provided in the mutation input,
-   * unchanged and unused. May be used by a client to track mutations.
-   */
-  clientMutationId: Maybe<Scalars['String']['output']>;
-  /** Reads a single `Organization` that is related to this `OrganizationMembership`. */
-  organization: Maybe<Organization>;
-  /** The `OrganizationMembership` that was updated by this mutation. */
-  organizationMembership: Maybe<OrganizationMembership>;
-  /** An edge for our `OrganizationMembership`. May be used by Relay 1. */
-  organizationMembershipEdge: Maybe<OrganizationMembershipsEdge>;
-  /** Our root query field type. Allows us to run any query from our mutation payload. */
-  query: Maybe<Query>;
-  /** Reads a single `User` that is related to this `OrganizationMembership`. */
-  user: Maybe<User>;
-};
-
-
-/** The output of our update `OrganizationMembership` mutation. */
-export type UpdateOrganizationMembershipPayloadOrganizationMembershipEdgeArgs = {
-  orderBy?: Array<OrganizationMembershipsOrderBy>;
-};
-
 /** The output of our update `Organization` mutation. */
 export type UpdateOrganizationPayload = {
   __typename?: 'UpdateOrganizationPayload';
@@ -2256,49 +3880,61 @@ export type UpdateOrganizationPayloadOrganizationEdgeArgs = {
   orderBy?: Array<OrganizationsOrderBy>;
 };
 
-/** All input for the `updateUserAuthenticationByNodeId` mutation. */
-export type UpdateUserAuthenticationByNodeIdInput = {
+/** All input for the `updateRoomByNodeId` mutation. */
+export type UpdateRoomByNodeIdInput = {
   /**
    * An arbitrary string value with no semantic meaning. Will be included in the
    * payload verbatim. May be used to track mutations by the client.
    */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The globally unique `ID` which will identify a single `UserAuthentication` to be updated. */
+  /** The globally unique `ID` which will identify a single `Room` to be updated. */
   nodeId: Scalars['ID']['input'];
-  /** An object where the defined keys will be set on the `UserAuthentication` being updated. */
-  patch: UserAuthenticationPatch;
+  /** An object where the defined keys will be set on the `Room` being updated. */
+  patch: RoomPatch;
 };
 
-/** All input for the `updateUserAuthenticationByServiceAndIdentifier` mutation. */
-export type UpdateUserAuthenticationByServiceAndIdentifierInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** A unique identifier for the user within the login service. */
-  identifier: Scalars['String']['input'];
-  /** An object where the defined keys will be set on the `UserAuthentication` being updated. */
-  patch: UserAuthenticationPatch;
-  /** The login service used, e.g. `twitter` or `github`. */
-  service: Scalars['String']['input'];
-};
-
-/** All input for the `updateUserAuthentication` mutation. */
-export type UpdateUserAuthenticationInput = {
+/** All input for the `updateRoom` mutation. */
+export type UpdateRoomInput = {
   /**
    * An arbitrary string value with no semantic meaning. Will be included in the
    * payload verbatim. May be used to track mutations by the client.
    */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['UUID']['input'];
-  /** An object where the defined keys will be set on the `UserAuthentication` being updated. */
-  patch: UserAuthenticationPatch;
+  /** An object where the defined keys will be set on the `Room` being updated. */
+  patch: RoomPatch;
 };
 
-/** The output of our update `UserAuthentication` mutation. */
-export type UpdateUserAuthenticationPayload = {
-  __typename?: 'UpdateUserAuthenticationPayload';
+/** All input for the `updateRoomMessageByNodeId` mutation. */
+export type UpdateRoomMessageByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `RoomMessage` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `RoomMessage` being updated. */
+  patch: RoomMessagePatch;
+};
+
+/** All input for the `updateRoomMessage` mutation. */
+export type UpdateRoomMessageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `RoomMessage` being updated. */
+  patch: RoomMessagePatch;
+};
+
+/** The output of our update `RoomMessage` mutation. */
+export type UpdateRoomMessagePayload = {
+  __typename?: 'UpdateRoomMessagePayload';
+  /** Reads a single `RoomMessage` that is related to this `RoomMessage`. */
+  answeredMessage: Maybe<RoomMessage>;
   /**
    * The exact same `clientMutationId` that was provided in the mutation input,
    * unchanged and unused. May be used by a client to track mutations.
@@ -2306,18 +3942,174 @@ export type UpdateUserAuthenticationPayload = {
   clientMutationId: Maybe<Scalars['String']['output']>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
-  /** Reads a single `User` that is related to this `UserAuthentication`. */
-  user: Maybe<User>;
-  /** The `UserAuthentication` that was updated by this mutation. */
-  userAuthentication: Maybe<UserAuthentication>;
-  /** An edge for our `UserAuthentication`. May be used by Relay 1. */
-  userAuthenticationEdge: Maybe<UserAuthenticationsEdge>;
+  /** Reads a single `Room` that is related to this `RoomMessage`. */
+  room: Maybe<Room>;
+  /** The `RoomMessage` that was updated by this mutation. */
+  roomMessage: Maybe<RoomMessage>;
+  /** An edge for our `RoomMessage`. May be used by Relay 1. */
+  roomMessageEdge: Maybe<RoomMessagesEdge>;
+  /** Reads a single `User` that is related to this `RoomMessage`. */
+  sender: Maybe<User>;
 };
 
 
-/** The output of our update `UserAuthentication` mutation. */
-export type UpdateUserAuthenticationPayloadUserAuthenticationEdgeArgs = {
-  orderBy?: Array<UserAuthenticationsOrderBy>;
+/** The output of our update `RoomMessage` mutation. */
+export type UpdateRoomMessagePayloadRoomMessageEdgeArgs = {
+  orderBy?: Array<RoomMessagesOrderBy>;
+};
+
+/** The output of our update `Room` mutation. */
+export type UpdateRoomPayload = {
+  __typename?: 'UpdateRoomPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Each room can optionally belong to an organization. */
+  organization: Maybe<Organization>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `Room` that was updated by this mutation. */
+  room: Maybe<Room>;
+  /** An edge for our `Room`. May be used by Relay 1. */
+  roomEdge: Maybe<RoomsEdge>;
+};
+
+
+/** The output of our update `Room` mutation. */
+export type UpdateRoomPayloadRoomEdgeArgs = {
+  orderBy?: Array<RoomsOrderBy>;
+};
+
+/** All input for the `updateRoomSubscriptionByNodeId` mutation. */
+export type UpdateRoomSubscriptionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `RoomSubscription` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `RoomSubscription` being updated. */
+  patch: RoomSubscriptionPatch;
+};
+
+/** All input for the `updateRoomSubscriptionBySubscriberIdAndRoomId` mutation. */
+export type UpdateRoomSubscriptionBySubscriberIdAndRoomIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** An object where the defined keys will be set on the `RoomSubscription` being updated. */
+  patch: RoomSubscriptionPatch;
+  roomId: Scalars['UUID']['input'];
+  /** The subscribing user. */
+  subscriberId: Scalars['UUID']['input'];
+};
+
+/** All input for the `updateRoomSubscription` mutation. */
+export type UpdateRoomSubscriptionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `RoomSubscription` being updated. */
+  patch: RoomSubscriptionPatch;
+};
+
+/** The output of our update `RoomSubscription` mutation. */
+export type UpdateRoomSubscriptionPayload = {
+  __typename?: 'UpdateRoomSubscriptionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `Room` that is related to this `RoomSubscription`. */
+  room: Maybe<Room>;
+  /** The `RoomSubscription` that was updated by this mutation. */
+  roomSubscription: Maybe<RoomSubscription>;
+  /** An edge for our `RoomSubscription`. May be used by Relay 1. */
+  roomSubscriptionEdge: Maybe<RoomSubscriptionsEdge>;
+  /** Reads a single `User` that is related to this `RoomSubscription`. */
+  subscriber: Maybe<User>;
+};
+
+
+/** The output of our update `RoomSubscription` mutation. */
+export type UpdateRoomSubscriptionPayloadRoomSubscriptionEdgeArgs = {
+  orderBy?: Array<RoomSubscriptionsOrderBy>;
+};
+
+/** All input for the `updateTopicByNodeId` mutation. */
+export type UpdateTopicByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `Topic` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `Topic` being updated. */
+  patch: TopicPatch;
+};
+
+/** All input for the `updateTopicBySlugAndOrganizationId` mutation. */
+export type UpdateTopicBySlugAndOrganizationIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  organizationId: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `Topic` being updated. */
+  patch: TopicPatch;
+  /** Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with. */
+  slug: Scalars['String']['input'];
+};
+
+/** All input for the `updateTopic` mutation. */
+export type UpdateTopicInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `Topic` being updated. */
+  patch: TopicPatch;
+};
+
+/** The output of our update `Topic` mutation. */
+export type UpdateTopicPayload = {
+  __typename?: 'UpdateTopicPayload';
+  /** Each topic has an author. The field might be null when the original author has unregistered from the application. */
+  author: Maybe<User>;
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `Organization` that is related to this `Topic`. */
+  organization: Maybe<Organization>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `Topic` that was updated by this mutation. */
+  topic: Maybe<Topic>;
+  /** An edge for our `Topic`. May be used by Relay 1. */
+  topicEdge: Maybe<TopicsEdge>;
+};
+
+
+/** The output of our update `Topic` mutation. */
+export type UpdateTopicPayloadTopicEdgeArgs = {
+  orderBy?: Array<TopicsOrderBy>;
 };
 
 /** All input for the `updateUserByNodeId` mutation. */
@@ -2344,69 +4136,6 @@ export type UpdateUserByUsernameInput = {
   patch: UserPatch;
   /** Public-facing username (or 'handle') of the user. */
   username: Scalars['String']['input'];
-};
-
-/** All input for the `updateUserEmailByNodeId` mutation. */
-export type UpdateUserEmailByNodeIdInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The globally unique `ID` which will identify a single `UserEmail` to be updated. */
-  nodeId: Scalars['ID']['input'];
-  /** An object where the defined keys will be set on the `UserEmail` being updated. */
-  patch: UserEmailPatch;
-};
-
-/** All input for the `updateUserEmailByUserIdAndEmail` mutation. */
-export type UpdateUserEmailByUserIdAndEmailInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** The users email address, in `a@b.c` format. */
-  email: Scalars['String']['input'];
-  /** An object where the defined keys will be set on the `UserEmail` being updated. */
-  patch: UserEmailPatch;
-  userId: Scalars['UUID']['input'];
-};
-
-/** All input for the `updateUserEmail` mutation. */
-export type UpdateUserEmailInput = {
-  /**
-   * An arbitrary string value with no semantic meaning. Will be included in the
-   * payload verbatim. May be used to track mutations by the client.
-   */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['UUID']['input'];
-  /** An object where the defined keys will be set on the `UserEmail` being updated. */
-  patch: UserEmailPatch;
-};
-
-/** The output of our update `UserEmail` mutation. */
-export type UpdateUserEmailPayload = {
-  __typename?: 'UpdateUserEmailPayload';
-  /**
-   * The exact same `clientMutationId` that was provided in the mutation input,
-   * unchanged and unused. May be used by a client to track mutations.
-   */
-  clientMutationId: Maybe<Scalars['String']['output']>;
-  /** Our root query field type. Allows us to run any query from our mutation payload. */
-  query: Maybe<Query>;
-  /** Reads a single `User` that is related to this `UserEmail`. */
-  user: Maybe<User>;
-  /** The `UserEmail` that was updated by this mutation. */
-  userEmail: Maybe<UserEmail>;
-  /** An edge for our `UserEmail`. May be used by Relay 1. */
-  userEmailEdge: Maybe<UserEmailsEdge>;
-};
-
-
-/** The output of our update `UserEmail` mutation. */
-export type UpdateUserEmailPayloadUserEmailEdgeArgs = {
-  orderBy?: Array<UserEmailsOrderBy>;
 };
 
 /** All input for the `updateUser` mutation. */
@@ -2447,9 +4176,13 @@ export type UpdateUserPayloadUserEdgeArgs = {
 /** A user who can log in to the application. */
 export type User = Node & {
   __typename?: 'User';
+  /** Reads and enables pagination through a set of `Topic`. */
+  authoredTopics: TopicsConnection;
   /** Optional avatar URL. */
   avatarUrl: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Datetime']['output'];
+  /** Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room. */
+  defaultHandlingOfNotifications: NotificationSetting;
   hasPassword: Maybe<Scalars['Boolean']['output']>;
   /** Unique identifier for the user. */
   id: Scalars['UUID']['output'];
@@ -2460,10 +4193,14 @@ export type User = Node & {
   name: Maybe<Scalars['String']['output']>;
   /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
   nodeId: Scalars['ID']['output'];
-  /** Reads and enables pagination through a set of `OrganizationInvitation`. */
-  organizationInvitations: OrganizationInvitationsConnection;
   /** Reads and enables pagination through a set of `OrganizationMembership`. */
   organizationMemberships: OrganizationMembershipsConnection;
+  /** Reads and enables pagination through a set of `RoomMessage`. */
+  roomMessagesBySenderId: RoomMessagesConnection;
+  /** Reads and enables pagination through a set of `RoomSubscription`. */
+  roomSubscriptionsBySubscriberId: RoomSubscriptionsConnection;
+  /** If there are any delayed notifications, they are sent at this time every day. */
+  sendingTimeForDeferredNotifications: Scalars['Time']['output'];
   updatedAt: Scalars['Datetime']['output'];
   /** Reads and enables pagination through a set of `UserAuthentication`. */
   userAuthentications: UserAuthenticationsConnection;
@@ -2475,14 +4212,15 @@ export type User = Node & {
 
 
 /** A user who can log in to the application. */
-export type UserOrganizationInvitationsArgs = {
+export type UserAuthoredTopicsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<OrganizationInvitationCondition>;
+  condition?: InputMaybe<TopicCondition>;
+  filter?: InputMaybe<TopicFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<OrganizationInvitationsOrderBy>>;
+  orderBy?: InputMaybe<Array<TopicsOrderBy>>;
 };
 
 
@@ -2491,6 +4229,7 @@ export type UserOrganizationMembershipsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<OrganizationMembershipCondition>;
+  filter?: InputMaybe<OrganizationMembershipFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -2499,10 +4238,37 @@ export type UserOrganizationMembershipsArgs = {
 
 
 /** A user who can log in to the application. */
+export type UserRoomMessagesBySenderIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomMessageCondition>;
+  filter?: InputMaybe<RoomMessageFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomMessagesOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
+export type UserRoomSubscriptionsBySubscriberIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomSubscriptionCondition>;
+  filter?: InputMaybe<RoomSubscriptionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomSubscriptionsOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
 export type UserUserAuthenticationsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<UserAuthenticationCondition>;
+  filter?: InputMaybe<UserAuthenticationFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -2515,6 +4281,7 @@ export type UserUserEmailsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<UserEmailCondition>;
+  filter?: InputMaybe<UserEmailFilter>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -2561,41 +4328,39 @@ export type UserAuthenticationCondition = {
   userId?: InputMaybe<Scalars['UUID']['input']>;
 };
 
-/** An input for mutations affecting `UserAuthentication` */
-export type UserAuthenticationInput = {
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Additional profile details extracted from this login method */
-  details?: InputMaybe<Scalars['JSON']['input']>;
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  /** A unique identifier for the user within the login service. */
-  identifier: Scalars['String']['input'];
-  /** The login service used, e.g. `twitter` or `github`. */
-  service: Scalars['String']['input'];
-  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-  userId: Scalars['UUID']['input'];
-};
-
-/** Represents an update to a `UserAuthentication`. Fields that are set will be updated. */
-export type UserAuthenticationPatch = {
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Additional profile details extracted from this login method */
-  details?: InputMaybe<Scalars['JSON']['input']>;
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  /** A unique identifier for the user within the login service. */
-  identifier?: InputMaybe<Scalars['String']['input']>;
-  /** The login service used, e.g. `twitter` or `github`. */
-  service?: InputMaybe<Scalars['String']['input']>;
-  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-  userId?: InputMaybe<Scalars['UUID']['input']>;
+/** A filter to be used against `UserAuthentication` object types. All fields are combined with a logical ‘and.’ */
+export type UserAuthenticationFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<UserAuthenticationFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `details` field. */
+  details?: InputMaybe<JsonFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `identifier` field. */
+  identifier?: InputMaybe<StringFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<UserAuthenticationFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<UserAuthenticationFilter>>;
+  /** Filter by the object’s `service` field. */
+  service?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `user` relation. */
+  user?: InputMaybe<UserFilter>;
+  /** Filter by the object’s `userId` field. */
+  userId?: InputMaybe<UuidFilter>;
 };
 
 /** A connection to a list of `UserAuthentication` values. */
 export type UserAuthenticationsConnection = {
   __typename?: 'UserAuthenticationsConnection';
   /** A list of edges which contains the `UserAuthentication` and cursor to aid in pagination. */
-  edges: Array<Maybe<UserAuthenticationsEdge>>;
+  edges: Array<UserAuthenticationsEdge>;
   /** A list of `UserAuthentication` objects. */
-  nodes: Array<Maybe<UserAuthentication>>;
+  nodes: Array<UserAuthentication>;
   /** Information to aid in pagination. */
   pageInfo: PageInfo;
   /** The count of *all* `UserAuthentication` you could get from the connection. */
@@ -2608,7 +4373,7 @@ export type UserAuthenticationsEdge = {
   /** A cursor for use in pagination. */
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `UserAuthentication` at the end of the edge. */
-  node: Maybe<UserAuthentication>;
+  node: UserAuthentication;
 };
 
 /** Methods to use when ordering `UserAuthentication`. */
@@ -2637,6 +4402,10 @@ export type UserCondition = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   /** Checks for equality with the object’s `createdAt` field. */
   createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `defaultHandlingOfNotifications` field. */
+  defaultHandlingOfNotifications?: InputMaybe<NotificationSetting>;
+  /** Checks for equality with the object’s `hasPassword` field. */
+  hasPassword?: InputMaybe<Scalars['Boolean']['input']>;
   /** Checks for equality with the object’s `id` field. */
   id?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `isAdmin` field. */
@@ -2645,6 +4414,8 @@ export type UserCondition = {
   isVerified?: InputMaybe<Scalars['Boolean']['input']>;
   /** Checks for equality with the object’s `name` field. */
   name?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `sendingTimeForDeferredNotifications` field. */
+  sendingTimeForDeferredNotifications?: InputMaybe<Scalars['Time']['input']>;
   /** Checks for equality with the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `username` field. */
@@ -2690,39 +4461,45 @@ export type UserEmailCondition = {
   userId?: InputMaybe<Scalars['UUID']['input']>;
 };
 
-/** An input for mutations affecting `UserEmail` */
-export type UserEmailInput = {
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** The users email address, in `a@b.c` format. */
-  email: Scalars['String']['input'];
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  isPrimary?: InputMaybe<Scalars['Boolean']['input']>;
-  /** True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise. */
-  isVerified?: InputMaybe<Scalars['Boolean']['input']>;
-  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-  userId?: InputMaybe<Scalars['UUID']['input']>;
+/** A filter to be used against `UserEmail` object types. All fields are combined with a logical ‘and.’ */
+export type UserEmailFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<UserEmailFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `email` field. */
+  email?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isPrimary` field. */
+  isPrimary?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `isVerified` field. */
+  isVerified?: InputMaybe<BooleanFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<UserEmailFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<UserEmailFilter>>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `user` relation. */
+  user?: InputMaybe<UserFilter>;
+  /** Filter by the object’s `userId` field. */
+  userId?: InputMaybe<UuidFilter>;
 };
 
-/** Represents an update to a `UserEmail`. Fields that are set will be updated. */
-export type UserEmailPatch = {
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+/** An input for mutations affecting `UserEmail` */
+export type UserEmailInput = {
   /** The users email address, in `a@b.c` format. */
-  email?: InputMaybe<Scalars['String']['input']>;
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  isPrimary?: InputMaybe<Scalars['Boolean']['input']>;
-  /** True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise. */
-  isVerified?: InputMaybe<Scalars['Boolean']['input']>;
-  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-  userId?: InputMaybe<Scalars['UUID']['input']>;
+  email: Scalars['String']['input'];
 };
 
 /** A connection to a list of `UserEmail` values. */
 export type UserEmailsConnection = {
   __typename?: 'UserEmailsConnection';
   /** A list of edges which contains the `UserEmail` and cursor to aid in pagination. */
-  edges: Array<Maybe<UserEmailsEdge>>;
+  edges: Array<UserEmailsEdge>;
   /** A list of `UserEmail` objects. */
-  nodes: Array<Maybe<UserEmail>>;
+  nodes: Array<UserEmail>;
   /** Information to aid in pagination. */
   pageInfo: PageInfo;
   /** The count of *all* `UserEmail` you could get from the connection. */
@@ -2735,7 +4512,7 @@ export type UserEmailsEdge = {
   /** A cursor for use in pagination. */
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `UserEmail` at the end of the edge. */
-  node: Maybe<UserEmail>;
+  node: UserEmail;
 };
 
 /** Methods to use when ordering `UserEmail`. */
@@ -2758,47 +4535,151 @@ export type UserEmailsOrderBy =
   | 'USER_ID_ASC'
   | 'USER_ID_DESC';
 
+/** A filter to be used against `User` object types. All fields are combined with a logical ‘and.’ */
+export type UserFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<UserFilter>>;
+  /** Filter by the object’s `authoredTopics` relation. */
+  authoredTopics?: InputMaybe<UserToManyTopicFilter>;
+  /** Some related `authoredTopics` exist. */
+  authoredTopicsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `avatarUrl` field. */
+  avatarUrl?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `defaultHandlingOfNotifications` field. */
+  defaultHandlingOfNotifications?: InputMaybe<NotificationSettingFilter>;
+  /** Filter by the object’s `hasPassword` field. */
+  hasPassword?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isAdmin` field. */
+  isAdmin?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `isVerified` field. */
+  isVerified?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `name` field. */
+  name?: InputMaybe<StringFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<UserFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<UserFilter>>;
+  /** Filter by the object’s `organizationMemberships` relation. */
+  organizationMemberships?: InputMaybe<UserToManyOrganizationMembershipFilter>;
+  /** Some related `organizationMemberships` exist. */
+  organizationMembershipsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `roomMessagesBySenderId` relation. */
+  roomMessagesBySenderId?: InputMaybe<UserToManyRoomMessageFilter>;
+  /** Some related `roomMessagesBySenderId` exist. */
+  roomMessagesBySenderIdExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `roomSubscriptionsBySubscriberId` relation. */
+  roomSubscriptionsBySubscriberId?: InputMaybe<UserToManyRoomSubscriptionFilter>;
+  /** Some related `roomSubscriptionsBySubscriberId` exist. */
+  roomSubscriptionsBySubscriberIdExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `sendingTimeForDeferredNotifications` field. */
+  sendingTimeForDeferredNotifications?: InputMaybe<TimeFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `userAuthentications` relation. */
+  userAuthentications?: InputMaybe<UserToManyUserAuthenticationFilter>;
+  /** Some related `userAuthentications` exist. */
+  userAuthenticationsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `userEmails` relation. */
+  userEmails?: InputMaybe<UserToManyUserEmailFilter>;
+  /** Some related `userEmails` exist. */
+  userEmailsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `username` field. */
+  username?: InputMaybe<StringFilter>;
+};
+
 /** An input for mutations affecting `User` */
 export type UserInput = {
-  /** Optional avatar URL. */
-  avatarUrl?: InputMaybe<Scalars['String']['input']>;
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Unique identifier for the user. */
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  /** If true, the user has elevated privileges. */
-  isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
-  isVerified?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Public-facing name (or pseudonym) of the user. */
-  name?: InputMaybe<Scalars['String']['input']>;
-  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Public-facing username (or 'handle') of the user. */
-  username: Scalars['String']['input'];
+  /** Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room. */
+  defaultHandlingOfNotifications?: InputMaybe<NotificationSetting>;
+  /** If there are any delayed notifications, they are sent at this time every day. */
+  sendingTimeForDeferredNotifications?: InputMaybe<Scalars['Time']['input']>;
 };
 
 /** Represents an update to a `User`. Fields that are set will be updated. */
 export type UserPatch = {
   /** Optional avatar URL. */
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Unique identifier for the user. */
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  /** If true, the user has elevated privileges. */
-  isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
-  isVerified?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room. */
+  defaultHandlingOfNotifications?: InputMaybe<NotificationSetting>;
   /** Public-facing name (or pseudonym) of the user. */
   name?: InputMaybe<Scalars['String']['input']>;
-  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** If there are any delayed notifications, they are sent at this time every day. */
+  sendingTimeForDeferredNotifications?: InputMaybe<Scalars['Time']['input']>;
   /** Public-facing username (or 'handle') of the user. */
   username?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyOrganizationMembershipFilter = {
+  /** Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<OrganizationMembershipFilter>;
+  /** No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<OrganizationMembershipFilter>;
+  /** Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<OrganizationMembershipFilter>;
+};
+
+/** A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyRoomMessageFilter = {
+  /** Every related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomMessageFilter>;
+  /** No related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomMessageFilter>;
+  /** Some related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomMessageFilter>;
+};
+
+/** A filter to be used against many `RoomSubscription` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyRoomSubscriptionFilter = {
+  /** Every related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomSubscriptionFilter>;
+  /** No related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomSubscriptionFilter>;
+  /** Some related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomSubscriptionFilter>;
+};
+
+/** A filter to be used against many `Topic` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyTopicFilter = {
+  /** Every related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<TopicFilter>;
+  /** No related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<TopicFilter>;
+  /** Some related `Topic` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<TopicFilter>;
+};
+
+/** A filter to be used against many `UserAuthentication` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyUserAuthenticationFilter = {
+  /** Every related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<UserAuthenticationFilter>;
+  /** No related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<UserAuthenticationFilter>;
+  /** Some related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<UserAuthenticationFilter>;
+};
+
+/** A filter to be used against many `UserEmail` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyUserEmailFilter = {
+  /** Every related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<UserEmailFilter>;
+  /** No related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<UserEmailFilter>;
+  /** Some related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<UserEmailFilter>;
 };
 
 /** A connection to a list of `User` values. */
 export type UsersConnection = {
   __typename?: 'UsersConnection';
   /** A list of edges which contains the `User` and cursor to aid in pagination. */
-  edges: Array<Maybe<UsersEdge>>;
+  edges: Array<UsersEdge>;
   /** A list of `User` objects. */
-  nodes: Array<Maybe<User>>;
+  nodes: Array<User>;
   /** Information to aid in pagination. */
   pageInfo: PageInfo;
   /** The count of *all* `User` you could get from the connection. */
@@ -2811,7 +4692,7 @@ export type UsersEdge = {
   /** A cursor for use in pagination. */
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `User` at the end of the edge. */
-  node: Maybe<User>;
+  node: User;
 };
 
 /** Methods to use when ordering `User`. */
@@ -2820,6 +4701,8 @@ export type UsersOrderBy =
   | 'AVATAR_URL_DESC'
   | 'CREATED_AT_ASC'
   | 'CREATED_AT_DESC'
+  | 'DEFAULT_HANDLING_OF_NOTIFICATIONS_ASC'
+  | 'DEFAULT_HANDLING_OF_NOTIFICATIONS_DESC'
   | 'ID_ASC'
   | 'ID_DESC'
   | 'IS_ADMIN_ASC'
@@ -2831,6 +4714,8 @@ export type UsersOrderBy =
   | 'NATURAL'
   | 'PRIMARY_KEY_ASC'
   | 'PRIMARY_KEY_DESC'
+  | 'SENDING_TIME_FOR_DEFERRED_NOTIFICATIONS_ASC'
+  | 'SENDING_TIME_FOR_DEFERRED_NOTIFICATIONS_DESC'
   | 'UPDATED_AT_ASC'
   | 'UPDATED_AT_DESC'
   | 'USERNAME_ASC'
@@ -2860,10 +4745,83 @@ export type VerifyEmailPayload = {
   query: Maybe<Query>;
 };
 
+export type CreateRoomMessageMutationVariables = Exact<{
+  message: RoomMessageInput;
+}>;
+
+
+export type CreateRoomMessageMutation = { __typename?: 'Mutation', createRoomMessage: { __typename?: 'CreateRoomMessagePayload', roomMessage: { __typename?: 'RoomMessage', id: string, createdAt: string, body: string | null, sender: { __typename?: 'User', id: string, username: string } | null } | null, room: { __typename?: 'Room', latestMessage: { __typename?: 'RoomMessage', id: string } | null, messages: { __typename?: 'RoomMessagesConnection', totalCount: number } } | null } | null };
+
+export type CreateRoomSubscriptionMutationVariables = Exact<{
+  subscription: RoomSubscriptionInput;
+}>;
+
+
+export type CreateRoomSubscriptionMutation = { __typename?: 'Mutation', createRoomSubscription: { __typename?: 'CreateRoomSubscriptionPayload', roomSubscription: { __typename?: 'RoomSubscription', id: string, createdAt: string } | null, room: { __typename?: 'Room', id: string, nSubscriptions: any | null } | null } | null };
+
+export type CreateRoomMutationVariables = Exact<{
+  room: RoomInput;
+}>;
+
+
+export type CreateRoomMutation = { __typename?: 'Mutation', createRoom: { __typename?: 'CreateRoomPayload', room: { __typename?: 'Room', id: string } | null } | null };
+
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, username: string } | null };
+
+export type FetchRoomMessagesQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomMessageCondition>;
+  filter?: InputMaybe<RoomMessageFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomMessagesOrderBy> | RoomMessagesOrderBy>;
+}>;
+
+
+export type FetchRoomMessagesQuery = { __typename?: 'Query', roomMessages: { __typename?: 'RoomMessagesConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomMessage', body: string | null, createdAt: string, id: string, sentAt: string | null, updatedAt: string, room: { __typename?: 'Room', id: string, title: string | null } | null, sender: { __typename?: 'User', id: string, username: string } | null }> } | null };
+
+export type FetchRoomSubscriptionsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomSubscriptionCondition>;
+  filter?: InputMaybe<RoomSubscriptionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomSubscriptionsOrderBy> | RoomSubscriptionsOrderBy>;
+}>;
+
+
+export type FetchRoomSubscriptionsQuery = { __typename?: 'Query', roomSubscriptions: { __typename?: 'RoomSubscriptionsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomSubscription', subscriberId: string, roomId: string, subscriber: { __typename?: 'User', id: string, username: string } | null, room: { __typename?: 'Room', id: string, title: string | null } | null }> } | null };
+
+export type FetchRoomsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FetchRoomsQuery = { __typename?: 'Query', rooms: { __typename?: 'RoomsConnection', nodes: Array<{ __typename?: 'Room', id: string, title: string | null, abstract: string | null, createdAt: string, nSubscriptions: any | null, latestMessage: { __typename?: 'RoomMessage', createdAt: string, sender: { __typename?: 'User', id: string, username: string } | null } | null }> } | null };
+
+export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, username: string, createdAt: string, userEmails: { __typename?: 'UserEmailsConnection', nodes: Array<{ __typename?: 'UserEmail', id: string, isPrimary: boolean, email: string }> } } | null };
+
+export type GetRoomMessageQueryVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type GetRoomMessageQuery = { __typename?: 'Query', roomMessage: { __typename?: 'RoomMessage', id: string, body: string | null, sender: { __typename?: 'User', id: string, username: string } | null } | null };
+
+export type GetRoomQueryVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type GetRoomQuery = { __typename?: 'Query', room: { __typename?: 'Room', id: string, title: string | null, abstract: string | null, nSubscriptions: any | null } | null };
 
 export type LoginMutationVariables = Exact<{
   username: Scalars['String']['input'];
@@ -2873,12 +4831,191 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginPayload', user: { __typename?: 'User', id: string, username: string } } | null };
 
+export type UpdateRoomMessageMutationVariables = Exact<{
+  oldId: Scalars['UUID']['input'];
+  patch: RoomMessagePatch;
+}>;
 
+
+export type UpdateRoomMessageMutation = { __typename?: 'Mutation', updateRoomMessage: { __typename?: 'UpdateRoomMessagePayload', roomMessage: { __typename?: 'RoomMessage', id: string, updatedAt: string, answeredMessage: { __typename?: 'RoomMessage', id: string } | null } | null } | null };
+
+
+export const CreateRoomMessage = gql`
+    mutation CreateRoomMessage($message: RoomMessageInput!) {
+  createRoomMessage(input: {roomMessage: $message}) {
+    roomMessage {
+      id
+      createdAt
+      sender {
+        id
+        username
+      }
+      body
+    }
+    room {
+      latestMessage {
+        id
+      }
+      messages {
+        totalCount
+      }
+    }
+  }
+}
+    `;
+export const CreateRoomSubscription = gql`
+    mutation CreateRoomSubscription($subscription: RoomSubscriptionInput!) {
+  createRoomSubscription(input: {roomSubscription: $subscription}) {
+    roomSubscription {
+      id
+      createdAt
+    }
+    room {
+      id
+      nSubscriptions
+    }
+  }
+}
+    `;
+export const CreateRoom = gql`
+    mutation CreateRoom($room: RoomInput!) {
+  createRoom(input: {room: $room}) {
+    room {
+      id
+    }
+  }
+}
+    `;
 export const CurrentUser = gql`
     query CurrentUser {
   currentUser {
     id
     username
+  }
+}
+    `;
+export const FetchRoomMessages = gql`
+    query FetchRoomMessages($after: Cursor, $before: Cursor, $condition: RoomMessageCondition, $filter: RoomMessageFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomMessagesOrderBy!]) {
+  roomMessages(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      body
+      createdAt
+      id
+      room {
+        id
+        title
+      }
+      sender {
+        id
+        username
+      }
+      sentAt
+      updatedAt
+    }
+  }
+}
+    `;
+export const FetchRoomSubscriptions = gql`
+    query FetchRoomSubscriptions($after: Cursor, $before: Cursor, $condition: RoomSubscriptionCondition, $filter: RoomSubscriptionFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomSubscriptionsOrderBy!]) {
+  roomSubscriptions(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      subscriberId
+      subscriber {
+        id
+        username
+      }
+      roomId
+      room {
+        id
+        title
+      }
+    }
+  }
+}
+    `;
+export const FetchRooms = gql`
+    query FetchRooms {
+  rooms {
+    nodes {
+      id
+      title
+      abstract
+      createdAt
+      latestMessage {
+        createdAt
+        sender {
+          id
+          username
+        }
+      }
+      nSubscriptions
+    }
+  }
+}
+    `;
+export const GetCurrentUser = gql`
+    query GetCurrentUser {
+  currentUser {
+    id
+    username
+    createdAt
+    userEmails {
+      nodes {
+        id
+        isPrimary
+        email
+      }
+    }
+  }
+}
+    `;
+export const GetRoomMessage = gql`
+    query GetRoomMessage($id: UUID!) {
+  roomMessage(id: $id) {
+    id
+    body
+    sender {
+      id
+      username
+    }
+  }
+}
+    `;
+export const GetRoom = gql`
+    query GetRoom($id: UUID!) {
+  room(id: $id) {
+    id
+    title
+    abstract
+    nSubscriptions
   }
 }
     `;
@@ -2892,7 +5029,78 @@ export const Login = gql`
   }
 }
     `;
+export const UpdateRoomMessage = gql`
+    mutation UpdateRoomMessage($oldId: UUID!, $patch: RoomMessagePatch!) {
+  updateRoomMessage(input: {patch: $patch, id: $oldId}) {
+    roomMessage {
+      id
+      updatedAt
+      answeredMessage {
+        id
+      }
+    }
+  }
+}
+    `;
 
+export const CreateRoomMessageDocument = gql`
+    mutation CreateRoomMessage($message: RoomMessageInput!) {
+  createRoomMessage(input: {roomMessage: $message}) {
+    roomMessage {
+      id
+      createdAt
+      sender {
+        id
+        username
+      }
+      body
+    }
+    room {
+      latestMessage {
+        id
+      }
+      messages {
+        totalCount
+      }
+    }
+  }
+}
+    `;
+
+export function useCreateRoomMessageMutation() {
+  return Urql.useMutation<CreateRoomMessageMutation, CreateRoomMessageMutationVariables>(CreateRoomMessageDocument);
+};
+export const CreateRoomSubscriptionDocument = gql`
+    mutation CreateRoomSubscription($subscription: RoomSubscriptionInput!) {
+  createRoomSubscription(input: {roomSubscription: $subscription}) {
+    roomSubscription {
+      id
+      createdAt
+    }
+    room {
+      id
+      nSubscriptions
+    }
+  }
+}
+    `;
+
+export function useCreateRoomSubscriptionMutation() {
+  return Urql.useMutation<CreateRoomSubscriptionMutation, CreateRoomSubscriptionMutationVariables>(CreateRoomSubscriptionDocument);
+};
+export const CreateRoomDocument = gql`
+    mutation CreateRoom($room: RoomInput!) {
+  createRoom(input: {room: $room}) {
+    room {
+      id
+    }
+  }
+}
+    `;
+
+export function useCreateRoomMutation() {
+  return Urql.useMutation<CreateRoomMutation, CreateRoomMutationVariables>(CreateRoomDocument);
+};
 export const CurrentUserDocument = gql`
     query CurrentUser {
   currentUser {
@@ -2904,6 +5112,155 @@ export const CurrentUserDocument = gql`
 
 export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, CurrentUserQueryVariables>, 'query'>) {
   return Urql.useQuery<CurrentUserQuery, CurrentUserQueryVariables>({ query: CurrentUserDocument, ...options });
+};
+export const FetchRoomMessagesDocument = gql`
+    query FetchRoomMessages($after: Cursor, $before: Cursor, $condition: RoomMessageCondition, $filter: RoomMessageFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomMessagesOrderBy!]) {
+  roomMessages(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      body
+      createdAt
+      id
+      room {
+        id
+        title
+      }
+      sender {
+        id
+        username
+      }
+      sentAt
+      updatedAt
+    }
+  }
+}
+    `;
+
+export function useFetchRoomMessagesQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomMessagesQueryVariables>, 'query'>) {
+  return Urql.useQuery<FetchRoomMessagesQuery, FetchRoomMessagesQueryVariables>({ query: FetchRoomMessagesDocument, ...options });
+};
+export const FetchRoomSubscriptionsDocument = gql`
+    query FetchRoomSubscriptions($after: Cursor, $before: Cursor, $condition: RoomSubscriptionCondition, $filter: RoomSubscriptionFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomSubscriptionsOrderBy!]) {
+  roomSubscriptions(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      subscriberId
+      subscriber {
+        id
+        username
+      }
+      roomId
+      room {
+        id
+        title
+      }
+    }
+  }
+}
+    `;
+
+export function useFetchRoomSubscriptionsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomSubscriptionsQueryVariables>, 'query'>) {
+  return Urql.useQuery<FetchRoomSubscriptionsQuery, FetchRoomSubscriptionsQueryVariables>({ query: FetchRoomSubscriptionsDocument, ...options });
+};
+export const FetchRoomsDocument = gql`
+    query FetchRooms {
+  rooms {
+    nodes {
+      id
+      title
+      abstract
+      createdAt
+      latestMessage {
+        createdAt
+        sender {
+          id
+          username
+        }
+      }
+      nSubscriptions
+    }
+  }
+}
+    `;
+
+export function useFetchRoomsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomsQueryVariables>, 'query'>) {
+  return Urql.useQuery<FetchRoomsQuery, FetchRoomsQueryVariables>({ query: FetchRoomsDocument, ...options });
+};
+export const GetCurrentUserDocument = gql`
+    query GetCurrentUser {
+  currentUser {
+    id
+    username
+    createdAt
+    userEmails {
+      nodes {
+        id
+        isPrimary
+        email
+      }
+    }
+  }
+}
+    `;
+
+export function useGetCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, GetCurrentUserQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetCurrentUserQuery, GetCurrentUserQueryVariables>({ query: GetCurrentUserDocument, ...options });
+};
+export const GetRoomMessageDocument = gql`
+    query GetRoomMessage($id: UUID!) {
+  roomMessage(id: $id) {
+    id
+    body
+    sender {
+      id
+      username
+    }
+  }
+}
+    `;
+
+export function useGetRoomMessageQuery(options: Omit<Urql.UseQueryArgs<never, GetRoomMessageQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetRoomMessageQuery, GetRoomMessageQueryVariables>({ query: GetRoomMessageDocument, ...options });
+};
+export const GetRoomDocument = gql`
+    query GetRoom($id: UUID!) {
+  room(id: $id) {
+    id
+    title
+    abstract
+    nSubscriptions
+  }
+}
+    `;
+
+export function useGetRoomQuery(options: Omit<Urql.UseQueryArgs<never, GetRoomQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetRoomQuery, GetRoomQueryVariables>({ query: GetRoomDocument, ...options });
 };
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
@@ -2918,4 +5275,21 @@ export const LoginDocument = gql`
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const UpdateRoomMessageDocument = gql`
+    mutation UpdateRoomMessage($oldId: UUID!, $patch: RoomMessagePatch!) {
+  updateRoomMessage(input: {patch: $patch, id: $oldId}) {
+    roomMessage {
+      id
+      updatedAt
+      answeredMessage {
+        id
+      }
+    }
+  }
+}
+    `;
+
+export function useUpdateRoomMessageMutation() {
+  return Urql.useMutation<UpdateRoomMessageMutation, UpdateRoomMessageMutationVariables>(UpdateRoomMessageDocument);
 };

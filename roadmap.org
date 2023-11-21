@@ -1,0 +1,5 @@
+* create rooms CLOCK: [2023-11-15 Wed 10:17]
+** visibility should default to `within_organization`, if the creating user is an organization owner.
+* move default_handling_of_notifications to user_settings
+* move sending_time_for_deferred_notifications to user_settings
+* 

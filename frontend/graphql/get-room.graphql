@@ -1,0 +1,8 @@
+query GetRoom($id: UUID!) {
+  room(id: $id) {
+    id
+    title
+    abstract
+    nSubscriptions
+  }
+}

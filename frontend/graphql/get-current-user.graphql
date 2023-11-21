@@ -1,0 +1,14 @@
+query GetCurrentUser {
+  currentUser {
+    id
+    username
+    createdAt
+    userEmails {
+      nodes {
+        id
+        isPrimary
+        email
+      }
+    }
+  }
+}

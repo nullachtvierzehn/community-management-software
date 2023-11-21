@@ -1,0 +1,12 @@
+mutation CreateRoomSubscription($subscription: RoomSubscriptionInput!) {
+  createRoomSubscription(input: { roomSubscription: $subscription }) {
+    roomSubscription {
+      id
+      createdAt
+    }
+    room {
+      id
+      nSubscriptions
+    }
+  }
+}

@@ -1,0 +1,39 @@
+query FetchRoomSubscriptions(
+  $after: Cursor
+  $before: Cursor
+  $condition: RoomSubscriptionCondition
+  $filter: RoomSubscriptionFilter
+  $first: Int
+  $last: Int
+  $offset: Int
+  $orderBy: [RoomSubscriptionsOrderBy!]
+) {
+  roomSubscriptions(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      subscriberId
+      subscriber {
+        id
+        username
+      }
+      roomId
+      room {
+        id
+        title
+      }
+    }
+  }
+}

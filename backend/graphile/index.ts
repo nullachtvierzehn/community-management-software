@@ -2,6 +2,8 @@ import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
 import { PgSimplifyInflectionPreset } from "@graphile/simplify-inflection";
 import { makeV4Preset } from "postgraphile/presets/v4";
 import { grafserv as buildGrafserv } from "grafserv/fastify/v4";
+import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connection-filter";
+import OrderByUsernamePlugin from "./plugins/order-by-username-plugin";
 
 // import websocket from '@fastify/websocket'
 // (Add any Fastify middleware you want here.)
@@ -17,16 +19,25 @@ export const preset: GraphileConfig.Preset = {
   extends: [
     PostGraphileAmberPreset,
     makeV4Preset({
+      subscriptions: true,
       watchPg: true,
+      dynamicJson: true,
+      setofFunctionsContainNulls: false,
+      ignoreRBAC: false,
       allowExplain: true,
       graphiql: true,
       enhanceGraphiql: true,
       exportGqlSchemaPath: "./schema.graphql",
       sortExport: true,
     }),
+
+    // adds `filter` to all queries
+    PostGraphileConnectionFilterPreset,
+
+    // simplifies field names
     PgSimplifyInflectionPreset,
   ],
-  plugins: [PassportLoginPlugin],
+  plugins: [PassportLoginPlugin, OrderByUsernamePlugin],
   grafast: {
     context(ctx, args) {
       const contextExtensions: Partial<Grafast.Context> = {
@@ -59,6 +70,7 @@ export const preset: GraphileConfig.Preset = {
   pgServices: [
     makePgService({
       pool,
+      superuserConnectionString: config.database.rootUrl,
       schemas: ["app_public"],
     }),
   ],
