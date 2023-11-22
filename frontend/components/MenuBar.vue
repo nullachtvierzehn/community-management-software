@@ -1,20 +1,31 @@
 <template>
-  <div class="flex flex-wrap gap-2 p-3">
+  <div class="tiptap-editor__menu-bar">
     <slot name="firstButtons"></slot>
     <div
-      class="bg-slate-700 px-4 py-2 rounded-3xl text-white drop-shadow-md"
-      v-for="section in items"
+      class="tiptap-editor__menu-section"
+      v-for="(section, i) in items"
+      :key="`section-${i}`"
     >
-      <menu-item v-for="item in section" v-bind="item" />
+      <menu-item
+        v-for="(item, j) in section"
+        :key="`button-${i}-${j}`"
+        v-bind="item"
+      />
     </div>
     <slot name="lastButtons"></slot>
   </div>
 </template>
 
+<style>
+.tiptap-editor__menu-bar {
+  display: flex;
+  background-color: black;
+}
+</style>
+
 <script setup lang="ts">
 import { ref } from "vue";
 import { Editor } from "@tiptap/vue-3";
-import MenuItem from "./MenuItem.vue";
 
 const props = defineProps<{
   editor?: Editor;

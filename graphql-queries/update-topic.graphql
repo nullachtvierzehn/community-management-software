@@ -1,0 +1,8 @@
+mutation UpdateTopic($oldId: UUID!, $patch: TopicPatch!) {
+  updateTopic(input: { patch: $patch, id: $oldId }) {
+    topic {
+      id
+      updatedAt
+    }
+  }
+}

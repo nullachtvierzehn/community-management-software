@@ -25,7 +25,7 @@ create table app_public.topics (
   created_at timestamptz not null default current_timestamp,
   updated_at timestamptz not null default current_timestamp,
   constraint unique_slug_per_organization 
-    unique (slug, organization_id)
+    unique nulls not distinct (slug, organization_id)
 );
 
 

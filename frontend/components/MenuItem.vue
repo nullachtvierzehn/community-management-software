@@ -1,6 +1,6 @@
 <template>
   <button
-    class="menu-item"
+    class="tiptap-editor__menu-item"
     :class="{ 'is-active': isActive ? isActive() : null }"
     v-if="action"
     @click="action"
@@ -25,7 +25,7 @@ defineProps<{
 </script>
 
 <style lang="css">
-.menu-item {
+.tiptap-editor__menu-item {
   background: transparent;
   border: none;
   border-radius: 0.4rem;
@@ -37,14 +37,14 @@ defineProps<{
   width: 1.75rem;
 }
 
-.menu-item svg {
+.tiptap-editor__menu-item svg {
   fill: currentColor;
   height: 100%;
   width: 100%;
 }
 
-.menu-item.is-active,
-.menu-item:hover {
+.tiptap-editor__menu-item.is-active,
+.tiptap-editor__menu-item:hover {
   background-color: #303030;
 }
 </style>

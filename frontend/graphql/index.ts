@@ -4889,6 +4889,14 @@ export type UpdateRoomMessageMutationVariables = Exact<{
 
 export type UpdateRoomMessageMutation = { __typename?: 'Mutation', updateRoomMessage: { __typename?: 'UpdateRoomMessagePayload', roomMessage: { __typename?: 'RoomMessage', id: string, updatedAt: string, answeredMessage: { __typename?: 'RoomMessage', id: string } | null } | null } | null };
 
+export type UpdateTopicMutationVariables = Exact<{
+  oldId: Scalars['UUID']['input'];
+  patch: TopicPatch;
+}>;
+
+
+export type UpdateTopicMutation = { __typename?: 'Mutation', updateTopic: { __typename?: 'UpdateTopicPayload', topic: { __typename?: 'Topic', id: string, updatedAt: string } | null } | null };
+
 
 export const CreateRoomMessage = gql`
     mutation CreateRoomMessage($message: RoomMessageInput!) {
@@ -5182,6 +5190,16 @@ export const UpdateRoomMessage = gql`
       answeredMessage {
         id
       }
+    }
+  }
+}
+    `;
+export const UpdateTopic = gql`
+    mutation UpdateTopic($oldId: UUID!, $patch: TopicPatch!) {
+  updateTopic(input: {patch: $patch, id: $oldId}) {
+    topic {
+      id
+      updatedAt
     }
   }
 }
@@ -5550,4 +5568,18 @@ export const UpdateRoomMessageDocument = gql`
 
 export function useUpdateRoomMessageMutation() {
   return Urql.useMutation<UpdateRoomMessageMutation, UpdateRoomMessageMutationVariables>(UpdateRoomMessageDocument);
+};
+export const UpdateTopicDocument = gql`
+    mutation UpdateTopic($oldId: UUID!, $patch: TopicPatch!) {
+  updateTopic(input: {patch: $patch, id: $oldId}) {
+    topic {
+      id
+      updatedAt
+    }
+  }
+}
+    `;
+
+export function useUpdateTopicMutation() {
+  return Urql.useMutation<UpdateTopicMutation, UpdateTopicMutationVariables>(UpdateTopicDocument);
 };
