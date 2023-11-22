@@ -1,0 +1,9 @@
+query GetTopic($id: UUID!) {
+  topic(id: $id) {
+    id
+    title
+    tags
+    slug
+    content
+  }
+}

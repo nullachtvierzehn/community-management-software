@@ -1,0 +1,38 @@
+query FetchTopics(
+  $after: Cursor
+  $before: Cursor
+  $condition: TopicCondition
+  $filter: TopicFilter
+  $first: Int
+  $last: Int
+  $offset: Int
+  $orderBy: [TopicsOrderBy!]
+) {
+  topics(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      author {
+        id
+        username
+      }
+      slug
+      tags
+      id
+      title
+      license
+    }
+  }
+}

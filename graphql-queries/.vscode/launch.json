@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "graphql codegenerator",
+      "outputCapture": "std",
+      "program": "${workspaceFolder:Root}/node_modules/@graphql-codegen/cli/cjs/bin.js",
+      "cwd": "${workspaceFolder:Graphql}",
+      "args": ["--watch", "--config", "codegen.yml"]
+    }
+  ]
+}

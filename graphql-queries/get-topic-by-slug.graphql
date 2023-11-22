@@ -1,0 +1,9 @@
+query GetTopicBySlug($slug: String!, $organizationId: UUID!) {
+  topicBySlugAndOrganizationId(organizationId: $organizationId, slug: $slug) {
+    id
+    title
+    tags
+    slug
+    content
+  }
+}

@@ -4,6 +4,7 @@
   "workspaces": [
     "frontend",
     "backend",
-    "database"
+    "database",
+    "graphql-queries"
   ]
 }

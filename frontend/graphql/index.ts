@@ -4766,10 +4766,31 @@ export type CreateRoomMutationVariables = Exact<{
 
 export type CreateRoomMutation = { __typename?: 'Mutation', createRoom: { __typename?: 'CreateRoomPayload', room: { __typename?: 'Room', id: string } | null } | null };
 
+export type CreateTopicMutationVariables = Exact<{
+  topic: TopicInput;
+}>;
+
+
+export type CreateTopicMutation = { __typename?: 'Mutation', createTopic: { __typename?: 'CreateTopicPayload', topic: { __typename?: 'Topic', id: string } | null } | null };
+
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, username: string } | null };
+
+export type FetchDetailedTopicsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<TopicCondition>;
+  filter?: InputMaybe<TopicFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<TopicsOrderBy> | TopicsOrderBy>;
+}>;
+
+
+export type FetchDetailedTopicsQuery = { __typename?: 'Query', topics: { __typename?: 'TopicsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'Topic', slug: string, tags: Array<string | null>, id: string, title: string | null, license: string | null, content: any, author: { __typename?: 'User', id: string, username: string } | null }> } | null };
 
 export type FetchRoomMessagesQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -4804,6 +4825,20 @@ export type FetchRoomsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type FetchRoomsQuery = { __typename?: 'Query', rooms: { __typename?: 'RoomsConnection', nodes: Array<{ __typename?: 'Room', id: string, title: string | null, abstract: string | null, createdAt: string, nSubscriptions: any | null, latestMessage: { __typename?: 'RoomMessage', createdAt: string, sender: { __typename?: 'User', id: string, username: string } | null } | null }> } | null };
 
+export type FetchTopicsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<TopicCondition>;
+  filter?: InputMaybe<TopicFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<TopicsOrderBy> | TopicsOrderBy>;
+}>;
+
+
+export type FetchTopicsQuery = { __typename?: 'Query', topics: { __typename?: 'TopicsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'Topic', slug: string, tags: Array<string | null>, id: string, title: string | null, license: string | null, author: { __typename?: 'User', id: string, username: string } | null }> } | null };
+
 export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -4822,6 +4857,21 @@ export type GetRoomQueryVariables = Exact<{
 
 
 export type GetRoomQuery = { __typename?: 'Query', room: { __typename?: 'Room', id: string, title: string | null, abstract: string | null, nSubscriptions: any | null } | null };
+
+export type GetTopicBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+  organizationId: Scalars['UUID']['input'];
+}>;
+
+
+export type GetTopicBySlugQuery = { __typename?: 'Query', topicBySlugAndOrganizationId: { __typename?: 'Topic', id: string, title: string | null, tags: Array<string | null>, slug: string, content: any } | null };
+
+export type GetTopicQueryVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type GetTopicQuery = { __typename?: 'Query', topic: { __typename?: 'Topic', id: string, title: string | null, tags: Array<string | null>, slug: string, content: any } | null };
 
 export type LoginMutationVariables = Exact<{
   username: Scalars['String']['input'];
@@ -4886,11 +4936,52 @@ export const CreateRoom = gql`
   }
 }
     `;
+export const CreateTopic = gql`
+    mutation CreateTopic($topic: TopicInput!) {
+  createTopic(input: {topic: $topic}) {
+    topic {
+      id
+    }
+  }
+}
+    `;
 export const CurrentUser = gql`
     query CurrentUser {
   currentUser {
     id
     username
+  }
+}
+    `;
+export const FetchDetailedTopics = gql`
+    query FetchDetailedTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
+  topics(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      author {
+        id
+        username
+      }
+      slug
+      tags
+      id
+      title
+      license
+      content
+    }
   }
 }
     `;
@@ -4981,6 +5072,37 @@ export const FetchRooms = gql`
   }
 }
     `;
+export const FetchTopics = gql`
+    query FetchTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
+  topics(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      author {
+        id
+        username
+      }
+      slug
+      tags
+      id
+      title
+      license
+    }
+  }
+}
+    `;
 export const GetCurrentUser = gql`
     query GetCurrentUser {
   currentUser {
@@ -5016,6 +5138,28 @@ export const GetRoom = gql`
     title
     abstract
     nSubscriptions
+  }
+}
+    `;
+export const GetTopicBySlug = gql`
+    query GetTopicBySlug($slug: String!, $organizationId: UUID!) {
+  topicBySlugAndOrganizationId(organizationId: $organizationId, slug: $slug) {
+    id
+    title
+    tags
+    slug
+    content
+  }
+}
+    `;
+export const GetTopic = gql`
+    query GetTopic($id: UUID!) {
+  topic(id: $id) {
+    id
+    title
+    tags
+    slug
+    content
   }
 }
     `;
@@ -5101,6 +5245,19 @@ export const CreateRoomDocument = gql`
 export function useCreateRoomMutation() {
   return Urql.useMutation<CreateRoomMutation, CreateRoomMutationVariables>(CreateRoomDocument);
 };
+export const CreateTopicDocument = gql`
+    mutation CreateTopic($topic: TopicInput!) {
+  createTopic(input: {topic: $topic}) {
+    topic {
+      id
+    }
+  }
+}
+    `;
+
+export function useCreateTopicMutation() {
+  return Urql.useMutation<CreateTopicMutation, CreateTopicMutationVariables>(CreateTopicDocument);
+};
 export const CurrentUserDocument = gql`
     query CurrentUser {
   currentUser {
@@ -5112,6 +5269,42 @@ export const CurrentUserDocument = gql`
 
 export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, CurrentUserQueryVariables>, 'query'>) {
   return Urql.useQuery<CurrentUserQuery, CurrentUserQueryVariables>({ query: CurrentUserDocument, ...options });
+};
+export const FetchDetailedTopicsDocument = gql`
+    query FetchDetailedTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
+  topics(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      author {
+        id
+        username
+      }
+      slug
+      tags
+      id
+      title
+      license
+      content
+    }
+  }
+}
+    `;
+
+export function useFetchDetailedTopicsQuery(options: Omit<Urql.UseQueryArgs<never, FetchDetailedTopicsQueryVariables>, 'query'>) {
+  return Urql.useQuery<FetchDetailedTopicsQuery, FetchDetailedTopicsQueryVariables>({ query: FetchDetailedTopicsDocument, ...options });
 };
 export const FetchRoomMessagesDocument = gql`
     query FetchRoomMessages($after: Cursor, $before: Cursor, $condition: RoomMessageCondition, $filter: RoomMessageFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomMessagesOrderBy!]) {
@@ -5212,6 +5405,41 @@ export const FetchRoomsDocument = gql`
 export function useFetchRoomsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomsQueryVariables>, 'query'>) {
   return Urql.useQuery<FetchRoomsQuery, FetchRoomsQueryVariables>({ query: FetchRoomsDocument, ...options });
 };
+export const FetchTopicsDocument = gql`
+    query FetchTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
+  topics(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      author {
+        id
+        username
+      }
+      slug
+      tags
+      id
+      title
+      license
+    }
+  }
+}
+    `;
+
+export function useFetchTopicsQuery(options: Omit<Urql.UseQueryArgs<never, FetchTopicsQueryVariables>, 'query'>) {
+  return Urql.useQuery<FetchTopicsQuery, FetchTopicsQueryVariables>({ query: FetchTopicsDocument, ...options });
+};
 export const GetCurrentUserDocument = gql`
     query GetCurrentUser {
   currentUser {
@@ -5261,6 +5489,36 @@ export const GetRoomDocument = gql`
 
 export function useGetRoomQuery(options: Omit<Urql.UseQueryArgs<never, GetRoomQueryVariables>, 'query'>) {
   return Urql.useQuery<GetRoomQuery, GetRoomQueryVariables>({ query: GetRoomDocument, ...options });
+};
+export const GetTopicBySlugDocument = gql`
+    query GetTopicBySlug($slug: String!, $organizationId: UUID!) {
+  topicBySlugAndOrganizationId(organizationId: $organizationId, slug: $slug) {
+    id
+    title
+    tags
+    slug
+    content
+  }
+}
+    `;
+
+export function useGetTopicBySlugQuery(options: Omit<Urql.UseQueryArgs<never, GetTopicBySlugQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetTopicBySlugQuery, GetTopicBySlugQueryVariables>({ query: GetTopicBySlugDocument, ...options });
+};
+export const GetTopicDocument = gql`
+    query GetTopic($id: UUID!) {
+  topic(id: $id) {
+    id
+    title
+    tags
+    slug
+    content
+  }
+}
+    `;
+
+export function useGetTopicQuery(options: Omit<Urql.UseQueryArgs<never, GetTopicQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetTopicQuery, GetTopicQueryVariables>({ query: GetTopicDocument, ...options });
 };
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
