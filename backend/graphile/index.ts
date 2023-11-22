@@ -39,7 +39,7 @@ export const preset: GraphileConfig.Preset = {
   ],
   plugins: [PassportLoginPlugin, OrderByUsernamePlugin],
   grafast: {
-    context(ctx, args) {
+    async context(ctx, args) {
       const contextExtensions: Partial<Grafast.Context> = {
         rootPgPool: ownerPool,
         pgSettings: {
@@ -52,11 +52,19 @@ export const preset: GraphileConfig.Preset = {
 
       const { fastifyv4 } = ctx;
       if (fastifyv4) {
-        const { request } = fastifyv4;
-        contextExtensions.session = request.session;
-        if (request.session.graphileSessionId)
+        const {
+          request: { session },
+        } = fastifyv4;
+        contextExtensions.session = session;
+        if (session.graphileSessionId) {
           contextExtensions.pgSettings!["jwt.claims.session_id"] =
-            request.session.graphileSessionId;
+            session.graphileSessionId;
+          // Update the last_active timestamp (but only do it at most once every 15 seconds to avoid too much churn).
+          await ownerPool.query(
+            "UPDATE app_private.sessions SET last_active = NOW() WHERE uuid = $1 AND last_active < NOW() - INTERVAL '15 seconds'",
+            [session.graphileSessionId]
+          );
+        }
       }
 
       return contextExtensions;
