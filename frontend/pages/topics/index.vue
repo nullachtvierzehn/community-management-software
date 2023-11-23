@@ -2,7 +2,9 @@
   <article>
     <h1>Themen</h1>
     <ul>
-      <li v-for="topic in topics" :key="topic.id">{{ topic.title }}</li>
+      <li v-for="topic in topics" :key="topic.id">
+        {{ topic.title ?? topic.slug ?? topic.id }}
+      </li>
     </ul>
   </article>
 </template>
@@ -14,7 +16,7 @@ definePageMeta({
   alias: ["/themen"],
 });
 
-const { data: dataOfTopics } = useFetchTopicsQuery({
+const { data: dataOfTopics } = await useFetchTopicsQuery({
   variables: {
     orderBy: ["TITLE_ASC"],
   },

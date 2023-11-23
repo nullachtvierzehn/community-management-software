@@ -24,6 +24,10 @@ query FetchTopics(
       hasPreviousPage
     }
     nodes {
+      organization {
+        id
+        slug
+      }
       author {
         id
         username

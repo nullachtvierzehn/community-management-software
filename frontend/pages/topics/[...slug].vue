@@ -1,10 +1,7 @@
 <template>
   <article v-if="fetching">Lädt...</article>
   <template v-else-if="!topic && edit === 'true'">
-    <tiptap-editor
-      v-model:json="editableJson"
-      @update:html="htmlContent = $event"
-    />
+    <tiptap-editor v-model:json="editableJson" />
     <button @click="save()">speichern</button>
   </template>
   <article v-else-if="!topic && edit !== 'true'">
@@ -16,10 +13,7 @@
     <tiptap-viewer :content="topic.content" />
   </article>
   <article v-else-if="topic && edit === 'true'">
-    <tiptap-editor
-      v-model:json="editableJson"
-      @update:html="htmlContent = $event"
-    />
+    <tiptap-editor v-model:json="editableJson" />
     <button @click="save()">speichern</button>
   </article>
 </template>
@@ -37,7 +31,11 @@ const route = useRoute();
 const edit = useRouteQuery("edit");
 const slug = computed(() => (route.params.slug as string[]).join("/"));
 
-const { data, fetching } = await useFetchDetailedTopicsQuery({
+const {
+  data,
+  fetching,
+  //then: fetchedTopic,
+} = await useFetchDetailedTopicsQuery({
   variables: computed(() => ({
     filter: {
       organizationExists: false,
@@ -47,8 +45,17 @@ const { data, fetching } = await useFetchDetailedTopicsQuery({
   })),
 });
 
+/*
+if (import.meta.server) {
+  await useAsyncData(() =>
+    Promise.all([{ then: fetchedTopic }]).then(([topicResponse]) => {
+      if (topicResponse.error) throw topicResponse.error;
+    })
+  );
+}
+*/
+
 const topic = computed(() => data.value?.topics?.nodes[0]);
-const htmlContent = ref("hallo");
 const editableJson = shallowRef<JSONContent>({});
 syncRef(
   computed(() => topic.value?.content),
@@ -75,7 +82,11 @@ async function save() {
   const { error } = await (oldId
     ? updateMutation({ oldId, patch: { content: toValue(editableJson) } })
     : createMutation({
-        topic: { slug: toValue(slug), content: toValue(editableJson) },
+        topic: {
+          slug: toValue(slug),
+          content: toValue(editableJson),
+          organizationId: null,
+        },
       }));
   if (error) throw error;
 }

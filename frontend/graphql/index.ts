@@ -4837,7 +4837,7 @@ export type FetchTopicsQueryVariables = Exact<{
 }>;
 
 
-export type FetchTopicsQuery = { __typename?: 'Query', topics: { __typename?: 'TopicsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'Topic', slug: string, tags: Array<string | null>, id: string, title: string | null, license: string | null, author: { __typename?: 'User', id: string, username: string } | null }> } | null };
+export type FetchTopicsQuery = { __typename?: 'Query', topics: { __typename?: 'TopicsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'Topic', slug: string, tags: Array<string | null>, id: string, title: string | null, license: string | null, organization: { __typename?: 'Organization', id: string, slug: string } | null, author: { __typename?: 'User', id: string, username: string } | null }> } | null };
 
 export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5098,6 +5098,10 @@ export const FetchTopics = gql`
       hasPreviousPage
     }
     nodes {
+      organization {
+        id
+        slug
+      }
       author {
         id
         username
@@ -5441,6 +5445,10 @@ export const FetchTopicsDocument = gql`
       hasPreviousPage
     }
     nodes {
+      organization {
+        id
+        slug
+      }
       author {
         id
         username

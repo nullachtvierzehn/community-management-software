@@ -19,7 +19,7 @@ const html = computed(() =>
   generateHTML(props.content, [
     StarterKit,
     ImageExtension,
-    DropCursorExtension,
+    //DropCursorExtension,
     LinkExtension,
   ])
 );

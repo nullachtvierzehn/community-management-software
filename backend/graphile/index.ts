@@ -15,20 +15,23 @@ import { pool, ownerPool } from "../database/pool";
 import PassportLoginPlugin from "./plugins/PassportLoginPlugin";
 import config from "../config";
 
+console.log(config.database.rootUrl);
+
+// https://www.postgraphile.org/postgraphile/next/config
 export const preset: GraphileConfig.Preset = {
   extends: [
     PostGraphileAmberPreset,
     makeV4Preset({
+      //watchPg: true,
       subscriptions: true,
-      watchPg: true,
       dynamicJson: true,
       setofFunctionsContainNulls: false,
       ignoreRBAC: false,
       allowExplain: true,
       graphiql: true,
       enhanceGraphiql: true,
-      exportGqlSchemaPath: "./schema.graphql",
-      sortExport: true,
+      //exportGqlSchemaPath: "./schema.graphql",
+      //sortExport: true,
     }),
 
     // adds `filter` to all queries
@@ -38,6 +41,16 @@ export const preset: GraphileConfig.Preset = {
     PgSimplifyInflectionPreset,
   ],
   plugins: [PassportLoginPlugin, OrderByUsernamePlugin],
+  gather: {
+    pgStrictFunctions: true,
+    installWatchFixtures: true,
+  },
+  schema: {
+    retryOnInitFail: true,
+    exportSchemaSDLPath: "./schema.graphql",
+    exportSchemaIntrospectionResultPath: "./schema.json",
+    sortExport: true,
+  },
   grafast: {
     async context(ctx, args) {
       const contextExtensions: Partial<Grafast.Context> = {
@@ -77,8 +90,9 @@ export const preset: GraphileConfig.Preset = {
   },
   pgServices: [
     makePgService({
-      pool,
-      superuserConnectionString: config.database.rootUrl,
+      connectionString: "postgres://timo@localhost/app_cms",
+      //pool,
+      //superuserConnectionString: config.database.rootUrl,
       schemas: ["app_public"],
     }),
   ],

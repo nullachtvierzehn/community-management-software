@@ -1,3 +1,6 @@
+drop table if exists app_public.room_items;
+drop type if exists app_public.room_item_type;
+
 drop table if exists app_public.room_message_attachments;
 
 drop policy if exists select_if_public_or_subscribed on app_public.room_messages;
