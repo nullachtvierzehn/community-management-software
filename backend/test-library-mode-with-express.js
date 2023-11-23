@@ -14,6 +14,7 @@ const preset = {
   pgServices: [
     makePgService({
       connectionString: "postgres://timo@localhost/app_cms",
+      superuserConnectionString: "postgres://timo@localhost/app_cms",
       schemas: ["app_public"],
     }),
   ],

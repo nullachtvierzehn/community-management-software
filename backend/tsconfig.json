@@ -1,26 +1,21 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
-    "module": "esnext",
-    "target": "esnext",
-    "moduleResolution": "bundler",
-    "moduleDetection": "force",
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "composite": true,
-    "strict": true,
-    "downlevelIteration": true,
-    "skipLibCheck": true,
-    "jsx": "react-jsx",
-    "resolveJsonModule": true,
+    "rootDir": "src",
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
-    "types": [
-      "bun-types", // add Bun global,
-      "./shims.d.ts",
-      "./modules.d.ts"
-    ]
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+    "incremental": true,
+    "declaration": true,
+    "types": ["./src/shims.d.ts", "./src/custom.d.ts", "node"]
   },
-  "include": ["./**/*.ts", "./**/*.mjml"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
