@@ -729,6 +729,171 @@
         },
         {
           "kind": "INPUT_OBJECT",
+          "name": "CreateRoomItemInput",
+          "description": "All input for the create `RoomItem` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "roomItem",
+              "description": "The `RoomItem` to be created by this mutation.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "RoomItemInput",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "CreateRoomItemPayload",
+          "description": "The output of our create `RoomItem` mutation.",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "contributor",
+              "description": "Reads a single `User` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "parent",
+              "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItem",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "query",
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "room",
+              "description": "Reads a single `Room` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Room",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomItem",
+              "description": "The `RoomItem` that was created by this mutation.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItem",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomItemEdge",
+              "description": "An edge for our `RoomItem`. May be used by Relay 1.",
+              "args": [
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomItem`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "ENUM",
+                          "name": "RoomItemsOrderBy",
+                          "ofType": null
+                        }
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItemsEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "topic",
+              "description": "Reads a single `Topic` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Topic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
           "name": "CreateRoomMessageAttachmentInput",
           "description": "All input for the create `RoomMessageAttachment` mutation.",
           "fields": null,
@@ -774,6 +939,18 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "message",
+              "description": "Reads a single `RoomMessage` that is related to this `RoomMessageAttachment`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -845,6 +1022,159 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "Topic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "CreateRoomMessageInput",
+          "description": "All input for the create `RoomMessage` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "roomMessage",
+              "description": "The `RoomMessage` to be created by this mutation.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "RoomMessageInput",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "CreateRoomMessagePayload",
+          "description": "The output of our create `RoomMessage` mutation.",
+          "fields": [
+            {
+              "name": "answeredMessage",
+              "description": "Reads a single `RoomMessage` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "query",
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "room",
+              "description": "Reads a single `Room` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Room",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessage",
+              "description": "The `RoomMessage` that was created by this mutation.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessageEdge",
+              "description": "An edge for our `RoomMessage`. May be used by Relay 1.",
+              "args": [
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomMessage`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "ENUM",
+                          "name": "RoomMessagesOrderBy",
+                          "ofType": null
+                        }
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessagesEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "sender",
+              "description": "Reads a single `User` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -2013,6 +2343,218 @@
         },
         {
           "kind": "INPUT_OBJECT",
+          "name": "DeleteRoomItemByNodeIdInput",
+          "description": "All input for the `deleteRoomItemByNodeId` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nodeId",
+              "description": "The globally unique `ID` which will identify a single `RoomItem` to be deleted.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "DeleteRoomItemInput",
+          "description": "All input for the `deleteRoomItem` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "DeleteRoomItemPayload",
+          "description": "The output of our delete `RoomItem` mutation.",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "contributor",
+              "description": "Reads a single `User` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "deletedRoomItemNodeId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "parent",
+              "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItem",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "query",
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "room",
+              "description": "Reads a single `Room` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Room",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomItem",
+              "description": "The `RoomItem` that was deleted by this mutation.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItem",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomItemEdge",
+              "description": "An edge for our `RoomItem`. May be used by Relay 1.",
+              "args": [
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomItem`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "ENUM",
+                          "name": "RoomItemsOrderBy",
+                          "ofType": null
+                        }
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItemsEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "topic",
+              "description": "Reads a single `Topic` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Topic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
           "name": "DeleteRoomMessageAttachmentByNodeIdInput",
           "description": "All input for the `deleteRoomMessageAttachmentByNodeId` mutation.",
           "fields": null,
@@ -2160,6 +2702,18 @@
               "deprecationReason": null
             },
             {
+              "name": "message",
+              "description": "Reads a single `RoomMessage` that is related to this `RoomMessageAttachment`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "query",
               "description": "Our root query field type. Allows us to run any query from our mutation payload.",
               "args": [],
@@ -2225,6 +2779,206 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "Topic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "DeleteRoomMessageByNodeIdInput",
+          "description": "All input for the `deleteRoomMessageByNodeId` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nodeId",
+              "description": "The globally unique `ID` which will identify a single `RoomMessage` to be deleted.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "DeleteRoomMessageInput",
+          "description": "All input for the `deleteRoomMessage` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "DeleteRoomMessagePayload",
+          "description": "The output of our delete `RoomMessage` mutation.",
+          "fields": [
+            {
+              "name": "answeredMessage",
+              "description": "Reads a single `RoomMessage` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "deletedRoomMessageNodeId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "query",
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "room",
+              "description": "Reads a single `Room` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Room",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessage",
+              "description": "The `RoomMessage` that was deleted by this mutation.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessageEdge",
+              "description": "An edge for our `RoomMessage`. May be used by Relay 1.",
+              "args": [
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomMessage`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "ENUM",
+                          "name": "RoomMessagesOrderBy",
+                          "ofType": null
+                        }
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessagesEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "sender",
+              "description": "Reads a single `User` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -4317,329 +5071,6 @@
         },
         {
           "kind": "OBJECT",
-          "name": "MessageRoomItem",
-          "description": null,
-          "fields": [
-            {
-              "name": "childRoomItems",
-              "description": "Reads and enables pagination through a set of `RoomItem`.",
-              "args": [
-                {
-                  "name": "after",
-                  "description": "Read all values in the set after (below) this cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Cursor",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "before",
-                  "description": "Read all values in the set before (above) this cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Cursor",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "condition",
-                  "description": "A condition to be used in determining which values should be returned by the collection.",
-                  "type": {
-                    "kind": "INPUT_OBJECT",
-                    "name": "RoomItemCondition",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "filter",
-                  "description": "A filter to be used in determining which values should be returned by the collection.",
-                  "type": {
-                    "kind": "INPUT_OBJECT",
-                    "name": "RoomItemFilter",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "first",
-                  "description": "Only read the first `n` values of the set.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "last",
-                  "description": "Only read the last `n` values of the set.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "offset",
-                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "orderBy",
-                  "description": "The method to use when ordering `RoomItem`.",
-                  "type": {
-                    "kind": "LIST",
-                    "name": null,
-                    "ofType": {
-                      "kind": "NON_NULL",
-                      "name": null,
-                      "ofType": {
-                        "kind": "ENUM",
-                        "name": "RoomItemsOrderBy",
-                        "ofType": null
-                      }
-                    }
-                  },
-                  "defaultValue": "[PRIMARY_KEY_ASC]"
-                }
-              ],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "RoomItemsConnection",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "contributor",
-              "description": "Reads a single `User` that is related to this `RoomItem`.",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "User",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "contributorId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "createdAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Datetime",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "id",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "UUID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "messageBody",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "JSON",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "nodeId",
-              "description": "A globally unique identifier. Can be used in various places throughout the system to identify this single value.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "parent",
-              "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
-              "args": [],
-              "type": {
-                "kind": "INTERFACE",
-                "name": "RoomItem",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "parentId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "position",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "postedAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "room",
-              "description": "Reads a single `Room` that is related to this `RoomItem`.",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Room",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "roomId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "UUID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "type",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "ENUM",
-                  "name": "RoomItemType",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "updatedAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Datetime",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "Node",
-              "ofType": null
-            },
-            {
-              "kind": "INTERFACE",
-              "name": "RoomItem",
-              "ofType": null
-            }
-          ],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
           "name": "Mutation",
           "description": "The root mutation type which contains root level fields which mutate data.",
           "fields": [
@@ -4773,6 +5204,60 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "CreateRoomPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "createRoomItem",
+              "description": "Creates a single `RoomItem`.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "CreateRoomItemInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "CreateRoomItemPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "createRoomMessage",
+              "description": "Creates a single `RoomMessage`.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "CreateRoomMessageInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "CreateRoomMessagePayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -4995,6 +5480,87 @@
               "deprecationReason": null
             },
             {
+              "name": "deleteRoomItem",
+              "description": "Deletes a single `RoomItem` using a unique key.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "DeleteRoomItemInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DeleteRoomItemPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "deleteRoomItemByNodeId",
+              "description": "Deletes a single `RoomItem` using its globally unique id.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "DeleteRoomItemByNodeIdInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DeleteRoomItemPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "deleteRoomMessage",
+              "description": "Deletes a single `RoomMessage` using a unique key.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "DeleteRoomMessageInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DeleteRoomMessagePayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "deleteRoomMessageAttachment",
               "description": "Deletes a single `RoomMessageAttachment` using a unique key.",
               "args": [
@@ -5070,6 +5636,33 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "DeleteRoomMessageAttachmentPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "deleteRoomMessageByNodeId",
+              "description": "Deletes a single `RoomMessage` using its globally unique id.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "DeleteRoomMessageByNodeIdInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DeleteRoomMessagePayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -5871,6 +6464,114 @@
               "deprecationReason": null
             },
             {
+              "name": "updateRoomItem",
+              "description": "Updates a single `RoomItem` using a unique key and a patch.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "UpdateRoomItemInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "UpdateRoomItemPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updateRoomItemByNodeId",
+              "description": "Updates a single `RoomItem` using its globally unique id and a patch.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "UpdateRoomItemByNodeIdInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "UpdateRoomItemPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updateRoomMessage",
+              "description": "Updates a single `RoomMessage` using a unique key and a patch.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "UpdateRoomMessageInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "UpdateRoomMessagePayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updateRoomMessageByNodeId",
+              "description": "Updates a single `RoomMessage` using its globally unique id and a patch.",
+              "args": [
+                {
+                  "name": "input",
+                  "description": "The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "UpdateRoomMessageByNodeIdInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "UpdateRoomMessagePayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "updateRoomSubscription",
               "description": "Updates a single `RoomSubscription` using a unique key and a patch.",
               "args": [
@@ -6292,11 +6993,6 @@
           "possibleTypes": [
             {
               "kind": "OBJECT",
-              "name": "MessageRoomItem",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
               "name": "Organization",
               "ofType": null
             },
@@ -6317,6 +7013,16 @@
             },
             {
               "kind": "OBJECT",
+              "name": "RoomItem",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "RoomMessage",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
               "name": "RoomMessageAttachment",
               "ofType": null
             },
@@ -6328,11 +7034,6 @@
             {
               "kind": "OBJECT",
               "name": "Topic",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "TopicRoomItem",
               "ofType": null
             },
             {
@@ -8455,33 +9156,6 @@
               "deprecationReason": null
             },
             {
-              "name": "messageRoomItemByNodeId",
-              "description": "Reads a single `MessageRoomItem` using its globally unique `ID`.",
-              "args": [
-                {
-                  "name": "nodeId",
-                  "description": "The globally unique `ID` to be used in selecting a single `MessageRoomItem`.",
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "MessageRoomItem",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "myRoomSubscriptions",
               "description": "Reads and enables pagination through a set of `RoomSubscription`.",
               "args": [
@@ -9176,6 +9850,60 @@
               "deprecationReason": null
             },
             {
+              "name": "roomItem",
+              "description": "Get a single `RoomItem`.",
+              "args": [
+                {
+                  "name": "id",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "UUID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItem",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomItemByNodeId",
+              "description": "Reads a single `RoomItem` using its globally unique `ID`.",
+              "args": [
+                {
+                  "name": "nodeId",
+                  "description": "The globally unique `ID` to be used in selecting a single `RoomItem`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItem",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "roomItems",
               "description": "Reads and enables pagination through a set of `RoomItem`.",
               "args": [
@@ -9271,6 +9999,33 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "RoomItemsConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessage",
+              "description": "Get a single `RoomMessage`.",
+              "args": [
+                {
+                  "name": "id",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "UUID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -9467,6 +10222,134 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "RoomMessageAttachmentsConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessageByNodeId",
+              "description": "Reads a single `RoomMessage` using its globally unique `ID`.",
+              "args": [
+                {
+                  "name": "nodeId",
+                  "description": "The globally unique `ID` to be used in selecting a single `RoomMessage`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessages",
+              "description": "Reads and enables pagination through a set of `RoomMessage`.",
+              "args": [
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomMessageCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomMessageFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomMessage`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "RoomMessagesOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessagesConnection",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -9960,33 +10843,6 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "Topic",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "topicRoomItemByNodeId",
-              "description": "Reads a single `TopicRoomItem` using its globally unique `ID`.",
-              "args": [
-                {
-                  "name": "nodeId",
-                  "description": "The globally unique `ID` to be used in selecting a single `TopicRoomItem`.",
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "ID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "TopicRoomItem",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -11201,6 +12057,111 @@
               "deprecationReason": null
             },
             {
+              "name": "messages",
+              "description": "Reads and enables pagination through a set of `RoomMessage`.",
+              "args": [
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomMessageCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomMessageFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomMessage`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "RoomMessagesOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "RoomMessagesConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "myFirstInteraction",
               "description": "\nDate of subscription or first sent message, whatever is earlier.\n",
               "args": [],
@@ -11817,6 +12778,26 @@
               "defaultValue": null
             },
             {
+              "name": "messages",
+              "description": "Filter by the object’s `messages` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomToManyRoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "messagesExist",
+              "description": "Some related `messages` exist.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "myFirstInteraction",
               "description": "Filter by the object’s `myFirstInteraction` field.",
               "type": {
@@ -12243,7 +13224,7 @@
           "possibleTypes": null
         },
         {
-          "kind": "INTERFACE",
+          "kind": "OBJECT",
           "name": "RoomItem",
           "description": null,
           "fields": [
@@ -12267,6 +13248,26 @@
                   "type": {
                     "kind": "SCALAR",
                     "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomItemCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomItemFilter",
                     "ofType": null
                   },
                   "defaultValue": null
@@ -12300,6 +13301,24 @@
                     "ofType": null
                   },
                   "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomItem`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "RoomItemsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
                 }
               ],
               "type": {
@@ -12403,7 +13422,7 @@
               "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
               "args": [],
               "type": {
-                "kind": "INTERFACE",
+                "kind": "OBJECT",
                 "name": "RoomItem",
                 "ofType": null
               },
@@ -12479,6 +13498,30 @@
               "deprecationReason": null
             },
             {
+              "name": "topic",
+              "description": "Reads a single `Topic` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Topic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "topicId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "type",
               "description": null,
               "args": [],
@@ -12520,18 +13563,7 @@
             }
           ],
           "enumValues": null,
-          "possibleTypes": [
-            {
-              "kind": "OBJECT",
-              "name": "MessageRoomItem",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
-              "name": "TopicRoomItem",
-              "ofType": null
-            }
-          ]
+          "possibleTypes": null
         },
         {
           "kind": "INPUT_OBJECT",
@@ -12612,6 +13644,16 @@
             {
               "name": "roomId",
               "description": "Checks for equality with the object’s `roomId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "topicId",
+              "description": "Checks for equality with the object’s `topicId` field.",
               "type": {
                 "kind": "SCALAR",
                 "name": "UUID",
@@ -12903,6 +13945,152 @@
         },
         {
           "kind": "INPUT_OBJECT",
+          "name": "RoomItemInput",
+          "description": "An input for mutations affecting `RoomItem`",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "contributorId",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "messageBody",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "JSON",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "parentId",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "position",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "postedAt",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "roomId",
+              "description": null,
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "topicId",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "type",
+              "description": null,
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomItemType",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "RoomItemPatch",
+          "description": "Represents an update to a `RoomItem`. Fields that are set will be updated.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "messageBody",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "JSON",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "position",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "postedAt",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "topicId",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
           "name": "RoomItemToManyRoomItemFilter",
           "description": "A filter to be used against many `RoomItem` object types. All fields are combined with a logical ‘and.’",
           "fields": null,
@@ -13145,7 +14333,7 @@
                     "kind": "NON_NULL",
                     "name": null,
                     "ofType": {
-                      "kind": "INTERFACE",
+                      "kind": "OBJECT",
                       "name": "RoomItem",
                       "ofType": null
                     }
@@ -13218,7 +14406,7 @@
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
-                  "kind": "INTERFACE",
+                  "kind": "OBJECT",
                   "name": "RoomItem",
                   "ofType": null
                 }
@@ -13355,6 +14543,18 @@
               "deprecationReason": null
             },
             {
+              "name": "TOPIC_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "TOPIC_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "TYPE_ASC",
               "description": null,
               "isDeprecated": false,
@@ -13387,6 +14587,18 @@
           "description": null,
           "fields": [
             {
+              "name": "answeredMessage",
+              "description": "Reads a single `RoomMessage` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "answeredMessageId",
               "description": null,
               "args": [],
@@ -13394,6 +14606,111 @@
                 "kind": "SCALAR",
                 "name": "UUID",
                 "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "answers",
+              "description": "Reads and enables pagination through a set of `RoomMessage`.",
+              "args": [
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomMessageCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomMessageFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomMessage`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "RoomMessagesOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "RoomMessagesConnection",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -13564,6 +14881,22 @@
               "deprecationReason": null
             },
             {
+              "name": "nodeId",
+              "description": "A globally unique identifier. Can be used in various places throughout the system to identify this single value.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "room",
               "description": "Reads a single `Room` that is related to this `RoomMessage`.",
               "args": [],
@@ -13645,7 +14978,13 @@
             }
           ],
           "inputFields": null,
-          "interfaces": [],
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
+              "ofType": null
+            }
+          ],
           "enumValues": null,
           "possibleTypes": null
         },
@@ -13682,6 +15021,18 @@
                   "name": "UUID",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "message",
+              "description": "Reads a single `RoomMessage` that is related to this `RoomMessageAttachment`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -14184,6 +15535,107 @@
         },
         {
           "kind": "INPUT_OBJECT",
+          "name": "RoomMessageCondition",
+          "description": "A condition to be used against `RoomMessage` object types. All fields are tested\nfor equality and combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "answeredMessageId",
+              "description": "Checks for equality with the object’s `answeredMessageId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "body",
+              "description": "Checks for equality with the object’s `body` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "createdAt",
+              "description": "Checks for equality with the object’s `createdAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "id",
+              "description": "Checks for equality with the object’s `id` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "language",
+              "description": "Checks for equality with the object’s `language` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "roomId",
+              "description": "Checks for equality with the object’s `roomId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "senderId",
+              "description": "Checks for equality with the object’s `senderId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "sentAt",
+              "description": "Checks for equality with the object’s `sentAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Checks for equality with the object’s `updatedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
           "name": "RoomMessageFilter",
           "description": "A filter to be used against `RoomMessage` object types. All fields are combined with a logical ‘and.’",
           "fields": null,
@@ -14232,6 +15684,26 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "answers",
+              "description": "Filter by the object’s `answers` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageToManyRoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "answersExist",
+              "description": "Some related `answers` exist.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               },
               "defaultValue": null
@@ -14401,6 +15873,132 @@
         },
         {
           "kind": "INPUT_OBJECT",
+          "name": "RoomMessageInput",
+          "description": "An input for mutations affecting `RoomMessage`",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "answeredMessageId",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "body",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "language",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "roomId",
+              "description": null,
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "senderId",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "sentAt",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "RoomMessagePatch",
+          "description": "Represents an update to a `RoomMessage`. Fields that are set will be updated.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "answeredMessageId",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "body",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "language",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "sentAt",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
           "name": "RoomMessageToManyRoomMessageAttachmentFilter",
           "description": "A filter to be used against many `RoomMessageAttachment` object types. All fields are combined with a logical ‘and.’",
           "fields": null,
@@ -14437,6 +16035,138 @@
             }
           ],
           "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "RoomMessageToManyRoomMessageFilter",
+          "description": "A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "every",
+              "description": "Every related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "none",
+              "description": "No related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "some",
+              "description": "Some related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "RoomMessagesConnection",
+          "description": "A connection to a list of `RoomMessage` values.",
+          "fields": [
+            {
+              "name": "edges",
+              "description": "A list of edges which contains the `RoomMessage` and cursor to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "RoomMessagesEdge",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nodes",
+              "description": "A list of `RoomMessage` objects.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "RoomMessage",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "totalCount",
+              "description": "The count of *all* `RoomMessage` you could get from the connection.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
           "enumValues": null,
           "possibleTypes": null
         },
@@ -15636,6 +17366,47 @@
         },
         {
           "kind": "INPUT_OBJECT",
+          "name": "RoomToManyRoomMessageFilter",
+          "description": "A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "every",
+              "description": "Every related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "none",
+              "description": "No related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "some",
+              "description": "Some related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
           "name": "RoomToManyRoomSubscriptionFilter",
           "description": "A filter to be used against many `RoomSubscription` object types. All fields are combined with a logical ‘and.’",
           "fields": null,
@@ -16190,6 +17961,18 @@
           "name": "SendRoomMessagePayload",
           "description": "The output of our `sendRoomMessage` mutation.",
           "fields": [
+            {
+              "name": "answeredMessage",
+              "description": "Reads a single `RoomMessage` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
             {
               "name": "clientMutationId",
               "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
@@ -18340,353 +20123,6 @@
           "possibleTypes": null
         },
         {
-          "kind": "OBJECT",
-          "name": "TopicRoomItem",
-          "description": null,
-          "fields": [
-            {
-              "name": "childRoomItems",
-              "description": "Reads and enables pagination through a set of `RoomItem`.",
-              "args": [
-                {
-                  "name": "after",
-                  "description": "Read all values in the set after (below) this cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Cursor",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "before",
-                  "description": "Read all values in the set before (above) this cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Cursor",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "condition",
-                  "description": "A condition to be used in determining which values should be returned by the collection.",
-                  "type": {
-                    "kind": "INPUT_OBJECT",
-                    "name": "RoomItemCondition",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "filter",
-                  "description": "A filter to be used in determining which values should be returned by the collection.",
-                  "type": {
-                    "kind": "INPUT_OBJECT",
-                    "name": "RoomItemFilter",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "first",
-                  "description": "Only read the first `n` values of the set.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "last",
-                  "description": "Only read the last `n` values of the set.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "offset",
-                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "orderBy",
-                  "description": "The method to use when ordering `RoomItem`.",
-                  "type": {
-                    "kind": "LIST",
-                    "name": null,
-                    "ofType": {
-                      "kind": "NON_NULL",
-                      "name": null,
-                      "ofType": {
-                        "kind": "ENUM",
-                        "name": "RoomItemsOrderBy",
-                        "ofType": null
-                      }
-                    }
-                  },
-                  "defaultValue": "[PRIMARY_KEY_ASC]"
-                }
-              ],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "RoomItemsConnection",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "contributor",
-              "description": "Reads a single `User` that is related to this `RoomItem`.",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "User",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "contributorId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "createdAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Datetime",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "id",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "UUID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "messageBody",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "JSON",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "nodeId",
-              "description": "A globally unique identifier. Can be used in various places throughout the system to identify this single value.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "parent",
-              "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
-              "args": [],
-              "type": {
-                "kind": "INTERFACE",
-                "name": "RoomItem",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "parentId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "position",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "postedAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "room",
-              "description": "Reads a single `Room` that is related to this `RoomItem`.",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Room",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "roomId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "UUID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "topic",
-              "description": "Reads a single `Topic` that is related to this `RoomItem`.",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Topic",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "topicId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "type",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "ENUM",
-                  "name": "RoomItemType",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "updatedAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Datetime",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "Node",
-              "ofType": null
-            },
-            {
-              "kind": "INTERFACE",
-              "name": "RoomItem",
-              "ofType": null
-            }
-          ],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
           "kind": "INPUT_OBJECT",
           "name": "TopicToManyRoomItemFilter",
           "description": "A filter to be used against many `RoomItem` object types. All fields are combined with a logical ‘and.’",
@@ -19946,6 +21382,450 @@
             }
           ],
           "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "UpdateRoomItemByNodeIdInput",
+          "description": "All input for the `updateRoomItemByNodeId` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nodeId",
+              "description": "The globally unique `ID` which will identify a single `RoomItem` to be updated.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "patch",
+              "description": "An object where the defined keys will be set on the `RoomItem` being updated.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "RoomItemPatch",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "UpdateRoomItemInput",
+          "description": "All input for the `updateRoomItem` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "patch",
+              "description": "An object where the defined keys will be set on the `RoomItem` being updated.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "RoomItemPatch",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "UpdateRoomItemPayload",
+          "description": "The output of our update `RoomItem` mutation.",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "contributor",
+              "description": "Reads a single `User` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "parent",
+              "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItem",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "query",
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "room",
+              "description": "Reads a single `Room` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Room",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomItem",
+              "description": "The `RoomItem` that was updated by this mutation.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItem",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomItemEdge",
+              "description": "An edge for our `RoomItem`. May be used by Relay 1.",
+              "args": [
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomItem`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "ENUM",
+                          "name": "RoomItemsOrderBy",
+                          "ofType": null
+                        }
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItemsEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "topic",
+              "description": "Reads a single `Topic` that is related to this `RoomItem`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Topic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "UpdateRoomMessageByNodeIdInput",
+          "description": "All input for the `updateRoomMessageByNodeId` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nodeId",
+              "description": "The globally unique `ID` which will identify a single `RoomMessage` to be updated.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "patch",
+              "description": "An object where the defined keys will be set on the `RoomMessage` being updated.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "RoomMessagePatch",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "UpdateRoomMessageInput",
+          "description": "All input for the `updateRoomMessage` mutation.",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "clientMutationId",
+              "description": "An arbitrary string value with no semantic meaning. Will be included in the\npayload verbatim. May be used to track mutations by the client.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "id",
+              "description": null,
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "patch",
+              "description": "An object where the defined keys will be set on the `RoomMessage` being updated.",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "RoomMessagePatch",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "UpdateRoomMessagePayload",
+          "description": "The output of our update `RoomMessage` mutation.",
+          "fields": [
+            {
+              "name": "answeredMessage",
+              "description": "Reads a single `RoomMessage` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "The exact same `clientMutationId` that was provided in the mutation input,\nunchanged and unused. May be used by a client to track mutations.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "query",
+              "description": "Our root query field type. Allows us to run any query from our mutation payload.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Query",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "room",
+              "description": "Reads a single `Room` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Room",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessage",
+              "description": "The `RoomMessage` that was updated by this mutation.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessageEdge",
+              "description": "An edge for our `RoomMessage`. May be used by Relay 1.",
+              "args": [
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomMessage`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "ENUM",
+                          "name": "RoomMessagesOrderBy",
+                          "ofType": null
+                        }
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessagesEdge",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "sender",
+              "description": "Reads a single `User` that is related to this `RoomMessage`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
           "enumValues": null,
           "possibleTypes": null
         },
@@ -21252,6 +23132,111 @@
                 "ofType": {
                   "kind": "OBJECT",
                   "name": "RoomItemsConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomMessagesBySenderId",
+              "description": "Reads and enables pagination through a set of `RoomMessage`.",
+              "args": [
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomMessageCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomMessageFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomMessage`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "RoomMessagesOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "RoomMessagesConnection",
                   "ofType": null
                 }
               },
@@ -23208,6 +25193,26 @@
               "defaultValue": null
             },
             {
+              "name": "roomMessagesBySenderId",
+              "description": "Filter by the object’s `roomMessagesBySenderId` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserToManyRoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "roomMessagesBySenderIdExist",
+              "description": "Some related `roomMessagesBySenderId` exist.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "roomSubscriptionsBySubscriberId",
               "description": "Filter by the object’s `roomSubscriptionsBySubscriberId` relation.",
               "type": {
@@ -23467,6 +25472,47 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "RoomItemFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "UserToManyRoomMessageFilter",
+          "description": "A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "every",
+              "description": "Every related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "none",
+              "description": "No related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "some",
+              "description": "Some related `RoomMessage` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomMessageFilter",
                 "ofType": null
               },
               "defaultValue": null

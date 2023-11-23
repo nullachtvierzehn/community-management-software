@@ -47,8 +47,8 @@ export const preset: GraphileConfig.Preset = {
   },
   schema: {
     retryOnInitFail: true,
-    exportSchemaSDLPath: "./schema.graphql",
-    exportSchemaIntrospectionResultPath: "./schema.json",
+    exportSchemaSDLPath: "../graphql/schema/schema.graphql",
+    exportSchemaIntrospectionResultPath: "../graphql/schema/schema.json",
     sortExport: true,
   },
   grafast: {

@@ -1,6 +1,6 @@
 overwrite: true
-schema: "../backend/schema.graphql"
-documents: "./**/*.graphql"
+schema: "./schema/schema.graphql"
+documents: "./queries/**/*.graphql"
 config:
   avoidOptionals:
     field: true
