@@ -1,6 +1,7 @@
 {
   "name": "queries",
   "private": true,
+  "type": "module",
   "scripts": {
     "codegen": "graphql-codegen --config codegen.yml",
     "codegen:watch": "graphql-codegen --watch --config codegen.yml"
