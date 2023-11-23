@@ -1,14 +1,14 @@
 import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
 import { PgSimplifyInflectionPreset } from "@graphile/simplify-inflection";
 import { makeV4Preset } from "postgraphile/presets/v4";
-import { grafserv as buildGrafserv } from "grafserv/fastify/v4";
+import { grafserv } from "grafserv/fastify/v4";
 import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connection-filter";
 import OrderByUsernamePlugin from "./plugins/order-by-username-plugin.js";
 
 // import websocket from '@fastify/websocket'
 // (Add any Fastify middleware you want here.)
 // await app.register(websocket);
-import postgraphile, { makeSchema } from "postgraphile";
+import { postgraphile } from "postgraphile";
 import { makePgService } from "postgraphile/adaptors/pg";
 
 import { pool, ownerPool } from "../database/pool.js";
@@ -98,9 +98,6 @@ export const preset: GraphileConfig.Preset = {
   ],
 };
 
-export const { schema, resolvedPreset } = await makeSchema(preset);
-
-// Create a Grafserv instance
-export const grafserv = buildGrafserv({ schema, preset });
-
-export default grafserv;
+export const postgraphileInstance = postgraphile(preset);
+export const grafservInstance = postgraphileInstance.createServ(grafserv);
+export default grafservInstance;

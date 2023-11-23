@@ -1,4 +1,4 @@
-import { grafserv, preset } from "./graphile/index.js";
+import { grafservInstance, preset } from "./graphile/index.js";
 import { app } from "./app.js";
 import { pool, ownerPool } from "./database/pool.js";
 
@@ -6,7 +6,7 @@ import "./routes/index.js";
 import { runner } from "./worker/index.js";
 
 // Add the Grafserv instance's route handlers to the Fastify app
-grafserv.addTo(app).catch((e: any) => {
+grafservInstance.addTo(app).catch((e: any) => {
   console.error(e);
   process.exit(1);
 });

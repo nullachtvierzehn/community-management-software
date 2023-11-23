@@ -1,10 +1,12 @@
 {
   "name": "chatty",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend",
-    "database",
-    "graphql-queries"
-  ]
+  "workspaces": {
+    "packages": [
+      "frontend",
+      "backend",
+      "database",
+      "graphql-queries"
+    ]
+  }
 }
