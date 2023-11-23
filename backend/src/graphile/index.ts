@@ -1,7 +1,7 @@
 import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
 import { PgSimplifyInflectionPreset } from "@graphile/simplify-inflection";
 import { makeV4Preset } from "postgraphile/presets/v4";
-import { grafserv } from "grafserv/fastify/v4";
+import { grafserv } from "postgraphile/grafserv/fastify/v4";
 import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connection-filter";
 import OrderByUsernamePlugin from "./plugins/order-by-username-plugin.js";
 

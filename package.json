@@ -1,6 +1,10 @@
 {
   "name": "chatty",
   "private": true,
+  "scripts": {
+    "preinstall": "npx npm-force-resolutions",
+    "postinstall": "npx patch-package"
+  },
   "workspaces": {
     "packages": [
       "frontend",
@@ -8,5 +12,8 @@
       "database",
       "graphql"
     ]
+  },
+  "resolutions": {
+    "grafast": "0.1.1-beta.1"
   }
 }

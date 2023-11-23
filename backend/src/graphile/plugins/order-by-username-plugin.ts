@@ -3,6 +3,7 @@ import {
   orderByAscDesc,
 } from "postgraphile/utils";
 import { TYPES } from "@dataplan/pg";
+//import { TYPES } from "postgraphile/@dataplan/pg";
 
 export default makeAddPgTableOrderByPlugin(
   { schemaName: "app_public", tableName: "room_subscriptions" },
@@ -16,7 +17,10 @@ export default makeAddPgTableOrderByPlugin(
           from app_public.users as ${sqlIdentifier}
           where ${sqlIdentifier}.id = ${$select.alias}.subscriber_id
         )`;
-        return { fragment: orderByFrag, codec: TYPES.citext };
+        return {
+          fragment: orderByFrag,
+          codec: TYPES.citext,
+        };
       },
       { nulls: "last-iff-ascending" }
     );

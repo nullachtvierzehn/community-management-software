@@ -3,6 +3,7 @@ import { access } from "grafast";
 import { gql, makeExtendSchemaPlugin, Plans, Resolvers } from "graphile-utils";
 
 import { ERROR_MESSAGE_OVERRIDES } from "../../utils/handle-errors.js";
+import { ExecutableStep } from "postgraphile/grafast";
 
 const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
   const typeDefs = gql`
@@ -97,14 +98,16 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
   const plans: Plans = {
     RegisterPayload: {
       user($obj) {
-        const $userId = access($obj, "userId");
+        const $userId = access(
+          $obj,
+          "userId"
+        ) as unknown as ExecutableStep<any>;
         return userResource.get({ id: $userId });
       },
     },
     LoginPayload: {
       user() {
-        const $userId =
-          currentUserIdResource.execute() as PgClassExpressionStep<any, any>;
+        const $userId = currentUserIdResource.execute() as ExecutableStep<any>;
         return userResource.get({ id: $userId });
       },
     },
