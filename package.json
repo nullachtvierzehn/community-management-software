@@ -2,6 +2,7 @@
   "name": "chatty",
   "private": true,
   "scripts": {
+    "our:setup": "node setup.mjs",
     "preinstall": "npx npm-force-resolutions",
     "postinstall": "npx patch-package"
   },

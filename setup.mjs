@@ -1,5 +1,7 @@
+import { execSync } from "child_process";
 import fs from "fs";
 import crypto from "crypto";
+
 import inquirer from "inquirer";
 import { stringify, parse } from "envfile";
 import pg from "pg";
@@ -107,11 +109,16 @@ const answers = await inquirer.prompt(
   envValues
 );
 
-const client = new pg.Client({
-  connectionString: answers.ROOT_DATABASE_URL,
-});
+async function connectToDatabase() {
+  const client = new pg.Client({
+    connectionString: answers.ROOT_DATABASE_URL,
+  });
 
-await client.connect();
+  await client.connect();
+  return client;
+}
+
+const client = await connectToDatabase();
 
 const {
   rows: [{ exists: existingOwner }],
@@ -151,6 +158,8 @@ const {
   [answers.DATABASE_NAME + "_shadow"]
 );
 
+await client.end();
+
 const dbSetupIsComplete =
   existingOwner &&
   existingAuthenticator &&
@@ -170,6 +179,8 @@ const dbSetupIsPartlyComplete =
 console.log(existingVisitor, existingAuthenticator, dbSetupIsComplete);
 
 async function runDatabaseSetup() {
+  const client = await connectToDatabase();
+
   // RESET database
   await client.query(`DROP DATABASE IF EXISTS ${answers.DATABASE_NAME};`);
   await client.query(
@@ -210,6 +221,9 @@ async function runDatabaseSetup() {
   await client.query(
     `CREATE DATABASE ${answers.DATABASE_NAME}_shadow OWNER ${answers.DATABASE_OWNER} TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE='de_DE.UTF-8' LC_CTYPE='de_DE.UTF-8';`
   );
+
+  await client.end();
+  execSync("npm run --workspace database reset -- --erase");
 }
 
 fs.writeFileSync(".env", stringify(answers), { encoding: "utf-8" });

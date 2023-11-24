@@ -3005,40 +3005,6 @@ type Query implements Node {
     orderBy: [RoomsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RoomsConnection
 
-  """Reads and enables pagination through a set of `Test`."""
-  tests(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: TestCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: TestFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Test`."""
-    orderBy: [TestsOrderBy!] = [NATURAL]
-  ): TestsConnection
-
   """Get a single `Topic`."""
   topic(id: UUID!): Topic
 
@@ -5071,68 +5037,6 @@ input StringListFilter {
 
   """Overlaps the specified list of values."""
   overlaps: [String]
-}
-
-type Test {
-  a: String
-}
-
-"""
-A condition to be used against `Test` object types. All fields are tested for equality and combined with a logical ‘and.’
-"""
-input TestCondition {
-  """Checks for equality with the object’s `a` field."""
-  a: String
-}
-
-"""
-A filter to be used against `Test` object types. All fields are combined with a logical ‘and.’
-"""
-input TestFilter {
-  """Filter by the object’s `a` field."""
-  a: StringFilter
-
-  """Checks for all expressions in this list."""
-  and: [TestFilter!]
-
-  """Negates the expression."""
-  not: TestFilter
-
-  """Checks for any expressions in this list."""
-  or: [TestFilter!]
-}
-
-"""A connection to a list of `Test` values."""
-type TestsConnection {
-  """
-  A list of edges which contains the `Test` and cursor to aid in pagination.
-  """
-  edges: [TestsEdge!]!
-
-  """A list of `Test` objects."""
-  nodes: [Test!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Test` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Test` edge in the connection."""
-type TestsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Test` at the end of the edge."""
-  node: Test!
-}
-
-"""Methods to use when ordering `Test`."""
-enum TestsOrderBy {
-  A_ASC
-  A_DESC
-  NATURAL
 }
 
 """

@@ -9,7 +9,7 @@
       "program": "${workspaceFolder:Root}/node_modules/graphile-migrate/dist/cli.js",
       "cwd": "${workspaceFolder:Database}",
       "args": ["watch"],
-      "envFile": "${workspaceFolder:Database}/.env"
+      "envFile": "${workspaceFolder:Root}/.env"
     }
   ]
 }

@@ -2198,8 +2198,6 @@ export type Query = Node & {
   roomSubscriptions: Maybe<RoomSubscriptionsConnection>;
   /** Reads and enables pagination through a set of `Room`. */
   rooms: Maybe<RoomsConnection>;
-  /** Reads and enables pagination through a set of `Test`. */
-  tests: Maybe<TestsConnection>;
   /** Get a single `Topic`. */
   topic: Maybe<Topic>;
   /** Reads a single `Topic` using its globally unique `ID`. */
@@ -2499,19 +2497,6 @@ export type QueryRoomsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<RoomsOrderBy>>;
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QueryTestsArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<TestCondition>;
-  filter?: InputMaybe<TestFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<TestsOrderBy>>;
 };
 
 
@@ -3932,57 +3917,6 @@ export type StringListFilter = {
   /** Overlaps the specified list of values. */
   overlaps?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
-
-export type Test = {
-  __typename?: 'Test';
-  a: Maybe<Scalars['String']['output']>;
-};
-
-/** A condition to be used against `Test` object types. All fields are tested for equality and combined with a logical ‘and.’ */
-export type TestCondition = {
-  /** Checks for equality with the object’s `a` field. */
-  a?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** A filter to be used against `Test` object types. All fields are combined with a logical ‘and.’ */
-export type TestFilter = {
-  /** Filter by the object’s `a` field. */
-  a?: InputMaybe<StringFilter>;
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<TestFilter>>;
-  /** Negates the expression. */
-  not?: InputMaybe<TestFilter>;
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<TestFilter>>;
-};
-
-/** A connection to a list of `Test` values. */
-export type TestsConnection = {
-  __typename?: 'TestsConnection';
-  /** A list of edges which contains the `Test` and cursor to aid in pagination. */
-  edges: Array<TestsEdge>;
-  /** A list of `Test` objects. */
-  nodes: Array<Test>;
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo;
-  /** The count of *all* `Test` you could get from the connection. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** A `Test` edge in the connection. */
-export type TestsEdge = {
-  __typename?: 'TestsEdge';
-  /** A cursor for use in pagination. */
-  cursor: Maybe<Scalars['Cursor']['output']>;
-  /** The `Test` at the end of the edge. */
-  node: Test;
-};
-
-/** Methods to use when ordering `Test`. */
-export type TestsOrderBy =
-  | 'A_ASC'
-  | 'A_DESC'
-  | 'NATURAL';
 
 /** A filter to be used against Time fields. All fields are combined with a logical ‘and.’ */
 export type TimeFilter = {
