@@ -23,12 +23,7 @@ await app.register(fastifyCookie);
 await app.register(fastifySession, {
   secret: "the secret must have length 32 or greater",
   cookieName: "session",
-  cookie: {
-    path: "/",
-    httpOnly: true,
-    secure: "auto",
-    sameSite: "lax",
-  },
+  cookie: { sameSite: "lax", secure: true, httpOnly: true, path: "/" },
 });
 await app.register(dbPlugin, { pool });
 
