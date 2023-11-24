@@ -1,0 +1,58 @@
+diff --git a/node_modules/grafserv/dist/servers/fastify/v4/index.js b/node_modules/grafserv/dist/servers/fastify/v4/index.js
+index 9108bee..1ab6653 100644
+--- a/node_modules/grafserv/dist/servers/fastify/v4/index.js
++++ b/node_modules/grafserv/dist/servers/fastify/v4/index.js
+@@ -137,10 +137,7 @@ class FastifyGrafserv extends base_js_1.GrafservBase {
+         */
+         const dynamicOptions = this.dynamicOptions;
+         app.route({
+-            method: this.dynamicOptions.graphqlOverGET ||
+-                this.dynamicOptions.graphiqlOnGraphQLGET
+-                ? ["GET", "POST"]
+-                : ["POST"],
++            method: "POST",
+             url: this.dynamicOptions.graphqlPath,
+             exposeHeadRoute: true,
+             bodyLimit: this.dynamicOptions.maxRequestLength,
+@@ -149,13 +146,35 @@ class FastifyGrafserv extends base_js_1.GrafservBase {
+                 const handlerResult = await this.graphqlHandler((0, utils_js_1.normalizeRequest)(digest), this.graphiqlHandler);
+                 const result = await (0, base_js_1.convertHandlerResultToResult)(handlerResult);
+                 return this.send(request, reply, result);
+-            },
+-            ...(this.resolvedPreset.grafserv?.websockets
+-                ? {
+-                    wsHandler: (0, websocket_1.makeHandler)((0, utils_js_1.makeGraphQLWSConfig)(this)),
+-                }
+-                : null),
++            }
+         });
++        if (
++            this.dynamicOptions.graphqlOverGET ||
++            this.dynamicOptions.graphiqlOnGraphQLGET ||
++            this.resolvedPreset.grafserv?.websockets
++        ) {
++            app.route({
++                method: "GET",
++                url: this.dynamicOptions.graphqlPath,
++                exposeHeadRoute: true,
++                //bodyLimit: this.dynamicOptions.maxRequestLength,
++                ...((this.dynamicOptions.graphqlOverGET || this.dynamicOptions.graphiqlOnGraphQLGET) 
++                    ? {
++                        handler: async (request, reply) => {
++                            const digest = getDigest(request, reply);
++                            const handlerResult = await this.graphqlHandler((0, utils_js_1.normalizeRequest)(digest), this.graphiqlHandler);
++                            const result = await (0, base_js_1.convertHandlerResultToResult)(handlerResult);
++                            return this.send(request, reply, result);
++                        }
++                    }
++                    : null), 
++                ...(this.resolvedPreset.grafserv?.websockets
++                    ? {
++                        wsHandler: (0, websocket_1.makeHandler)((0, utils_js_1.makeGraphQLWSConfig)(this)),
++                    }
++                    : null),
++            });
++        }
+         if (dynamicOptions.graphiql) {
+             app.route({
+                 method: "GET",

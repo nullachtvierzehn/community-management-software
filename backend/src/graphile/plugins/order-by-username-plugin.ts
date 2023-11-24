@@ -2,8 +2,8 @@ import {
   makeAddPgTableOrderByPlugin,
   orderByAscDesc,
 } from "postgraphile/utils";
-import { TYPES } from "@dataplan/pg";
-//import { TYPES } from "postgraphile/@dataplan/pg";
+//import { TYPES } from "@dataplan/pg";
+import { TYPES } from "postgraphile/@dataplan/pg";
 
 export default makeAddPgTableOrderByPlugin(
   { schemaName: "app_public", tableName: "room_subscriptions" },

@@ -24,7 +24,6 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@dataplan/pg": "^0.0.1-beta.8",
     "@fastify/cookie": "^9.1.0",
     "@fastify/postgres": "^5.2.2",
     "@fastify/secure-session": "^7.1.0",
@@ -36,8 +35,6 @@
     "express": "^4.18.2",
     "fastify": "^4.24.3",
     "find-config": "^1.0.0",
-    "grafast": "^0.1.1-beta.1",
-    "graphile-utils": "^5.0.0-beta.15",
     "graphile-worker": "^0.15.1",
     "graphql": "^16.8.1",
     "html-to-text": "^9.0.5",
