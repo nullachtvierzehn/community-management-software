@@ -15,8 +15,6 @@ import { pool, ownerPool } from "../database/pool.js";
 import PassportLoginPlugin from "./plugins/PassportLoginPlugin.js";
 import config from "../config/index.js";
 
-console.log(config.database.rootUrl);
-
 // https://www.postgraphile.org/postgraphile/next/config
 export const preset: GraphileConfig.Preset = {
   extends: [

@@ -1,11 +1,9 @@
 import { config as loadConfig } from "dotenv";
 import findConfig from "find-config";
 import { DeepPartial } from "../utils/deep-partial.js";
-import { partial } from "lodash";
 
 const configPath = findConfig(".env");
-if (!configPath) throw new Error("no .env found!");
-loadConfig({ path: configPath });
+if (configPath) loadConfig({ path: configPath });
 
 //import local from "./local.json" assert { type: "json" };
 
