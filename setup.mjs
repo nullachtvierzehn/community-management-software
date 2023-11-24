@@ -48,7 +48,7 @@ const answers = await inquirer.prompt(
       default: (answers) => `${answers.DATABASE_NAME}_owner`,
     },
     {
-      type: "password",
+      type: "input",
       name: "DATABASE_OWNER_PASSWORD",
       message: "Password of database owner.",
       default: () => generatePassword(),
@@ -61,7 +61,7 @@ const answers = await inquirer.prompt(
       default: (answers) => `${answers.DATABASE_NAME}_graphile`,
     },
     {
-      type: "password",
+      type: "input",
       name: "DATABASE_AUTHENTICATOR_PASSWORD",
       message: "Password of graphile user.",
       default: () => generatePassword(),
@@ -175,8 +175,6 @@ const dbSetupIsPartlyComplete =
   existingDatabase ||
   existingTestDatabase ||
   existingShadowDatabase;
-
-console.log(existingVisitor, existingAuthenticator, dbSetupIsComplete);
 
 async function runDatabaseSetup() {
   const client = await connectToDatabase();
