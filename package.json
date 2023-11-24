@@ -28,5 +28,10 @@
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
     "@types/pg": "^8.10.9"
+  },
+  "packageManager": "npm@10.2.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "vscode": "^1.22.0"
   }
 }
