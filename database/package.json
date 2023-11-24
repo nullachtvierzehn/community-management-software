@@ -4,6 +4,7 @@
   "scripts": {
     "commit": "graphile-migrate commit",
     "migrate": "graphile-migrate migrate",
+    "reset": "graphile-migrate reset",
     "status": "graphile-migrate status",
     "uncommit": "graphile-migrate uncommit",
     "watch": "graphile-migrate watch"

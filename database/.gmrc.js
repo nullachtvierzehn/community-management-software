@@ -1,3 +1,5 @@
+require("dotenv").config({ path: "../.env" });
+
 /*
  * Graphile Migrate configuration.
  *
@@ -8,19 +10,23 @@
  * This file is in JSON5 format, in VSCode you can use "JSON with comments" as
  * the file format.
  */
-{
+
+module.exports = {
   /*
    * Database connections strings are sourced from the DATABASE_URL,
    * SHADOW_DATABASE_URL and ROOT_DATABASE_URL environmental variables.
    */
+  connectionString: `postgres://${process.env.DATABASE_OWNER}:${process.env.DATABASE_OWNER_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`,
+  shadowConnectionString: `postgres://${process.env.DATABASE_OWNER}:${process.env.DATABASE_OWNER_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`,
+  rootConnectionString: process.env.ROOT_DATABASE_URL,
 
   /*
    * pgSettings: key-value settings to be automatically loaded into PostgreSQL
    * before running migrations, using an equivalent of `SET LOCAL <key> TO
    * <value>`
    */
-  "pgSettings": {
-    "search_path": "app_public,app_private,app_hidden,public"
+  pgSettings: {
+    search_path: "app_public,app_private,app_hidden,public",
   },
 
   /*
@@ -40,9 +46,9 @@
    * `:DATABASE_OWNER` placeholders, and you should not attempt to override
    * these.
    */
-  "placeholders": {
+  placeholders: {
     ":DATABASE_AUTHENTICATOR": "!ENV",
-    ":DATABASE_VISITOR": "!ENV"
+    ":DATABASE_VISITOR": "!ENV",
   },
 
   /*
@@ -64,28 +70,34 @@
   /*
    * afterReset: actions executed after a `graphile-migrate reset` command.
    */
-  "afterReset": [
-    "!afterReset.sql"
+  afterReset: [
+    "!afterReset.sql",
+    /*
+    {
+      _: "command",
+      command: "npx --no-install graphile-worker --schema-only",
+    },
+    */
     // { "_": "command", "command": "graphile-worker --schema-only" },
   ],
 
   /*
    * afterAllMigrations: actions executed once all migrations are complete.
    */
-  "afterAllMigrations": [
+  afterAllMigrations: [
     {
-      "_": "command",
-      "shadow": true,
+      _: "command",
+      shadow: true,
       // NOTE: this script does nothing when envvar `IN_TESTS` is `1`
-      "command": "bun scripts/dump-db.js"
-    }
+      command: "node scripts/dump-db.js",
+    },
   ],
 
   /*
    * afterCurrent: actions executed once the current migration has been
    * evaluated (i.e. in watch mode).
    */
-  "afterCurrent": [
+  afterCurrent: [
     // {
     //   "_": "command",
     //   "shadow": true,
@@ -117,5 +129,5 @@
    */
   // migrationsFolder: "./migrations",
 
-  "//generatedWith": "1.4.1"
-}
+  "//generatedWith": "1.4.1",
+};
