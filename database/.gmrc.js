@@ -1,4 +1,5 @@
-require("dotenv").config({ path: "../.env" });
+const findConfig = require("find-config");
+require("dotenv").config({ path: findConfig(".env") });
 
 /*
  * Graphile Migrate configuration.
