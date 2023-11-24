@@ -6,6 +6,9 @@
     "dev": "nodemon",
     "build": "tsc"
   },
+  "resolutions": {
+    "grafast": "0.1.1-beta.1"
+  },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/find-config": "^1.0.4",
