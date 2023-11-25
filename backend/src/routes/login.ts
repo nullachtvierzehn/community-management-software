@@ -1,5 +1,6 @@
 import { app } from "../app.js";
 import { ownerPool } from "../database/pool.js";
+import clearSessionData from "../utils/clear-session-data.js";
 
 export default app.post(
   "/login",
@@ -22,10 +23,8 @@ export default app.post(
       }
 
       if (session.uuid) {
-        //await request.session.destroy();
-        await request.session.regenerate();
+        clearSessionData(request.session.data());
         request.session.graphileSessionId = session.uuid;
-        await request.session.save();
       }
 
       reply.status(200).send({ ok: true, sessionId: session.uuid });

@@ -1,6 +1,7 @@
 import { execSync } from "child_process";
 import fs from "fs";
 import crypto from "crypto";
+import sodium from "sodium-native";
 
 import inquirer from "inquirer";
 import { stringify, parse } from "envfile";
@@ -8,6 +9,12 @@ import pg from "pg";
 
 function generatePassword(n_bytes = 16) {
   return crypto.randomBytes(n_bytes).toString("base64url");
+}
+
+function generateSecureSessionKey() {
+  const buf = Buffer.allocUnsafe(sodium.crypto_secretbox_KEYBYTES);
+  sodium.randombytes_buf(buf);
+  return buf.toString("hex");
 }
 
 const envValues = fs.existsSync(".env")
@@ -84,6 +91,12 @@ const answers = await inquirer.prompt(
       name: "JWT_SECRET",
       message: "A secret for signing and verifying tokens.",
       default: () => generatePassword(),
+    },
+    {
+      type: "input",
+      name: "COOKIE_KEY",
+      message: "A key to sign cookies, mainly used for fastify-secure-session",
+      default: () => generateSecureSessionKey(),
     },
     {
       type: "number",

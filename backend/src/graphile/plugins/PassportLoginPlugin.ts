@@ -4,6 +4,7 @@ import { gql, makeExtendSchemaPlugin, Plans, Resolvers } from "graphile-utils";
 
 import { ERROR_MESSAGE_OVERRIDES } from "../../utils/handle-errors.js";
 import { ExecutableStep } from "postgraphile/grafast";
+import clearSessionData from "../../utils/clear-session-data.js";
 
 const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
   const typeDefs = gql`
@@ -153,8 +154,8 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
             pgSettings!["jwt.claims.session_id"] = details.session_id;
 
             // Tell Passport.js we're logged in
+            clearSessionData(fastifySession.data());
             fastifySession.graphileSessionId = details.session_id;
-            await fastifySession.regenerate(["graphileSessionId"]);
           }
 
           return {
@@ -203,8 +204,9 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
           if (session.uuid) {
             // Set the graphile session id, then regenerate the session.
             // See here: https://github.com/fastify/session/blob/a8b1aaa1c04809e13b8fff260a3e67a1ef6e3288/test/session.test.js#L218
+            //fastifySession.delete();
+            clearSessionData(fastifySession.data());
             fastifySession.graphileSessionId = session.uuid;
-            await fastifySession.regenerate(["graphileSessionId"]);
           }
 
           // Update pgSettings so future queries will use the new session
@@ -231,7 +233,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
         await withPgClient(pgSettings, (pgClient) =>
           pgClient.query({ text: "select app_public.logout();" })
         );
-        await session?.destroy();
+        session.delete();
         return {
           success: true,
         };

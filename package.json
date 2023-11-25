@@ -19,11 +19,13 @@
     "**/grafast": "0.1.1-beta.1"
   },
   "dependencies": {
+    "@fastify/secure-session": "^7.1.0",
     "dotenv": "^16.3.1",
     "envfile": "^6.22.0",
     "inquirer": "^9.2.12",
     "npm-force-resolutions": "^0.0.10",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "sodium-native": "^4.0.4"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",

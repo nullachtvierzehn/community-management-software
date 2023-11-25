@@ -1,8 +1,11 @@
-import { type FastifySessionObject } from "@fastify/session";
+import {
+  type Session as FastifySecureSession,
+  type SessionData,
+} from "@fastify/secure-session";
 import { type Pool } from "pg";
 
-declare module "fastify" {
-  interface Session {
+declare module "@fastify/secure-session" {
+  interface SessionData {
     graphileSessionId?: string;
   }
 }
@@ -11,7 +14,7 @@ declare global {
   namespace Grafast {
     interface Context {
       rootPgPool: Pool;
-      session: FastifySessionObject;
+      session: FastifySecureSession<SessionData>;
     }
   }
 }
