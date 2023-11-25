@@ -2,9 +2,14 @@
   "name": "chatty",
   "private": true,
   "scripts": {
+    "dev:frontend": "npm run --workspace frontend dev",
+    "dev:backend": "npm run --workspace backend dev",
+    "dev:graphql": "npm run --workspace graphql codegen:watch",
+    "dev:database": "npm run --workspace database watch",
+    "dev": "concurrently -k \"npm:dev:*\"",
     "our:setup": "node setup.mjs",
     "preinstall": "npx npm-force-resolutions",
-    "postinstall": "npx patch-package"
+    "postinstall": "patch-package"
   },
   "workspaces": {
     "packages": [
@@ -22,12 +27,14 @@
     "dotenv": "^16.3.1",
     "envfile": "^6.22.0",
     "inquirer": "^9.2.12",
-    "npm-force-resolutions": "^0.0.10",
     "pg": "^8.11.3"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
-    "@types/pg": "^8.10.9"
+    "@types/pg": "^8.10.9",
+    "concurrently": "^8.2.2",
+    "npm-force-resolutions": "^0.0.10",
+    "patch-package": "^8.0.0"
   },
   "packageManager": "npm@10.2.0",
   "engines": {
