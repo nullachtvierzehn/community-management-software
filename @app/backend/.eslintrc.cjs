@@ -1,5 +1,5 @@
 module.exports = {
-  extends: `${__dirname}/../.eslintrc.cjs`,
+  extends: `${__dirname}/../../.eslintrc.cjs`,
   rules: {
     /*
      * Server side we won't be validating against the schema (because we're

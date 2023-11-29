@@ -1,6 +1,6 @@
 const { readFileSync } = require("fs");
 const schemaString = readFileSync(
-  `${__dirname}/graphql/schema/schema.graphql`,
+  `${__dirname}/@app/graphql/schema/schema.graphql`,
   "utf8",
 );
 

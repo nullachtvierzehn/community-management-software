@@ -1,11 +1,11 @@
 {
-  "name": "chatty",
+  "name": "root",
   "private": true,
   "scripts": {
-    "dev:frontend": "npm run --workspace frontend dev",
-    "dev:backend": "npm run --workspace backend dev",
-    "dev:graphql": "npm run --workspace graphql codegen:watch",
-    "dev:database": "npm run --workspace database watch",
+    "dev:frontend": "npm run --workspace @app/frontend dev",
+    "dev:backend": "npm run --workspace @app/backend dev",
+    "dev:graphql": "npm run --workspace @app/graphql codegen:watch",
+    "dev:database": "npm run --workspace @app/database watch",
     "dev": "concurrently -k \"npm:dev:*\"",
     "our:setup": "node setup.mjs",
     "preinstall": "npx npm-force-resolutions",
@@ -13,10 +13,7 @@
   },
   "workspaces": {
     "packages": [
-      "frontend",
-      "backend",
-      "database",
-      "graphql"
+      "@app/*"
     ]
   },
   "resolutions": {

@@ -1,5 +1,5 @@
 {
-  "name": "migrations",
+  "name": "@app/database",
   "private": true,
   "scripts": {
     "commit": "graphile-migrate commit",

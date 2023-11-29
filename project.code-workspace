@@ -6,19 +6,19 @@
     },
     {
       "name": "Backend",
-      "path": "./backend"
+      "path": "./@app/backend"
     },
     {
       "name": "Database",
-      "path": "./database"
+      "path": "./@app/database"
     },
     {
       "name": "Frontend",
-      "path": "./frontend"
+      "path": "./@app/frontend"
     },
     {
       "name": "Graphql",
-      "path": "./graphql"
+      "path": "./@app/graphql"
     }
   ]
 }

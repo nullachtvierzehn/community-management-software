@@ -1,6 +1,6 @@
 {
-  "name": "backend",
-  "module": "index.ts",
+  "name": "@app/backend",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nodemon",

@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "@app/frontend",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,8 +8,6 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "codegen": "graphql-codegen --config codegen.yml",
-    "codegen:watch": "graphql-codegen --watch --config codegen.yml",
     "lint": "eslint \"**/*.{vue,ts,js}\"",
     "lint:fix": "eslint --fix \"**/*.{vue,ts,js}\""
   },
