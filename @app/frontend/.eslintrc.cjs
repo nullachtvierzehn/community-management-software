@@ -1,9 +1,6 @@
 module.exports = {
   parser: 'vue-eslint-parser',
-  root: true,
   extends: [
-    // add more generic rulesets here, such as:
-    // 'eslint:recommended',
     `${__dirname}/../../.eslintrc.cjs`,
     '@nuxt/eslint-config',
     'plugin:vue/vue3-recommended',
