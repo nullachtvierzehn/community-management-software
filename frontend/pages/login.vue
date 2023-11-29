@@ -1,10 +1,19 @@
 <template>
-  <form action="post" @submit.prevent="login()">
-    <label for="username-field"><input type="text" v-model="username" /></label>
-    <label for="password-field"
-      ><input type="password" v-model="password"
-    /></label>
-    <button type="submit">ok</button>
+  <form
+    action="post"
+    @submit.prevent="login()"
+  >
+    <label for="username-field"><input
+      v-model="username"
+      type="text"
+    ></label>
+    <label for="password-field"><input
+      v-model="password"
+      type="password"
+    ></label>
+    <button type="submit">
+      ok
+    </button>
   </form>
   <pre v-if="error">{{ error }}</pre>
   <pre v-if="data">{{ data }}</pre>

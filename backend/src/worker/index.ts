@@ -1,6 +1,6 @@
 import { run } from "graphile-worker";
-import { ownerPool } from "../database/pool.js";
 
+import { ownerPool } from "../database/pool.js";
 import feed_invitations__send_invite from "./tasks/feed_invitations__send_invite.js";
 import organization_invitations__send_invite from "./tasks/organization_invitations__send_invite.js";
 import send_email from "./tasks/send_email.js";

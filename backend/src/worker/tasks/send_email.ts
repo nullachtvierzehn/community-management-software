@@ -9,8 +9,8 @@ import { template as lodashTemplate } from "lodash-es";
 import mjml2html from "mjml";
 import * as nodemailer from "nodemailer";
 
-import getTransport from "../transport.js";
 import { templates } from "../../assets/templates/index.js";
+import getTransport from "../transport.js";
 
 declare module global {
   let TEST_EMAILS: any[];

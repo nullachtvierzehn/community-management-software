@@ -3,12 +3,12 @@
 </template>
 
 <script setup lang="ts">
-import StarterKit from "@tiptap/starter-kit";
-import ImageExtension from "@tiptap/extension-image";
-import DropCursorExtension from "@tiptap/extension-dropcursor";
-import { generateHTML } from "@tiptap/html";
 import { type JSONContent } from "@tiptap/core";
+import DropCursorExtension from "@tiptap/extension-dropcursor";
+import ImageExtension from "@tiptap/extension-image";
 import LinkExtension from "@tiptap/extension-link";
+import { generateHTML } from "@tiptap/html";
+import StarterKit from "@tiptap/starter-kit";
 import { computed } from "vue";
 
 const props = defineProps<{

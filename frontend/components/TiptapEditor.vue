@@ -1,31 +1,26 @@
 <template>
   <div class="tiptap-editor">
-    <slot name="menu" v-bind:editor="editor">
+    <slot
+      name="menu"
+      :editor="editor"
+    >
       <menu-bar :editor="editor" />
     </slot>
     <editor-content :editor="editor" />
   </div>
 </template>
 
-<style>
-.tiptap-editor {
-  border: 2px solid black;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-</style>
-
 <script lang="ts" setup>
-import {
-  useEditor,
-  EditorContent,
-  type JSONContent,
-  type HTMLContent,
-} from "@tiptap/vue-3";
-import StarterKit from "@tiptap/starter-kit";
-import ImageExtension from "@tiptap/extension-image";
 import DropCursorExtension from "@tiptap/extension-dropcursor";
+import ImageExtension from "@tiptap/extension-image";
 import LinkExtension from "@tiptap/extension-link";
+import StarterKit from "@tiptap/starter-kit";
+import {
+  EditorContent,
+  type HTMLContent,
+  type JSONContent,
+  useEditor,
+} from "@tiptap/vue-3";
 
 const props = defineProps<
   { json: JSONContent; html?: null } | { json?: null; html: HTMLContent }
@@ -46,3 +41,11 @@ const editor = useEditor({
   },
 });
 </script>
+
+<style>
+.tiptap-editor {
+  border: 2px solid black;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+</style>

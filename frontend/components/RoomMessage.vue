@@ -1,40 +1,74 @@
 <template>
   <template v-if="!m">
-    <div class="message message_loading" v-if="fetching">
+    <div
+      v-if="fetching"
+      class="message message_loading"
+    >
       Die Nachricht lädt.
     </div>
     <form
       v-else-if="createWithDefaults && currentUser"
       @submit.prevent="saveMessage({})"
     >
-      <textarea v-model="newBody"></textarea>
-      <button type="submit">ok</button>
-      <button type="button" @click="saveMessage({ send: true })">send</button>
+      <textarea v-model="newBody" />
+      <button type="submit">
+        ok
+      </button>
+      <button
+        type="button"
+        @click="saveMessage({ send: true })"
+      >
+        send
+      </button>
     </form>
-    <div class="message message_missing" v-else>
+    <div
+      v-else
+      class="message message_missing"
+    >
       Die Nachricht wurde nicht gefunden.
     </div>
   </template>
-  <div v-if="m && !edit" class="message">
-    <div class="message__sender" v-if="m.sender">
+  <div
+    v-if="m && !edit"
+    class="message"
+  >
+    <div
+      v-if="m.sender"
+      class="message__sender"
+    >
       {{ m.sender.username }}
     </div>
-    <div class="message__sender" v-else>Nutzer:in unbekannt</div>
-    <div class="message__body">{{ m.body }}</div>
+    <div
+      v-else
+      class="message__sender"
+    >
+      Nutzer:in unbekannt
+    </div>
+    <div class="message__body">
+      {{ m.body }}
+    </div>
   </div>
   <form
     v-if="m && edit"
     class="message message_edit"
     @submit.prevent="saveMessage({})"
   >
-    <textarea v-model="newBody"></textarea>
-    <button type="submit">ok</button>
-    <button type="button" @click="saveMessage({ send: true })">send</button>
+    <textarea v-model="newBody" />
+    <button type="submit">
+      ok
+    </button>
+    <button
+      type="button"
+      @click="saveMessage({ send: true })"
+    >
+      send
+    </button>
   </form>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
+
 import {
   type RoomMessageInput,
   useCreateRoomMessageMutation,

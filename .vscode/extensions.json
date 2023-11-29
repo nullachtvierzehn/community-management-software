@@ -1,7 +1,15 @@
 {
   "recommendations": [
-    "oven.bun-vscode", // support for https://bun.sh/
+    "EditorConfig.EditorConfig", // http://editorconfig.org
+    "dbaeumer.vscode-eslint", // ESLint
+    "esbenp.prettier-vscode", // Prettier
+    "apollographql.vscode-apollo", // GraphQL support
+    "Vue.volar", // Vue 3
     "MisterJ.vue-volar-extention-pack", // support for Vue projects
-    "apollographql.vscode-apollo" // support for graphql
+    "attilabuti.vscode-mjml", // MJML support (used for mails)
+    "bradlc.vscode-tailwindcss", // TailwindCSS support
+    "vunguyentuan.vscode-postcss", // PostCSS support
+    //"msjsdiag.debugger-for-chrome", // Chrome debugger integration (deprecated in favor of built-in Javascript debugger)
+    "ms-vscode-remote.vscode-remote-extensionpack" // OPTIONAL: develop inside of Docker containers
   ]
 }

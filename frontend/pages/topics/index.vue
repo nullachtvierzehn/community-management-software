@@ -2,7 +2,10 @@
   <article>
     <h1>Themen</h1>
     <ul>
-      <li v-for="topic in topics" :key="topic.id">
+      <li
+        v-for="topic in topics"
+        :key="topic.id"
+      >
         {{ topic.title ?? topic.slug ?? topic.id }}
       </li>
     </ul>

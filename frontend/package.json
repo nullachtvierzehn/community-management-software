@@ -9,7 +9,9 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "codegen": "graphql-codegen --config codegen.yml",
-    "codegen:watch": "graphql-codegen --watch --config codegen.yml"
+    "codegen:watch": "graphql-codegen --watch --config codegen.yml",
+    "lint": "eslint \"**/*.{vue,ts,js}\"",
+    "lint:fix": "eslint --fix \"**/*.{vue,ts,js}\""
   },
   "devDependencies": {
     "@graphql-codegen/add": "^5.0.0",
@@ -19,7 +21,9 @@
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-vue-urql": "^3.0.0",
     "@nuxt/devtools": "latest",
+    "@nuxt/eslint-config": "^0.2.0",
     "@types/lodash": "^4.14.202",
+    "eslint-plugin-vue": "^9.18.1",
     "nuxt": "^3.8.0",
     "vue": "^3.3.7",
     "vue-router": "^4.2.5"

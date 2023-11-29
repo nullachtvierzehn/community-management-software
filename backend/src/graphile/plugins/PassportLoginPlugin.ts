@@ -1,10 +1,9 @@
-import { PgClassExpressionStep } from "@dataplan/pg";
 import { access } from "grafast";
 import { gql, makeExtendSchemaPlugin, Plans, Resolvers } from "graphile-utils";
-
-import { ERROR_MESSAGE_OVERRIDES } from "../../utils/handle-errors.js";
 import { ExecutableStep } from "postgraphile/grafast";
+
 import clearSessionData from "../../utils/clear-session-data.js";
+import { ERROR_MESSAGE_OVERRIDES } from "../../utils/handle-errors.js";
 
 const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
   const typeDefs = gql`
@@ -93,7 +92,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
     build.input.pgRegistry.pgResources.current_user_id;
   if (!userResource || !currentUserIdResource) {
     throw new Error(
-      "Couldn't find either the 'users' or 'current_user_id' source"
+      "Couldn't find either the 'users' or 'current_user_id' source",
     );
   }
   const plans: Plans = {
@@ -101,7 +100,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
       user($obj) {
         const $userId = access(
           $obj,
-          "userId"
+          "userId",
         ) as unknown as ExecutableStep<any>;
         return userResource.get({ id: $userId });
       },
@@ -140,7 +139,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
             )
             select new_user.id as user_id, new_session.uuid as session_id
             from new_user, new_session`,
-            [username, email, name, avatarUrl, password]
+            [username, email, name, avatarUrl, password],
           );
 
           if (!details || !details.user_id) {
@@ -174,7 +173,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
             throw e;
           } else {
             console.error(
-              "Unrecognised error in PassportLoginPlugin; replacing with sanitized version"
+              "Unrecognised error in PassportLoginPlugin; replacing with sanitized version",
             );
             console.error(e);
             throw Object.assign(new Error("Registration failed"), {
@@ -192,7 +191,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
             rows: [session],
           } = await rootPgPool.query(
             `select sessions.* from app_private.login($1, $2) sessions where not (sessions is null)`,
-            [username, password]
+            [username, password],
           );
 
           if (!session) {
@@ -231,7 +230,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
       async logout(_mutation, _args, context: Grafast.Context) {
         const { pgSettings, withPgClient, session } = context;
         await withPgClient(pgSettings, (pgClient) =>
-          pgClient.query({ text: "select app_public.logout();" })
+          pgClient.query({ text: "select app_public.logout();" }),
         );
         session.delete();
         return {
@@ -253,7 +252,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
           rows: [row],
         } = await rootPgPool.query(
           `select app_private.reset_password($1::uuid, $2::text, $3::text) as success`,
-          [userId, resetToken, newPassword]
+          [userId, resetToken, newPassword],
         );
 
         return {

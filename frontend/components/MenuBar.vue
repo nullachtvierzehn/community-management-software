@@ -1,10 +1,10 @@
 <template>
   <div class="tiptap-editor__menu-bar">
-    <slot name="firstButtons"></slot>
+    <slot name="firstButtons" />
     <div
-      class="tiptap-editor__menu-section"
       v-for="(section, i) in items"
       :key="`section-${i}`"
+      class="tiptap-editor__menu-section"
     >
       <menu-item
         v-for="(item, j) in section"
@@ -12,20 +12,13 @@
         v-bind="item"
       />
     </div>
-    <slot name="lastButtons"></slot>
+    <slot name="lastButtons" />
   </div>
 </template>
 
-<style>
-.tiptap-editor__menu-bar {
-  display: flex;
-  background-color: black;
-}
-</style>
-
 <script setup lang="ts">
-import { ref } from "vue";
 import { Editor } from "@tiptap/vue-3";
+import { ref } from "vue";
 
 const props = defineProps<{
   editor?: Editor;
@@ -197,6 +190,13 @@ const items = ref<
   ],
 ]);
 </script>
+
+<style>
+.tiptap-editor__menu-bar {
+  display: flex;
+  background-color: black;
+}
+</style>
 
 <style lang="css" scoped>
 .divider {

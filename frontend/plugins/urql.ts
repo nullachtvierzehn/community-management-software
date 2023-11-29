@@ -1,13 +1,14 @@
 import {
-  createClient,
   cacheExchange,
-  ssrExchange,
-  fetchExchange,
   Client,
+  createClient,
+  fetchExchange,
+  ssrExchange,
 } from "@urql/core";
-import { defineNuxtPlugin } from "#app";
-import { ref } from "vue";
 import type { SSRData } from "@urql/vue";
+import { ref } from "vue";
+
+import { defineNuxtPlugin } from "#app";
 
 export default defineNuxtPlugin((nuxt) => {
   const ssrKey = "__URQL_DATA__";

@@ -1,10 +1,10 @@
 <template>
   <button
+    v-if="action"
     class="tiptap-editor__menu-item"
     :class="{ 'is-active': isActive ? isActive() : null }"
-    v-if="action"
-    @click="action"
     :title="title"
+    @click="action"
   >
     <svg class="remix">
       <use :xlink:href="`${remixiconUrl}#ri-${icon}`" />

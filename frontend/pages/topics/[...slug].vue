@@ -1,12 +1,18 @@
 <template>
-  <article v-if="fetching">Lädt...</article>
+  <article v-if="fetching">
+    Lädt...
+  </article>
   <template v-else-if="!topic && edit === 'true'">
     <tiptap-editor v-model:json="editableJson" />
-    <button @click="save()">speichern</button>
+    <button @click="save()">
+      speichern
+    </button>
   </template>
   <article v-else-if="!topic && edit !== 'true'">
     Thema nicht gefunden. Möchtest Du es
-    <button @click="edit = 'true'">anlegen?</button>
+    <button @click="edit = 'true'">
+      anlegen?
+    </button>
   </article>
   <article v-else-if="topic && edit !== 'true'">
     <h1>{{ topic.title ?? topic.slug }}</h1>
@@ -14,13 +20,16 @@
   </article>
   <article v-else-if="topic && edit === 'true'">
     <tiptap-editor v-model:json="editableJson" />
-    <button @click="save()">speichern</button>
+    <button @click="save()">
+      speichern
+    </button>
   </article>
 </template>
 
 <script lang="ts" setup>
 import { type JSONContent } from "@tiptap/core";
 import { useRouteQuery } from "@vueuse/router";
+
 import {
   useCreateTopicMutation,
   useFetchDetailedTopicsQuery,

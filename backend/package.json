@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint \"**/*.{ts,js,tsx}\"",
+    "lint:fix": "eslint --fix \"**/*.{ts,js,tsx}\""
   },
   "resolutions": {
     "grafast": "0.1.1-beta.1"
@@ -19,6 +21,7 @@
     "@types/node": "^20.9.4",
     "@types/nodemailer": "^6.4.13",
     "bun-types": "latest",
+    "graphile-utils": "^5.0.0-beta.15",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.0"

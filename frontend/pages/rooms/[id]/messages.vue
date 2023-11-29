@@ -28,8 +28,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useFetchRoomMessagesQuery } from "~/graphql";
 import { useRouteQuery } from "@vueuse/router";
+
+import { useFetchRoomMessagesQuery } from "~/graphql";
 
 definePageMeta({
   name: "room/messages",

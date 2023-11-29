@@ -8,19 +8,29 @@
     <!-- Show option to become admin of orphaned rooms. -->
     <div v-if="currentRoom.nSubscriptions === '0' && currentUser">
       <p>Der Raum hat keine Mitglieder.</p>
-      <button @click="becomeAdmin()">Ich möchte sein Admin werden.</button>
+      <button @click="becomeAdmin()">
+        Ich möchte sein Admin werden.
+      </button>
     </div>
 
     <!-- Show memberships -->
     <div
-      class="subscription"
       v-for="subscription in subscriptions"
       :key="subscription.subscriberId"
+      class="subscription"
     >
-      <div class="subscription__username" v-if="subscription.subscriber">
+      <div
+        v-if="subscription.subscriber"
+        class="subscription__username"
+      >
         {{ subscription.subscriber.username }}
       </div>
-      <div class="subscription__username" v-else>Mitglied unbekannt</div>
+      <div
+        v-else
+        class="subscription__username"
+      >
+        Mitglied unbekannt
+      </div>
     </div>
   </section>
 </template>
@@ -31,6 +41,7 @@ import {
   useFetchRoomSubscriptionsQuery,
 } from "~/graphql";
 import { useCurrentUser } from "~/utils/use-current-user";
+
 import { roomInjectionKey } from "../injection-keys";
 
 definePageMeta({

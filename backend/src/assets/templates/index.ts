@@ -21,7 +21,7 @@ export {
   deleteAccount,
   feedInvite,
   organizationInvite,
+  passwordReset,
   passwordResetUnregistered,
   verifyEmail,
-  passwordReset,
 };

@@ -1,11 +1,10 @@
-import fastify from "fastify";
-import { Pool, PoolClient } from "pg";
-import {
+import fastify, {
   FastifyInstance,
   FastifyPluginAsync,
-  FastifyRequest,
   FastifyReply,
+  FastifyRequest,
 } from "fastify";
+import { Pool, PoolClient } from "pg";
 
 declare module "fastify" {
   interface FastifyRequest {

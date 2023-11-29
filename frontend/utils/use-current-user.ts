@@ -1,11 +1,12 @@
-import { type GetCurrentUserQuery, useGetCurrentUserQuery } from "~/graphql";
 import {
-  type ComputedRef,
-  type InjectionKey,
   computed,
+  type ComputedRef,
   inject,
+  type InjectionKey,
   provide,
 } from "vue";
+
+import { type GetCurrentUserQuery, useGetCurrentUserQuery } from "~/graphql";
 
 export type CurretUser = GetCurrentUserQuery["currentUser"] | undefined;
 

@@ -1,8 +1,8 @@
-import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
-import { makePgService } from "postgraphile/adaptors/pg";
+import fastify from "fastify";
 import { grafserv } from "grafserv/fastify/v4";
 import { makeSchema } from "postgraphile";
-import fastify from "fastify";
+import { makePgService } from "postgraphile/adaptors/pg";
+import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
 
 /** @type {GraphileConfig.Preset} */
 const preset = {

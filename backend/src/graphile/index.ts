@@ -1,19 +1,18 @@
-import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
 import { PgSimplifyInflectionPreset } from "@graphile/simplify-inflection";
-import { makeV4Preset } from "postgraphile/presets/v4";
-import { grafserv } from "postgraphile/grafserv/fastify/v4";
-import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connection-filter";
-import OrderByUsernamePlugin from "./plugins/order-by-username-plugin.js";
-
 // import websocket from '@fastify/websocket'
 // (Add any Fastify middleware you want here.)
 // await app.register(websocket);
 import { postgraphile } from "postgraphile";
 import { makePgService } from "postgraphile/adaptors/pg";
+import { grafserv } from "postgraphile/grafserv/fastify/v4";
+import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
+import { makeV4Preset } from "postgraphile/presets/v4";
+import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connection-filter";
 
-import { pool, ownerPool } from "../database/pool.js";
-import PassportLoginPlugin from "./plugins/PassportLoginPlugin.js";
 import config from "../config/index.js";
+import { ownerPool,pool } from "../database/pool.js";
+import OrderByUsernamePlugin from "./plugins/order-by-username-plugin.js";
+import PassportLoginPlugin from "./plugins/PassportLoginPlugin.js";
 
 // https://www.postgraphile.org/postgraphile/next/config
 export const preset: GraphileConfig.Preset = {

@@ -1,9 +1,10 @@
 import { createServer } from "node:http";
-import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
-import { makePgService } from "postgraphile/adaptors/pg";
-import { grafserv } from "grafserv/express/v4";
+
 import express from "express";
+import { grafserv } from "grafserv/express/v4";
 import { makeSchema } from "postgraphile";
+import { makePgService } from "postgraphile/adaptors/pg";
+import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
 
 // Create an express app
 const app = express();

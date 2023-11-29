@@ -1,0 +1,7 @@
+node_modules
+**/dist
+/graphql/schema/schema.graphql
+/graphql/schema/schema.json
+/frontend/graphql/index.*
+/frontend/.nuxt
+.nuxt

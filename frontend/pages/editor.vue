@@ -5,11 +5,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useEditor, EditorContent } from "@tiptap/vue-3";
-import StarterKit from "@tiptap/starter-kit";
-import ImageExtension from "@tiptap/extension-image";
 import DropCursorExtension from "@tiptap/extension-dropcursor";
+import ImageExtension from "@tiptap/extension-image";
 import LinkExtension from "@tiptap/extension-link";
+import StarterKit from "@tiptap/starter-kit";
+import { EditorContent,useEditor } from "@tiptap/vue-3";
 
 const content = {
   type: "doc",

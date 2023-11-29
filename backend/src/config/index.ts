@@ -1,5 +1,6 @@
 import { config as loadConfig } from "dotenv";
 import findConfig from "find-config";
+
 import { DeepPartial } from "../utils/deep-partial.js";
 
 const configPath = findConfig(".env");

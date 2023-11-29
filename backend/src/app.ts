@@ -1,14 +1,11 @@
-import fs from "fs";
-import path from "path";
-
-import fastify from "fastify";
-import fastifySecureSession from "@fastify/secure-session";
 import fastifyCookie from "@fastify/cookie";
-import fastifyWebsocket from "@fastify/websocket";
+import fastifySecureSession from "@fastify/secure-session";
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
+import fastifyWebsocket from "@fastify/websocket";
+import fastify from "fastify";
 
-import { pool } from "./database/pool.js";
 import { dbPlugin } from "./database/fastify-plugin.js";
+import { pool } from "./database/pool.js";
 import validations from "./validations/index.js";
 
 export const app = fastify({
