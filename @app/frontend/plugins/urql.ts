@@ -8,8 +8,6 @@ import {
 import type { SSRData } from "@urql/vue";
 import { ref } from "vue";
 
-import { defineNuxtPlugin } from "#app";
-
 export default defineNuxtPlugin((nuxt) => {
   const ssrKey = "__URQL_DATA__";
   const requestHeaders = useRequestHeaders(["cookie", "authorization"]);

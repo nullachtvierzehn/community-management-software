@@ -153,7 +153,7 @@ async function saveMessage({ send = false }) {
   }
 
   if (oldId) {
-    const { data, error } = await updateMutation({
+    const { error } = await updateMutation({
       oldId,
       patch: {
         body: newBody.value,
@@ -161,22 +161,6 @@ async function saveMessage({ send = false }) {
       },
     });
     if (error) throw error;
-  }
-}
-
-async function sendNewMessage() {
-  if (!props.createWithDefaults)
-    throw new Error("Please provide `createWithDefaults`");
-  const input = { ...props.createWithDefaults };
-  input.body = newBody.value;
-  input.senderId = currentUser.value?.id;
-  input.sentAt = new Date().toISOString();
-  const { data, error } = await createMutation({ message: input });
-  if (error) throw error;
-  else if (data?.createRoomMessage?.roomMessage) {
-    message.value = data.createRoomMessage.roomMessage;
-    id.value = data.createRoomMessage.roomMessage.id;
-    newBody.value = "";
   }
 }
 </script>

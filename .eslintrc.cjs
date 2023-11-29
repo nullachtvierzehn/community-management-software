@@ -33,7 +33,7 @@ module.exports = {
       typescript: {
         // for options: https://www.npmjs.com/package/eslint-import-resolver-typescript
         alwaysTryTypes: true,
-        project: ["@app/*/tsconfig.json"],
+        project: ["@app/*/tsconfig.json", "@app/frontend/.nuxt/tsconfig.json"],
       },
     },
   },

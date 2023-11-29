@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type InjectionKey,provide, toValue } from "vue";
+import { computed, provide, toValue } from "vue";
 import { useRoute } from "vue-router";
 
 import { useGetRoomQuery } from "~/graphql";
@@ -31,7 +31,7 @@ definePageMeta({
 
 const route = useRoute();
 
-const { data, fetching } = await useGetRoomQuery({
+const { data } = await useGetRoomQuery({
   variables: computed(() => ({ id: toValue(route.params.id) as string })),
 });
 

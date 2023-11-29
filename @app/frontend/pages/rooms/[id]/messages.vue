@@ -47,8 +47,6 @@ const nMessages = useRouteQuery<number>("n", 10, {
 // fetch messages
 const {
   data,
-  fetching,
-  error,
   executeQuery: fetchSentMessages,
 } = await useFetchRoomMessagesQuery({
   variables: computed(() => ({

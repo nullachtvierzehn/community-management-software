@@ -6,7 +6,7 @@ import {
   provide,
 } from "vue";
 
-import { type GetCurrentUserQuery, useGetCurrentUserQuery } from "~/graphql";
+import { type GetCurrentUserQuery, useGetCurrentUserQuery } from "~/graphql/index.js";
 
 export type CurretUser = GetCurrentUserQuery["currentUser"] | undefined;
 

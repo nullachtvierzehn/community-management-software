@@ -55,7 +55,6 @@ const currentRoom = inject(roomInjectionKey);
 // fetch subscriptions
 const {
   data: dataOfSubscriptions,
-  fetching: fetchingSubscriptions,
   executeQuery: refetchSubscriptions,
 } = await useFetchRoomSubscriptionsQuery({
   variables: computed(() => ({
