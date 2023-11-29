@@ -1,9 +1,4 @@
-import fastify, {
-  FastifyInstance,
-  FastifyPluginAsync,
-  FastifyReply,
-  FastifyRequest,
-} from "fastify";
+import { type FastifyPluginAsync } from "fastify";
 import { Pool, PoolClient } from "pg";
 
 declare module "fastify" {
@@ -15,19 +10,19 @@ declare module "fastify" {
 // Define a plugin to manage database transactions
 export const dbPlugin: FastifyPluginAsync<{ pool: Pool }> = async (
   fastify,
-  options
+  options,
 ) => {
   const { pool } = options;
 
   fastify.decorateRequest("pgClient", null);
 
-  fastify.addHook("preHandler", async (request, reply) => {
+  fastify.addHook("preHandler", async (request, _reply) => {
     const client = await pool.connect();
     request.pgClient = client;
     await client.query("BEGIN");
   });
 
-  fastify.addHook("onError", async (request, reply, error) => {
+  fastify.addHook("onError", async (request, _reply, _error) => {
     if (request.pgClient) {
       try {
         await request.pgClient.query("ROLLBACK");
