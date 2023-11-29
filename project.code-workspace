@@ -1,4 +1,19 @@
 {
+  "settings": {
+    "editor.formatOnSave": true,
+    "[sql]": {
+      "editor.formatOnSave": false
+    },
+    "[vue]": {
+      "editor.formatOnSave": false
+    },
+    "eslint.codeAction.showDocumentation": {
+      "enable": true
+    },
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  },
   "folders": [
     {
       "name": "Root",

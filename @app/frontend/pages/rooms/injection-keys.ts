@@ -1,7 +1,7 @@
-import { type ComputedRef,type InjectionKey } from "vue";
+import { type ComputedRef, type InjectionKey } from 'vue'
 
-import { type GetRoomQuery } from "~/graphql";
+import { type GetRoomQuery } from '~/graphql'
 
 export const roomInjectionKey = Symbol() as InjectionKey<
-  ComputedRef<GetRoomQuery["room"] | undefined>
->;
+  ComputedRef<GetRoomQuery['room'] | undefined>
+>

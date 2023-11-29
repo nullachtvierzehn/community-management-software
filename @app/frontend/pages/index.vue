@@ -3,10 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed } from 'vue'
 
-import { useCurrentUserQuery } from "../graphql";
+import { useCurrentUserQuery } from '../graphql'
 
-const { data } = await useCurrentUserQuery({});
-const currentUser = computed(() => data.value?.currentUser);
+const { data } = await useCurrentUserQuery({})
+const currentUser = computed(() => data.value?.currentUser)
 </script>

@@ -1,39 +1,40 @@
-const { readFileSync } = require("fs");
+const { readFileSync } = require('fs')
 const schemaString = readFileSync(
   `${__dirname}/@app/graphql/schema/schema.graphql`,
-  "utf8",
-);
+  'utf8'
+)
 
 module.exports = {
   root: true,
-  parser: "@typescript-eslint/parser",
+  parser: '@typescript-eslint/parser',
   extends: [
-    "plugin:import/errors",
-    "plugin:import/typescript",
-    "eslint:recommended",
-    "prettier",
+    'plugin:import/errors',
+    'plugin:import/typescript',
+    'eslint:recommended',
+    'prettier',
   ],
   plugins: [
-    "jest",
-    "@typescript-eslint",
-    "graphql",
-    "simple-import-sort",
-    "import",
+    'jest',
+    '@typescript-eslint',
+    'graphql',
+    'simple-import-sort',
+    'import',
+    'prettier',
   ],
   parserOptions: {
     ecmaVersion: 2021,
-    sourceType: "module",
+    sourceType: 'module',
     ecmaFeatures: {
       jsx: true,
     },
   },
   settings: {
     // helps eslint to validate imports, if they involve a path alias from tsconfig.json
-    "import/resolver": {
+    'import/resolver': {
       typescript: {
         // for options: https://www.npmjs.com/package/eslint-import-resolver-typescript
         alwaysTryTypes: true,
-        project: ["@app/*/tsconfig.json", "@app/frontend/.nuxt/tsconfig.json"],
+        project: ['@app/*/tsconfig.json', '@app/frontend/.nuxt/tsconfig.json'],
       },
     },
   },
@@ -45,66 +46,67 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["*.ts"],
+      files: ['*.ts'],
       rules: {
-        "no-undef": "off",
+        'no-undef': 'off',
       },
     },
   ],
   rules: {
-    "@typescript-eslint/no-unused-vars": [
-      "error",
+    'prettier/prettier': 'warn',
+    '@typescript-eslint/no-unused-vars': [
+      'error',
       {
-        argsIgnorePattern: "^_",
-        varsIgnorePattern: "^_",
-        args: "after-used",
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        args: 'after-used',
         ignoreRestSiblings: true,
       },
     ],
-    "no-unused-vars": [
-      "error",
+    'no-unused-vars': [
+      'error',
       {
         ignoreRestSiblings: true,
-        varsIgnorePattern: "^_",
-        argsIgnorePattern: "^_",
-        destructuredArrayIgnorePattern: "^_",
-        caughtErrorsIgnorePattern: "^ignore",
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+        destructuredArrayIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^ignore',
       },
     ],
-    "no-unused-expressions": [
-      "error",
+    'no-unused-expressions': [
+      'error',
       {
         allowTernary: true,
       },
     ],
-    "no-console": 0,
-    "no-confusing-arrow": 0,
-    "no-else-return": 0,
-    "no-return-assign": [2, "except-parens"],
-    "no-underscore-dangle": 0,
-    "jest/no-focused-tests": 2,
-    "jest/no-identical-title": 2,
+    'no-console': 0,
+    'no-confusing-arrow': 0,
+    'no-else-return': 0,
+    'no-return-assign': [2, 'except-parens'],
+    'no-underscore-dangle': 0,
+    'jest/no-focused-tests': 2,
+    'jest/no-identical-title': 2,
     camelcase: 0,
-    "prefer-arrow-callback": [
-      "error",
+    'prefer-arrow-callback': [
+      'error',
       {
         allowNamedFunctions: true,
       },
     ],
-    "class-methods-use-this": 0,
-    "no-restricted-syntax": 0,
-    "no-param-reassign": [
-      "error",
+    'class-methods-use-this': 0,
+    'no-restricted-syntax': 0,
+    'no-param-reassign': [
+      'error',
       {
         props: false,
       },
     ],
-    "react/prop-types": 0,
-    "react/no-multi-comp": 0,
-    "react/jsx-filename-extension": 0,
-    "react/no-unescaped-entities": 0,
+    'react/prop-types': 0,
+    'react/no-multi-comp': 0,
+    'react/jsx-filename-extension': 0,
+    'react/no-unescaped-entities': 0,
 
-    "import/no-extraneous-dependencies": 0,
+    'import/no-extraneous-dependencies': 0,
 
     /*
     "graphql/template-strings": [
@@ -144,35 +146,35 @@ module.exports = {
       },
     ],
     */
-    "graphql/named-operations": [
-      "error",
+    'graphql/named-operations': [
+      'error',
       {
         schemaString,
       },
     ],
-    "graphql/required-fields": [
-      "error",
+    'graphql/required-fields': [
+      'error',
       {
-        env: "literal",
+        env: 'literal',
         schemaString,
-        requiredFields: ["nodeId", "id"],
+        requiredFields: ['nodeId', 'id'],
       },
     ],
-    "react/destructuring-assignment": 0,
+    'react/destructuring-assignment': 0,
 
-    "arrow-body-style": 0,
-    "no-nested-ternary": 0,
+    'arrow-body-style': 0,
+    'no-nested-ternary': 0,
 
     /*
      * simple-import-sort seems to be the most stable import sorting currently,
      * disable others
      */
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
-    "sort-imports": "off",
-    "import/order": "off",
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+    'sort-imports': 'off',
+    'import/order': 'off',
 
-    "import/no-deprecated": "warn",
-    "import/no-duplicates": "error",
+    'import/no-deprecated': 'warn',
+    'import/no-duplicates': 'error',
   },
-};
+}

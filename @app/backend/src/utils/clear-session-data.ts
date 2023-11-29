@@ -1,10 +1,10 @@
-import { type SessionData } from "@fastify/secure-session";
+import { type SessionData } from '@fastify/secure-session'
 
 export function clearSessionData(data?: SessionData) {
-  if (!data) return;
+  if (!data) return
   for (const prop of Object.getOwnPropertyNames(data)) {
-    delete data[prop];
+    delete data[prop]
   }
 }
 
-export default clearSessionData;
+export default clearSessionData

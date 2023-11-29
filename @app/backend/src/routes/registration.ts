@@ -1,12 +1,12 @@
-import { app } from "../app.js";
-import { ownerPool } from "../database/pool.js";
-import { ERROR_MESSAGE_OVERRIDES } from "../utils/handle-errors.js";
+import { app } from '../app.js'
+import { ownerPool } from '../database/pool.js'
+import { ERROR_MESSAGE_OVERRIDES } from '../utils/handle-errors.js'
 
 app.post(
-  "/register",
-  { schema: { body: { $ref: "validations#/definitions/registrationInput" } } },
+  '/register',
+  { schema: { body: { $ref: 'validations#/definitions/registrationInput' } } },
   async (request, reply) => {
-    const { username, password, email, name, avatarUrl } = request.body;
+    const { username, password, email, name, avatarUrl } = request.body
     try {
       // Create a user and create a session for it in the proccess
       const {
@@ -30,41 +30,41 @@ app.post(
           select new_user.id as user_id, new_session.uuid as session_id
           from new_user, new_session`,
         [username, email, name, avatarUrl, password]
-      );
+      )
 
       if (!user_id) {
-        throw Object.assign(new Error("Registration failed"), {
-          code: "FFFFF",
-        });
+        throw Object.assign(new Error('Registration failed'), {
+          code: 'FFFFF',
+        })
       }
 
       if (session_id) {
-        request.session.graphileSessionId = session_id;
+        request.session.graphileSessionId = session_id
       }
 
       reply.status(201).send({
         userId: user_id,
         sessionId: session_id,
-      });
+      })
     } catch (e: any) {
-      const { code } = e;
+      const { code } = e
       const safeErrorCodes = [
-        "WEAKP",
-        "LOCKD",
-        "EMTKN",
+        'WEAKP',
+        'LOCKD',
+        'EMTKN',
         ...Object.keys(ERROR_MESSAGE_OVERRIDES),
-      ];
+      ]
       if (safeErrorCodes.includes(code)) {
-        throw e;
+        throw e
       } else {
         console.error(
-          "Unrecognised error in PassportLoginPlugin; replacing with sanitized version"
-        );
-        console.error(e);
-        throw Object.assign(new Error("Registration failed"), {
+          'Unrecognised error in PassportLoginPlugin; replacing with sanitized version'
+        )
+        console.error(e)
+        throw Object.assign(new Error('Registration failed'), {
           code,
-        });
+        })
       }
     }
   }
-);
+)

@@ -1,17 +1,17 @@
-import { Task } from "graphile-worker";
+import { Task } from 'graphile-worker'
 
-import { SendEmailPayload } from "./send_email.js";
+import { SendEmailPayload } from './send_email.js'
 
 interface FeedInvitationSendInvitePayload {
   /**
    * invitation id
    */
-  id: string;
+  id: string
 }
 
 export const task: Task = async (inPayload, { addJob, withPgClient }) => {
-  const payload: FeedInvitationSendInvitePayload = inPayload as any;
-  const { id: invitationId } = payload;
+  const payload: FeedInvitationSendInvitePayload = inPayload as any
+  const { id: invitationId } = payload
   const {
     rows: [invitation],
   } = await withPgClient((pgClient) =>
@@ -23,13 +23,13 @@ export const task: Task = async (inPayload, { addJob, withPgClient }) => {
       `,
       [invitationId]
     )
-  );
+  )
   if (!invitation) {
-    console.error("Invitation not found; aborting");
-    return;
+    console.error('Invitation not found; aborting')
+    return
   }
 
-  let email = invitation.email;
+  let email = invitation.email
   if (!email) {
     const {
       rows: [primaryEmail],
@@ -38,14 +38,14 @@ export const task: Task = async (inPayload, { addJob, withPgClient }) => {
         `select * from app_public.user_emails where user_id = $1 and is_primary = true`,
         [invitation.user_id]
       )
-    );
+    )
     if (!primaryEmail) {
       console.error(
         `No primary email found for user ${invitation.user_id}; aborting`
-      );
-      return;
+      )
+      return
     }
-    email = primaryEmail.email;
+    email = primaryEmail.email
   }
 
   const {
@@ -54,24 +54,24 @@ export const task: Task = async (inPayload, { addJob, withPgClient }) => {
     pgClient.query(`select * from app_public.feeds where id = $1`, [
       invitation.feed_id,
     ])
-  );
+  )
 
   const sendEmailPayload: SendEmailPayload = {
     options: {
       to: email,
       subject: `You have been invited to ${feed.name}`,
     },
-    template: "feed_invite.mjml",
+    template: 'feed_invite.mjml',
     variables: {
       feedName: feed.name,
       link:
         `${
           process.env.ROOT_URL
         }/feed-invitations/accept?id=${encodeURIComponent(invitation.id)}` +
-        (invitation.code ? `&code=${encodeURIComponent(invitation.code)}` : ""),
+        (invitation.code ? `&code=${encodeURIComponent(invitation.code)}` : ''),
     },
-  };
-  await addJob("send_email", sendEmailPayload);
-};
+  }
+  await addJob('send_email', sendEmailPayload)
+}
 
-export default task;
+export default task

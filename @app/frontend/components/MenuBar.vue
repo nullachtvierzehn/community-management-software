@@ -17,81 +17,76 @@
 </template>
 
 <script setup lang="ts">
-import { Editor } from "@tiptap/vue-3";
-import { ref } from "vue";
+import { Editor } from '@tiptap/vue-3'
+import { ref } from 'vue'
 
 const props = defineProps<{
-  editor?: Editor;
-}>();
+  editor?: Editor
+}>()
 
 const items = ref<
   {
-    type?: undefined;
-    icon: string;
-    title: string;
-    action: () => void;
-    isActive?: () => boolean | null | undefined;
+    type?: undefined
+    icon: string
+    title: string
+    action: () => void
+    isActive?: () => boolean | null | undefined
   }[][]
 >([
   [
     {
-      icon: "bold",
-      title: "Bold",
+      icon: 'bold',
+      title: 'Bold',
       action: () => props.editor?.chain().focus().toggleBold().run(),
-      isActive: () => props.editor?.isActive("bold"),
+      isActive: () => props.editor?.isActive('bold'),
     },
     {
-      icon: "italic",
-      title: "Italic",
+      icon: 'italic',
+      title: 'Italic',
       action: () => props.editor?.chain().focus().toggleItalic().run(),
-      isActive: () => props.editor?.isActive("italic"),
+      isActive: () => props.editor?.isActive('italic'),
     },
     {
-      icon: "strikethrough",
-      title: "Strike",
+      icon: 'strikethrough',
+      title: 'Strike',
       action: () => props.editor?.chain().focus().toggleStrike().run(),
-      isActive: () => props.editor?.isActive("strike"),
+      isActive: () => props.editor?.isActive('strike'),
     },
     {
-      icon: "link",
-      title: "Link",
+      icon: 'link',
+      title: 'Link',
       action() {
-        if (!props.editor) return;
-        const previousUrl = props.editor.getAttributes("link").href;
-        const url = window.prompt("URL", previousUrl);
+        if (!props.editor) return
+        const previousUrl = props.editor.getAttributes('link').href
+        const url = window.prompt('URL', previousUrl)
 
         // cancelled
         if (url === null) {
-          return;
+          return
         }
 
         // empty
-        if (url === "") {
-          props.editor
-            .chain()
-            .focus()
-            .extendMarkRange("link")
-            .unsetLink()
-            .run();
+        if (url === '') {
+          props.editor.chain().focus().extendMarkRange('link').unsetLink().run()
 
-          return;
+          return
         }
 
         // update link
         props.editor
           .chain()
           .focus()
-          .extendMarkRange("link")
+          .extendMarkRange('link')
           .setLink({ href: url })
-          .run();
+          .run()
       },
-      isActive: () => props.editor?.isActive("link"),
+      isActive: () => props.editor?.isActive('link'),
     },
     {
-      icon: "code-view",
-      title: "Code",
+      icon: 'code-view',
+      title: 'Code',
       action: () => props.editor?.chain().focus().toggleCode().run(),
-      isActive: () => props.editor?.isActive("code"),
+      isActive: () => props.editor?.isActive('code'),
     },
   ],
   /*
@@ -104,36 +99,36 @@ const items = ref<
         */
   [
     {
-      icon: "h-1",
-      title: "Heading 1",
+      icon: 'h-1',
+      title: 'Heading 1',
       action: () =>
         props.editor?.chain().focus().toggleHeading({ level: 1 }).run(),
-      isActive: () => props.editor?.isActive("heading", { level: 1 }),
+      isActive: () => props.editor?.isActive('heading', { level: 1 }),
     },
     {
-      icon: "h-2",
-      title: "Heading 2",
+      icon: 'h-2',
+      title: 'Heading 2',
       action: () =>
         props.editor?.chain().focus().toggleHeading({ level: 2 }).run(),
-      isActive: () => props.editor?.isActive("heading", { level: 2 }),
+      isActive: () => props.editor?.isActive('heading', { level: 2 }),
     },
     {
-      icon: "paragraph",
-      title: "Paragraph",
+      icon: 'paragraph',
+      title: 'Paragraph',
       action: () => props.editor?.chain().focus().setParagraph().run(),
-      isActive: () => props.editor?.isActive("paragraph"),
+      isActive: () => props.editor?.isActive('paragraph'),
     },
     {
-      icon: "list-unordered",
-      title: "Bullet List",
+      icon: 'list-unordered',
+      title: 'Bullet List',
       action: () => props.editor?.chain().focus().toggleBulletList().run(),
-      isActive: () => props.editor?.isActive("bulletList"),
+      isActive: () => props.editor?.isActive('bulletList'),
     },
     {
-      icon: "list-ordered",
-      title: "Ordered List",
+      icon: 'list-ordered',
+      title: 'Ordered List',
       action: () => props.editor?.chain().focus().toggleOrderedList().run(),
-      isActive: () => props.editor?.isActive("orderedList"),
+      isActive: () => props.editor?.isActive('orderedList'),
     },
     /*
         {
@@ -144,51 +139,51 @@ const items = ref<
         },
         */
     {
-      icon: "code-box-line",
-      title: "Code Block",
+      icon: 'code-box-line',
+      title: 'Code Block',
       action: () => props.editor?.chain().focus().toggleCodeBlock().run(),
-      isActive: () => props.editor?.isActive("codeBlock"),
+      isActive: () => props.editor?.isActive('codeBlock'),
     },
   ],
   [
     {
-      icon: "double-quotes-l",
-      title: "Blockquote",
+      icon: 'double-quotes-l',
+      title: 'Blockquote',
       action: () => props.editor?.chain().focus().toggleBlockquote().run(),
-      isActive: () => props.editor?.isActive("blockquote"),
+      isActive: () => props.editor?.isActive('blockquote'),
     },
     {
-      icon: "separator",
-      title: "Horizontal Rule",
+      icon: 'separator',
+      title: 'Horizontal Rule',
       action: () => props.editor?.chain().focus().setHorizontalRule().run(),
     },
   ],
   [
     {
-      icon: "text-wrap",
-      title: "Hard Break",
+      icon: 'text-wrap',
+      title: 'Hard Break',
       action: () => props.editor?.chain().focus().setHardBreak().run(),
     },
     {
-      icon: "format-clear",
-      title: "Clear Format",
+      icon: 'format-clear',
+      title: 'Clear Format',
       action: () =>
         props.editor?.chain().focus().clearNodes().unsetAllMarks().run(),
     },
   ],
   [
     {
-      icon: "arrow-go-back-line",
-      title: "Undo",
+      icon: 'arrow-go-back-line',
+      title: 'Undo',
       action: () => props.editor?.chain().focus().undo().run(),
     },
     {
-      icon: "arrow-go-forward-line",
-      title: "Redo",
+      icon: 'arrow-go-forward-line',
+      title: 'Redo',
       action: () => props.editor?.chain().focus().redo().run(),
     },
   ],
-]);
+])
 </script>
 
 <style>

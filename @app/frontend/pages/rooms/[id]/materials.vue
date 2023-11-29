@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 definePageMeta({
-  name: "room/materials",
-  alias: ["/raeume/:id/materialien", "/r%C3%A4ume/:id/materialien"],
-});
+  name: 'room/materials',
+  alias: ['/raeume/:id/materialien', '/r%C3%A4ume/:id/materialien'],
+})
 </script>

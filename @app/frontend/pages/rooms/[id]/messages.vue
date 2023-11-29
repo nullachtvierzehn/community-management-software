@@ -4,7 +4,7 @@
     <!-- write message-->
     <room-message
       v-if="myDraftMessages.length === 0"
-      :create-with-defaults="{ roomId: (route.params.id as string) }"
+      :create-with-defaults="{ roomId: route.params.id as string }"
       @update:message="refetch()"
     />
 
@@ -28,36 +28,34 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouteQuery } from "@vueuse/router";
+import { useRouteQuery } from '@vueuse/router'
 
-import { useFetchRoomMessagesQuery } from "~/graphql";
+import { useFetchRoomMessagesQuery } from '~/graphql'
 
 definePageMeta({
-  name: "room/messages",
-  alias: ["/raeume/:id/nachrichten", "/r%C3%A4ume/:id/nachrichten"],
-});
+  name: 'room/messages',
+  alias: ['/raeume/:id/nachrichten', '/r%C3%A4ume/:id/nachrichten'],
+})
 
-const route = useRoute();
-const currentUser = useCurrentUser();
-const nMessages = useRouteQuery<number>("n", 10, {
+const route = useRoute()
+const currentUser = useCurrentUser()
+const nMessages = useRouteQuery<number>('n', 10, {
   transform: Number,
-  mode: "replace",
-});
+  mode: 'replace',
+})
 
 // fetch messages
-const {
-  data,
-  executeQuery: fetchSentMessages,
-} = await useFetchRoomMessagesQuery({
-  variables: computed(() => ({
-    condition: { roomId: route.params.id as string },
-    filter: { sentAt: { isNull: false } },
-    orderBy: ["CREATED_AT_DESC"],
-    first: toValue(nMessages),
-  })),
-});
+const { data, executeQuery: fetchSentMessages } =
+  await useFetchRoomMessagesQuery({
+    variables: computed(() => ({
+      condition: { roomId: route.params.id as string },
+      filter: { sentAt: { isNull: false } },
+      orderBy: ['CREATED_AT_DESC'],
+      first: toValue(nMessages),
+    })),
+  })
 
-const messages = computed(() => data.value?.roomMessages?.nodes ?? []);
+const messages = computed(() => data.value?.roomMessages?.nodes ?? [])
 
 // fetch my draft messages
 const { data: dataOfMyDraftMessages, executeQuery: fetchDrafts } =
@@ -69,16 +67,16 @@ const { data: dataOfMyDraftMessages, executeQuery: fetchDrafts } =
         senderId: currentUser.value?.id,
       },
       filter: { sentAt: { isNull: true } },
-      orderBy: ["CREATED_AT_DESC"],
+      orderBy: ['CREATED_AT_DESC'],
       first: toValue(nMessages),
     })),
-  });
+  })
 
 const myDraftMessages = computed(
   () => dataOfMyDraftMessages.value?.roomMessages?.nodes ?? []
-);
+)
 
 async function refetch() {
-  return Promise.allSettled([fetchSentMessages(), fetchDrafts()]);
+  return Promise.allSettled([fetchSentMessages(), fetchDrafts()])
 }
 </script>

@@ -1,18 +1,12 @@
 <template>
-  <article v-if="fetching">
-    Lädt...
-  </article>
+  <article v-if="fetching">Lädt...</article>
   <template v-else-if="!topic && edit === 'true'">
     <tiptap-editor v-model:json="editableJson" />
-    <button @click="save()">
-      speichern
-    </button>
+    <button @click="save()">speichern</button>
   </template>
   <article v-else-if="!topic && edit !== 'true'">
     Thema nicht gefunden. Möchtest Du es
-    <button @click="edit = 'true'">
-      anlegen?
-    </button>
+    <button @click="edit = 'true'">anlegen?</button>
   </article>
   <article v-else-if="topic && edit !== 'true'">
     <h1>{{ topic.title ?? topic.slug }}</h1>
@@ -20,25 +14,23 @@
   </article>
   <article v-else-if="topic && edit === 'true'">
     <tiptap-editor v-model:json="editableJson" />
-    <button @click="save()">
-      speichern
-    </button>
+    <button @click="save()">speichern</button>
   </article>
 </template>
 
 <script lang="ts" setup>
-import { type JSONContent } from "@tiptap/core";
-import { useRouteQuery } from "@vueuse/router";
+import { type JSONContent } from '@tiptap/core'
+import { useRouteQuery } from '@vueuse/router'
 
 import {
   useCreateTopicMutation,
   useFetchDetailedTopicsQuery,
   useUpdateTopicMutation,
-} from "~/graphql";
+} from '~/graphql'
 
-const route = useRoute();
-const edit = useRouteQuery("edit");
-const slug = computed(() => (route.params.slug as string[]).join("/"));
+const route = useRoute()
+const edit = useRouteQuery('edit')
+const slug = computed(() => (route.params.slug as string[]).join('/'))
 
 const {
   data,
@@ -52,7 +44,7 @@ const {
     },
     first: 1,
   })),
-});
+})
 
 /*
 if (import.meta.server) {
@@ -64,30 +56,30 @@ if (import.meta.server) {
 }
 */
 
-const topic = computed(() => data.value?.topics?.nodes[0]);
-const editableJson = shallowRef<JSONContent>({});
+const topic = computed(() => data.value?.topics?.nodes[0])
+const editableJson = shallowRef<JSONContent>({})
 syncRef(
   computed(() => topic.value?.content),
   editableJson,
   {
-    direction: "ltr",
+    direction: 'ltr',
     deep: true,
     immediate: true,
     transform: {
       ltr(left) {
-        if (!left || typeof left !== "object")
-          return { type: "doc", content: [] };
-        else return left;
+        if (!left || typeof left !== 'object')
+          return { type: 'doc', content: [] }
+        else return left
       },
     },
   }
-);
+)
 
-const { executeMutation: createMutation } = useCreateTopicMutation();
-const { executeMutation: updateMutation } = useUpdateTopicMutation();
+const { executeMutation: createMutation } = useCreateTopicMutation()
+const { executeMutation: updateMutation } = useUpdateTopicMutation()
 
 async function save() {
-  const oldId = topic.value?.id;
+  const oldId = topic.value?.id
   const { error } = await (oldId
     ? updateMutation({ oldId, patch: { content: toValue(editableJson) } })
     : createMutation({
@@ -96,7 +88,7 @@ async function save() {
           content: toValue(editableJson),
           organizationId: null,
         },
-      }));
-  if (error) throw error;
+      }))
+  if (error) throw error
 }
 </script>

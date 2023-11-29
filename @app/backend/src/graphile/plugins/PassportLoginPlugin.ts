@@ -1,9 +1,9 @@
-import { access } from "grafast";
-import { gql, makeExtendSchemaPlugin, Plans, Resolvers } from "graphile-utils";
-import { ExecutableStep } from "postgraphile/grafast";
+import { access } from 'grafast'
+import { gql, makeExtendSchemaPlugin, Plans, Resolvers } from 'graphile-utils'
+import { ExecutableStep } from 'postgraphile/grafast'
 
-import clearSessionData from "../../utils/clear-session-data.js";
-import { ERROR_MESSAGE_OVERRIDES } from "../../utils/handle-errors.js";
+import clearSessionData from '../../utils/clear-session-data.js'
+import { ERROR_MESSAGE_OVERRIDES } from '../../utils/handle-errors.js'
 
 const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
   const typeDefs = gql`
@@ -86,37 +86,34 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
       """
       resetPassword(input: ResetPasswordInput!): ResetPasswordPayload
     }
-  `;
-  const userResource = build.input.pgRegistry.pgResources.users;
+  `
+  const userResource = build.input.pgRegistry.pgResources.users
   const currentUserIdResource =
-    build.input.pgRegistry.pgResources.current_user_id;
+    build.input.pgRegistry.pgResources.current_user_id
   if (!userResource || !currentUserIdResource) {
     throw new Error(
-      "Couldn't find either the 'users' or 'current_user_id' source",
-    );
+      "Couldn't find either the 'users' or 'current_user_id' source"
+    )
   }
   const plans: Plans = {
     RegisterPayload: {
       user($obj) {
-        const $userId = access(
-          $obj,
-          "userId",
-        ) as unknown as ExecutableStep<any>;
-        return userResource.get({ id: $userId });
+        const $userId = access($obj, 'userId') as unknown as ExecutableStep<any>
+        return userResource.get({ id: $userId })
       },
     },
     LoginPayload: {
       user() {
-        const $userId = currentUserIdResource.execute() as ExecutableStep<any>;
-        return userResource.get({ id: $userId });
+        const $userId = currentUserIdResource.execute() as ExecutableStep<any>
+        return userResource.get({ id: $userId })
       },
     },
-  };
+  }
   const resolvers: Resolvers = {
     Mutation: {
       async register(_mutation, args, context: Grafast.Context) {
-        const { username, password, email, name, avatarUrl } = args.input;
-        const { rootPgPool, pgSettings, session: fastifySession } = context;
+        const { username, password, email, name, avatarUrl } = args.input
+        const { rootPgPool, pgSettings, session: fastifySession } = context
         try {
           // Create a user and create a session for it in the proccess
           const {
@@ -139,109 +136,108 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
             )
             select new_user.id as user_id, new_session.uuid as session_id
             from new_user, new_session`,
-            [username, email, name, avatarUrl, password],
-          );
+            [username, email, name, avatarUrl, password]
+          )
 
           if (!details || !details.user_id) {
-            throw Object.assign(new Error("Registration failed"), {
-              code: "FFFFF",
-            });
+            throw Object.assign(new Error('Registration failed'), {
+              code: 'FFFFF',
+            })
           }
 
           if (details.session_id) {
             // Update pgSettings so future queries will use the new session
-            pgSettings!["jwt.claims.session_id"] = details.session_id;
+            pgSettings!['jwt.claims.session_id'] = details.session_id
 
             // Tell Passport.js we're logged in
-            clearSessionData(fastifySession.data());
-            fastifySession.graphileSessionId = details.session_id;
+            clearSessionData(fastifySession.data())
+            fastifySession.graphileSessionId = details.session_id
           }
 
           return {
             userId: details.user_id,
-          };
+          }
         } catch (e: any) {
-          const { code } = e;
+          const { code } = e
           const safeErrorCodes = [
-            "WEAKP",
-            "LOCKD",
-            "EMTKN",
+            'WEAKP',
+            'LOCKD',
+            'EMTKN',
             ...Object.keys(ERROR_MESSAGE_OVERRIDES),
-          ];
+          ]
           if (safeErrorCodes.includes(code)) {
             // TODO: make SafeError
-            throw e;
+            throw e
           } else {
             console.error(
-              "Unrecognised error in PassportLoginPlugin; replacing with sanitized version",
-            );
-            console.error(e);
-            throw Object.assign(new Error("Registration failed"), {
+              'Unrecognised error in PassportLoginPlugin; replacing with sanitized version'
+            )
+            console.error(e)
+            throw Object.assign(new Error('Registration failed'), {
               code,
-            });
+            })
           }
         }
       },
       async login(_mutation, args, context: Grafast.Context) {
-        const { username, password } = args.input;
-        const { rootPgPool, pgSettings, session: fastifySession } = context;
+        const { username, password } = args.input
+        const { rootPgPool, pgSettings, session: fastifySession } = context
         try {
           // Call our login function to find out if the username/password combination exists
           const {
             rows: [session],
           } = await rootPgPool.query(
             `select sessions.* from app_private.login($1, $2) sessions where not (sessions is null)`,
-            [username, password],
-          );
+            [username, password]
+          )
 
           if (!session) {
-            throw Object.assign(new Error("Incorrect username/password"), {
-              code: "CREDS",
-            });
+            throw Object.assign(new Error('Incorrect username/password'), {
+              code: 'CREDS',
+            })
           }
 
           if (session.uuid) {
             // Set the graphile session id, then regenerate the session.
             // See here: https://github.com/fastify/session/blob/a8b1aaa1c04809e13b8fff260a3e67a1ef6e3288/test/session.test.js#L218
             //fastifySession.delete();
-            clearSessionData(fastifySession.data());
-            fastifySession.graphileSessionId = session.uuid;
+            clearSessionData(fastifySession.data())
+            fastifySession.graphileSessionId = session.uuid
           }
 
           // Update pgSettings so future queries will use the new session
-          pgSettings!["jwt.claims.session_id"] = session.uuid;
+          pgSettings!['jwt.claims.session_id'] = session.uuid
 
-          return {};
+          return {}
         } catch (e: any) {
-          const code = e.extensions?.code ?? e.code;
-          const safeErrorCodes = ["LOCKD", "CREDS"];
+          const code = e.extensions?.code ?? e.code
+          const safeErrorCodes = ['LOCKD', 'CREDS']
           if (safeErrorCodes.includes(code)) {
             // TODO: throw SafeError
-            throw e;
+            throw e
           } else {
-            console.error(e);
-            throw Object.assign(new Error("Login failed"), {
+            console.error(e)
+            throw Object.assign(new Error('Login failed'), {
               code,
-            });
+            })
           }
         }
       },
 
       async logout(_mutation, _args, context: Grafast.Context) {
-        const { pgSettings, withPgClient, session } = context;
+        const { pgSettings, withPgClient, session } = context
         await withPgClient(pgSettings, (pgClient) =>
-          pgClient.query({ text: "select app_public.logout();" }),
-        );
-        session.delete();
+          pgClient.query({ text: 'select app_public.logout();' })
+        )
+        session.delete()
         return {
           success: true,
-        };
+        }
       },
 
       async resetPassword(_mutation, args, context: Grafast.Context) {
-        const { rootPgPool } = context;
-        const { userId, resetToken, newPassword, clientMutationId } =
-          args.input;
+        const { rootPgPool } = context
+        const { userId, resetToken, newPassword, clientMutationId } = args.input
 
         // Since the `reset_password` function needs to keep track of attempts
         // for security, we cannot risk the transaction being rolled back by a
@@ -252,21 +248,21 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
           rows: [row],
         } = await rootPgPool.query(
           `select app_private.reset_password($1::uuid, $2::text, $3::text) as success`,
-          [userId, resetToken, newPassword],
-        );
+          [userId, resetToken, newPassword]
+        )
 
         return {
           clientMutationId,
           success: row?.success,
-        };
+        }
       },
     },
-  };
+  }
   return {
     typeDefs,
     plans,
     resolvers,
-  };
-});
+  }
+})
 
-export default PassportLoginPlugin;
+export default PassportLoginPlugin

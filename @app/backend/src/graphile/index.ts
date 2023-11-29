@@ -1,18 +1,18 @@
-import { PgSimplifyInflectionPreset } from "@graphile/simplify-inflection";
+import { PgSimplifyInflectionPreset } from '@graphile/simplify-inflection'
 // import websocket from '@fastify/websocket'
 // (Add any Fastify middleware you want here.)
 // await app.register(websocket);
-import { postgraphile } from "postgraphile";
-import { makePgService } from "postgraphile/adaptors/pg";
-import { grafserv } from "postgraphile/grafserv/fastify/v4";
-import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
-import { makeV4Preset } from "postgraphile/presets/v4";
-import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connection-filter";
+import { postgraphile } from 'postgraphile'
+import { makePgService } from 'postgraphile/adaptors/pg'
+import { grafserv } from 'postgraphile/grafserv/fastify/v4'
+import { PostGraphileAmberPreset } from 'postgraphile/presets/amber'
+import { makeV4Preset } from 'postgraphile/presets/v4'
+import { PostGraphileConnectionFilterPreset } from 'postgraphile-plugin-connection-filter'
 
-import config from "../config/index.js";
-import { ownerPool,pool } from "../database/pool.js";
-import OrderByUsernamePlugin from "./plugins/order-by-username-plugin.js";
-import PassportLoginPlugin from "./plugins/PassportLoginPlugin.js";
+import config from '../config/index.js'
+import { ownerPool, pool } from '../database/pool.js'
+import OrderByUsernamePlugin from './plugins/order-by-username-plugin.js'
+import PassportLoginPlugin from './plugins/PassportLoginPlugin.js'
 
 // https://www.postgraphile.org/postgraphile/next/config
 export const preset: GraphileConfig.Preset = {
@@ -44,8 +44,9 @@ export const preset: GraphileConfig.Preset = {
   },
   schema: {
     retryOnInitFail: true,
-    exportSchemaSDLPath: "../../@app/graphql/schema/schema.graphql",
-    exportSchemaIntrospectionResultPath: "../../@app/graphql/schema/schema.json",
+    exportSchemaSDLPath: '../../@app/graphql/schema/schema.graphql',
+    exportSchemaIntrospectionResultPath:
+      '../../@app/graphql/schema/schema.json',
     sortExport: true,
   },
   grafast: {
@@ -58,26 +59,26 @@ export const preset: GraphileConfig.Preset = {
           ...args.contextValue?.pgSettings,
           role: config.database.roles.visitor.username,
         },
-      };
+      }
 
-      const { fastifyv4 } = ctx;
+      const { fastifyv4 } = ctx
       if (fastifyv4) {
         const {
           request: { session },
-        } = fastifyv4;
-        contextExtensions.session = session;
+        } = fastifyv4
+        contextExtensions.session = session
         if (session.graphileSessionId) {
-          contextExtensions.pgSettings!["jwt.claims.session_id"] =
-            session.graphileSessionId;
+          contextExtensions.pgSettings!['jwt.claims.session_id'] =
+            session.graphileSessionId
           // Update the last_active timestamp (but only do it at most once every 15 seconds to avoid too much churn).
           await ownerPool.query(
             "UPDATE app_private.sessions SET last_active = NOW() WHERE uuid = $1 AND last_active < NOW() - INTERVAL '15 seconds'",
             [session.graphileSessionId]
-          );
+          )
         }
       }
 
-      return contextExtensions;
+      return contextExtensions
     },
   },
   grafserv: {
@@ -90,11 +91,11 @@ export const preset: GraphileConfig.Preset = {
       //connectionString: "postgres://timo@localhost/app_cms",
       pool,
       superuserConnectionString: config.database.rootUrl,
-      schemas: ["app_public"],
+      schemas: ['app_public'],
     }),
   ],
-};
+}
 
-export const postgraphileInstance = postgraphile(preset);
-export const grafservInstance = postgraphileInstance.createServ(grafserv);
-export default grafservInstance;
+export const postgraphileInstance = postgraphile(preset)
+export const grafservInstance = postgraphileInstance.createServ(grafserv)
+export default grafservInstance

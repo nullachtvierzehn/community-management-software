@@ -1,16 +1,16 @@
-import { promises as fsp } from "fs";
-import * as nodemailer from "nodemailer";
+import { promises as fsp } from 'fs'
+import * as nodemailer from 'nodemailer'
 
-const { readFile, writeFile } = fsp;
+const { readFile, writeFile } = fsp
 
-const smtp = null; // originally from @app/config
-const isTest = process.env.NODE_ENV === "test";
-const isDev = process.env.NODE_ENV !== "production";
+const smtp = null // originally from @app/config
+const isTest = process.env.NODE_ENV === 'test'
+const isDev = process.env.NODE_ENV !== 'production'
 
-let transporterPromise: Promise<nodemailer.Transporter>;
-const etherealFilename = `${process.cwd()}/.ethereal`;
+let transporterPromise: Promise<nodemailer.Transporter>
+const etherealFilename = `${process.cwd()}/.ethereal`
 
-let logged = false;
+let logged = false
 
 export default function getTransport(): Promise<nodemailer.Transporter> {
   if (!transporterPromise) {
@@ -18,50 +18,50 @@ export default function getTransport(): Promise<nodemailer.Transporter> {
       if (isTest) {
         return nodemailer.createTransport({
           jsonTransport: true,
-        });
+        })
       } else if (isDev) {
-        let account;
+        let account
         try {
-          const testAccountJson = await readFile(etherealFilename, "utf8");
-          account = JSON.parse(testAccountJson);
+          const testAccountJson = await readFile(etherealFilename, 'utf8')
+          account = JSON.parse(testAccountJson)
         } catch (e: any) {
-          account = await nodemailer.createTestAccount();
-          await writeFile(etherealFilename, JSON.stringify(account));
+          account = await nodemailer.createTestAccount()
+          await writeFile(etherealFilename, JSON.stringify(account))
         }
         if (!logged) {
-          logged = true;
-          console.log();
-          console.log();
+          logged = true
+          console.log()
+          console.log()
           console.log(
             // Escapes equivalent to chalk.bold
-            "\x1B[1m" +
-              " ✉️ Emails in development are sent via ethereal.email; your credentials follow:" +
-              "\x1B[22m"
-          );
-          console.log("  Site:     https://ethereal.email/login");
-          console.log(`  Username: ${account.user}`);
-          console.log(`  Password: ${account.pass}`);
-          console.log();
-          console.log();
+            '\x1B[1m' +
+              ' ✉️ Emails in development are sent via ethereal.email; your credentials follow:' +
+              '\x1B[22m'
+          )
+          console.log('  Site:     https://ethereal.email/login')
+          console.log(`  Username: ${account.user}`)
+          console.log(`  Password: ${account.pass}`)
+          console.log()
+          console.log()
         }
         return nodemailer.createTransport({
-          host: "smtp.ethereal.email",
+          host: 'smtp.ethereal.email',
           port: 587,
           secure: false,
           auth: {
             user: account.user,
             pass: account.pass,
           },
-        });
+        })
       } else {
         if (smtp) {
-          const transport = nodemailer.createTransport(smtp);
-          return transport;
+          const transport = nodemailer.createTransport(smtp)
+          return transport
         } else {
-          throw new Error("setup stmp transport");
+          throw new Error('setup stmp transport')
         }
       }
-    })();
+    })()
   }
-  return transporterPromise!;
+  return transporterPromise!
 }

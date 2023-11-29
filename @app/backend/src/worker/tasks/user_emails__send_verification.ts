@@ -1,17 +1,17 @@
-import { Task } from "graphile-worker";
+import { Task } from 'graphile-worker'
 
-import { SendEmailPayload } from "./send_email.js";
+import { SendEmailPayload } from './send_email.js'
 
 // At least 3 minutes between resending email verifications
-const MIN_INTERVAL = 1000 * 60 * 3;
+const MIN_INTERVAL = 1000 * 60 * 3
 
 interface UserEmailsSendVerificationPayload {
-  id: string;
+  id: string
 }
 
 export const task: Task = async (inPayload, { addJob, withPgClient }) => {
-  const payload: UserEmailsSendVerificationPayload = inPayload as any;
-  const { id: userEmailId } = payload;
+  const payload: UserEmailsSendVerificationPayload = inPayload as any
+  const { id: userEmailId } = payload
   const {
     rows: [userEmail],
   } = await withPgClient((pgClient) =>
@@ -28,13 +28,13 @@ export const task: Task = async (inPayload, { addJob, withPgClient }) => {
       `,
       [userEmailId]
     )
-  );
+  )
   if (!userEmail) {
     console.warn(
       `user_emails__send_verification task for non-existent userEmail ignored (userEmailId = ${userEmailId})`
-    );
+    )
     // No longer relevant
-    return;
+    return
   }
   const {
     email,
@@ -42,20 +42,20 @@ export const task: Task = async (inPayload, { addJob, withPgClient }) => {
     username,
     name,
     seconds_since_verification_sent,
-  } = userEmail;
+  } = userEmail
   if (
     seconds_since_verification_sent != null &&
     seconds_since_verification_sent < MIN_INTERVAL / 1000
   ) {
-    console.log("Email sent too recently");
-    return;
+    console.log('Email sent too recently')
+    return
   }
   const sendEmailPayload: SendEmailPayload = {
     options: {
       to: email,
-      subject: "Please verify your email address",
+      subject: 'Please verify your email address',
     },
-    template: "verify_email.mjml",
+    template: 'verify_email.mjml',
     variables: {
       token: verification_token,
       verifyLink: `${process.env.ROOT_URL}/verify?id=${encodeURIComponent(
@@ -64,14 +64,14 @@ export const task: Task = async (inPayload, { addJob, withPgClient }) => {
       username,
       name,
     },
-  };
-  await addJob("send_email", sendEmailPayload);
+  }
+  await addJob('send_email', sendEmailPayload)
   await withPgClient((pgClient) =>
     pgClient.query(
-      "update app_private.user_email_secrets set verification_email_sent_at = now() where user_email_id = $1",
+      'update app_private.user_email_secrets set verification_email_sent_at = now() where user_email_id = $1',
       [userEmailId]
     )
-  );
-};
+  )
+}
 
-export default task;
+export default task

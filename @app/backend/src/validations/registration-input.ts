@@ -1,14 +1,14 @@
 export const registrationInput = {
-  type: "object",
+  type: 'object',
   additionalProperties: false,
   properties: {
-    username: { type: "string" },
-    email: { type: "string" },
-    name: { type: "string" },
-    avatarUrl: { type: "string" },
-    password: { type: "string" },
+    username: { type: 'string' },
+    email: { type: 'string' },
+    name: { type: 'string' },
+    avatarUrl: { type: 'string' },
+    password: { type: 'string' },
   },
-  required: ["username", "email", "password"],
-} as const;
+  required: ['username', 'email', 'password'],
+} as const
 
-export default registrationInput;
+export default registrationInput

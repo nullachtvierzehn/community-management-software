@@ -1,29 +1,37 @@
 module.exports = {
-  parser: "vue-eslint-parser",
+  parser: 'vue-eslint-parser',
+  root: true,
   extends: [
     // add more generic rulesets here, such as:
     // 'eslint:recommended',
     `${__dirname}/../../.eslintrc.cjs`,
-    "@nuxt/eslint-config",
-    "plugin:vue/vue3-recommended",
+    '@nuxt/eslint-config',
+    'plugin:vue/vue3-recommended',
+    'prettier',
   ],
   overrides: [
     {
       files: [`./pages/**/*.vue`],
       rules: {
-        "vue/multi-word-component-names": "off",
+        'vue/multi-word-component-names': 'off',
       },
     },
   ],
   rules: {
-    "vue/no-multiple-template-root": "off"
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+    'sort-imports': 'off',
+    'import/order': 'off',
+    'import/no-deprecated': 'warn',
+    'import/no-duplicates': 'error',
+    'vue/no-multiple-template-root': 'off',
   },
   parserOptions: {
-    parser: "@typescript-eslint/parser",
+    parser: '@typescript-eslint/parser',
     ecmaVersion: 2020,
-    sourceType: "module",
+    sourceType: 'module',
     ecmaFeatures: {
       jsx: true,
     },
   },
-};
+}

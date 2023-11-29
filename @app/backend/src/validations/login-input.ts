@@ -1,11 +1,11 @@
 export const loginInput = {
-  type: "object",
+  type: 'object',
   additionalProperties: false,
   properties: {
-    username: { type: "string" },
-    password: { type: "string" },
+    username: { type: 'string' },
+    password: { type: 'string' },
   },
-  required: ["username", "password"],
-} as const;
+  required: ['username', 'password'],
+} as const
 
-export default loginInput;
+export default loginInput

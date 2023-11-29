@@ -13,15 +13,15 @@
 </template>
 
 <script setup lang="ts">
-import remixiconUrl from "remixicon/fonts/remixicon.symbol.svg";
+import remixiconUrl from 'remixicon/fonts/remixicon.symbol.svg'
 
 defineProps<{
-  type?: undefined;
-  icon: string;
-  title: string;
-  action: () => void;
-  isActive?: () => boolean | null | undefined;
-}>();
+  type?: undefined
+  icon: string
+  title: string
+  action: () => void
+  isActive?: () => boolean | null | undefined
+}>()
 </script>
 
 <style lang="css">

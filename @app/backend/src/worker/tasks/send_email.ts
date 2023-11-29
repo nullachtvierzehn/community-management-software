@@ -3,85 +3,85 @@
   fromEmail,
   projectName,
 } from "@app/config";*/
-import { Task } from "graphile-worker";
-import { htmlToText } from "html-to-text";
-import { template as lodashTemplate } from "lodash-es";
-import mjml2html from "mjml";
-import * as nodemailer from "nodemailer";
+import { Task } from 'graphile-worker'
+import { htmlToText } from 'html-to-text'
+import { template as lodashTemplate } from 'lodash-es'
+import mjml2html from 'mjml'
+import * as nodemailer from 'nodemailer'
 
-import { templates } from "../../assets/templates/index.js";
-import getTransport from "../transport.js";
+import { templates } from '../../assets/templates/index.js'
+import getTransport from '../transport.js'
 
 declare module global {
-  let TEST_EMAILS: any[];
+  let TEST_EMAILS: any[]
 }
 
-global.TEST_EMAILS = [];
+global.TEST_EMAILS = []
 
-const fromEmail = "timo.stolz@nullachtvierzehn.de";
-const projectName = "test";
-const legalText = "sdfjksdfl";
+const fromEmail = 'timo.stolz@nullachtvierzehn.de'
+const projectName = 'test'
+const legalText = 'sdfjksdfl'
 
-const isTest = process.env.NODE_ENV === "test";
-const isDev = process.env.NODE_ENV !== "production";
+const isTest = process.env.NODE_ENV === 'test'
+const isDev = process.env.NODE_ENV !== 'production'
 
 export interface SendEmailPayload {
   options: {
-    from?: string;
-    to: string | string[];
-    subject: string;
-  };
-  template: string;
+    from?: string
+    to: string | string[]
+    subject: string
+  }
+  template: string
   variables: {
-    [varName: string]: any;
-  };
+    [varName: string]: any
+  }
 }
 
 const task: Task = async (inPayload) => {
-  const payload: SendEmailPayload = inPayload as any;
-  const transport = await getTransport();
-  const { options: inOptions, template, variables } = payload;
+  const payload: SendEmailPayload = inPayload as any
+  const transport = await getTransport()
+  const { options: inOptions, template, variables } = payload
   const options = {
     from: fromEmail,
     ...inOptions,
-  };
+  }
   if (template) {
-    const html = loadTemplate(template, variables);
-    const html2textableHtml = html.replace(/(<\/?)div/g, "$1p");
+    const html = loadTemplate(template, variables)
+    const html2textableHtml = html.replace(/(<\/?)div/g, '$1p')
     const text = htmlToText(html2textableHtml, {
       wordwrap: 120,
-    }).replace(/\n\s+\n/g, "\n\n");
-    Object.assign(options, { html, text });
+    }).replace(/\n\s+\n/g, '\n\n')
+    Object.assign(options, { html, text })
   }
-  const info = await transport.sendMail(options);
+  const info = await transport.sendMail(options)
   if (isTest) {
-    global.TEST_EMAILS.push(info);
+    global.TEST_EMAILS.push(info)
   } else if (isDev) {
-    const url = nodemailer.getTestMessageUrl(info);
+    const url = nodemailer.getTestMessageUrl(info)
     if (url) {
       // Hex codes here equivalent to chalk.blue.underline
       console.log(
         `Development email preview: \x1B[34m\x1B[4m${url}\x1B[24m\x1B[39m`
-      );
+      )
     }
   }
-};
+}
 
-export default task;
+export default task
 
 function loadTemplate(template: string, variables: Record<string, any>) {
-  const templateString = templates[template.replace(".mjml", "")];
+  const templateString = templates[template.replace('.mjml', '')]
   const templateFn = lodashTemplate(templateString, {
     escape: /\[\[([\s\S]+?)\]\]/g,
-  });
+  })
   const mjml = templateFn({
     projectName,
     legalText,
     ...variables,
-  });
-  const { html, errors } = mjml2html(mjml);
+  })
+  const { html, errors } = mjml2html(mjml)
   if (errors && errors.length) {
-    console.error(errors);
+    console.error(errors)
   }
-  return html;
+  return html
 }

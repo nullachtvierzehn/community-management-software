@@ -1,12 +1,12 @@
-import loginInput from "./login-input.js";
-import registrationInput from "./registration-input.js";
+import loginInput from './login-input.js'
+import registrationInput from './registration-input.js'
 
 export const jsonSchema = {
-  $id: "validations",
+  $id: 'validations',
   definitions: {
     loginInput,
     registrationInput,
   },
-} as const;
+} as const
 
-export default jsonSchema;
+export default jsonSchema

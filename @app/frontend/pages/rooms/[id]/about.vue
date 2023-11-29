@@ -7,8 +7,8 @@
 
 <script lang="ts" setup>
 definePageMeta({
-  name: "room/about",
-});
+  name: 'room/about',
+})
 
-const room = inject("room") as any;
+const room = inject('room') as any
 </script>
