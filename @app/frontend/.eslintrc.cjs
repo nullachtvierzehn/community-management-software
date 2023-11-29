@@ -7,6 +7,17 @@ module.exports = {
     "@nuxt/eslint-config",
     "plugin:vue/vue3-recommended",
   ],
+  overrides: [
+    {
+      files: [`./pages/**/*.vue`],
+      rules: {
+        "vue/multi-word-component-names": "off",
+      },
+    },
+  ],
+  rules: {
+    "vue/no-multiple-template-root": "off"
+  },
   parserOptions: {
     parser: "@typescript-eslint/parser",
     ecmaVersion: 2020,

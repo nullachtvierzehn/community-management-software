@@ -20,21 +20,8 @@ module.exports = {
     "simple-import-sort",
     "import",
   ],
-  overrides: [
-    {
-      files: ["@app/e2e/cypress/**"],
-      plugins: ["cypress"],
-      env: {
-        "cypress/globals": true,
-      },
-    },
-    {
-      files: ["@app/client/**", "@app/components/**"],
-      extends: ["next"],
-    },
-  ],
   parserOptions: {
-    ecmaVersion: 2020,
+    ecmaVersion: 2021,
     sourceType: "module",
     ecmaFeatures: {
       jsx: true,
@@ -46,7 +33,7 @@ module.exports = {
       typescript: {
         // for options: https://www.npmjs.com/package/eslint-import-resolver-typescript
         alwaysTryTypes: true,
-        project: ["frontend/tsconfig.json", "backend/tsconfig.json"],
+        project: ["@app/*/tsconfig.json"],
       },
     },
   },
@@ -56,6 +43,14 @@ module.exports = {
     jest: true,
     es2020: true,
   },
+  overrides: [
+    {
+      files: ["*.ts"],
+      rules: {
+        "no-undef": "off",
+      },
+    },
+  ],
   rules: {
     "@typescript-eslint/no-unused-vars": [
       "error",
@@ -64,6 +59,16 @@ module.exports = {
         varsIgnorePattern: "^_",
         args: "after-used",
         ignoreRestSiblings: true,
+      },
+    ],
+    "no-unused-vars": [
+      "error",
+      {
+        ignoreRestSiblings: true,
+        varsIgnorePattern: "^_",
+        argsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^ignore",
       },
     ],
     "no-unused-expressions": [
