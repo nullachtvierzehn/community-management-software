@@ -1,4 +1,5 @@
 import { access } from 'grafast'
+// eslint-disable-next-line import/no-deprecated
 import { gql, makeExtendSchemaPlugin, Plans, Resolvers } from 'graphile-utils'
 import { ExecutableStep } from 'postgraphile/grafast'
 
