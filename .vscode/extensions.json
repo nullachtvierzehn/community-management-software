@@ -2,6 +2,7 @@
   "recommendations": [
     "EditorConfig.EditorConfig", // http://editorconfig.org
     "dbaeumer.vscode-eslint", // ESLint
+    "stylelint.vscode-stylelint", // Stylelint https://github.com/stylelint/vscode-stylelint
     "esbenp.prettier-vscode", // Prettier
     "apollographql.vscode-apollo", // GraphQL support
     "Vue.volar", // Vue 3
