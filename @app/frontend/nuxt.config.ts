@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt-alt/proxy', '@vueuse/nuxt'],
+  modules: ['@nuxt-alt/proxy', '@vueuse/nuxt', '@nuxtjs/tailwindcss'],
   sourcemap: {
     server: true,
     client: true,

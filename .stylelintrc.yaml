@@ -1,0 +1,14 @@
+extends:
+  - stylelint-prettier/recommended
+rules: 
+  # https://www.scottspence.com/posts/stylelint-configuration-for-tailwindcss
+  at-rule-no-unknown:
+    - true
+    - ignoreAtRules:
+        - tailwind
+        - apply
+        - variants
+        - responsive
+        - screen
+  declaration-block-trailing-semicolon: null
+  no-descending-specificity: null
