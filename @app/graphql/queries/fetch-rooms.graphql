@@ -6,6 +6,7 @@ query FetchRooms {
       abstract
       createdAt
       latestMessage {
+        id
         createdAt
         sender {
           id

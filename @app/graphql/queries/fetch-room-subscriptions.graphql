@@ -24,6 +24,7 @@ query FetchRoomSubscriptions(
       hasPreviousPage
     }
     nodes {
+      id
       subscriberId
       subscriber {
         id

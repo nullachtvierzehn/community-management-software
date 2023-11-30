@@ -7,8 +7,8 @@
     "dev:graphql": "npm run --workspace @app/graphql codegen:watch",
     "dev:database": "npm run --workspace @app/database watch",
     "dev": "concurrently -k \"npm:dev:*\"",
-    "lint": "npm run --workspace @app/frontend --workspace @app/backend lint",
-    "lint:fix": "npm run --workspace @app/frontend --workspace @app/backend lint:fix",
+    "lint": "npm run --workspace @app/frontend --workspace @app/backend --workspace @app/graphql lint",
+    "lint:fix": "npm run --workspace @app/frontend --workspace @app/backend --workspace @app/graphql lint:fix",
     "our:setup": "node setup.mjs",
     "preinstall": "npx npm-force-resolutions",
     "postinstall": "patch-package"
