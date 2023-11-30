@@ -10,6 +10,7 @@ mutation CreateRoomMessage($message: RoomMessageInput!) {
       body
     }
     room {
+      id
       latestMessage {
         id
       }

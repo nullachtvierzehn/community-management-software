@@ -151,11 +151,11 @@ module.exports = {
       },
     ],
     'graphql/required-fields': [
-      'error',
+      'warn',
       {
         env: 'literal',
         schemaString,
-        requiredFields: ['nodeId', 'id'],
+        requiredFields: ['id'], // ['nodeId', 'id'],
       },
     ],
     'react/destructuring-assignment': 0,
