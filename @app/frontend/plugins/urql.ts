@@ -5,7 +5,7 @@ import {
   fetchExchange,
   ssrExchange,
 } from '@urql/core'
-import type { SSRData } from '@urql/vue'
+import { provideClient, type SSRData } from '@urql/vue'
 import { ref } from 'vue'
 
 export default defineNuxtPlugin((nuxt) => {

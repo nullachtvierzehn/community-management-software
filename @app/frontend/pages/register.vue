@@ -44,12 +44,26 @@
 </template>
 
 <script setup lang="ts">
+import type { Client } from '@urql/vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { omit } from 'lodash'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
 
-import { useRegisterUserMutation } from '~/graphql'
+import {
+  GetUserByUsername,
+  type GetUserByUsernameQuery,
+  useRegisterUserMutation,
+} from '~/graphql'
+
+const app = useNuxtApp()
+
+const {
+  executeMutation,
+  data: registrationResultData,
+  error,
+  fetching: registrationInTransmission,
+} = useRegisterUserMutation()
 
 const schema = z
   .object({
@@ -74,15 +88,33 @@ const schema = z
         'Das Passwort bitte wiederholen, damit es sicher richtig getippt ist.'
       ),
   })
-  .superRefine(({ password, confirmPassword }, { addIssue, path }) => {
-    if (password !== confirmPassword)
-      addIssue({
-        message: 'Das Passwort ist zwei Mal unterschiedlich eingetippt worden.',
-        code: 'custom',
-        path: [...path, 'confirmPassword'],
-        fatal: true,
-      })
-  })
+  .superRefine(
+    async ({ password, confirmPassword, username }, { addIssue, path }) => {
+      // check if password matches
+      if (password !== confirmPassword)
+        addIssue({
+          message:
+            'Das Passwort ist zwei Mal unterschiedlich eingetippt worden.',
+          code: 'custom',
+          path: [...path, 'confirmPassword'],
+          fatal: true,
+        })
+
+      // check for users
+      const { data } = await app.$urql.query<GetUserByUsernameQuery>(
+        GetUserByUsername,
+        { username }
+      )
+
+      if (data?.userByUsername?.id)
+        addIssue({
+          message: 'Der Login-Name ist bereits vergeben',
+          code: 'custom',
+          path: [...path, 'username'],
+          fatal: true,
+        })
+    }
+  )
 
 const {
   defineField,
@@ -111,13 +143,6 @@ const [password, passwordAttrs] = defineField('password', {
 const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', {
   validateOnModelUpdate: false,
 })
-
-const {
-  executeMutation,
-  data: registrationResultData,
-  error,
-  fetching: registrationInTransmission,
-} = useRegisterUserMutation()
 
 const onSubmit = handleSubmit(async (data) => {
   executeMutation({

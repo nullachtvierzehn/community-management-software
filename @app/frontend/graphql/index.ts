@@ -5433,6 +5433,13 @@ export type GetTopicQueryVariables = Exact<{
 
 export type GetTopicQuery = { __typename?: 'Query', topic: { __typename?: 'Topic', id: string, title: string | null, tags: Array<string | null>, slug: string, content: any } | null };
 
+export type GetUserByUsernameQueryVariables = Exact<{
+  username: Scalars['String']['input'];
+}>;
+
+
+export type GetUserByUsernameQuery = { __typename?: 'Query', userByUsername: { __typename?: 'User', id: string, username: string } | null };
+
 export type LoginMutationVariables = Exact<{
   username: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -5706,6 +5713,14 @@ export const GetTopic = gql`
     tags
     slug
     content
+  }
+}
+    `;
+export const GetUserByUsername = gql`
+    query GetUserByUsername($username: String!) {
+  userByUsername(username: $username) {
+    id
+    username
   }
 }
     `;
@@ -6057,6 +6072,18 @@ export const GetTopicDocument = gql`
 
 export function useGetTopicQuery(options: Omit<Urql.UseQueryArgs<never, GetTopicQueryVariables>, 'query'>) {
   return Urql.useQuery<GetTopicQuery, GetTopicQueryVariables>({ query: GetTopicDocument, ...options });
+};
+export const GetUserByUsernameDocument = gql`
+    query GetUserByUsername($username: String!) {
+  userByUsername(username: $username) {
+    id
+    username
+  }
+}
+    `;
+
+export function useGetUserByUsernameQuery(options: Omit<Urql.UseQueryArgs<never, GetUserByUsernameQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserByUsernameQuery, GetUserByUsernameQueryVariables>({ query: GetUserByUsernameDocument, ...options });
 };
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
