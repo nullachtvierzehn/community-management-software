@@ -5433,6 +5433,13 @@ export type GetTopicQueryVariables = Exact<{
 
 export type GetTopicQuery = { __typename?: 'Query', topic: { __typename?: 'Topic', id: string, title: string | null, tags: Array<string | null>, slug: string, content: any } | null };
 
+export type GetUserByUsernameQueryVariables = Exact<{
+  username: Scalars['String']['input'];
+}>;
+
+
+export type GetUserByUsernameQuery = { __typename?: 'Query', userByUsername: { __typename?: 'User', id: string, username: string } | null };
+
 export type LoginMutationVariables = Exact<{
   username: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -5440,6 +5447,13 @@ export type LoginMutationVariables = Exact<{
 
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginPayload', user: { __typename?: 'User', id: string, username: string } } | null };
+
+export type RegisterUserMutationVariables = Exact<{
+  form: RegisterInput;
+}>;
+
+
+export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'RegisterPayload', user: { __typename?: 'User', id: string, username: string, createdAt: string } } | null };
 
 export type UpdateRoomMessageMutationVariables = Exact<{
   oldId: Scalars['UUID']['input'];
@@ -5702,12 +5716,31 @@ export const GetTopic = gql`
   }
 }
     `;
+export const GetUserByUsername = gql`
+    query GetUserByUsername($username: String!) {
+  userByUsername(username: $username) {
+    id
+    username
+  }
+}
+    `;
 export const Login = gql`
     mutation Login($username: String!, $password: String!) {
   login(input: {username: $username, password: $password}) {
     user {
       id
       username
+    }
+  }
+}
+    `;
+export const RegisterUser = gql`
+    mutation RegisterUser($form: RegisterInput!) {
+  register(input: $form) {
+    user {
+      id
+      username
+      createdAt
     }
   }
 }
@@ -6040,6 +6073,18 @@ export const GetTopicDocument = gql`
 export function useGetTopicQuery(options: Omit<Urql.UseQueryArgs<never, GetTopicQueryVariables>, 'query'>) {
   return Urql.useQuery<GetTopicQuery, GetTopicQueryVariables>({ query: GetTopicDocument, ...options });
 };
+export const GetUserByUsernameDocument = gql`
+    query GetUserByUsername($username: String!) {
+  userByUsername(username: $username) {
+    id
+    username
+  }
+}
+    `;
+
+export function useGetUserByUsernameQuery(options: Omit<Urql.UseQueryArgs<never, GetUserByUsernameQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserByUsernameQuery, GetUserByUsernameQueryVariables>({ query: GetUserByUsernameDocument, ...options });
+};
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
   login(input: {username: $username, password: $password}) {
@@ -6053,6 +6098,21 @@ export const LoginDocument = gql`
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const RegisterUserDocument = gql`
+    mutation RegisterUser($form: RegisterInput!) {
+  register(input: $form) {
+    user {
+      id
+      username
+      createdAt
+    }
+  }
+}
+    `;
+
+export function useRegisterUserMutation() {
+  return Urql.useMutation<RegisterUserMutation, RegisterUserMutationVariables>(RegisterUserDocument);
 };
 export const UpdateRoomMessageDocument = gql`
     mutation UpdateRoomMessage($oldId: UUID!, $patch: RoomMessagePatch!) {
