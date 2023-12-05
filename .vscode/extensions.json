@@ -1,16 +1,16 @@
 {
   "recommendations": [
-    "EditorConfig.EditorConfig", // http://editorconfig.org
-    "dbaeumer.vscode-eslint", // ESLint
-    "stylelint.vscode-stylelint", // Stylelint https://github.com/stylelint/vscode-stylelint
-    "esbenp.prettier-vscode", // Prettier
-    "apollographql.vscode-apollo", // GraphQL support
-    "Vue.volar", // Vue 3
-    "MisterJ.vue-volar-extention-pack", // support for Vue projects
-    "attilabuti.vscode-mjml", // MJML support (used for mails)
-    "bradlc.vscode-tailwindcss", // TailwindCSS support
-    "vunguyentuan.vscode-postcss", // PostCSS support
-    //"msjsdiag.debugger-for-chrome", // Chrome debugger integration (deprecated in favor of built-in Javascript debugger)
-    "ms-vscode-remote.vscode-remote-extensionpack" // OPTIONAL: develop inside of Docker containers
+    "editorconfig.editorconfig",
+    "dbaeumer.vscode-eslint",
+    "stylelint.vscode-stylelint",
+    "esbenp.prettier-vscode",
+    "apollographql.vscode-apollo",
+    "vue.volar",
+    "misterj.vue-volar-extention-pack",
+    "attilabuti.vscode-mjml",
+    "bradlc.vscode-tailwindcss",
+    "vunguyentuan.vscode-postcss",
+    "ms-vscode-remote.vscode-remote-extensionpack",
+    "ckolkman.vscode-postgres"
   ]
 }
