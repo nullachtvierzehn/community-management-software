@@ -3,32 +3,73 @@
     <h1>Als neu:e Benutzer:in anmelden</h1>
     <section>
       <form @submit.prevent="onSubmit">
-        <label class="block">
+        <!-- username -->
+        <label for="registrationInputUsername" class="block">
           <span>Login-Name</span>
-          <input v-model="username" type="text" v-bind="usernameAttrs" />
-          <div v-if="fieldErrors.username">{{ fieldErrors.username }}</div>
+          <input
+            id="registrationInputUsername"
+            v-model="username"
+            type="text"
+            v-bind="usernameAttrs"
+            aria-describedby="registrationInputUsernameErrors"
+          />
+          <div
+            v-show="fieldErrors.username"
+            id="registrationInputUsernameErrors"
+          >
+            {{ fieldErrors.username }}
+          </div>
         </label>
-        <label class="block">
+
+        <!-- email -->
+        <label for="registrationInputEmail" class="block">
           <span>E-Mail</span>
-          <input v-model="email" type="email" v-bind="emailAttrs" />
-          <div v-if="fieldErrors.email">{{ fieldErrors.email }}</div>
+          <input
+            id="registrationInputEmail"
+            v-model="email"
+            type="email"
+            v-bind="emailAttrs"
+          />
+          <div v-show="fieldErrors.email">{{ fieldErrors.email }}</div>
         </label>
-        <label class="block">
+
+        <!-- password -->
+        <label for="registrationInputPassword" class="block">
           <span>Passwort</span>
-          <input v-model="password" type="password" v-bind="passwordAttrs" />
-          <div v-if="fieldErrors.password">{{ fieldErrors.password }}</div>
+          <input
+            id="registrationInputPassword"
+            v-model="password"
+            type="password"
+            v-bind="passwordAttrs"
+            aria-describedby="registrationInputPasswordErrors"
+          />
+          <div
+            v-show="fieldErrors.password"
+            id="registrationInputPasswordErrors"
+          >
+            {{ fieldErrors.password }}
+          </div>
         </label>
-        <label class="block">
+
+        <!-- password confirmation -->
+        <label for="registrationInputConfirmPassword" class="block">
           <span>Passwort bestätigen</span>
           <input
+            id="registrationInputConfirmPassword"
             v-model="confirmPassword"
             type="password"
             v-bind="confirmPasswordAttrs"
+            aria-describedby="registrationInputConfirmPasswordErrors"
           />
-          <div v-if="fieldErrors.confirmPassword">
+          <div
+            v-show="fieldErrors.confirmPassword"
+            id="registrationInputConfirmPasswordErrors"
+          >
             {{ fieldErrors.confirmPassword }}
           </div>
         </label>
+
+        <!-- submit button -->
         <button
           class="block"
           :disabled="

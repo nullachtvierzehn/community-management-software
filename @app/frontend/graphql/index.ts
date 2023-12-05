@@ -5471,6 +5471,14 @@ export type UpdateTopicMutationVariables = Exact<{
 
 export type UpdateTopicMutation = { __typename?: 'Mutation', updateTopic: { __typename?: 'UpdateTopicPayload', topic: { __typename?: 'Topic', id: string, updatedAt: string } | null } | null };
 
+export type VerifyEmailMutationVariables = Exact<{
+  id: Scalars['UUID']['input'];
+  token: Scalars['String']['input'];
+}>;
+
+
+export type VerifyEmailMutation = { __typename?: 'Mutation', verifyEmail: { __typename?: 'VerifyEmailPayload', ok: boolean | null } | null };
+
 
 export const CreateRoomMessage = gql`
     mutation CreateRoomMessage($message: RoomMessageInput!) {
@@ -5765,6 +5773,13 @@ export const UpdateTopic = gql`
       id
       updatedAt
     }
+  }
+}
+    `;
+export const VerifyEmail = gql`
+    mutation VerifyEmail($id: UUID!, $token: String!) {
+  verifyEmail(input: {userEmailId: $id, token: $token}) {
+    ok: boolean
   }
 }
     `;
@@ -6144,4 +6159,15 @@ export const UpdateTopicDocument = gql`
 
 export function useUpdateTopicMutation() {
   return Urql.useMutation<UpdateTopicMutation, UpdateTopicMutationVariables>(UpdateTopicDocument);
+};
+export const VerifyEmailDocument = gql`
+    mutation VerifyEmail($id: UUID!, $token: String!) {
+  verifyEmail(input: {userEmailId: $id, token: $token}) {
+    ok: boolean
+  }
+}
+    `;
+
+export function useVerifyEmailMutation() {
+  return Urql.useMutation<VerifyEmailMutation, VerifyEmailMutationVariables>(VerifyEmailDocument);
 };
