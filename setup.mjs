@@ -231,7 +231,7 @@ async function runDatabaseSetup() {
   )
 
   await client.end()
-  execSync('npm run --workspace database reset -- --erase')
+  execSync('npm run --workspace @app/database reset -- --erase')
 }
 
 fs.writeFileSync('.env', stringify(answers), { encoding: 'utf-8' })
