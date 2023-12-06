@@ -97,7 +97,7 @@ using (sent_at is not null or sender_id = app_public.current_user_id());
 create policy send_messages_to_public_rooms
 on app_public.room_messages
 for insert
-with check (room_id in (select id from app_public.rooms where visibility >= 'public'));
+with check (room_id in (select id from app_public.rooms where is_visible_for >= 'public'));
 
 create policy update_own_messages
 on app_public.room_messages
@@ -115,16 +115,16 @@ using (
       room_messages.room_id = r.id
       and (
         -- Show all messages of rooms that I can see, if the history is public.
-        r.visibility_of_history >= 'public'
+        r.items_are_visible_since >= 'always'
         -- Show all messages of rooms that I can see since a specified date.
         or (
-          r.visibility_of_history >= 'since_specified_date'
-          and room_messages.created_at >= (r.visibility_of_history_since - r.visibility_of_history_extended_by)
+          r.items_are_visible_since >= 'specified_date'
+          and room_messages.created_at >= (r.items_are_visible_since_date - r.extend_visibility_of_items_by)
         )
         -- Show all messages of rooms that I subscribe, since I subscribed.
         or (
-          r.visibility_of_history >= 'since_subscription'
-          and room_messages.created_at >= (s.created_at - r.visibility_of_history_extended_by)
+          r.items_are_visible_since >= 'subscription'
+          and room_messages.created_at >= (s.created_at - r.extend_visibility_of_items_by)
         )
       )
   )

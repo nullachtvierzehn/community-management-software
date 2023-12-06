@@ -793,7 +793,7 @@
             },
             {
               "name": "parent",
-              "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
+              "description": "Room items can be related in trees.",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -2454,7 +2454,7 @@
             },
             {
               "name": "parent",
-              "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
+              "description": "Room items can be related in trees.",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -4032,6 +4032,143 @@
         },
         {
           "kind": "INPUT_OBJECT",
+          "name": "FloatFilter",
+          "description": "A filter to be used against Float fields. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "distinctFrom",
+              "description": "Not equal to the specified value, treating null like an ordinary value.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "equalTo",
+              "description": "Equal to the specified value.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "greaterThan",
+              "description": "Greater than the specified value.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "greaterThanOrEqualTo",
+              "description": "Greater than or equal to the specified value.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "in",
+              "description": "Included in the specified list.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Float",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isNull",
+              "description": "Is null (if `true` is specified) or is not null (if `false` is specified).",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "lessThan",
+              "description": "Less than the specified value.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "lessThanOrEqualTo",
+              "description": "Less than or equal to the specified value.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "notDistinctFrom",
+              "description": "Equal to the specified value, treating null like an ordinary value.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "notEqualTo",
+              "description": "Not equal to the specified value.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "notIn",
+              "description": "Not included in the specified list.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Float",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
           "name": "ForgotPasswordInput",
           "description": "All input for the `forgotPassword` mutation.",
           "fields": null,
@@ -4116,143 +4253,6 @@
           "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
           "fields": null,
           "inputFields": null,
-          "interfaces": null,
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "INPUT_OBJECT",
-          "name": "IntFilter",
-          "description": "A filter to be used against Int fields. All fields are combined with a logical ‘and.’",
-          "fields": null,
-          "inputFields": [
-            {
-              "name": "distinctFrom",
-              "description": "Not equal to the specified value, treating null like an ordinary value.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "equalTo",
-              "description": "Equal to the specified value.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "greaterThan",
-              "description": "Greater than the specified value.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "greaterThanOrEqualTo",
-              "description": "Greater than or equal to the specified value.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "in",
-              "description": "Included in the specified list.",
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  }
-                }
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "isNull",
-              "description": "Is null (if `true` is specified) or is not null (if `false` is specified).",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "lessThan",
-              "description": "Less than the specified value.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "lessThanOrEqualTo",
-              "description": "Less than or equal to the specified value.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "notDistinctFrom",
-              "description": "Equal to the specified value, treating null like an ordinary value.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "notEqualTo",
-              "description": "Not equal to the specified value.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "notIn",
-              "description": "Not included in the specified list.",
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  }
-                }
-              },
-              "defaultValue": null
-            }
-          ],
           "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
@@ -11912,6 +11912,22 @@
               "deprecationReason": null
             },
             {
+              "name": "extendVisibilityOfItemsBy",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Interval",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "id",
               "description": null,
               "args": [],
@@ -11937,6 +11953,175 @@
                 "ofType": {
                   "kind": "SCALAR",
                   "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "isVisibleFor",
+              "description": "Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "RoomVisibility",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "items",
+              "description": "Reads and enables pagination through a set of `RoomItem`.",
+              "args": [
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomItemCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RoomItemFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `RoomItem`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "RoomItemsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "RoomItemsConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "itemsAreVisibleFor",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "RoomRole",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "itemsAreVisibleSince",
+              "description": "Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "RoomHistoryVisibility",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "itemsAreVisibleSinceDate",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Datetime",
                   "ofType": null
                 }
               },
@@ -12148,111 +12333,6 @@
               "deprecationReason": null
             },
             {
-              "name": "roomItems",
-              "description": "Reads and enables pagination through a set of `RoomItem`.",
-              "args": [
-                {
-                  "name": "after",
-                  "description": "Read all values in the set after (below) this cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Cursor",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "before",
-                  "description": "Read all values in the set before (above) this cursor.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Cursor",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "condition",
-                  "description": "A condition to be used in determining which values should be returned by the collection.",
-                  "type": {
-                    "kind": "INPUT_OBJECT",
-                    "name": "RoomItemCondition",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "filter",
-                  "description": "A filter to be used in determining which values should be returned by the collection.",
-                  "type": {
-                    "kind": "INPUT_OBJECT",
-                    "name": "RoomItemFilter",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "first",
-                  "description": "Only read the first `n` values of the set.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "last",
-                  "description": "Only read the last `n` values of the set.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "offset",
-                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "Int",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "orderBy",
-                  "description": "The method to use when ordering `RoomItem`.",
-                  "type": {
-                    "kind": "LIST",
-                    "name": null,
-                    "ofType": {
-                      "kind": "NON_NULL",
-                      "name": null,
-                      "ofType": {
-                        "kind": "ENUM",
-                        "name": "RoomItemsOrderBy",
-                        "ofType": null
-                      }
-                    }
-                  },
-                  "defaultValue": "[PRIMARY_KEY_ASC]"
-                }
-              ],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "RoomItemsConnection",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "subscriptions",
               "description": "Reads and enables pagination through a set of `RoomSubscription`.",
               "args": [
@@ -12384,70 +12464,6 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
-            },
-            {
-              "name": "visibility",
-              "description": "Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "ENUM",
-                  "name": "RoomVisibility",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "visibilityOfHistory",
-              "description": "Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "ENUM",
-                  "name": "RoomHistoryVisibility",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "visibilityOfHistoryExtendedBy",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "Interval",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "visibilityOfHistorySince",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Datetime",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
             }
           ],
           "inputFields": null,
@@ -12488,6 +12504,16 @@
               "defaultValue": null
             },
             {
+              "name": "extendVisibilityOfItemsBy",
+              "description": "Checks for equality with the object’s `extendVisibilityOfItemsBy` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "IntervalInput",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "id",
               "description": "Checks for equality with the object’s `id` field.",
               "type": {
@@ -12503,6 +12529,46 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleFor",
+              "description": "Checks for equality with the object’s `isVisibleFor` field.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomVisibility",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemsAreVisibleFor",
+              "description": "Checks for equality with the object’s `itemsAreVisibleFor` field.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomRole",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemsAreVisibleSince",
+              "description": "Checks for equality with the object’s `itemsAreVisibleSince` field.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomHistoryVisibility",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemsAreVisibleSinceDate",
+              "description": "Checks for equality with the object’s `itemsAreVisibleSinceDate` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
                 "ofType": null
               },
               "defaultValue": null
@@ -12566,46 +12632,6 @@
                 "ofType": null
               },
               "defaultValue": null
-            },
-            {
-              "name": "visibility",
-              "description": "Checks for equality with the object’s `visibility` field.",
-              "type": {
-                "kind": "ENUM",
-                "name": "RoomVisibility",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibilityOfHistory",
-              "description": "Checks for equality with the object’s `visibilityOfHistory` field.",
-              "type": {
-                "kind": "ENUM",
-                "name": "RoomHistoryVisibility",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibilityOfHistoryExtendedBy",
-              "description": "Checks for equality with the object’s `visibilityOfHistoryExtendedBy` field.",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "IntervalInput",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibilityOfHistorySince",
-              "description": "Checks for equality with the object’s `visibilityOfHistorySince` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "defaultValue": null
             }
           ],
           "interfaces": null,
@@ -12657,6 +12683,16 @@
               "defaultValue": null
             },
             {
+              "name": "extendVisibilityOfItemsBy",
+              "description": "Filter by the object’s `extendVisibilityOfItemsBy` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "IntervalFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "id",
               "description": "Filter by the object’s `id` field.",
               "type": {
@@ -12672,6 +12708,66 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "BooleanFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleFor",
+              "description": "Filter by the object’s `isVisibleFor` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomVisibilityFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "items",
+              "description": "Filter by the object’s `items` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomToManyRoomItemFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemsAreVisibleFor",
+              "description": "Filter by the object’s `itemsAreVisibleFor` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomRoleFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemsAreVisibleSince",
+              "description": "Filter by the object’s `itemsAreVisibleSince` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomHistoryVisibilityFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemsAreVisibleSinceDate",
+              "description": "Filter by the object’s `itemsAreVisibleSinceDate` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemsExist",
+              "description": "Some related `items` exist.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               },
               "defaultValue": null
@@ -12785,26 +12881,6 @@
               "defaultValue": null
             },
             {
-              "name": "roomItems",
-              "description": "Filter by the object’s `roomItems` relation.",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "RoomToManyRoomItemFilter",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "roomItemsExist",
-              "description": "Some related `roomItems` exist.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
               "name": "subscriptions",
               "description": "Filter by the object’s `subscriptions` relation.",
               "type": {
@@ -12843,46 +12919,6 @@
                 "ofType": null
               },
               "defaultValue": null
-            },
-            {
-              "name": "visibility",
-              "description": "Filter by the object’s `visibility` field.",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "RoomVisibilityFilter",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibilityOfHistory",
-              "description": "Filter by the object’s `visibilityOfHistory` field.",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "RoomHistoryVisibilityFilter",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibilityOfHistoryExtendedBy",
-              "description": "Filter by the object’s `visibilityOfHistoryExtendedBy` field.",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "IntervalFilter",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibilityOfHistorySince",
-              "description": "Filter by the object’s `visibilityOfHistorySince` field.",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "DatetimeFilter",
-                "ofType": null
-              },
-              "defaultValue": null
             }
           ],
           "interfaces": null,
@@ -12898,25 +12934,25 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "PUBLIC",
+              "name": "ALWAYS",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "SINCE_INVITATION",
+              "name": "INVITATION",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "SINCE_SPECIFIED_DATE",
+              "name": "SPECIFIED_DATE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "SINCE_SUBSCRIPTION",
+              "name": "SUBSCRIPTION",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -13088,18 +13124,8 @@
               "defaultValue": null
             },
             {
-              "name": "title",
-              "description": "Each room has an optional title.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibility",
-              "description": "Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.",
+              "name": "isVisibleFor",
+              "description": "Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.",
               "type": {
                 "kind": "ENUM",
                 "name": "RoomVisibility",
@@ -13108,11 +13134,21 @@
               "defaultValue": null
             },
             {
-              "name": "visibilityOfHistory",
-              "description": "Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.",
+              "name": "itemsAreVisibleSince",
+              "description": "Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience.",
               "type": {
                 "kind": "ENUM",
                 "name": "RoomHistoryVisibility",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "title",
+              "description": "Each room has an optional title.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               },
               "defaultValue": null
@@ -13125,10 +13161,10 @@
         {
           "kind": "OBJECT",
           "name": "RoomItem",
-          "description": null,
+          "description": "Room items are messages or materials, that are accessible within a certain room.",
           "fields": [
             {
-              "name": "childRoomItems",
+              "name": "children",
               "description": "Reads and enables pagination through a set of `RoomItem`.",
               "args": [
                 {
@@ -13233,6 +13269,18 @@
               "deprecationReason": null
             },
             {
+              "name": "contributedAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "contributor",
               "description": "Reads a single `User` that is related to this `RoomItem`.",
               "args": [],
@@ -13246,7 +13294,7 @@
             },
             {
               "name": "contributorId",
-              "description": null,
+              "description": "The id of a user who contributed the room item.",
               "args": [],
               "type": {
                 "kind": "SCALAR",
@@ -13289,6 +13337,42 @@
               "deprecationReason": null
             },
             {
+              "name": "isVisibleFor",
+              "description": "Decides which role can see the room item. This also applies to more powerful roles. If the value is not set, the default settings of the room will be used.",
+              "args": [],
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomRole",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "isVisibleSince",
+              "description": "Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used.",
+              "args": [],
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomHistoryVisibility",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "isVisibleSinceDate",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "messageBody",
               "description": null,
               "args": [],
@@ -13317,8 +13401,24 @@
               "deprecationReason": null
             },
             {
+              "name": "order",
+              "description": "The default order is 0, but you can change it to different values to sort the items.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Float",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "parent",
-              "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
+              "description": "Room items can be related in trees.",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -13330,39 +13430,11 @@
             },
             {
               "name": "parentId",
-              "description": null,
+              "description": "The items in a room can be connected to each other, basically forming one or multiple trees. For example, you can use this to keep track of conversations.",
               "args": [],
               "type": {
                 "kind": "SCALAR",
                 "name": "UUID",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "position",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "postedAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -13422,7 +13494,7 @@
             },
             {
               "name": "type",
-              "description": null,
+              "description": "The kind of room item. There are messages, pages, files, and so on.",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
@@ -13471,6 +13543,16 @@
           "fields": null,
           "inputFields": [
             {
+              "name": "contributedAt",
+              "description": "Checks for equality with the object’s `contributedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "contributorId",
               "description": "Checks for equality with the object’s `contributorId` field.",
               "type": {
@@ -13501,6 +13583,36 @@
               "defaultValue": null
             },
             {
+              "name": "isVisibleFor",
+              "description": "Checks for equality with the object’s `isVisibleFor` field.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomRole",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleSince",
+              "description": "Checks for equality with the object’s `isVisibleSince` field.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomHistoryVisibility",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleSinceDate",
+              "description": "Checks for equality with the object’s `isVisibleSinceDate` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "messageBody",
               "description": "Checks for equality with the object’s `messageBody` field.",
               "type": {
@@ -13511,31 +13623,21 @@
               "defaultValue": null
             },
             {
+              "name": "order",
+              "description": "Checks for equality with the object’s `order` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "parentId",
               "description": "Checks for equality with the object’s `parentId` field.",
               "type": {
                 "kind": "SCALAR",
                 "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "position",
-              "description": "Checks for equality with the object’s `position` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "postedAt",
-              "description": "Checks for equality with the object’s `postedAt` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
                 "ofType": null
               },
               "defaultValue": null
@@ -13610,8 +13712,8 @@
               "defaultValue": null
             },
             {
-              "name": "childRoomItems",
-              "description": "Filter by the object’s `childRoomItems` relation.",
+              "name": "children",
+              "description": "Filter by the object’s `children` relation.",
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "RoomItemToManyRoomItemFilter",
@@ -13620,11 +13722,21 @@
               "defaultValue": null
             },
             {
-              "name": "childRoomItemsExist",
-              "description": "Some related `childRoomItems` exist.",
+              "name": "childrenExist",
+              "description": "Some related `children` exist.",
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "contributedAt",
+              "description": "Filter by the object’s `contributedAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -13680,6 +13792,36 @@
               "defaultValue": null
             },
             {
+              "name": "isVisibleFor",
+              "description": "Filter by the object’s `isVisibleFor` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomRoleFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleSince",
+              "description": "Filter by the object’s `isVisibleSince` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomHistoryVisibilityFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleSinceDate",
+              "description": "Filter by the object’s `isVisibleSinceDate` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "messageBody",
               "description": "Filter by the object’s `messageBody` field.",
               "type": {
@@ -13718,6 +13860,16 @@
               "defaultValue": null
             },
             {
+              "name": "order",
+              "description": "Filter by the object’s `order` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "FloatFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "parent",
               "description": "Filter by the object’s `parent` relation.",
               "type": {
@@ -13743,26 +13895,6 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "UUIDFilter",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "position",
-              "description": "Filter by the object’s `position` field.",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "IntFilter",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "postedAt",
-              "description": "Filter by the object’s `postedAt` field.",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "DatetimeFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -13849,11 +13981,51 @@
           "fields": null,
           "inputFields": [
             {
-              "name": "contributorId",
+              "name": "contributedAt",
               "description": null,
               "type": {
                 "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "contributorId",
+              "description": "The id of a user who contributed the room item.",
+              "type": {
+                "kind": "SCALAR",
                 "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleFor",
+              "description": "Decides which role can see the room item. This also applies to more powerful roles. If the value is not set, the default settings of the room will be used.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomRole",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleSince",
+              "description": "Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomHistoryVisibility",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleSinceDate",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
                 "ofType": null
               },
               "defaultValue": null
@@ -13869,31 +14041,21 @@
               "defaultValue": null
             },
             {
+              "name": "order",
+              "description": "The default order is 0, but you can change it to different values to sort the items.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "parentId",
-              "description": null,
+              "description": "The items in a room can be connected to each other, basically forming one or multiple trees. For example, you can use this to keep track of conversations.",
               "type": {
                 "kind": "SCALAR",
                 "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "position",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "postedAt",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
                 "ofType": null
               },
               "defaultValue": null
@@ -13924,7 +14086,7 @@
             },
             {
               "name": "type",
-              "description": null,
+              "description": "The kind of room item. There are messages, pages, files, and so on.",
               "type": {
                 "kind": "ENUM",
                 "name": "RoomItemType",
@@ -13944,6 +14106,46 @@
           "fields": null,
           "inputFields": [
             {
+              "name": "contributedAt",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleFor",
+              "description": "Decides which role can see the room item. This also applies to more powerful roles. If the value is not set, the default settings of the room will be used.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomRole",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleSince",
+              "description": "Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomHistoryVisibility",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleSinceDate",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "messageBody",
               "description": null,
               "type": {
@@ -13954,21 +14156,11 @@
               "defaultValue": null
             },
             {
-              "name": "position",
-              "description": null,
+              "name": "order",
+              "description": "The default order is 0, but you can change it to different values to sort the items.",
               "type": {
                 "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "postedAt",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
+                "name": "Float",
                 "ofType": null
               },
               "defaultValue": null
@@ -14328,6 +14520,18 @@
           "interfaces": null,
           "enumValues": [
             {
+              "name": "CONTRIBUTED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CONTRIBUTED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "CONTRIBUTOR_ID_ASC",
               "description": null,
               "isDeprecated": false,
@@ -14364,6 +14568,42 @@
               "deprecationReason": null
             },
             {
+              "name": "IS_VISIBLE_FOR_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_VISIBLE_FOR_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_VISIBLE_SINCE_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_VISIBLE_SINCE_DATE_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_VISIBLE_SINCE_DATE_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_VISIBLE_SINCE_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "MESSAGE_BODY_ASC",
               "description": null,
               "isDeprecated": false,
@@ -14382,6 +14622,18 @@
               "deprecationReason": null
             },
             {
+              "name": "ORDER_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ORDER_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "PARENT_ID_ASC",
               "description": null,
               "isDeprecated": false,
@@ -14389,30 +14641,6 @@
             },
             {
               "name": "PARENT_ID_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "POSITION_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "POSITION_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "POSTED_AT_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "POSTED_AT_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -16272,18 +16500,8 @@
               "defaultValue": null
             },
             {
-              "name": "title",
-              "description": "Each room has an optional title.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibility",
-              "description": "Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.",
+              "name": "isVisibleFor",
+              "description": "Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.",
               "type": {
                 "kind": "ENUM",
                 "name": "RoomVisibility",
@@ -16292,11 +16510,21 @@
               "defaultValue": null
             },
             {
-              "name": "visibilityOfHistory",
-              "description": "Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.",
+              "name": "itemsAreVisibleSince",
+              "description": "Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience.",
               "type": {
                 "kind": "ENUM",
                 "name": "RoomHistoryVisibility",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "title",
+              "description": "Each room has an optional title.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               },
               "defaultValue": null
@@ -16340,6 +16568,12 @@
             },
             {
               "name": "PROSPECT",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PUBLIC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -17354,13 +17588,7 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "FOR_SUBSCRIBERS",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "IF_SIGNED_IN",
+              "name": "ORGANIZATION_MEMBERS",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -17372,7 +17600,13 @@
               "deprecationReason": null
             },
             {
-              "name": "WITHIN_ORGANIZATION",
+              "name": "SIGNED_IN_USERS",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SUBSCRIBERS",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -17680,6 +17914,18 @@
               "deprecationReason": null
             },
             {
+              "name": "EXTEND_VISIBILITY_OF_ITEMS_BY_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "EXTEND_VISIBILITY_OF_ITEMS_BY_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "ID_ASC",
               "description": null,
               "isDeprecated": false,
@@ -17699,6 +17945,54 @@
             },
             {
               "name": "IS_ANONYMOUS_POSTING_ALLOWED_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_VISIBLE_FOR_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_VISIBLE_FOR_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEMS_ARE_VISIBLE_FOR_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEMS_ARE_VISIBLE_FOR_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEMS_ARE_VISIBLE_SINCE_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEMS_ARE_VISIBLE_SINCE_DATE_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEMS_ARE_VISIBLE_SINCE_DATE_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEMS_ARE_VISIBLE_SINCE_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -17765,54 +18059,6 @@
             },
             {
               "name": "UPDATED_AT_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_OF_HISTORY_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_OF_HISTORY_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_OF_HISTORY_EXTENDED_BY_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_OF_HISTORY_EXTENDED_BY_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_OF_HISTORY_SINCE_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_OF_HISTORY_SINCE_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -18856,6 +19102,22 @@
               "deprecationReason": null
             },
             {
+              "name": "isVisibleFor",
+              "description": "Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`).",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "TopicVisibility",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "license",
               "description": "Each topic can optionally be licensed. Hyperlinks are allowed.",
               "args": [],
@@ -19180,22 +19442,6 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
-            },
-            {
-              "name": "visibility",
-              "description": "Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "ENUM",
-                  "name": "TopicVisibility",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
             }
           ],
           "inputFields": null,
@@ -19251,6 +19497,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleFor",
+              "description": "Checks for equality with the object’s `isVisibleFor` field.",
+              "type": {
+                "kind": "ENUM",
+                "name": "TopicVisibility",
                 "ofType": null
               },
               "defaultValue": null
@@ -19315,16 +19571,6 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Datetime",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibility",
-              "description": "Checks for equality with the object’s `visibility` field.",
-              "type": {
-                "kind": "ENUM",
-                "name": "TopicVisibility",
                 "ofType": null
               },
               "defaultValue": null
@@ -19414,6 +19660,16 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleFor",
+              "description": "Filter by the object’s `isVisibleFor` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "TopicVisibilityFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -19565,16 +19821,6 @@
                 "ofType": null
               },
               "defaultValue": null
-            },
-            {
-              "name": "visibility",
-              "description": "Filter by the object’s `visibility` field.",
-              "type": {
-                "kind": "INPUT_OBJECT",
-                "name": "TopicVisibilityFilter",
-                "ofType": null
-              },
-              "defaultValue": null
             }
           ],
           "interfaces": null,
@@ -19608,6 +19854,16 @@
                   "name": "JSON",
                   "ofType": null
                 }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleFor",
+              "description": "Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`).",
+              "type": {
+                "kind": "ENUM",
+                "name": "TopicVisibility",
+                "ofType": null
               },
               "defaultValue": null
             },
@@ -19654,16 +19910,6 @@
                 "ofType": null
               },
               "defaultValue": null
-            },
-            {
-              "name": "visibility",
-              "description": "Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).",
-              "type": {
-                "kind": "ENUM",
-                "name": "TopicVisibility",
-                "ofType": null
-              },
-              "defaultValue": null
             }
           ],
           "interfaces": null,
@@ -19692,6 +19938,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "JSON",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isVisibleFor",
+              "description": "Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`).",
+              "type": {
+                "kind": "ENUM",
+                "name": "TopicVisibility",
                 "ofType": null
               },
               "defaultValue": null
@@ -19732,16 +19988,6 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "visibility",
-              "description": "Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).",
-              "type": {
-                "kind": "ENUM",
-                "name": "TopicVisibility",
                 "ofType": null
               },
               "defaultValue": null
@@ -19842,7 +20088,7 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "IF_SIGNED_IN",
+              "name": "ORGANIZATION_MEMBERS",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -19854,7 +20100,7 @@
               "deprecationReason": null
             },
             {
-              "name": "WITHIN_ORGANIZATION",
+              "name": "SIGNED_IN_USERS",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -20186,6 +20432,18 @@
               "deprecationReason": null
             },
             {
+              "name": "IS_VISIBLE_FOR_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_VISIBLE_FOR_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "LICENSE_ASC",
               "description": null,
               "isDeprecated": false,
@@ -20259,18 +20517,6 @@
             },
             {
               "name": "UPDATED_AT_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "VISIBILITY_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -21143,7 +21389,7 @@
             },
             {
               "name": "parent",
-              "description": "Reads a single `RoomItem` that is related to this `RoomItem`.",
+              "description": "Room items can be related in trees.",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -22663,7 +22909,7 @@
               "deprecationReason": null
             },
             {
-              "name": "roomItemsByContributorId",
+              "name": "roomItems",
               "description": "Reads and enables pagination through a set of `RoomItem`.",
               "args": [
                 {
@@ -24802,8 +25048,8 @@
               "defaultValue": null
             },
             {
-              "name": "roomItemsByContributorId",
-              "description": "Filter by the object’s `roomItemsByContributorId` relation.",
+              "name": "roomItems",
+              "description": "Filter by the object’s `roomItems` relation.",
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "UserToManyRoomItemFilter",
@@ -24812,8 +25058,8 @@
               "defaultValue": null
             },
             {
-              "name": "roomItemsByContributorIdExist",
-              "description": "Some related `roomItemsByContributorId` exist.",
+              "name": "roomItemsExist",
+              "description": "Some related `roomItems` exist.",
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",

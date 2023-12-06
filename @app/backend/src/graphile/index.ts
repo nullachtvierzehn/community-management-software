@@ -19,7 +19,7 @@ export const preset: GraphileConfig.Preset = {
   extends: [
     PostGraphileAmberPreset,
     makeV4Preset({
-      //watchPg: true,
+      watchPg: true,
       subscriptions: true,
       dynamicJson: true,
       setofFunctionsContainNulls: false,
@@ -37,7 +37,10 @@ export const preset: GraphileConfig.Preset = {
     // simplifies field names
     PgSimplifyInflectionPreset,
   ],
-  plugins: [PassportLoginPlugin, OrderByUsernamePlugin],
+  plugins: [
+    /*PgIntrospectionPlugin,*/ PassportLoginPlugin,
+    OrderByUsernamePlugin,
+  ],
   gather: {
     pgStrictFunctions: true,
     installWatchFixtures: true,
@@ -88,7 +91,6 @@ export const preset: GraphileConfig.Preset = {
   },
   pgServices: [
     makePgService({
-      //connectionString: "postgres://timo@localhost/app_cms",
       pool,
       superuserConnectionString: config.database.rootUrl,
       schemas: ['app_public'],

@@ -234,7 +234,7 @@ type CreateRoomItemPayload {
   """Reads a single `User` that is related to this `RoomItem`."""
   contributor: User
 
-  """Reads a single `RoomItem` that is related to this `RoomItem`."""
+  """Room items can be related in trees."""
   parent: RoomItem
 
   """
@@ -720,7 +720,7 @@ type DeleteRoomItemPayload {
   contributor: User
   deletedRoomItemNodeId: ID
 
-  """Reads a single `RoomItem` that is related to this `RoomItem`."""
+  """Room items can be related in trees."""
   parent: RoomItem
 
   """
@@ -1171,6 +1171,48 @@ type DeleteUserEmailPayload {
   ): UserEmailsEdge
 }
 
+"""
+A filter to be used against Float fields. All fields are combined with a logical ‘and.’
+"""
+input FloatFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Float
+
+  """Equal to the specified value."""
+  equalTo: Float
+
+  """Greater than the specified value."""
+  greaterThan: Float
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Float
+
+  """Included in the specified list."""
+  in: [Float!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: Float
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Float
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Float
+
+  """Not equal to the specified value."""
+  notEqualTo: Float
+
+  """Not included in the specified list."""
+  notIn: [Float!]
+}
+
 """All input for the `forgotPassword` mutation."""
 input ForgotPasswordInput {
   """
@@ -1193,48 +1235,6 @@ type ForgotPasswordPayload {
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
-}
-
-"""
-A filter to be used against Int fields. All fields are combined with a logical ‘and.’
-"""
-input IntFilter {
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: Int
-
-  """Equal to the specified value."""
-  equalTo: Int
-
-  """Greater than the specified value."""
-  greaterThan: Int
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: Int
-
-  """Included in the specified list."""
-  in: [Int!]
-
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Less than the specified value."""
-  lessThan: Int
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: Int
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: Int
-
-  """Not equal to the specified value."""
-  notEqualTo: Int
-
-  """Not included in the specified list."""
-  notIn: [Int!]
 }
 
 """
@@ -3314,8 +3314,55 @@ type Room implements Node {
   """Each room has an optional abstract."""
   abstract: String
   createdAt: Datetime!
+  extendVisibilityOfItemsBy: Interval!
   id: UUID!
   isAnonymousPostingAllowed: Boolean!
+
+  """
+  Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.
+  """
+  isVisibleFor: RoomVisibility!
+
+  """Reads and enables pagination through a set of `RoomItem`."""
+  items(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RoomItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RoomItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `RoomItem`."""
+    orderBy: [RoomItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RoomItemsConnection!
+  itemsAreVisibleFor: RoomRole!
+
+  """
+  Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience.
+  """
+  itemsAreVisibleSince: RoomHistoryVisibility!
+  itemsAreVisibleSinceDate: Datetime!
   latestMessage: RoomMessage
 
   """Reads and enables pagination through a set of `RoomMessage`."""
@@ -3366,40 +3413,6 @@ type Room implements Node {
   organization: Organization
   organizationId: UUID
 
-  """Reads and enables pagination through a set of `RoomItem`."""
-  roomItems(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: RoomItemCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: RoomItemFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `RoomItem`."""
-    orderBy: [RoomItemsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RoomItemsConnection!
-
   """Reads and enables pagination through a set of `RoomSubscription`."""
   subscriptions(
     """Read all values in the set after (below) this cursor."""
@@ -3437,18 +3450,6 @@ type Room implements Node {
   """Each room has an optional title."""
   title: String
   updatedAt: Datetime!
-
-  """
-  Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.
-  """
-  visibility: RoomVisibility!
-
-  """
-  Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.
-  """
-  visibilityOfHistory: RoomHistoryVisibility!
-  visibilityOfHistoryExtendedBy: Interval!
-  visibilityOfHistorySince: Datetime!
 }
 
 """
@@ -3461,6 +3462,11 @@ input RoomCondition {
   """Checks for equality with the object’s `createdAt` field."""
   createdAt: Datetime
 
+  """
+  Checks for equality with the object’s `extendVisibilityOfItemsBy` field.
+  """
+  extendVisibilityOfItemsBy: IntervalInput
+
   """Checks for equality with the object’s `id` field."""
   id: UUID
 
@@ -3468,6 +3474,20 @@ input RoomCondition {
   Checks for equality with the object’s `isAnonymousPostingAllowed` field.
   """
   isAnonymousPostingAllowed: Boolean
+
+  """Checks for equality with the object’s `isVisibleFor` field."""
+  isVisibleFor: RoomVisibility
+
+  """Checks for equality with the object’s `itemsAreVisibleFor` field."""
+  itemsAreVisibleFor: RoomRole
+
+  """Checks for equality with the object’s `itemsAreVisibleSince` field."""
+  itemsAreVisibleSince: RoomHistoryVisibility
+
+  """
+  Checks for equality with the object’s `itemsAreVisibleSinceDate` field.
+  """
+  itemsAreVisibleSinceDate: Datetime
 
   """Checks for equality with the object’s `myFirstInteraction` field."""
   myFirstInteraction: Datetime
@@ -3486,22 +3506,6 @@ input RoomCondition {
 
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
-
-  """Checks for equality with the object’s `visibility` field."""
-  visibility: RoomVisibility
-
-  """Checks for equality with the object’s `visibilityOfHistory` field."""
-  visibilityOfHistory: RoomHistoryVisibility
-
-  """
-  Checks for equality with the object’s `visibilityOfHistoryExtendedBy` field.
-  """
-  visibilityOfHistoryExtendedBy: IntervalInput
-
-  """
-  Checks for equality with the object’s `visibilityOfHistorySince` field.
-  """
-  visibilityOfHistorySince: Datetime
 }
 
 """
@@ -3517,11 +3521,32 @@ input RoomFilter {
   """Filter by the object’s `createdAt` field."""
   createdAt: DatetimeFilter
 
+  """Filter by the object’s `extendVisibilityOfItemsBy` field."""
+  extendVisibilityOfItemsBy: IntervalFilter
+
   """Filter by the object’s `id` field."""
   id: UUIDFilter
 
   """Filter by the object’s `isAnonymousPostingAllowed` field."""
   isAnonymousPostingAllowed: BooleanFilter
+
+  """Filter by the object’s `isVisibleFor` field."""
+  isVisibleFor: RoomVisibilityFilter
+
+  """Filter by the object’s `items` relation."""
+  items: RoomToManyRoomItemFilter
+
+  """Filter by the object’s `itemsAreVisibleFor` field."""
+  itemsAreVisibleFor: RoomRoleFilter
+
+  """Filter by the object’s `itemsAreVisibleSince` field."""
+  itemsAreVisibleSince: RoomHistoryVisibilityFilter
+
+  """Filter by the object’s `itemsAreVisibleSinceDate` field."""
+  itemsAreVisibleSinceDate: DatetimeFilter
+
+  """Some related `items` exist."""
+  itemsExist: Boolean
 
   """Filter by the object’s `messages` relation."""
   messages: RoomToManyRoomMessageFilter
@@ -3553,12 +3578,6 @@ input RoomFilter {
   """Filter by the object’s `organizationId` field."""
   organizationId: UUIDFilter
 
-  """Filter by the object’s `roomItems` relation."""
-  roomItems: RoomToManyRoomItemFilter
-
-  """Some related `roomItems` exist."""
-  roomItemsExist: Boolean
-
   """Filter by the object’s `subscriptions` relation."""
   subscriptions: RoomToManyRoomSubscriptionFilter
 
@@ -3570,25 +3589,13 @@ input RoomFilter {
 
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
-
-  """Filter by the object’s `visibility` field."""
-  visibility: RoomVisibilityFilter
-
-  """Filter by the object’s `visibilityOfHistory` field."""
-  visibilityOfHistory: RoomHistoryVisibilityFilter
-
-  """Filter by the object’s `visibilityOfHistoryExtendedBy` field."""
-  visibilityOfHistoryExtendedBy: IntervalFilter
-
-  """Filter by the object’s `visibilityOfHistorySince` field."""
-  visibilityOfHistorySince: DatetimeFilter
 }
 
 enum RoomHistoryVisibility {
-  PUBLIC
-  SINCE_INVITATION
-  SINCE_SPECIFIED_DATE
-  SINCE_SUBSCRIPTION
+  ALWAYS
+  INVITATION
+  SPECIFIED_DATE
+  SUBSCRIPTION
 }
 
 """
@@ -3639,23 +3646,26 @@ input RoomInput {
   abstract: String
   isAnonymousPostingAllowed: Boolean
 
+  """
+  Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.
+  """
+  isVisibleFor: RoomVisibility
+
+  """
+  Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience.
+  """
+  itemsAreVisibleSince: RoomHistoryVisibility
+
   """Each room has an optional title."""
   title: String
-
-  """
-  Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.
-  """
-  visibility: RoomVisibility
-
-  """
-  Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.
-  """
-  visibilityOfHistory: RoomHistoryVisibility
 }
 
+"""
+Room items are messages or materials, that are accessible within a certain room.
+"""
 type RoomItem implements Node {
   """Reads and enables pagination through a set of `RoomItem`."""
-  childRoomItems(
+  children(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -3687,12 +3697,26 @@ type RoomItem implements Node {
     """The method to use when ordering `RoomItem`."""
     orderBy: [RoomItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RoomItemsConnection!
+  contributedAt: Datetime
 
   """Reads a single `User` that is related to this `RoomItem`."""
   contributor: User
+
+  """The id of a user who contributed the room item."""
   contributorId: UUID
   createdAt: Datetime!
   id: UUID!
+
+  """
+  Decides which role can see the room item. This also applies to more powerful roles. If the value is not set, the default settings of the room will be used.
+  """
+  isVisibleFor: RoomRole
+
+  """
+  Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used.
+  """
+  isVisibleSince: RoomHistoryVisibility
+  isVisibleSinceDate: Datetime
   messageBody: JSON
 
   """
@@ -3700,11 +3724,18 @@ type RoomItem implements Node {
   """
   nodeId: ID!
 
-  """Reads a single `RoomItem` that is related to this `RoomItem`."""
+  """
+  The default order is 0, but you can change it to different values to sort the items.
+  """
+  order: Float!
+
+  """Room items can be related in trees."""
   parent: RoomItem
+
+  """
+  The items in a room can be connected to each other, basically forming one or multiple trees. For example, you can use this to keep track of conversations.
+  """
   parentId: UUID
-  position: Int!
-  postedAt: Datetime
 
   """Reads a single `Room` that is related to this `RoomItem`."""
   room: Room
@@ -3713,6 +3744,8 @@ type RoomItem implements Node {
   """Reads a single `Topic` that is related to this `RoomItem`."""
   topic: Topic
   topicId: UUID
+
+  """The kind of room item. There are messages, pages, files, and so on."""
   type: RoomItemType!
   updatedAt: Datetime!
 }
@@ -3722,6 +3755,9 @@ A condition to be used against `RoomItem` object types. All fields are tested
 for equality and combined with a logical ‘and.’
 """
 input RoomItemCondition {
+  """Checks for equality with the object’s `contributedAt` field."""
+  contributedAt: Datetime
+
   """Checks for equality with the object’s `contributorId` field."""
   contributorId: UUID
 
@@ -3731,17 +3767,23 @@ input RoomItemCondition {
   """Checks for equality with the object’s `id` field."""
   id: UUID
 
+  """Checks for equality with the object’s `isVisibleFor` field."""
+  isVisibleFor: RoomRole
+
+  """Checks for equality with the object’s `isVisibleSince` field."""
+  isVisibleSince: RoomHistoryVisibility
+
+  """Checks for equality with the object’s `isVisibleSinceDate` field."""
+  isVisibleSinceDate: Datetime
+
   """Checks for equality with the object’s `messageBody` field."""
   messageBody: JSON
 
+  """Checks for equality with the object’s `order` field."""
+  order: Float
+
   """Checks for equality with the object’s `parentId` field."""
   parentId: UUID
-
-  """Checks for equality with the object’s `position` field."""
-  position: Int
-
-  """Checks for equality with the object’s `postedAt` field."""
-  postedAt: Datetime
 
   """Checks for equality with the object’s `roomId` field."""
   roomId: UUID
@@ -3763,11 +3805,14 @@ input RoomItemFilter {
   """Checks for all expressions in this list."""
   and: [RoomItemFilter!]
 
-  """Filter by the object’s `childRoomItems` relation."""
-  childRoomItems: RoomItemToManyRoomItemFilter
+  """Filter by the object’s `children` relation."""
+  children: RoomItemToManyRoomItemFilter
 
-  """Some related `childRoomItems` exist."""
-  childRoomItemsExist: Boolean
+  """Some related `children` exist."""
+  childrenExist: Boolean
+
+  """Filter by the object’s `contributedAt` field."""
+  contributedAt: DatetimeFilter
 
   """Filter by the object’s `contributor` relation."""
   contributor: UserFilter
@@ -3784,6 +3829,15 @@ input RoomItemFilter {
   """Filter by the object’s `id` field."""
   id: UUIDFilter
 
+  """Filter by the object’s `isVisibleFor` field."""
+  isVisibleFor: RoomRoleFilter
+
+  """Filter by the object’s `isVisibleSince` field."""
+  isVisibleSince: RoomHistoryVisibilityFilter
+
+  """Filter by the object’s `isVisibleSinceDate` field."""
+  isVisibleSinceDate: DatetimeFilter
+
   """Filter by the object’s `messageBody` field."""
   messageBody: JSONFilter
 
@@ -3793,6 +3847,9 @@ input RoomItemFilter {
   """Checks for any expressions in this list."""
   or: [RoomItemFilter!]
 
+  """Filter by the object’s `order` field."""
+  order: FloatFilter
+
   """Filter by the object’s `parent` relation."""
   parent: RoomItemFilter
 
@@ -3801,12 +3858,6 @@ input RoomItemFilter {
 
   """Filter by the object’s `parentId` field."""
   parentId: UUIDFilter
-
-  """Filter by the object’s `position` field."""
-  position: IntFilter
-
-  """Filter by the object’s `postedAt` field."""
-  postedAt: DatetimeFilter
 
   """Filter by the object’s `room` relation."""
   room: RoomFilter
@@ -3832,13 +3883,36 @@ input RoomItemFilter {
 
 """An input for mutations affecting `RoomItem`"""
 input RoomItemInput {
+  contributedAt: Datetime
+
+  """The id of a user who contributed the room item."""
   contributorId: UUID
+
+  """
+  Decides which role can see the room item. This also applies to more powerful roles. If the value is not set, the default settings of the room will be used.
+  """
+  isVisibleFor: RoomRole
+
+  """
+  Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used.
+  """
+  isVisibleSince: RoomHistoryVisibility
+  isVisibleSinceDate: Datetime
   messageBody: JSON
+
+  """
+  The default order is 0, but you can change it to different values to sort the items.
+  """
+  order: Float
+
+  """
+  The items in a room can be connected to each other, basically forming one or multiple trees. For example, you can use this to keep track of conversations.
+  """
   parentId: UUID
-  position: Int
-  postedAt: Datetime
   roomId: UUID!
   topicId: UUID
+
+  """The kind of room item. There are messages, pages, files, and so on."""
   type: RoomItemType
 }
 
@@ -3846,9 +3920,24 @@ input RoomItemInput {
 Represents an update to a `RoomItem`. Fields that are set will be updated.
 """
 input RoomItemPatch {
+  contributedAt: Datetime
+
+  """
+  Decides which role can see the room item. This also applies to more powerful roles. If the value is not set, the default settings of the room will be used.
+  """
+  isVisibleFor: RoomRole
+
+  """
+  Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used.
+  """
+  isVisibleSince: RoomHistoryVisibility
+  isVisibleSinceDate: Datetime
   messageBody: JSON
-  position: Int
-  postedAt: Datetime
+
+  """
+  The default order is 0, but you can change it to different values to sort the items.
+  """
+  order: Float
   topicId: UUID
 }
 
@@ -3947,21 +4036,27 @@ type RoomItemsEdge {
 
 """Methods to use when ordering `RoomItem`."""
 enum RoomItemsOrderBy {
+  CONTRIBUTED_AT_ASC
+  CONTRIBUTED_AT_DESC
   CONTRIBUTOR_ID_ASC
   CONTRIBUTOR_ID_DESC
   CREATED_AT_ASC
   CREATED_AT_DESC
   ID_ASC
   ID_DESC
+  IS_VISIBLE_FOR_ASC
+  IS_VISIBLE_FOR_DESC
+  IS_VISIBLE_SINCE_ASC
+  IS_VISIBLE_SINCE_DATE_ASC
+  IS_VISIBLE_SINCE_DATE_DESC
+  IS_VISIBLE_SINCE_DESC
   MESSAGE_BODY_ASC
   MESSAGE_BODY_DESC
   NATURAL
+  ORDER_ASC
+  ORDER_DESC
   PARENT_ID_ASC
   PARENT_ID_DESC
-  POSITION_ASC
-  POSITION_DESC
-  POSTED_AT_ASC
-  POSTED_AT_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
   ROOM_ID_ASC
@@ -4407,18 +4502,18 @@ input RoomPatch {
   abstract: String
   isAnonymousPostingAllowed: Boolean
 
+  """
+  Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.
+  """
+  isVisibleFor: RoomVisibility
+
+  """
+  Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience.
+  """
+  itemsAreVisibleSince: RoomHistoryVisibility
+
   """Each room has an optional title."""
   title: String
-
-  """
-  Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`.
-  """
-  visibility: RoomVisibility
-
-  """
-  Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public.
-  """
-  visibilityOfHistory: RoomHistoryVisibility
 }
 
 enum RoomRole {
@@ -4427,6 +4522,7 @@ enum RoomRole {
   MEMBER
   MODERATOR
   PROSPECT
+  PUBLIC
 }
 
 """
@@ -4699,10 +4795,10 @@ input RoomToManyRoomSubscriptionFilter {
 }
 
 enum RoomVisibility {
-  FOR_SUBSCRIBERS
-  IF_SIGNED_IN
+  ORGANIZATION_MEMBERS
   PUBLIC
-  WITHIN_ORGANIZATION
+  SIGNED_IN_USERS
+  SUBSCRIBERS
 }
 
 """
@@ -4779,10 +4875,20 @@ enum RoomsOrderBy {
   ABSTRACT_DESC
   CREATED_AT_ASC
   CREATED_AT_DESC
+  EXTEND_VISIBILITY_OF_ITEMS_BY_ASC
+  EXTEND_VISIBILITY_OF_ITEMS_BY_DESC
   ID_ASC
   ID_DESC
   IS_ANONYMOUS_POSTING_ALLOWED_ASC
   IS_ANONYMOUS_POSTING_ALLOWED_DESC
+  IS_VISIBLE_FOR_ASC
+  IS_VISIBLE_FOR_DESC
+  ITEMS_ARE_VISIBLE_FOR_ASC
+  ITEMS_ARE_VISIBLE_FOR_DESC
+  ITEMS_ARE_VISIBLE_SINCE_ASC
+  ITEMS_ARE_VISIBLE_SINCE_DATE_ASC
+  ITEMS_ARE_VISIBLE_SINCE_DATE_DESC
+  ITEMS_ARE_VISIBLE_SINCE_DESC
   NATURAL
   N_SUBSCRIPTIONS_ASC
   N_SUBSCRIPTIONS_DESC
@@ -4794,14 +4900,6 @@ enum RoomsOrderBy {
   TITLE_DESC
   UPDATED_AT_ASC
   UPDATED_AT_DESC
-  VISIBILITY_ASC
-  VISIBILITY_DESC
-  VISIBILITY_OF_HISTORY_ASC
-  VISIBILITY_OF_HISTORY_DESC
-  VISIBILITY_OF_HISTORY_EXTENDED_BY_ASC
-  VISIBILITY_OF_HISTORY_EXTENDED_BY_DESC
-  VISIBILITY_OF_HISTORY_SINCE_ASC
-  VISIBILITY_OF_HISTORY_SINCE_DESC
 }
 
 """All input for the `sendRoomMessage` mutation."""
@@ -5103,6 +5201,11 @@ type Topic implements Node {
   createdAt: Datetime!
   id: UUID!
 
+  """
+  Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`).
+  """
+  isVisibleFor: TopicVisibility!
+
   """Each topic can optionally be licensed. Hyperlinks are allowed."""
   license: String
 
@@ -5196,11 +5299,6 @@ type Topic implements Node {
   """
   title: String
   updatedAt: Datetime!
-
-  """
-  Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).
-  """
-  visibility: TopicVisibility!
 }
 
 """
@@ -5219,6 +5317,9 @@ input TopicCondition {
   """Checks for equality with the object’s `id` field."""
   id: UUID
 
+  """Checks for equality with the object’s `isVisibleFor` field."""
+  isVisibleFor: TopicVisibility
+
   """Checks for equality with the object’s `license` field."""
   license: String
 
@@ -5236,9 +5337,6 @@ input TopicCondition {
 
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
-
-  """Checks for equality with the object’s `visibility` field."""
-  visibility: TopicVisibility
 }
 
 """
@@ -5265,6 +5363,9 @@ input TopicFilter {
 
   """Filter by the object’s `id` field."""
   id: UUIDFilter
+
+  """Filter by the object’s `isVisibleFor` field."""
+  isVisibleFor: TopicVisibilityFilter
 
   """Filter by the object’s `license` field."""
   license: StringFilter
@@ -5307,9 +5408,6 @@ input TopicFilter {
 
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
-
-  """Filter by the object’s `visibility` field."""
-  visibility: TopicVisibilityFilter
 }
 
 """An input for mutations affecting `Topic`"""
@@ -5320,6 +5418,11 @@ input TopicInput {
   The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html
   """
   content: JSON!
+
+  """
+  Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`).
+  """
+  isVisibleFor: TopicVisibility
 
   """Each topic can optionally be licensed. Hyperlinks are allowed."""
   license: String
@@ -5334,11 +5437,6 @@ input TopicInput {
   Each topic has an optional title. In case of an article, this would be the headline.
   """
   title: String
-
-  """
-  Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).
-  """
-  visibility: TopicVisibility
 }
 
 """
@@ -5351,6 +5449,11 @@ input TopicPatch {
   The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html
   """
   content: JSON
+
+  """
+  Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`).
+  """
+  isVisibleFor: TopicVisibility
 
   """Each topic can optionally be licensed. Hyperlinks are allowed."""
   license: String
@@ -5365,11 +5468,6 @@ input TopicPatch {
   Each topic has an optional title. In case of an article, this would be the headline.
   """
   title: String
-
-  """
-  Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).
-  """
-  visibility: TopicVisibility
 }
 
 """
@@ -5413,9 +5511,9 @@ input TopicToManyRoomMessageAttachmentFilter {
 }
 
 enum TopicVisibility {
-  IF_SIGNED_IN
+  ORGANIZATION_MEMBERS
   PUBLIC
-  WITHIN_ORGANIZATION
+  SIGNED_IN_USERS
 }
 
 """
@@ -5496,6 +5594,8 @@ enum TopicsOrderBy {
   CREATED_AT_DESC
   ID_ASC
   ID_DESC
+  IS_VISIBLE_FOR_ASC
+  IS_VISIBLE_FOR_DESC
   LICENSE_ASC
   LICENSE_DESC
   NATURAL
@@ -5509,8 +5609,6 @@ enum TopicsOrderBy {
   TITLE_DESC
   UPDATED_AT_ASC
   UPDATED_AT_DESC
-  VISIBILITY_ASC
-  VISIBILITY_DESC
 }
 
 """All input for the `transferOrganizationBillingContact` mutation."""
@@ -5775,7 +5873,7 @@ type UpdateRoomItemPayload {
   """Reads a single `User` that is related to this `RoomItem`."""
   contributor: User
 
-  """Reads a single `RoomItem` that is related to this `RoomItem`."""
+  """Room items can be related in trees."""
   parent: RoomItem
 
   """
@@ -6233,7 +6331,7 @@ type User implements Node {
   ): OrganizationMembershipsConnection!
 
   """Reads and enables pagination through a set of `RoomItem`."""
-  roomItemsByContributorId(
+  roomItems(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -6787,11 +6885,11 @@ input UserFilter {
   """Some related `organizationMemberships` exist."""
   organizationMembershipsExist: Boolean
 
-  """Filter by the object’s `roomItemsByContributorId` relation."""
-  roomItemsByContributorId: UserToManyRoomItemFilter
+  """Filter by the object’s `roomItems` relation."""
+  roomItems: UserToManyRoomItemFilter
 
-  """Some related `roomItemsByContributorId` exist."""
-  roomItemsByContributorIdExist: Boolean
+  """Some related `roomItems` exist."""
+  roomItemsExist: Boolean
 
   """Filter by the object’s `roomMessagesBySenderId` relation."""
   roomMessagesBySenderId: UserToManyRoomMessageFilter

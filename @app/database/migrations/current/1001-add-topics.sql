@@ -1,6 +1,6 @@
 create type app_public.topic_visibility as enum (
-  'within_organization',
-  'if_signed_in',
+  'organization_members',
+  'signed_in_users',
   'public'
 );
 
@@ -20,7 +20,7 @@ create table app_public.topics (
   title text,
   license text,
   tags text[] not null default '{}',
-  visibility app_public.topic_visibility not null default 'public',
+  is_visible_for app_public.topic_visibility not null default 'public',
   content jsonb not null,
   created_at timestamptz not null default current_timestamp,
   updated_at timestamptz not null default current_timestamp,
@@ -41,8 +41,8 @@ comment on column app_public.topics.license is
   E'Each topic can optionally be licensed. Hyperlinks are allowed.';
 comment on column app_public.topics.tags is
   E'Each topic can be categorized using tags.';
-comment on column app_public.topics.visibility is
-  E'Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`).';
+comment on column app_public.topics.is_visible_for is
+  E'Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`).';
 comment on column app_public.topics.content is
   E'The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html';
 
@@ -56,15 +56,15 @@ create index topics_on_created_at on app_public.topics using brin (created_at);
 create index topics_on_updated_at on app_public.topics (updated_at);
 
 grant select on app_public.topics to :DATABASE_VISITOR;
-grant insert (slug, title, content, author_id, organization_id, visibility, license) on app_public.topics to :DATABASE_VISITOR;
-grant update (slug, title, content, author_id, organization_id, visibility, license) on app_public.topics to :DATABASE_VISITOR;
+grant insert (slug, title, content, author_id, organization_id, is_visible_for, license) on app_public.topics to :DATABASE_VISITOR;
+grant update (slug, title, content, author_id, organization_id, is_visible_for, license) on app_public.topics to :DATABASE_VISITOR;
 grant delete on app_public.topics to :DATABASE_VISITOR;
 
 alter table app_public.topics enable row level security;
-create policy select_public on app_public.topics for select using (visibility = 'public');
-create policy select_if_signed_in on app_public.topics for select using (visibility = 'if_signed_in' and app_public.current_user_id() is not null);
+create policy select_public on app_public.topics for select using (is_visible_for = 'public');
+create policy select_if_signed_in on app_public.topics for select using (is_visible_for = 'signed_in_users' and app_public.current_user_id() is not null);
 create policy select_within_organization on app_public.topics for select using (
-  visibility = 'within_organization' 
+  is_visible_for = 'organization_members' 
   and organization_id in (select app_public.current_user_member_organization_ids())
 );
 create policy authors_can_manage on app_public.topics for all using (author_id = app_public.current_user_id());

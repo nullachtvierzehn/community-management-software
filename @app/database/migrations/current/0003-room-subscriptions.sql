@@ -1,11 +1,3 @@
-create type app_public.room_role as enum (
-  'banned',
-  'prospect',
-  'member',
-  'moderator',
-  'admin'
-);
-
 create type app_public.notification_setting as enum (
   'silenced',
   'default',
@@ -150,9 +142,9 @@ create policy subscribe_rooms on app_public.room_subscriptions for insert with c
       and room_subscriptions.subscriber_id = app_public.current_user_id()
       and (
         -- You can become member of public rooms, or...
-        (r.visibility >= 'public' and room_subscriptions."role" <= 'member')
+        (r.is_visible_for >= 'public' and room_subscriptions."role" <= 'member')
         -- prospect in private rooms.
-        or (r.visibility <= 'public' and room_subscriptions."role" <= 'prospect')
+        or (r.is_visible_for <= 'public' and room_subscriptions."role" <= 'prospect')
         -- You can take on all roles when creating a room. This is for the first admins.
         or (r.created_at = room_subscriptions.created_at)
         -- You can take on all roles in orphaned rooms.

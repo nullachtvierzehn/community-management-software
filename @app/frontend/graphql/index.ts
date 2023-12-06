@@ -576,7 +576,7 @@ export type User = Node & {
   /** Reads and enables pagination through a set of `OrganizationMembership`. */
   organizationMemberships: OrganizationMembershipsConnection;
   /** Reads and enables pagination through a set of `RoomItem`. */
-  roomItemsByContributorId: RoomItemsConnection;
+  roomItems: RoomItemsConnection;
   /** Reads and enables pagination through a set of `RoomMessage`. */
   roomMessagesBySenderId: RoomMessagesConnection;
   /** Reads and enables pagination through a set of `RoomSubscription`. */
@@ -620,7 +620,7 @@ export type UserOrganizationMembershipsArgs = {
 
 
 /** A user who can log in to the application. */
-export type UserRoomItemsByContributorIdArgs = {
+export type UserRoomItemsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<RoomItemCondition>;
@@ -693,6 +693,8 @@ export type TopicCondition = {
   createdAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `id` field. */
   id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `isVisibleFor` field. */
+  isVisibleFor?: InputMaybe<TopicVisibility>;
   /** Checks for equality with the object’s `license` field. */
   license?: InputMaybe<Scalars['String']['input']>;
   /** Checks for equality with the object’s `organizationId` field. */
@@ -705,14 +707,12 @@ export type TopicCondition = {
   title?: InputMaybe<Scalars['String']['input']>;
   /** Checks for equality with the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Checks for equality with the object’s `visibility` field. */
-  visibility?: InputMaybe<TopicVisibility>;
 };
 
 export type TopicVisibility =
-  | 'IF_SIGNED_IN'
+  | 'ORGANIZATION_MEMBERS'
   | 'PUBLIC'
-  | 'WITHIN_ORGANIZATION';
+  | 'SIGNED_IN_USERS';
 
 /** A filter to be used against `Topic` object types. All fields are combined with a logical ‘and.’ */
 export type TopicFilter = {
@@ -730,6 +730,8 @@ export type TopicFilter = {
   createdAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `id` field. */
   id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isVisibleFor` field. */
+  isVisibleFor?: InputMaybe<TopicVisibilityFilter>;
   /** Filter by the object’s `license` field. */
   license?: InputMaybe<StringFilter>;
   /** Negates the expression. */
@@ -758,8 +760,6 @@ export type TopicFilter = {
   title?: InputMaybe<StringFilter>;
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `visibility` field. */
-  visibility?: InputMaybe<TopicVisibilityFilter>;
 };
 
 /** A filter to be used against `User` object types. All fields are combined with a logical ‘and.’ */
@@ -794,10 +794,10 @@ export type UserFilter = {
   organizationMemberships?: InputMaybe<UserToManyOrganizationMembershipFilter>;
   /** Some related `organizationMemberships` exist. */
   organizationMembershipsExist?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `roomItemsByContributorId` relation. */
-  roomItemsByContributorId?: InputMaybe<UserToManyRoomItemFilter>;
-  /** Some related `roomItemsByContributorId` exist. */
-  roomItemsByContributorIdExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `roomItems` relation. */
+  roomItems?: InputMaybe<UserToManyRoomItemFilter>;
+  /** Some related `roomItems` exist. */
+  roomItemsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `roomMessagesBySenderId` relation. */
   roomMessagesBySenderId?: InputMaybe<UserToManyRoomMessageFilter>;
   /** Some related `roomMessagesBySenderId` exist. */
@@ -1118,10 +1118,24 @@ export type RoomFilter = {
   and?: InputMaybe<Array<RoomFilter>>;
   /** Filter by the object’s `createdAt` field. */
   createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `extendVisibilityOfItemsBy` field. */
+  extendVisibilityOfItemsBy?: InputMaybe<IntervalFilter>;
   /** Filter by the object’s `id` field. */
   id?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `isAnonymousPostingAllowed` field. */
   isAnonymousPostingAllowed?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `isVisibleFor` field. */
+  isVisibleFor?: InputMaybe<RoomVisibilityFilter>;
+  /** Filter by the object’s `items` relation. */
+  items?: InputMaybe<RoomToManyRoomItemFilter>;
+  /** Filter by the object’s `itemsAreVisibleFor` field. */
+  itemsAreVisibleFor?: InputMaybe<RoomRoleFilter>;
+  /** Filter by the object’s `itemsAreVisibleSince` field. */
+  itemsAreVisibleSince?: InputMaybe<RoomHistoryVisibilityFilter>;
+  /** Filter by the object’s `itemsAreVisibleSinceDate` field. */
+  itemsAreVisibleSinceDate?: InputMaybe<DatetimeFilter>;
+  /** Some related `items` exist. */
+  itemsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `messages` relation. */
   messages?: InputMaybe<RoomToManyRoomMessageFilter>;
   /** Some related `messages` exist. */
@@ -1142,10 +1156,6 @@ export type RoomFilter = {
   organizationExists?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `organizationId` field. */
   organizationId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `roomItems` relation. */
-  roomItems?: InputMaybe<RoomToManyRoomItemFilter>;
-  /** Some related `roomItems` exist. */
-  roomItemsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `subscriptions` relation. */
   subscriptions?: InputMaybe<RoomToManyRoomSubscriptionFilter>;
   /** Some related `subscriptions` exist. */
@@ -1154,15 +1164,319 @@ export type RoomFilter = {
   title?: InputMaybe<StringFilter>;
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `visibility` field. */
-  visibility?: InputMaybe<RoomVisibilityFilter>;
-  /** Filter by the object’s `visibilityOfHistory` field. */
-  visibilityOfHistory?: InputMaybe<RoomHistoryVisibilityFilter>;
-  /** Filter by the object’s `visibilityOfHistoryExtendedBy` field. */
-  visibilityOfHistoryExtendedBy?: InputMaybe<IntervalFilter>;
-  /** Filter by the object’s `visibilityOfHistorySince` field. */
-  visibilityOfHistorySince?: InputMaybe<DatetimeFilter>;
 };
+
+/** A filter to be used against Interval fields. All fields are combined with a logical ‘and.’ */
+export type IntervalFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<IntervalInput>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<IntervalInput>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<IntervalInput>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<IntervalInput>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<IntervalInput>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<IntervalInput>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<IntervalInput>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<IntervalInput>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<IntervalInput>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<IntervalInput>>;
+};
+
+/** An interval of time that has passed where the smallest distinct unit is a second. */
+export type IntervalInput = {
+  /** A quantity of days. */
+  days?: InputMaybe<Scalars['Int']['input']>;
+  /** A quantity of hours. */
+  hours?: InputMaybe<Scalars['Int']['input']>;
+  /** A quantity of minutes. */
+  minutes?: InputMaybe<Scalars['Int']['input']>;
+  /** A quantity of months. */
+  months?: InputMaybe<Scalars['Int']['input']>;
+  /**
+   * A quantity of seconds. This is the only non-integer field, as all the other
+   * fields will dump their overflow into a smaller unit of time. Intervals don’t
+   * have a smaller unit than seconds.
+   */
+  seconds?: InputMaybe<Scalars['Float']['input']>;
+  /** A quantity of years. */
+  years?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** A filter to be used against RoomVisibility fields. All fields are combined with a logical ‘and.’ */
+export type RoomVisibilityFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<RoomVisibility>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<RoomVisibility>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<RoomVisibility>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<RoomVisibility>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<RoomVisibility>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<RoomVisibility>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<RoomVisibility>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<RoomVisibility>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<RoomVisibility>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<RoomVisibility>>;
+};
+
+export type RoomVisibility =
+  | 'ORGANIZATION_MEMBERS'
+  | 'PUBLIC'
+  | 'SIGNED_IN_USERS'
+  | 'SUBSCRIBERS';
+
+/** A filter to be used against many `RoomItem` object types. All fields are combined with a logical ‘and.’ */
+export type RoomToManyRoomItemFilter = {
+  /** Every related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomItemFilter>;
+  /** No related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomItemFilter>;
+  /** Some related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomItemFilter>;
+};
+
+/** A filter to be used against `RoomItem` object types. All fields are combined with a logical ‘and.’ */
+export type RoomItemFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<RoomItemFilter>>;
+  /** Filter by the object’s `children` relation. */
+  children?: InputMaybe<RoomItemToManyRoomItemFilter>;
+  /** Some related `children` exist. */
+  childrenExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `contributedAt` field. */
+  contributedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `contributor` relation. */
+  contributor?: InputMaybe<UserFilter>;
+  /** A related `contributor` exists. */
+  contributorExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `contributorId` field. */
+  contributorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isVisibleFor` field. */
+  isVisibleFor?: InputMaybe<RoomRoleFilter>;
+  /** Filter by the object’s `isVisibleSince` field. */
+  isVisibleSince?: InputMaybe<RoomHistoryVisibilityFilter>;
+  /** Filter by the object’s `isVisibleSinceDate` field. */
+  isVisibleSinceDate?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `messageBody` field. */
+  messageBody?: InputMaybe<JsonFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<RoomItemFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<RoomItemFilter>>;
+  /** Filter by the object’s `order` field. */
+  order?: InputMaybe<FloatFilter>;
+  /** Filter by the object’s `parent` relation. */
+  parent?: InputMaybe<RoomItemFilter>;
+  /** A related `parent` exists. */
+  parentExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `parentId` field. */
+  parentId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `room` relation. */
+  room?: InputMaybe<RoomFilter>;
+  /** Filter by the object’s `roomId` field. */
+  roomId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `topic` relation. */
+  topic?: InputMaybe<TopicFilter>;
+  /** A related `topic` exists. */
+  topicExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `topicId` field. */
+  topicId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `type` field. */
+  type?: InputMaybe<RoomItemTypeFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against many `RoomItem` object types. All fields are combined with a logical ‘and.’ */
+export type RoomItemToManyRoomItemFilter = {
+  /** Every related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<RoomItemFilter>;
+  /** No related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<RoomItemFilter>;
+  /** Some related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<RoomItemFilter>;
+};
+
+/** A filter to be used against RoomRole fields. All fields are combined with a logical ‘and.’ */
+export type RoomRoleFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<RoomRole>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<RoomRole>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<RoomRole>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<RoomRole>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<RoomRole>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<RoomRole>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<RoomRole>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<RoomRole>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<RoomRole>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<RoomRole>>;
+};
+
+export type RoomRole =
+  | 'ADMIN'
+  | 'BANNED'
+  | 'MEMBER'
+  | 'MODERATOR'
+  | 'PROSPECT'
+  | 'PUBLIC';
+
+/** A filter to be used against RoomHistoryVisibility fields. All fields are combined with a logical ‘and.’ */
+export type RoomHistoryVisibilityFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<RoomHistoryVisibility>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<RoomHistoryVisibility>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<RoomHistoryVisibility>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<RoomHistoryVisibility>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<RoomHistoryVisibility>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<RoomHistoryVisibility>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<RoomHistoryVisibility>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<RoomHistoryVisibility>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<RoomHistoryVisibility>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<RoomHistoryVisibility>>;
+};
+
+export type RoomHistoryVisibility =
+  | 'ALWAYS'
+  | 'INVITATION'
+  | 'SPECIFIED_DATE'
+  | 'SUBSCRIPTION';
+
+/** A filter to be used against JSON fields. All fields are combined with a logical ‘and.’ */
+export type JsonFilter = {
+  /** Contained by the specified JSON. */
+  containedBy?: InputMaybe<Scalars['JSON']['input']>;
+  /** Contains the specified JSON. */
+  contains?: InputMaybe<Scalars['JSON']['input']>;
+  /** Contains all of the specified keys. */
+  containsAllKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Contains any of the specified keys. */
+  containsAnyKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Contains the specified key. */
+  containsKey?: InputMaybe<Scalars['String']['input']>;
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['JSON']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['JSON']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['JSON']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['JSON']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['JSON']['input']>>;
+};
+
+/** A filter to be used against Float fields. All fields are combined with a logical ‘and.’ */
+export type FloatFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['Float']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['Float']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['Float']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['Float']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['Float']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['Float']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['Float']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['Float']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['Float']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['Float']['input']>>;
+};
+
+/** A filter to be used against RoomItemType fields. All fields are combined with a logical ‘and.’ */
+export type RoomItemTypeFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<RoomItemType>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<RoomItemType>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<RoomItemType>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<RoomItemType>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<RoomItemType>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<RoomItemType>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<RoomItemType>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<RoomItemType>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<RoomItemType>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<RoomItemType>>;
+};
+
+export type RoomItemType =
+  | 'MESSAGE'
+  | 'TOPIC';
 
 /** A filter to be used against many `RoomMessage` object types. All fields are combined with a logical ‘and.’ */
 export type RoomToManyRoomMessageFilter = {
@@ -1288,168 +1602,6 @@ export type BigIntFilter = {
   notIn?: InputMaybe<Array<Scalars['BigInt']['input']>>;
 };
 
-/** A filter to be used against many `RoomItem` object types. All fields are combined with a logical ‘and.’ */
-export type RoomToManyRoomItemFilter = {
-  /** Every related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<RoomItemFilter>;
-  /** No related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<RoomItemFilter>;
-  /** Some related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<RoomItemFilter>;
-};
-
-/** A filter to be used against `RoomItem` object types. All fields are combined with a logical ‘and.’ */
-export type RoomItemFilter = {
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<RoomItemFilter>>;
-  /** Filter by the object’s `childRoomItems` relation. */
-  childRoomItems?: InputMaybe<RoomItemToManyRoomItemFilter>;
-  /** Some related `childRoomItems` exist. */
-  childRoomItemsExist?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `contributor` relation. */
-  contributor?: InputMaybe<UserFilter>;
-  /** A related `contributor` exists. */
-  contributorExists?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `contributorId` field. */
-  contributorId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `createdAt` field. */
-  createdAt?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `id` field. */
-  id?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `messageBody` field. */
-  messageBody?: InputMaybe<JsonFilter>;
-  /** Negates the expression. */
-  not?: InputMaybe<RoomItemFilter>;
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<RoomItemFilter>>;
-  /** Filter by the object’s `parent` relation. */
-  parent?: InputMaybe<RoomItemFilter>;
-  /** A related `parent` exists. */
-  parentExists?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `parentId` field. */
-  parentId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `position` field. */
-  position?: InputMaybe<IntFilter>;
-  /** Filter by the object’s `postedAt` field. */
-  postedAt?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `room` relation. */
-  room?: InputMaybe<RoomFilter>;
-  /** Filter by the object’s `roomId` field. */
-  roomId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `topic` relation. */
-  topic?: InputMaybe<TopicFilter>;
-  /** A related `topic` exists. */
-  topicExists?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `topicId` field. */
-  topicId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `type` field. */
-  type?: InputMaybe<RoomItemTypeFilter>;
-  /** Filter by the object’s `updatedAt` field. */
-  updatedAt?: InputMaybe<DatetimeFilter>;
-};
-
-/** A filter to be used against many `RoomItem` object types. All fields are combined with a logical ‘and.’ */
-export type RoomItemToManyRoomItemFilter = {
-  /** Every related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<RoomItemFilter>;
-  /** No related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<RoomItemFilter>;
-  /** Some related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<RoomItemFilter>;
-};
-
-/** A filter to be used against JSON fields. All fields are combined with a logical ‘and.’ */
-export type JsonFilter = {
-  /** Contained by the specified JSON. */
-  containedBy?: InputMaybe<Scalars['JSON']['input']>;
-  /** Contains the specified JSON. */
-  contains?: InputMaybe<Scalars['JSON']['input']>;
-  /** Contains all of the specified keys. */
-  containsAllKeys?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** Contains any of the specified keys. */
-  containsAnyKeys?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** Contains the specified key. */
-  containsKey?: InputMaybe<Scalars['String']['input']>;
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['JSON']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['JSON']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['JSON']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['JSON']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['JSON']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['JSON']['input']>>;
-};
-
-/** A filter to be used against Int fields. All fields are combined with a logical ‘and.’ */
-export type IntFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['Int']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['Int']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['Int']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['Int']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['Int']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['Int']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['Int']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['Int']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['Int']['input']>>;
-};
-
-/** A filter to be used against RoomItemType fields. All fields are combined with a logical ‘and.’ */
-export type RoomItemTypeFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<RoomItemType>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<RoomItemType>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<RoomItemType>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<RoomItemType>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<RoomItemType>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<RoomItemType>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<RoomItemType>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<RoomItemType>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<RoomItemType>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<RoomItemType>>;
-};
-
-export type RoomItemType =
-  | 'MESSAGE'
-  | 'TOPIC';
-
 /** A filter to be used against many `RoomSubscription` object types. All fields are combined with a logical ‘and.’ */
 export type RoomToManyRoomSubscriptionFilter = {
   /** Every related `RoomSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -1486,149 +1638,6 @@ export type RoomSubscriptionFilter = {
   subscriberId?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
-};
-
-/** A filter to be used against RoomRole fields. All fields are combined with a logical ‘and.’ */
-export type RoomRoleFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<RoomRole>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<RoomRole>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<RoomRole>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<RoomRole>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<RoomRole>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<RoomRole>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<RoomRole>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<RoomRole>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<RoomRole>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<RoomRole>>;
-};
-
-export type RoomRole =
-  | 'ADMIN'
-  | 'BANNED'
-  | 'MEMBER'
-  | 'MODERATOR'
-  | 'PROSPECT';
-
-/** A filter to be used against RoomVisibility fields. All fields are combined with a logical ‘and.’ */
-export type RoomVisibilityFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<RoomVisibility>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<RoomVisibility>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<RoomVisibility>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<RoomVisibility>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<RoomVisibility>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<RoomVisibility>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<RoomVisibility>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<RoomVisibility>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<RoomVisibility>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<RoomVisibility>>;
-};
-
-export type RoomVisibility =
-  | 'FOR_SUBSCRIBERS'
-  | 'IF_SIGNED_IN'
-  | 'PUBLIC'
-  | 'WITHIN_ORGANIZATION';
-
-/** A filter to be used against RoomHistoryVisibility fields. All fields are combined with a logical ‘and.’ */
-export type RoomHistoryVisibilityFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<RoomHistoryVisibility>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<RoomHistoryVisibility>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<RoomHistoryVisibility>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<RoomHistoryVisibility>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<RoomHistoryVisibility>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<RoomHistoryVisibility>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<RoomHistoryVisibility>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<RoomHistoryVisibility>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<RoomHistoryVisibility>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<RoomHistoryVisibility>>;
-};
-
-export type RoomHistoryVisibility =
-  | 'PUBLIC'
-  | 'SINCE_INVITATION'
-  | 'SINCE_SPECIFIED_DATE'
-  | 'SINCE_SUBSCRIPTION';
-
-/** A filter to be used against Interval fields. All fields are combined with a logical ‘and.’ */
-export type IntervalFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<IntervalInput>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<IntervalInput>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<IntervalInput>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<IntervalInput>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<IntervalInput>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<IntervalInput>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<IntervalInput>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<IntervalInput>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<IntervalInput>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<IntervalInput>>;
-};
-
-/** An interval of time that has passed where the smallest distinct unit is a second. */
-export type IntervalInput = {
-  /** A quantity of days. */
-  days?: InputMaybe<Scalars['Int']['input']>;
-  /** A quantity of hours. */
-  hours?: InputMaybe<Scalars['Int']['input']>;
-  /** A quantity of minutes. */
-  minutes?: InputMaybe<Scalars['Int']['input']>;
-  /** A quantity of months. */
-  months?: InputMaybe<Scalars['Int']['input']>;
-  /**
-   * A quantity of seconds. This is the only non-integer field, as all the other
-   * fields will dump their overflow into a smaller unit of time. Intervals don’t
-   * have a smaller unit than seconds.
-   */
-  seconds?: InputMaybe<Scalars['Float']['input']>;
-  /** A quantity of years. */
-  years?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** A filter to be used against many `Topic` object types. All fields are combined with a logical ‘and.’ */
@@ -1769,6 +1778,32 @@ export type UserEmailFilter = {
   userId?: InputMaybe<UuidFilter>;
 };
 
+/** A filter to be used against TopicVisibility fields. All fields are combined with a logical ‘and.’ */
+export type TopicVisibilityFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<TopicVisibility>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<TopicVisibility>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<TopicVisibility>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<TopicVisibility>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<TopicVisibility>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<TopicVisibility>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<TopicVisibility>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<TopicVisibility>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<TopicVisibility>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<TopicVisibility>>;
+};
+
 /** A filter to be used against many `RoomItem` object types. All fields are combined with a logical ‘and.’ */
 export type TopicToManyRoomItemFilter = {
   /** Every related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -1829,32 +1864,6 @@ export type StringListFilter = {
   overlaps?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-/** A filter to be used against TopicVisibility fields. All fields are combined with a logical ‘and.’ */
-export type TopicVisibilityFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<TopicVisibility>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<TopicVisibility>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<TopicVisibility>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<TopicVisibility>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<TopicVisibility>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<TopicVisibility>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<TopicVisibility>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<TopicVisibility>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<TopicVisibility>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<TopicVisibility>>;
-};
-
 /** Methods to use when ordering `Topic`. */
 export type TopicsOrderBy =
   | 'AUTHOR_ID_ASC'
@@ -1865,6 +1874,8 @@ export type TopicsOrderBy =
   | 'CREATED_AT_DESC'
   | 'ID_ASC'
   | 'ID_DESC'
+  | 'IS_VISIBLE_FOR_ASC'
+  | 'IS_VISIBLE_FOR_DESC'
   | 'LICENSE_ASC'
   | 'LICENSE_DESC'
   | 'NATURAL'
@@ -1877,9 +1888,7 @@ export type TopicsOrderBy =
   | 'TITLE_ASC'
   | 'TITLE_DESC'
   | 'UPDATED_AT_ASC'
-  | 'UPDATED_AT_DESC'
-  | 'VISIBILITY_ASC'
-  | 'VISIBILITY_DESC';
+  | 'UPDATED_AT_DESC';
 
 /** A connection to a list of `Topic` values. */
 export type TopicsConnection = {
@@ -1913,6 +1922,8 @@ export type Topic = Node & {
   content: Scalars['JSON']['output'];
   createdAt: Scalars['Datetime']['output'];
   id: Scalars['UUID']['output'];
+  /** Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`). */
+  isVisibleFor: TopicVisibility;
   /** Each topic can optionally be licensed. Hyperlinks are allowed. */
   license: Maybe<Scalars['String']['output']>;
   /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
@@ -1931,8 +1942,6 @@ export type Topic = Node & {
   /** Each topic has an optional title. In case of an article, this would be the headline. */
   title: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['Datetime']['output'];
-  /** Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`). */
-  visibility: TopicVisibility;
 };
 
 
@@ -2109,10 +2118,20 @@ export type RoomCondition = {
   abstract?: InputMaybe<Scalars['String']['input']>;
   /** Checks for equality with the object’s `createdAt` field. */
   createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `extendVisibilityOfItemsBy` field. */
+  extendVisibilityOfItemsBy?: InputMaybe<IntervalInput>;
   /** Checks for equality with the object’s `id` field. */
   id?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `isAnonymousPostingAllowed` field. */
   isAnonymousPostingAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Checks for equality with the object’s `isVisibleFor` field. */
+  isVisibleFor?: InputMaybe<RoomVisibility>;
+  /** Checks for equality with the object’s `itemsAreVisibleFor` field. */
+  itemsAreVisibleFor?: InputMaybe<RoomRole>;
+  /** Checks for equality with the object’s `itemsAreVisibleSince` field. */
+  itemsAreVisibleSince?: InputMaybe<RoomHistoryVisibility>;
+  /** Checks for equality with the object’s `itemsAreVisibleSinceDate` field. */
+  itemsAreVisibleSinceDate?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `myFirstInteraction` field. */
   myFirstInteraction?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `myRoomSubscriptionId` field. */
@@ -2125,14 +2144,6 @@ export type RoomCondition = {
   title?: InputMaybe<Scalars['String']['input']>;
   /** Checks for equality with the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Checks for equality with the object’s `visibility` field. */
-  visibility?: InputMaybe<RoomVisibility>;
-  /** Checks for equality with the object’s `visibilityOfHistory` field. */
-  visibilityOfHistory?: InputMaybe<RoomHistoryVisibility>;
-  /** Checks for equality with the object’s `visibilityOfHistoryExtendedBy` field. */
-  visibilityOfHistoryExtendedBy?: InputMaybe<IntervalInput>;
-  /** Checks for equality with the object’s `visibilityOfHistorySince` field. */
-  visibilityOfHistorySince?: InputMaybe<Scalars['Datetime']['input']>;
 };
 
 /** Methods to use when ordering `Room`. */
@@ -2141,10 +2152,20 @@ export type RoomsOrderBy =
   | 'ABSTRACT_DESC'
   | 'CREATED_AT_ASC'
   | 'CREATED_AT_DESC'
+  | 'EXTEND_VISIBILITY_OF_ITEMS_BY_ASC'
+  | 'EXTEND_VISIBILITY_OF_ITEMS_BY_DESC'
   | 'ID_ASC'
   | 'ID_DESC'
   | 'IS_ANONYMOUS_POSTING_ALLOWED_ASC'
   | 'IS_ANONYMOUS_POSTING_ALLOWED_DESC'
+  | 'IS_VISIBLE_FOR_ASC'
+  | 'IS_VISIBLE_FOR_DESC'
+  | 'ITEMS_ARE_VISIBLE_FOR_ASC'
+  | 'ITEMS_ARE_VISIBLE_FOR_DESC'
+  | 'ITEMS_ARE_VISIBLE_SINCE_ASC'
+  | 'ITEMS_ARE_VISIBLE_SINCE_DATE_ASC'
+  | 'ITEMS_ARE_VISIBLE_SINCE_DATE_DESC'
+  | 'ITEMS_ARE_VISIBLE_SINCE_DESC'
   | 'N_SUBSCRIPTIONS_ASC'
   | 'N_SUBSCRIPTIONS_DESC'
   | 'NATURAL'
@@ -2155,15 +2176,7 @@ export type RoomsOrderBy =
   | 'TITLE_ASC'
   | 'TITLE_DESC'
   | 'UPDATED_AT_ASC'
-  | 'UPDATED_AT_DESC'
-  | 'VISIBILITY_ASC'
-  | 'VISIBILITY_DESC'
-  | 'VISIBILITY_OF_HISTORY_ASC'
-  | 'VISIBILITY_OF_HISTORY_DESC'
-  | 'VISIBILITY_OF_HISTORY_EXTENDED_BY_ASC'
-  | 'VISIBILITY_OF_HISTORY_EXTENDED_BY_DESC'
-  | 'VISIBILITY_OF_HISTORY_SINCE_ASC'
-  | 'VISIBILITY_OF_HISTORY_SINCE_DESC';
+  | 'UPDATED_AT_DESC';
 
 /** A connection to a list of `Room` values. */
 export type RoomsConnection = {
@@ -2193,8 +2206,17 @@ export type Room = Node & {
   /** Each room has an optional abstract. */
   abstract: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Datetime']['output'];
+  extendVisibilityOfItemsBy: Interval;
   id: Scalars['UUID']['output'];
   isAnonymousPostingAllowed: Scalars['Boolean']['output'];
+  /** Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`. */
+  isVisibleFor: RoomVisibility;
+  /** Reads and enables pagination through a set of `RoomItem`. */
+  items: RoomItemsConnection;
+  itemsAreVisibleFor: RoomRole;
+  /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience. */
+  itemsAreVisibleSince: RoomHistoryVisibility;
+  itemsAreVisibleSinceDate: Scalars['Datetime']['output'];
   latestMessage: Maybe<RoomMessage>;
   /** Reads and enables pagination through a set of `RoomMessage`. */
   messages: RoomMessagesConnection;
@@ -2211,19 +2233,24 @@ export type Room = Node & {
   /** Each room can optionally belong to an organization. */
   organization: Maybe<Organization>;
   organizationId: Maybe<Scalars['UUID']['output']>;
-  /** Reads and enables pagination through a set of `RoomItem`. */
-  roomItems: RoomItemsConnection;
   /** Reads and enables pagination through a set of `RoomSubscription`. */
   subscriptions: RoomSubscriptionsConnection;
   /** Each room has an optional title. */
   title: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['Datetime']['output'];
-  /** Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`. */
-  visibility: RoomVisibility;
-  /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public. */
-  visibilityOfHistory: RoomHistoryVisibility;
-  visibilityOfHistoryExtendedBy: Interval;
-  visibilityOfHistorySince: Scalars['Datetime']['output'];
+};
+
+
+/** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
+export type RoomItemsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomItemCondition>;
+  filter?: InputMaybe<RoomItemFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomItemsOrderBy>>;
 };
 
 
@@ -2247,19 +2274,6 @@ export type RoomNSubscriptionsArgs = {
 
 
 /** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
-export type RoomRoomItemsArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<RoomItemCondition>;
-  filter?: InputMaybe<RoomItemFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<RoomItemsOrderBy>>;
-};
-
-
-/** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
 export type RoomSubscriptionsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -2269,6 +2283,168 @@ export type RoomSubscriptionsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<RoomSubscriptionsOrderBy>>;
+};
+
+/** An interval of time that has passed where the smallest distinct unit is a second. */
+export type Interval = {
+  __typename?: 'Interval';
+  /** A quantity of days. */
+  days: Maybe<Scalars['Int']['output']>;
+  /** A quantity of hours. */
+  hours: Maybe<Scalars['Int']['output']>;
+  /** A quantity of minutes. */
+  minutes: Maybe<Scalars['Int']['output']>;
+  /** A quantity of months. */
+  months: Maybe<Scalars['Int']['output']>;
+  /**
+   * A quantity of seconds. This is the only non-integer field, as all the other
+   * fields will dump their overflow into a smaller unit of time. Intervals don’t
+   * have a smaller unit than seconds.
+   */
+  seconds: Maybe<Scalars['Float']['output']>;
+  /** A quantity of years. */
+  years: Maybe<Scalars['Int']['output']>;
+};
+
+/**
+ * A condition to be used against `RoomItem` object types. All fields are tested
+ * for equality and combined with a logical ‘and.’
+ */
+export type RoomItemCondition = {
+  /** Checks for equality with the object’s `contributedAt` field. */
+  contributedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `contributorId` field. */
+  contributorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `isVisibleFor` field. */
+  isVisibleFor?: InputMaybe<RoomRole>;
+  /** Checks for equality with the object’s `isVisibleSince` field. */
+  isVisibleSince?: InputMaybe<RoomHistoryVisibility>;
+  /** Checks for equality with the object’s `isVisibleSinceDate` field. */
+  isVisibleSinceDate?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `messageBody` field. */
+  messageBody?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `order` field. */
+  order?: InputMaybe<Scalars['Float']['input']>;
+  /** Checks for equality with the object’s `parentId` field. */
+  parentId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `roomId` field. */
+  roomId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `topicId` field. */
+  topicId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `type` field. */
+  type?: InputMaybe<RoomItemType>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `RoomItem`. */
+export type RoomItemsOrderBy =
+  | 'CONTRIBUTED_AT_ASC'
+  | 'CONTRIBUTED_AT_DESC'
+  | 'CONTRIBUTOR_ID_ASC'
+  | 'CONTRIBUTOR_ID_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'IS_VISIBLE_FOR_ASC'
+  | 'IS_VISIBLE_FOR_DESC'
+  | 'IS_VISIBLE_SINCE_ASC'
+  | 'IS_VISIBLE_SINCE_DATE_ASC'
+  | 'IS_VISIBLE_SINCE_DATE_DESC'
+  | 'IS_VISIBLE_SINCE_DESC'
+  | 'MESSAGE_BODY_ASC'
+  | 'MESSAGE_BODY_DESC'
+  | 'NATURAL'
+  | 'ORDER_ASC'
+  | 'ORDER_DESC'
+  | 'PARENT_ID_ASC'
+  | 'PARENT_ID_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'ROOM_ID_ASC'
+  | 'ROOM_ID_DESC'
+  | 'TOPIC_ID_ASC'
+  | 'TOPIC_ID_DESC'
+  | 'TYPE_ASC'
+  | 'TYPE_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `RoomItem` values. */
+export type RoomItemsConnection = {
+  __typename?: 'RoomItemsConnection';
+  /** A list of edges which contains the `RoomItem` and cursor to aid in pagination. */
+  edges: Array<RoomItemsEdge>;
+  /** A list of `RoomItem` objects. */
+  nodes: Array<RoomItem>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `RoomItem` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `RoomItem` edge in the connection. */
+export type RoomItemsEdge = {
+  __typename?: 'RoomItemsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `RoomItem` at the end of the edge. */
+  node: RoomItem;
+};
+
+/** Room items are messages or materials, that are accessible within a certain room. */
+export type RoomItem = Node & {
+  __typename?: 'RoomItem';
+  /** Reads and enables pagination through a set of `RoomItem`. */
+  children: RoomItemsConnection;
+  contributedAt: Maybe<Scalars['Datetime']['output']>;
+  /** Reads a single `User` that is related to this `RoomItem`. */
+  contributor: Maybe<User>;
+  /** The id of a user who contributed the room item. */
+  contributorId: Maybe<Scalars['UUID']['output']>;
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  /** Decides which role can see the room item. This also applies to more powerful roles. If the value is not set, the default settings of the room will be used. */
+  isVisibleFor: Maybe<RoomRole>;
+  /** Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used. */
+  isVisibleSince: Maybe<RoomHistoryVisibility>;
+  isVisibleSinceDate: Maybe<Scalars['Datetime']['output']>;
+  messageBody: Maybe<Scalars['JSON']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  /** The default order is 0, but you can change it to different values to sort the items. */
+  order: Scalars['Float']['output'];
+  /** Room items can be related in trees. */
+  parent: Maybe<RoomItem>;
+  /** The items in a room can be connected to each other, basically forming one or multiple trees. For example, you can use this to keep track of conversations. */
+  parentId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `Room` that is related to this `RoomItem`. */
+  room: Maybe<Room>;
+  roomId: Scalars['UUID']['output'];
+  /** Reads a single `Topic` that is related to this `RoomItem`. */
+  topic: Maybe<Topic>;
+  topicId: Maybe<Scalars['UUID']['output']>;
+  /** The kind of room item. There are messages, pages, files, and so on. */
+  type: RoomItemType;
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+
+/** Room items are messages or materials, that are accessible within a certain room. */
+export type RoomItemChildrenArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomItemCondition>;
+  filter?: InputMaybe<RoomItemFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomItemsOrderBy>>;
 };
 
 export type RoomMessage = Node & {
@@ -2477,124 +2653,6 @@ export type RoomSubscription = Node & {
 };
 
 /**
- * A condition to be used against `RoomItem` object types. All fields are tested
- * for equality and combined with a logical ‘and.’
- */
-export type RoomItemCondition = {
-  /** Checks for equality with the object’s `contributorId` field. */
-  contributorId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `createdAt` field. */
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Checks for equality with the object’s `id` field. */
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `messageBody` field. */
-  messageBody?: InputMaybe<Scalars['JSON']['input']>;
-  /** Checks for equality with the object’s `parentId` field. */
-  parentId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `position` field. */
-  position?: InputMaybe<Scalars['Int']['input']>;
-  /** Checks for equality with the object’s `postedAt` field. */
-  postedAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Checks for equality with the object’s `roomId` field. */
-  roomId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `topicId` field. */
-  topicId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `type` field. */
-  type?: InputMaybe<RoomItemType>;
-  /** Checks for equality with the object’s `updatedAt` field. */
-  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-};
-
-/** Methods to use when ordering `RoomItem`. */
-export type RoomItemsOrderBy =
-  | 'CONTRIBUTOR_ID_ASC'
-  | 'CONTRIBUTOR_ID_DESC'
-  | 'CREATED_AT_ASC'
-  | 'CREATED_AT_DESC'
-  | 'ID_ASC'
-  | 'ID_DESC'
-  | 'MESSAGE_BODY_ASC'
-  | 'MESSAGE_BODY_DESC'
-  | 'NATURAL'
-  | 'PARENT_ID_ASC'
-  | 'PARENT_ID_DESC'
-  | 'POSITION_ASC'
-  | 'POSITION_DESC'
-  | 'POSTED_AT_ASC'
-  | 'POSTED_AT_DESC'
-  | 'PRIMARY_KEY_ASC'
-  | 'PRIMARY_KEY_DESC'
-  | 'ROOM_ID_ASC'
-  | 'ROOM_ID_DESC'
-  | 'TOPIC_ID_ASC'
-  | 'TOPIC_ID_DESC'
-  | 'TYPE_ASC'
-  | 'TYPE_DESC'
-  | 'UPDATED_AT_ASC'
-  | 'UPDATED_AT_DESC';
-
-/** A connection to a list of `RoomItem` values. */
-export type RoomItemsConnection = {
-  __typename?: 'RoomItemsConnection';
-  /** A list of edges which contains the `RoomItem` and cursor to aid in pagination. */
-  edges: Array<RoomItemsEdge>;
-  /** A list of `RoomItem` objects. */
-  nodes: Array<RoomItem>;
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo;
-  /** The count of *all* `RoomItem` you could get from the connection. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** A `RoomItem` edge in the connection. */
-export type RoomItemsEdge = {
-  __typename?: 'RoomItemsEdge';
-  /** A cursor for use in pagination. */
-  cursor: Maybe<Scalars['Cursor']['output']>;
-  /** The `RoomItem` at the end of the edge. */
-  node: RoomItem;
-};
-
-export type RoomItem = Node & {
-  __typename?: 'RoomItem';
-  /** Reads and enables pagination through a set of `RoomItem`. */
-  childRoomItems: RoomItemsConnection;
-  /** Reads a single `User` that is related to this `RoomItem`. */
-  contributor: Maybe<User>;
-  contributorId: Maybe<Scalars['UUID']['output']>;
-  createdAt: Scalars['Datetime']['output'];
-  id: Scalars['UUID']['output'];
-  messageBody: Maybe<Scalars['JSON']['output']>;
-  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
-  nodeId: Scalars['ID']['output'];
-  /** Reads a single `RoomItem` that is related to this `RoomItem`. */
-  parent: Maybe<RoomItem>;
-  parentId: Maybe<Scalars['UUID']['output']>;
-  position: Scalars['Int']['output'];
-  postedAt: Maybe<Scalars['Datetime']['output']>;
-  /** Reads a single `Room` that is related to this `RoomItem`. */
-  room: Maybe<Room>;
-  roomId: Scalars['UUID']['output'];
-  /** Reads a single `Topic` that is related to this `RoomItem`. */
-  topic: Maybe<Topic>;
-  topicId: Maybe<Scalars['UUID']['output']>;
-  type: RoomItemType;
-  updatedAt: Scalars['Datetime']['output'];
-};
-
-
-export type RoomItemChildRoomItemsArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<RoomItemCondition>;
-  filter?: InputMaybe<RoomItemFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<RoomItemsOrderBy>>;
-};
-
-/**
  * A condition to be used against `RoomSubscription` object types. All fields are
  * tested for equality and combined with a logical ‘and.’
  */
@@ -2657,27 +2715,6 @@ export type RoomSubscriptionsEdge = {
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `RoomSubscription` at the end of the edge. */
   node: RoomSubscription;
-};
-
-/** An interval of time that has passed where the smallest distinct unit is a second. */
-export type Interval = {
-  __typename?: 'Interval';
-  /** A quantity of days. */
-  days: Maybe<Scalars['Int']['output']>;
-  /** A quantity of hours. */
-  hours: Maybe<Scalars['Int']['output']>;
-  /** A quantity of minutes. */
-  minutes: Maybe<Scalars['Int']['output']>;
-  /** A quantity of months. */
-  months: Maybe<Scalars['Int']['output']>;
-  /**
-   * A quantity of seconds. This is the only non-integer field, as all the other
-   * fields will dump their overflow into a smaller unit of time. Intervals don’t
-   * have a smaller unit than seconds.
-   */
-  seconds: Maybe<Scalars['Float']['output']>;
-  /** A quantity of years. */
-  years: Maybe<Scalars['Int']['output']>;
 };
 
 /**
@@ -3675,12 +3712,12 @@ export type RoomInput = {
   /** Each room has an optional abstract. */
   abstract?: InputMaybe<Scalars['String']['input']>;
   isAnonymousPostingAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`. */
+  isVisibleFor?: InputMaybe<RoomVisibility>;
+  /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience. */
+  itemsAreVisibleSince?: InputMaybe<RoomHistoryVisibility>;
   /** Each room has an optional title. */
   title?: InputMaybe<Scalars['String']['input']>;
-  /** Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`. */
-  visibility?: InputMaybe<RoomVisibility>;
-  /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public. */
-  visibilityOfHistory?: InputMaybe<RoomHistoryVisibility>;
 };
 
 /** The output of our create `Room` mutation. */
@@ -3720,13 +3757,22 @@ export type CreateRoomItemInput = {
 
 /** An input for mutations affecting `RoomItem` */
 export type RoomItemInput = {
+  contributedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** The id of a user who contributed the room item. */
   contributorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Decides which role can see the room item. This also applies to more powerful roles. If the value is not set, the default settings of the room will be used. */
+  isVisibleFor?: InputMaybe<RoomRole>;
+  /** Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used. */
+  isVisibleSince?: InputMaybe<RoomHistoryVisibility>;
+  isVisibleSinceDate?: InputMaybe<Scalars['Datetime']['input']>;
   messageBody?: InputMaybe<Scalars['JSON']['input']>;
+  /** The default order is 0, but you can change it to different values to sort the items. */
+  order?: InputMaybe<Scalars['Float']['input']>;
+  /** The items in a room can be connected to each other, basically forming one or multiple trees. For example, you can use this to keep track of conversations. */
   parentId?: InputMaybe<Scalars['UUID']['input']>;
-  position?: InputMaybe<Scalars['Int']['input']>;
-  postedAt?: InputMaybe<Scalars['Datetime']['input']>;
   roomId: Scalars['UUID']['input'];
   topicId?: InputMaybe<Scalars['UUID']['input']>;
+  /** The kind of room item. There are messages, pages, files, and so on. */
   type?: InputMaybe<RoomItemType>;
 };
 
@@ -3740,7 +3786,7 @@ export type CreateRoomItemPayload = {
   clientMutationId: Maybe<Scalars['String']['output']>;
   /** Reads a single `User` that is related to this `RoomItem`. */
   contributor: Maybe<User>;
-  /** Reads a single `RoomItem` that is related to this `RoomItem`. */
+  /** Room items can be related in trees. */
   parent: Maybe<RoomItem>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
@@ -3916,6 +3962,8 @@ export type TopicInput = {
   authorId?: InputMaybe<Scalars['UUID']['input']>;
   /** The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html */
   content: Scalars['JSON']['input'];
+  /** Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`). */
+  isVisibleFor?: InputMaybe<TopicVisibility>;
   /** Each topic can optionally be licensed. Hyperlinks are allowed. */
   license?: InputMaybe<Scalars['String']['input']>;
   organizationId?: InputMaybe<Scalars['UUID']['input']>;
@@ -3923,8 +3971,6 @@ export type TopicInput = {
   slug: Scalars['String']['input'];
   /** Each topic has an optional title. In case of an article, this would be the headline. */
   title?: InputMaybe<Scalars['String']['input']>;
-  /** Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`). */
-  visibility?: InputMaybe<TopicVisibility>;
 };
 
 /** The output of our create `Topic` mutation. */
@@ -4124,7 +4170,7 @@ export type DeleteRoomItemPayload = {
   /** Reads a single `User` that is related to this `RoomItem`. */
   contributor: Maybe<User>;
   deletedRoomItemNodeId: Maybe<Scalars['ID']['output']>;
-  /** Reads a single `RoomItem` that is related to this `RoomItem`. */
+  /** Room items can be related in trees. */
   parent: Maybe<RoomItem>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
@@ -4884,12 +4930,12 @@ export type RoomPatch = {
   /** Each room has an optional abstract. */
   abstract?: InputMaybe<Scalars['String']['input']>;
   isAnonymousPostingAllowed?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`. */
+  isVisibleFor?: InputMaybe<RoomVisibility>;
+  /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience. */
+  itemsAreVisibleSince?: InputMaybe<RoomHistoryVisibility>;
   /** Each room has an optional title. */
   title?: InputMaybe<Scalars['String']['input']>;
-  /** Rooms can be visible for their subscribers only (`for_subscribers`), to all members of the room's organisation (`within_organization`), for all currently signed-in users (`if_signed_in`), or general in `public`. */
-  visibility?: InputMaybe<RoomVisibility>;
-  /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `visibility_of_history_since`. Finally, `public` means that all items are visible for the room's audience, even if public. */
-  visibilityOfHistory?: InputMaybe<RoomHistoryVisibility>;
 };
 
 /** The output of our update `Room` mutation. */
@@ -4943,9 +4989,15 @@ export type UpdateRoomItemInput = {
 
 /** Represents an update to a `RoomItem`. Fields that are set will be updated. */
 export type RoomItemPatch = {
+  contributedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Decides which role can see the room item. This also applies to more powerful roles. If the value is not set, the default settings of the room will be used. */
+  isVisibleFor?: InputMaybe<RoomRole>;
+  /** Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used. */
+  isVisibleSince?: InputMaybe<RoomHistoryVisibility>;
+  isVisibleSinceDate?: InputMaybe<Scalars['Datetime']['input']>;
   messageBody?: InputMaybe<Scalars['JSON']['input']>;
-  position?: InputMaybe<Scalars['Int']['input']>;
-  postedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** The default order is 0, but you can change it to different values to sort the items. */
+  order?: InputMaybe<Scalars['Float']['input']>;
   topicId?: InputMaybe<Scalars['UUID']['input']>;
 };
 
@@ -4959,7 +5011,7 @@ export type UpdateRoomItemPayload = {
   clientMutationId: Maybe<Scalars['String']['output']>;
   /** Reads a single `User` that is related to this `RoomItem`. */
   contributor: Maybe<User>;
-  /** Reads a single `RoomItem` that is related to this `RoomItem`. */
+  /** Room items can be related in trees. */
   parent: Maybe<RoomItem>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
@@ -5142,6 +5194,8 @@ export type TopicPatch = {
   authorId?: InputMaybe<Scalars['UUID']['input']>;
   /** The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html */
   content?: InputMaybe<Scalars['JSON']['input']>;
+  /** Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`). */
+  isVisibleFor?: InputMaybe<TopicVisibility>;
   /** Each topic can optionally be licensed. Hyperlinks are allowed. */
   license?: InputMaybe<Scalars['String']['input']>;
   organizationId?: InputMaybe<Scalars['UUID']['input']>;
@@ -5149,8 +5203,6 @@ export type TopicPatch = {
   slug?: InputMaybe<Scalars['String']['input']>;
   /** Each topic has an optional title. In case of an article, this would be the headline. */
   title?: InputMaybe<Scalars['String']['input']>;
-  /** Topics can be visible to anyone (`public`), to all signed-in users (`if_signed_in`), or within an organization (`within_organization`). */
-  visibility?: InputMaybe<TopicVisibility>;
 };
 
 /** The output of our update `Topic` mutation. */

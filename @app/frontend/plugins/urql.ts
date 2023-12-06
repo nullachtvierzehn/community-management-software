@@ -5,7 +5,8 @@ import {
   fetchExchange,
   ssrExchange,
 } from '@urql/core'
-import { provideClient, type SSRData } from '@urql/vue'
+import { devtoolsExchange } from '@urql/devtools'
+import { type SSRData } from '@urql/vue'
 import { ref } from 'vue'
 
 export default defineNuxtPlugin((nuxt) => {
@@ -40,6 +41,7 @@ export default defineNuxtPlugin((nuxt) => {
   const client = createClient({
     url: 'http://localhost:3000/graphql',
     exchanges: [
+      ...(process.env.NODE_ENV !== 'production' ? [devtoolsExchange] : []),
       cacheExchange,
       ssr, // Add `ssr` in front of the `fetchExchange`
       fetchExchange,

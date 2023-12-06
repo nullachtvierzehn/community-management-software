@@ -29,13 +29,12 @@ drop function if exists app_public.my_room_subscription_id(app_public.rooms);
 drop function if exists app_public.n_room_subscriptions(room app_public.rooms);
 drop function if exists app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role);
 drop table if exists app_public.room_subscriptions;
-drop type if exists app_public.room_role;
 drop type if exists app_public.notification_setting;
-
 
 drop table if exists app_public.rooms;
 drop type if exists app_public.room_visibility;
 drop type if exists app_public.room_history_visibility;
+drop type if exists app_public.room_role;
 
 drop table if exists app_public.topics;
 drop type if exists app_public.topic_visibility;
