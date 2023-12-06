@@ -37,6 +37,7 @@
     "@tiptap/pm": "^2.1.12",
     "@tiptap/starter-kit": "^2.1.12",
     "@tiptap/vue-3": "^2.1.12",
+    "@urql/devtools": "^2.0.3",
     "@urql/exchange-graphcache": "^6.3.3",
     "@urql/vue": "^1.1.2",
     "@vee-validate/zod": "^4.12.2",
