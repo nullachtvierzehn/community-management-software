@@ -5357,6 +5357,13 @@ export type VerifyEmailPayload = {
   query: Maybe<Query>;
 };
 
+export type CreateRoomItemMutationVariables = Exact<{
+  item: RoomItemInput;
+}>;
+
+
+export type CreateRoomItemMutation = { __typename?: 'Mutation', createRoomItem: { __typename?: 'CreateRoomItemPayload', roomItem: { __typename?: 'RoomItem', id: string, createdAt: string, contributor: { __typename?: 'User', id: string, username: string } | null } | null, room: { __typename?: 'Room', id: string, items: { __typename?: 'RoomItemsConnection', totalCount: number } } | null } | null };
+
 export type CreateRoomMessageMutationVariables = Exact<{
   message: RoomMessageInput;
 }>;
@@ -5403,6 +5410,20 @@ export type FetchDetailedTopicsQueryVariables = Exact<{
 
 
 export type FetchDetailedTopicsQuery = { __typename?: 'Query', topics: { __typename?: 'TopicsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'Topic', slug: string, tags: Array<string | null>, id: string, title: string | null, license: string | null, content: any, author: { __typename?: 'User', id: string, username: string } | null }> } | null };
+
+export type FetchRoomItemsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomItemCondition>;
+  filter?: InputMaybe<RoomItemFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomItemsOrderBy> | RoomItemsOrderBy>;
+}>;
+
+
+export type FetchRoomItemsQuery = { __typename?: 'Query', roomItems: { __typename?: 'RoomItemsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string } | null }> } | null };
 
 export type FetchRoomMessagesQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -5507,6 +5528,18 @@ export type RegisterUserMutationVariables = Exact<{
 
 export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'RegisterPayload', user: { __typename?: 'User', id: string, username: string, createdAt: string } } | null };
 
+export type RoomItemAsListItemFragment = { __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string } | null };
+
+export type ShortProfileFragment = { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null };
+
+export type UpdateRoomItemMutationVariables = Exact<{
+  oldId: Scalars['UUID']['input'];
+  patch: RoomItemPatch;
+}>;
+
+
+export type UpdateRoomItemMutation = { __typename?: 'Mutation', updateRoomItem: { __typename?: 'UpdateRoomItemPayload', roomItem: { __typename?: 'RoomItem', id: string, updatedAt: string, parent: { __typename?: 'RoomItem', id: string } | null } | null } | null };
+
 export type UpdateRoomMessageMutationVariables = Exact<{
   oldId: Scalars['UUID']['input'];
   patch: RoomMessagePatch;
@@ -5531,7 +5564,67 @@ export type VerifyEmailMutationVariables = Exact<{
 
 export type VerifyEmailMutation = { __typename?: 'Mutation', verifyEmail: { __typename?: 'VerifyEmailPayload', ok: boolean | null } | null };
 
-
+export const ShortProfile = gql`
+    fragment ShortProfile on User {
+  id
+  isAdmin
+  isVerified
+  username
+  avatarUrl
+}
+    `;
+export const RoomItemAsListItem = gql`
+    fragment RoomItemAsListItem on RoomItem {
+  id
+  type
+  children {
+    totalCount
+  }
+  contributor {
+    id
+    ...ShortProfile
+  }
+  order
+  parent {
+    id
+  }
+  room {
+    id
+    itemsAreVisibleFor
+    itemsAreVisibleSince
+    itemsAreVisibleSinceDate
+  }
+  topic {
+    id
+  }
+  messageBody
+  updatedAt
+  contributedAt
+  isVisibleFor
+  isVisibleSince
+  isVisibleSinceDate
+}
+    ${ShortProfile}`;
+export const CreateRoomItem = gql`
+    mutation CreateRoomItem($item: RoomItemInput!) {
+  createRoomItem(input: {roomItem: $item}) {
+    roomItem {
+      id
+      createdAt
+      contributor {
+        id
+        username
+      }
+    }
+    room {
+      id
+      items {
+        totalCount
+      }
+    }
+  }
+}
+    `;
 export const CreateRoomMessage = gql`
     mutation CreateRoomMessage($message: RoomMessageInput!) {
   createRoomMessage(input: {roomMessage: $message}) {
@@ -5619,6 +5712,21 @@ export const FetchDetailedTopics = gql`
   }
 }
     `;
+export const FetchRoomItems = gql`
+    query FetchRoomItems($after: Cursor, $before: Cursor, $condition: RoomItemCondition, $filter: RoomItemFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomItemsOrderBy!]) {
+  roomItems(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      id
+      ...RoomItemAsListItem
+    }
+  }
+}
+    ${RoomItemAsListItem}`;
 export const FetchRoomMessages = gql`
     query FetchRoomMessages($after: Cursor, $before: Cursor, $condition: RoomMessageCondition, $filter: RoomMessageFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomMessagesOrderBy!]) {
   roomMessages(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
@@ -5805,6 +5913,19 @@ export const RegisterUser = gql`
   }
 }
     `;
+export const UpdateRoomItem = gql`
+    mutation UpdateRoomItem($oldId: UUID!, $patch: RoomItemPatch!) {
+  updateRoomItem(input: {patch: $patch, id: $oldId}) {
+    roomItem {
+      id
+      updatedAt
+      parent {
+        id
+      }
+    }
+  }
+}
+    `;
 export const UpdateRoomMessage = gql`
     mutation UpdateRoomMessage($oldId: UUID!, $patch: RoomMessagePatch!) {
   updateRoomMessage(input: {patch: $patch, id: $oldId}) {
@@ -5835,7 +5956,71 @@ export const VerifyEmail = gql`
   }
 }
     `;
+export const ShortProfileFragmentDoc = gql`
+    fragment ShortProfile on User {
+  id
+  isAdmin
+  isVerified
+  username
+  avatarUrl
+}
+    `;
+export const RoomItemAsListItemFragmentDoc = gql`
+    fragment RoomItemAsListItem on RoomItem {
+  id
+  type
+  children {
+    totalCount
+  }
+  contributor {
+    id
+    ...ShortProfile
+  }
+  order
+  parent {
+    id
+  }
+  room {
+    id
+    itemsAreVisibleFor
+    itemsAreVisibleSince
+    itemsAreVisibleSinceDate
+  }
+  topic {
+    id
+  }
+  messageBody
+  updatedAt
+  contributedAt
+  isVisibleFor
+  isVisibleSince
+  isVisibleSinceDate
+}
+    ${ShortProfileFragmentDoc}`;
+export const CreateRoomItemDocument = gql`
+    mutation CreateRoomItem($item: RoomItemInput!) {
+  createRoomItem(input: {roomItem: $item}) {
+    roomItem {
+      id
+      createdAt
+      contributor {
+        id
+        username
+      }
+    }
+    room {
+      id
+      items {
+        totalCount
+      }
+    }
+  }
+}
+    `;
 
+export function useCreateRoomItemMutation() {
+  return Urql.useMutation<CreateRoomItemMutation, CreateRoomItemMutationVariables>(CreateRoomItemDocument);
+};
 export const CreateRoomMessageDocument = gql`
     mutation CreateRoomMessage($message: RoomMessageInput!) {
   createRoomMessage(input: {roomMessage: $message}) {
@@ -5946,6 +6131,25 @@ export const FetchDetailedTopicsDocument = gql`
 
 export function useFetchDetailedTopicsQuery(options: Omit<Urql.UseQueryArgs<never, FetchDetailedTopicsQueryVariables>, 'query'>) {
   return Urql.useQuery<FetchDetailedTopicsQuery, FetchDetailedTopicsQueryVariables>({ query: FetchDetailedTopicsDocument, ...options });
+};
+export const FetchRoomItemsDocument = gql`
+    query FetchRoomItems($after: Cursor, $before: Cursor, $condition: RoomItemCondition, $filter: RoomItemFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomItemsOrderBy!]) {
+  roomItems(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      id
+      ...RoomItemAsListItem
+    }
+  }
+}
+    ${RoomItemAsListItemFragmentDoc}`;
+
+export function useFetchRoomItemsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomItemsQueryVariables>, 'query'>) {
+  return Urql.useQuery<FetchRoomItemsQuery, FetchRoomItemsQueryVariables>({ query: FetchRoomItemsDocument, ...options });
 };
 export const FetchRoomMessagesDocument = gql`
     query FetchRoomMessages($after: Cursor, $before: Cursor, $condition: RoomMessageCondition, $filter: RoomMessageFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomMessagesOrderBy!]) {
@@ -6180,6 +6384,23 @@ export const RegisterUserDocument = gql`
 
 export function useRegisterUserMutation() {
   return Urql.useMutation<RegisterUserMutation, RegisterUserMutationVariables>(RegisterUserDocument);
+};
+export const UpdateRoomItemDocument = gql`
+    mutation UpdateRoomItem($oldId: UUID!, $patch: RoomItemPatch!) {
+  updateRoomItem(input: {patch: $patch, id: $oldId}) {
+    roomItem {
+      id
+      updatedAt
+      parent {
+        id
+      }
+    }
+  }
+}
+    `;
+
+export function useUpdateRoomItemMutation() {
+  return Urql.useMutation<UpdateRoomItemMutation, UpdateRoomItemMutationVariables>(UpdateRoomItemDocument);
 };
 export const UpdateRoomMessageDocument = gql`
     mutation UpdateRoomMessage($oldId: UUID!, $patch: RoomMessagePatch!) {

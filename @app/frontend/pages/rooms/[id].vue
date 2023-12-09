@@ -4,6 +4,7 @@
   <NuxtLink :to="{ name: 'room/members' }"> Mitglieder </NuxtLink>
   <NuxtLink :to="{ name: 'room/messages' }"> Nachrichten </NuxtLink>
   <NuxtLink :to="{ name: 'room/materials' }"> Materialien </NuxtLink>
+  <NuxtLink :to="{ name: 'room/items' }"> Inhalte </NuxtLink>
   <NuxtPage />
 </template>
 

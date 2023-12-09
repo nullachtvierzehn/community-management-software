@@ -1,0 +1,30 @@
+fragment RoomItemAsListItem on RoomItem {
+  id
+  type
+  children {
+    totalCount
+  }
+  contributor {
+    id
+    ...ShortProfile
+  }
+  order
+  parent {
+    id
+  }
+  room {
+    id
+    itemsAreVisibleFor
+    itemsAreVisibleSince
+    itemsAreVisibleSinceDate
+  }
+  topic {
+    id
+  }
+  messageBody
+  updatedAt
+  contributedAt
+  isVisibleFor
+  isVisibleSince
+  isVisibleSinceDate
+}

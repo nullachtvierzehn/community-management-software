@@ -1,0 +1,18 @@
+mutation CreateRoomItem($item: RoomItemInput!) {
+  createRoomItem(input: { roomItem: $item }) {
+    roomItem {
+      id
+      createdAt
+      contributor {
+        id
+        username
+      }
+    }
+    room {
+      id
+      items {
+        totalCount
+      }
+    }
+  }
+}

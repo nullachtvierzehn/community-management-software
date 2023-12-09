@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts" setup>
-import DropCursorExtension from '@tiptap/extension-dropcursor'
 import ImageExtension from '@tiptap/extension-image'
 import LinkExtension from '@tiptap/extension-link'
 import StarterKit from '@tiptap/starter-kit'
@@ -29,7 +28,12 @@ const emit = defineEmits<{
 }>()
 
 const editor = useEditor({
-  extensions: [StarterKit, ImageExtension, DropCursorExtension, LinkExtension],
+  extensions: [
+    StarterKit,
+    ImageExtension,
+    //DropCursorExtension,
+    LinkExtension,
+  ],
   content: props.json ?? props.html,
   onUpdate({ editor }) {
     console.log('update!!!!', editor.getHTML())

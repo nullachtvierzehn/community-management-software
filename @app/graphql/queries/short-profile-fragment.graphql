@@ -1,0 +1,7 @@
+fragment ShortProfile on User {
+  id
+  isAdmin
+  isVerified
+  username
+  avatarUrl
+}
