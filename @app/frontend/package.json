@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@nuxt-alt/proxy": "^2.3.2",
+    "@nuxtjs/i18n": "^8.0.0-rc.8",
     "@tiptap/core": "^2.1.12",
     "@tiptap/extension-dropcursor": "^2.1.12",
     "@tiptap/extension-image": "^2.1.12",
@@ -45,6 +46,7 @@
     "@vueuse/math": "^10.6.1",
     "@vueuse/nuxt": "^10.6.1",
     "@vueuse/router": "^10.6.1",
+    "dayjs": "^1.11.10",
     "graphql": "^16.8.1",
     "lodash": "^4.17.21",
     "remixicon": "^3.5.0",

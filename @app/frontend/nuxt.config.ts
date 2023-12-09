@@ -1,6 +1,15 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt-alt/proxy', '@vueuse/nuxt', '@nuxtjs/tailwindcss'],
+  modules: [
+    '@nuxt-alt/proxy',
+    '@nuxtjs/i18n',
+    '@vueuse/nuxt',
+    '@nuxtjs/tailwindcss',
+  ],
+  i18n: {
+    locales: ['de'],
+    defaultLocale: 'de',
+  },
   sourcemap: {
     server: true,
     client: true,
