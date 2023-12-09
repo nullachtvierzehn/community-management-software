@@ -1,3 +1,7 @@
+import { type ModuleOptions as TailwindOptions } from '@nuxtjs/tailwindcss'
+import type autoprefixer from 'autoprefixer'
+import { type Options as CssNanoOptions } from 'cssnano'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
@@ -15,6 +19,13 @@ export default defineNuxtConfig({
     client: true,
   },
   devtools: { enabled: true },
+  postcss: {
+    plugins: {
+      tailwindcss: {} satisfies Partial<TailwindOptions>,
+      autoprefixer: {} satisfies Partial<autoprefixer.Options>,
+      cssnano: {} satisfies Partial<CssNanoOptions>,
+    },
+  },
   // `proxy` is added by module @nuxt-alt/proxy, see https://github.com/nuxt-alt/proxy
   proxy: {
     proxies: {
