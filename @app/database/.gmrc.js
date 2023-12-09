@@ -97,7 +97,7 @@ module.exports = {
     {
       "_": "command",
       "shadow": false,
-      "command": "pg_dump \"$GM_DBURL\" --data-only --schema app_public -T app_public.users -T app_public.user_emails -T app_public.user_authentications -T app_public.organizations -T app_public.organization_memberships -T app_public.organization_invitations --column-inserts --no-comments --rows-per-insert=1000 --file migrations/current-data/dump-$(date +\"%Y-%m-%d-T-%H-%M-%S-%3N\").sql"
+      "command": "pg_dump \"$GM_DBURL\" --data-only --schema app_public --schema app_hidden --schema app_private --on-conflict-do-nothing --column-inserts --rows-per-insert=1 --no-comments --rows-per-insert=1000 --file migrations/current-data/dump-$(date +\"%Y-%m-%d-T-%H-%M-%S-%3N\").sql"
     }
   ],
 
