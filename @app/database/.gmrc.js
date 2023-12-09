@@ -89,9 +89,16 @@ module.exports = {
     {
       _: "command",
       shadow: true,
-      // NOTE: this script does nothing when envvar `IN_TESTS` is `1`
-      command: "node scripts/dump-db.js",
+      command: "pg_dump \"$GM_DBURL\" --no-sync --schema-only --no-owner --exclude-schema=graphile_migrate --exclude-schema=graphile_worker --file=../graphql/schema/committed.sql",
     },
+  ],
+
+  "beforeCurrent": [
+    {
+      "_": "command",
+      "shadow": false,
+      "command": "pg_dump \"$GM_DBURL\" --data-only --schema app_public -T app_public.users -T app_public.user_emails -T app_public.user_authentications -T app_public.organizations -T app_public.organization_memberships -T app_public.organization_invitations --column-inserts --no-comments --rows-per-insert=1000 --file migrations/current-data/dump-$(date +\"%Y-%m-%d-T-%H-%M-%S-%3N\").sql"
+    }
   ],
 
   /*
@@ -99,11 +106,24 @@ module.exports = {
    * evaluated (i.e. in watch mode).
    */
   afterCurrent: [
-    // {
-    //   "_": "command",
-    //   "shadow": true,
-    //   "command": "if [ \"$IN_TESTS\" = \"1\" ]; then ./scripts/test-seed; fi",
-    // },
+    // dump current schema
+    {
+      _: "command",
+      shadow: false,
+      command: "pg_dump \"$GM_DBURL\" --no-sync --schema-only --no-owner --exclude-schema=graphile_migrate --exclude-schema=graphile_worker --file=../graphql/schema/current.sql",
+    },
+    // drop all but the latest 5 data dumps
+    {
+      "_": "command",
+      "shadow": false,
+      "command": "ls -r migrations/current-data/dump-*.sql | tail -n +6 | xargs -I {} rm -- {}"
+    },
+    // restore the latest data dump
+    {
+      "_": "command",
+      "shadow": false,
+      "command": "psql \"$GM_DBURL\" < $(ls -t migrations/current-data/dump-*.sql | head -1)"
+    }
   ],
 
   /*
