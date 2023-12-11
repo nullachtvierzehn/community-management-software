@@ -7,12 +7,19 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt-alt/proxy',
     '@nuxtjs/i18n',
+    'dayjs-nuxt',
     '@vueuse/nuxt',
     '@nuxtjs/tailwindcss',
   ],
   i18n: {
     locales: ['de'],
     defaultLocale: 'de',
+  },
+  dayjs: {
+    locales: ['de'],
+    plugins: ['relativeTime', 'utc', 'timezone'],
+    defaultLocale: 'de',
+    defaultTimezone: 'Europe/Berlin',
   },
   sourcemap: {
     server: true,
