@@ -1,7 +1,6 @@
 <template>
   <section>
     <h1>Inhalte</h1>
-    <div>{{ $i18n.locale }}</div>
     <!-- my draft items-->
     <button @click="addNewMessage()">neue Nachricht</button>
     <button @click="addNewTopic()">neues Thema</button>

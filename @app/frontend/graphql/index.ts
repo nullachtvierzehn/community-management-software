@@ -1956,6 +1956,12 @@ export type Topic = Node & {
 
 
 /** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+export type TopicContentPreviewArgs = {
+  nFirstItems?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
 export type TopicRoomItemsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;

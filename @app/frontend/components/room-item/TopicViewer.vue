@@ -8,14 +8,14 @@
 
     <!-- contribution date -->
     <div v-if="modelValue.contributedAt" class="room-item__contribution-date">
-      {{ formatDateFromNow(modelValue.contributedAt) }}
+      {{ $dayjs(modelValue.contributedAt).fromNow() }}
     </div>
 
     <!-- message body -->
     <tiptap-viewer
-      v-if="modelValue.topic?.contentTeaser"
+      v-if="modelValue.topic?.contentPreview"
       class="room-item__content room-item__topic"
-      :content="modelValue.topic.contentTeaser"
+      :content="modelValue.topic.contentPreview"
     />
   </div>
 </template>

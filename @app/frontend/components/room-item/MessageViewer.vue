@@ -8,7 +8,7 @@
 
     <!-- contribution date -->
     <div v-if="modelValue.contributedAt" class="room-item__contribution-date">
-      {{ formatDateFromNow(modelValue.contributedAt) }}
+      {{ $dayjs(modelValue.contributedAt).fromNow() }}
     </div>
 
     <!-- message body -->

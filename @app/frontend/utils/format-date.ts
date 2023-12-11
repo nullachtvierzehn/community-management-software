@@ -2,8 +2,10 @@ import 'dayjs/locale/de'
 
 import dayjs from 'dayjs'
 import relativeTimePlugin from 'dayjs/plugin/relativeTime'
+import timezonePlugin from 'dayjs/plugin/timezone'
 
 dayjs.extend(relativeTimePlugin)
+dayjs.extend(timezonePlugin)
 
 import {
   type DateLike,
@@ -30,6 +32,7 @@ export function formatDate(
 
 export interface FormatDateFromNowOptions {
   locale?: string
+  timezone?: string
   withoutSuffix?: boolean
 }
 
@@ -50,6 +53,7 @@ export function formatDateFromNow(
 ) {
   const app = useNuxtApp()
   return dayjs(date)
+    .tz(options?.timezone ?? 'Europe/Berlin')
     .locale(options?.locale ?? app.$i18n.locale.value)
     .from(toValue(now), options?.withoutSuffix)
 }
