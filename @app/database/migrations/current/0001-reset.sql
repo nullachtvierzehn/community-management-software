@@ -36,6 +36,11 @@ drop type if exists app_public.room_visibility;
 drop type if exists app_public.room_history_visibility;
 drop type if exists app_public.room_role;
 
+drop function if exists app_public.topics_content_as_plain_text(topic app_public.topics);
+drop function if exists app_public.topics_content_teaser(topic app_public.topics);
+drop function if exists app_public.topics_content_preview(topic app_public.topics);
+drop function if exists app_public.topics_content_preview(topic app_public.topics, integer);
+
 drop table if exists app_public.topics;
 drop type if exists app_public.topic_visibility;
 

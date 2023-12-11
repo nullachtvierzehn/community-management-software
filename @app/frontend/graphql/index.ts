@@ -689,6 +689,10 @@ export type TopicCondition = {
   authorId?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `content` field. */
   content?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `contentAsPlainText` field. */
+  contentAsPlainText?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `contentPreview` field. */
+  contentPreview?: InputMaybe<Scalars['JSON']['input']>;
   /** Checks for equality with the object’s `createdAt` field. */
   createdAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `id` field. */
@@ -726,6 +730,10 @@ export type TopicFilter = {
   authorId?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `content` field. */
   content?: InputMaybe<JsonFilter>;
+  /** Filter by the object’s `contentAsPlainText` field. */
+  contentAsPlainText?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `contentPreview` field. */
+  contentPreview?: InputMaybe<JsonFilter>;
   /** Filter by the object’s `createdAt` field. */
   createdAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `id` field. */
@@ -1920,6 +1928,8 @@ export type Topic = Node & {
   authorId: Maybe<Scalars['UUID']['output']>;
   /** The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html */
   content: Scalars['JSON']['output'];
+  contentAsPlainText: Maybe<Scalars['String']['output']>;
+  contentPreview: Maybe<Scalars['JSON']['output']>;
   createdAt: Scalars['Datetime']['output'];
   id: Scalars['UUID']['output'];
   /** Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`). */
@@ -5423,7 +5433,7 @@ export type FetchRoomItemsQueryVariables = Exact<{
 }>;
 
 
-export type FetchRoomItemsQuery = { __typename?: 'Query', roomItems: { __typename?: 'RoomItemsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string } | null }> } | null };
+export type FetchRoomItemsQuery = { __typename?: 'Query', roomItems: { __typename?: 'RoomItemsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null }> } | null };
 
 export type FetchRoomMessagesQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -5528,7 +5538,7 @@ export type RegisterUserMutationVariables = Exact<{
 
 export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'RegisterPayload', user: { __typename?: 'User', id: string, username: string, createdAt: string } } | null };
 
-export type RoomItemAsListItemFragment = { __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string } | null };
+export type RoomItemAsListItemFragment = { __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null };
 
 export type ShortProfileFragment = { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null };
 
@@ -5596,6 +5606,9 @@ export const RoomItemAsListItem = gql`
   }
   topic {
     id
+    title
+    slug
+    contentPreview
   }
   messageBody
   updatedAt
@@ -5988,6 +6001,9 @@ export const RoomItemAsListItemFragmentDoc = gql`
   }
   topic {
     id
+    title
+    slug
+    contentPreview
   }
   messageBody
   updatedAt

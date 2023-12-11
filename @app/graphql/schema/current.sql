@@ -2079,6 +2079,111 @@ $$;
 
 
 --
+-- Name: topics; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.topics (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    author_id uuid DEFAULT app_public.current_user_id(),
+    organization_id uuid DEFAULT app_public.current_user_first_owned_organization_id(),
+    slug text NOT NULL,
+    title text,
+    license text,
+    tags text[] DEFAULT '{}'::text[] NOT NULL,
+    is_visible_for app_public.topic_visibility DEFAULT 'public'::app_public.topic_visibility NOT NULL,
+    content jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT valid_slug CHECK ((slug ~ '^[\w\d-]+(/[\w\d-]+)*$'::text))
+);
+
+
+--
+-- Name: TABLE topics; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.topics IS 'A topic is a short text about something. Most topics should have the scope of a micro learning unit.';
+
+
+--
+-- Name: COLUMN topics.slug; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topics.slug IS 'Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.';
+
+
+--
+-- Name: COLUMN topics.title; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topics.title IS 'Each topic has an optional title. In case of an article, this would be the headline.';
+
+
+--
+-- Name: COLUMN topics.license; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topics.license IS 'Each topic can optionally be licensed. Hyperlinks are allowed.';
+
+
+--
+-- Name: COLUMN topics.tags; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topics.tags IS 'Each topic can be categorized using tags.';
+
+
+--
+-- Name: COLUMN topics.is_visible_for; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topics.is_visible_for IS 'Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`).';
+
+
+--
+-- Name: COLUMN topics.content; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topics.content IS 'The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html';
+
+
+--
+-- Name: topics_content_as_plain_text(app_public.topics); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) RETURNS text
+    LANGUAGE sql IMMUTABLE PARALLEL SAFE
+    AS $_$
+  select string_agg(elem#>>'{}', E'\n')
+  from jsonb_path_query(
+    topic.content,
+    'strict $.** ? (@.type == "text" && @.text.type() == "string").text'
+  ) as elem
+$_$;
+
+
+--
+-- Name: topics_content_preview(app_public.topics, integer); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.topics_content_preview(topic app_public.topics, n_first_items integer DEFAULT 3) RETURNS jsonb
+    LANGUAGE sql IMMUTABLE PARALLEL SAFE
+    AS $_$
+  select jsonb_set_lax(
+    topic.content,
+    '{content}',
+    jsonb_path_query_array(
+      topic.content, 
+      '$.content[0 to $min]',
+      jsonb_build_object('min', coalesce(n_first_items - 1, 2))
+    ),
+    create_if_missing => true,
+    null_value_treatment => 'use_json_null'
+  )
+$_$;
+
+
+--
 -- Name: transfer_organization_billing_contact(uuid, uuid); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -2391,8 +2496,10 @@ CREATE TABLE app_public.room_items (
     is_visible_since_date timestamp with time zone,
     topic_id uuid,
     message_body jsonb,
-    CONSTRAINT valid_message_body CHECK ((((type = 'MESSAGE'::app_public.room_item_type) AND (message_body IS NOT NULL) AND (jsonb_typeof(message_body) = 'object'::text)) OR ((type <> 'MESSAGE'::app_public.room_item_type) AND (message_body IS NULL)))),
-    CONSTRAINT valid_topic_id CHECK (((type = 'TOPIC'::app_public.room_item_type) = (topic_id IS NOT NULL)))
+    CONSTRAINT is_a_valid_message CHECK (((NOT ((type = 'MESSAGE'::app_public.room_item_type) AND (contributed_at IS NOT NULL))) OR ((message_body IS NOT NULL) AND (jsonb_typeof(message_body) = 'object'::text)))),
+    CONSTRAINT is_a_valid_non_message CHECK (((NOT (type <> 'MESSAGE'::app_public.room_item_type)) OR (message_body IS NULL))),
+    CONSTRAINT is_a_valid_non_topic CHECK (((NOT (type <> 'TOPIC'::app_public.room_item_type)) OR (topic_id IS NULL))),
+    CONSTRAINT is_a_valid_topic CHECK (((NOT ((type = 'TOPIC'::app_public.room_item_type) AND (contributed_at IS NOT NULL))) OR (topic_id IS NOT NULL)))
 );
 
 
@@ -2455,75 +2562,6 @@ CREATE TABLE app_public.room_message_attachments (
     topic_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
-
-
---
--- Name: topics; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.topics (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    author_id uuid DEFAULT app_public.current_user_id(),
-    organization_id uuid DEFAULT app_public.current_user_first_owned_organization_id(),
-    slug text NOT NULL,
-    title text,
-    license text,
-    tags text[] DEFAULT '{}'::text[] NOT NULL,
-    is_visible_for app_public.topic_visibility DEFAULT 'public'::app_public.topic_visibility NOT NULL,
-    content jsonb NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT valid_slug CHECK ((slug ~ '^[\w\d-]+(/[\w\d-]+)*$'::text))
-);
-
-
---
--- Name: TABLE topics; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON TABLE app_public.topics IS 'A topic is a short text about something. Most topics should have the scope of a micro learning unit.';
-
-
---
--- Name: COLUMN topics.slug; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.topics.slug IS 'Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.';
-
-
---
--- Name: COLUMN topics.title; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.topics.title IS 'Each topic has an optional title. In case of an article, this would be the headline.';
-
-
---
--- Name: COLUMN topics.license; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.topics.license IS 'Each topic can optionally be licensed. Hyperlinks are allowed.';
-
-
---
--- Name: COLUMN topics.tags; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.topics.tags IS 'Each topic can be categorized using tags.';
-
-
---
--- Name: COLUMN topics.is_visible_for; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.topics.is_visible_for IS 'Topics can be visible to anyone (`public`), to all signed-in users (`signed_in_users`), or within an organization (`organization_members`).';
-
-
---
--- Name: COLUMN topics.content; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.topics.content IS 'The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html';
 
 
 --
@@ -4474,6 +4512,78 @@ GRANT ALL ON FUNCTION app_public.tg_users__deletion_organization_checks_and_acti
 
 
 --
+-- Name: TABLE topics; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.topics TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topics.author_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(author_id),UPDATE(author_id) ON TABLE app_public.topics TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topics.organization_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.topics TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topics.slug; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.topics TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topics.title; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(title),UPDATE(title) ON TABLE app_public.topics TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topics.license; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(license),UPDATE(license) ON TABLE app_public.topics TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topics.is_visible_for; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.topics TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topics.content; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(content),UPDATE(content) ON TABLE app_public.topics TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION topics_content_as_plain_text(topic app_public.topics); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION topics_content_preview(topic app_public.topics, n_first_items integer); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics, n_first_items integer) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics, n_first_items integer) TO null814_cms_app_users;
+
+
+--
 -- Name: FUNCTION transfer_organization_billing_contact(organization_id uuid, user_id uuid); Type: ACL; Schema: app_public; Owner: -
 --
 
@@ -4622,62 +4732,6 @@ GRANT INSERT(room_message_id) ON TABLE app_public.room_message_attachments TO nu
 --
 
 GRANT INSERT(topic_id) ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
-
-
---
--- Name: TABLE topics; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.topics TO null814_cms_app_users;
-
-
---
--- Name: COLUMN topics.author_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(author_id),UPDATE(author_id) ON TABLE app_public.topics TO null814_cms_app_users;
-
-
---
--- Name: COLUMN topics.organization_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.topics TO null814_cms_app_users;
-
-
---
--- Name: COLUMN topics.slug; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.topics TO null814_cms_app_users;
-
-
---
--- Name: COLUMN topics.title; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(title),UPDATE(title) ON TABLE app_public.topics TO null814_cms_app_users;
-
-
---
--- Name: COLUMN topics.license; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(license),UPDATE(license) ON TABLE app_public.topics TO null814_cms_app_users;
-
-
---
--- Name: COLUMN topics.is_visible_for; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.topics TO null814_cms_app_users;
-
-
---
--- Name: COLUMN topics.content; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(content),UPDATE(content) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --

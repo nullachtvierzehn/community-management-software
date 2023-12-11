@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     server: true,
     client: true,
   },
+  ssr: true,
   devtools: { enabled: true },
   postcss: {
     plugins: {

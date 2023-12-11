@@ -46,6 +46,41 @@ comment on column app_public.topics.is_visible_for is
 comment on column app_public.topics.content is
   E'The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html';
 
+
+create or replace function app_public.topics_content_as_plain_text(topic app_public.topics)
+  returns text
+  language sql
+  immutable
+  parallel safe
+as $$
+  select string_agg(elem#>>'{}', E'\n')
+  from jsonb_path_query(
+    topic.content,
+    'strict $.** ? (@.type == "text" && @.text.type() == "string").text'
+  ) as elem
+$$;
+
+
+create or replace function app_public.topics_content_preview(topic app_public.topics, n_first_items integer default 3)
+  returns jsonb
+  language sql
+  immutable
+  parallel safe
+as $$
+  select jsonb_set_lax(
+    topic.content,
+    '{content}',
+    jsonb_path_query_array(
+      topic.content, 
+      '$.content[0 to $min]',
+      jsonb_build_object('min', coalesce(n_first_items - 1, 2))
+    ),
+    create_if_missing => true,
+    null_value_treatment => 'use_json_null'
+  )
+$$;
+
+
 create unique index topics_have_an_unique_slug on app_public.topics (slug) where (organization_id is null);
 create index topics_on_title on app_public.topics (title);
 create index topics_on_author_id on app_public.topics (author_id);

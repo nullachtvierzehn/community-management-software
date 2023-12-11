@@ -5198,6 +5198,8 @@ type Topic implements Node {
   The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html
   """
   content: JSON!
+  contentAsPlainText: String
+  contentPreview(nFirstItems: Int): JSON
   createdAt: Datetime!
   id: UUID!
 
@@ -5311,6 +5313,12 @@ input TopicCondition {
   """Checks for equality with the object’s `content` field."""
   content: JSON
 
+  """Checks for equality with the object’s `contentAsPlainText` field."""
+  contentAsPlainText: String
+
+  """Checks for equality with the object’s `contentPreview` field."""
+  contentPreview: JSON
+
   """Checks for equality with the object’s `createdAt` field."""
   createdAt: Datetime
 
@@ -5357,6 +5365,12 @@ input TopicFilter {
 
   """Filter by the object’s `content` field."""
   content: JSONFilter
+
+  """Filter by the object’s `contentAsPlainText` field."""
+  contentAsPlainText: StringFilter
+
+  """Filter by the object’s `contentPreview` field."""
+  contentPreview: JSONFilter
 
   """Filter by the object’s `createdAt` field."""
   createdAt: DatetimeFilter

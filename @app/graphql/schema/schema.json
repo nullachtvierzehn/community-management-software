@@ -19070,6 +19070,41 @@
               "deprecationReason": null
             },
             {
+              "name": "contentAsPlainText",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "contentPreview",
+              "description": null,
+              "args": [
+                {
+                  "name": "nFirstItems",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "JSON",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "createdAt",
               "description": null,
               "args": [],
@@ -19482,6 +19517,26 @@
               "defaultValue": null
             },
             {
+              "name": "contentAsPlainText",
+              "description": "Checks for equality with the object’s `contentAsPlainText` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "contentPreview",
+              "description": "Checks for equality with the object’s `contentPreview` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "JSON",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "createdAt",
               "description": "Checks for equality with the object’s `createdAt` field.",
               "type": {
@@ -19637,6 +19692,26 @@
             {
               "name": "content",
               "description": "Filter by the object’s `content` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "contentAsPlainText",
+              "description": "Filter by the object’s `contentAsPlainText` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "StringFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "contentPreview",
+              "description": "Filter by the object’s `contentPreview` field.",
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "JSONFilter",

@@ -36,20 +36,27 @@ create table app_public.room_items (
     constraint topic
     references app_public.topics (id)
     on update cascade on delete cascade,
-  constraint valid_topic_id check (
-    (type = 'TOPIC') = (topic_id is not null)
+  constraint is_a_valid_topic check (
+    not (type = 'TOPIC' and contributed_at is not null) or (topic_id is not null)
+  ),
+  constraint is_a_valid_non_topic check (
+    not (type <> 'TOPIC') or (topic_id is null)
   ),
 
   -- messages
   message_body jsonb,
-  constraint valid_message_body check ((
-    type = 'MESSAGE'
-    and message_body is not null
-    and jsonb_typeof(message_body) = 'object'
-  ) or (
-    type <> 'MESSAGE'
-    and message_body is null
-  ))
+  constraint is_a_valid_message check (
+    not (
+      type = 'MESSAGE'
+      and contributed_at is not null
+    ) or (
+      message_body is not null
+      and jsonb_typeof(message_body) = 'object'
+    )
+  ),
+  constraint is_a_valid_non_message check (
+    not (type <> 'MESSAGE') or (message_body is null)
+  )
 );
 
 comment on table app_public.room_items is

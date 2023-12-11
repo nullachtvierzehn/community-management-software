@@ -20,6 +20,9 @@ fragment RoomItemAsListItem on RoomItem {
   }
   topic {
     id
+    title
+    slug
+    contentPreview
   }
   messageBody
   updatedAt

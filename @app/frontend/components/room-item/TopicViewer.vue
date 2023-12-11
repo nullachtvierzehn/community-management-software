@@ -1,5 +1,5 @@
 <template>
-  <div class="room-item message">
+  <div class="room-item">
     <!-- user profile -->
     <UserName
       :profile="modelValue.contributor"
@@ -13,8 +13,9 @@
 
     <!-- message body -->
     <tiptap-viewer
-      class="room-item__content room-item__message"
-      :content="modelValue.messageBody"
+      v-if="modelValue.topic?.contentTeaser"
+      class="room-item__content room-item__topic"
+      :content="modelValue.topic.contentTeaser"
     />
   </div>
 </template>

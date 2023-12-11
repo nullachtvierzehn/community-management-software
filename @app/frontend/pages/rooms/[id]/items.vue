@@ -15,6 +15,10 @@
         v-if="item.type === 'MESSAGE'"
         :model-value="item"
       />
+      <RoomItemTopicEditor
+        v-else-if="item.type === 'TOPIC'"
+        :model-value="item"
+      />
       <pre v-else>{{ item }}</pre>
     </div>
 
@@ -26,6 +30,10 @@
     >
       <RoomItemMessageViewer
         v-if="item.type === 'MESSAGE'"
+        :model-value="item"
+      />
+      <RoomItemTopicViewer
+        v-else-if="item.type === 'TOPIC'"
         :model-value="item"
       />
       <pre v-else>{{ item }}</pre>
