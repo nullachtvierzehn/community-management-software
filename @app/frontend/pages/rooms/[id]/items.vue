@@ -1,9 +1,16 @@
 <template>
   <section>
-    <h1>Inhalte</h1>
+    <h1 class="sr-only">Entwürfe</h1>
     <!-- my draft items-->
-    <button @click="addNewMessage()">neue Nachricht</button>
-    <button @click="addNewTopic()">neues Thema</button>
+    <client-only>
+      <Teleport to="#roomHeaderButtons">
+        <button @click="addNewMessage()">neue Nachricht</button>
+        <button @click="addNewTopic()">neues Thema</button>
+      </Teleport>
+      <template #fallback>
+        <noscript>Some buttons here for nonscript clients.</noscript>
+      </template>
+    </client-only>
 
     <div
       v-for="item in myDraftItems"
@@ -20,12 +27,15 @@
       />
       <pre v-else>{{ item }}</pre>
     </div>
+  </section>
 
-    <!-- submitted items -->
+  <!-- submitted items -->
+  <section class="grid gap-3">
+    <h1 class="sr-only">Inhalte</h1>
     <div
       v-for="item in submittedItems"
       :key="item.id"
-      class="room-item room-item_is-submitted"
+      class="block bg-gray-100 p-3 rounded-lg"
     >
       <RoomItemMessageViewer
         v-if="item.type === 'MESSAGE'"

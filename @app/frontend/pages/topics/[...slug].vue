@@ -28,6 +28,10 @@ import {
   useUpdateTopicMutation,
 } from '~/graphql'
 
+definePageMeta({
+  name: 'topic/show',
+})
+
 const route = useRoute()
 const edit = useRouteQuery('edit')
 const slug = computed(() => (route.params.slug as string[]).join('/'))

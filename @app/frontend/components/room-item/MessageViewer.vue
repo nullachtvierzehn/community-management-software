@@ -1,14 +1,19 @@
 <template>
   <div class="room-item message">
-    <!-- user profile -->
-    <UserName
-      :profile="modelValue.contributor"
-      class="room-item__contributor"
-    />
+    <div class="flex mb-2 justify-between">
+      <!-- user profile -->
+      <UserName
+        :profile="modelValue.contributor"
+        class="font-bold room-item__contributor"
+      />
 
-    <!-- contribution date -->
-    <div v-if="modelValue.contributedAt" class="room-item__contribution-date">
-      {{ $dayjs(modelValue.contributedAt).fromNow() }}
+      <!-- contribution date -->
+      <div
+        v-if="modelValue.contributedAt"
+        class="italic room-item__contribution-date"
+      >
+        {{ $dayjs(modelValue.contributedAt).fromNow() }}
+      </div>
     </div>
 
     <!-- message body -->

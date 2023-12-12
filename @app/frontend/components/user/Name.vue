@@ -1,12 +1,10 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div v-if="profile" class="short-profile">
-    <div class="short-profile__username">{{ profile.username }}</div>
+  <div v-if="profile" class="short-profile__username">
+    {{ profile.username }}
   </div>
-  <div v-else class="short-profile short-profile__missing">
-    <div class="short-profile__username short-profile__username_imputed">
-      [[ gelöscht ]]
-    </div>
+  <div v-else class="short-profile__username short-profile__username_imputed">
+    [[ gelöscht ]]
   </div>
 </template>
 

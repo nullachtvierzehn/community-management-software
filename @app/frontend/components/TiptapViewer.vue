@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div v-html="html" />
+  <div class="tiptap-contents" v-html="html" />
 </template>
 
 <script setup lang="ts">
