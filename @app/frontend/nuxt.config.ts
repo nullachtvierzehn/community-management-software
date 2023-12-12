@@ -29,6 +29,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   postcss: {
     plugins: {
+      'tailwindcss/nesting': {},
       tailwindcss: {} satisfies Partial<TailwindOptions>,
       autoprefixer: {} satisfies Partial<autoprefixer.Options>,
       cssnano: {} satisfies Partial<CssNanoOptions>,
