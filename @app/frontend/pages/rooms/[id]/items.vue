@@ -63,6 +63,7 @@ definePageMeta({
 })
 
 const route = useRoute()
+const roomId = ref(route.params.id as string)
 const currentUser = useCurrentUser()
 const nItems = useRouteQuery<number>('n', 100, {
   transform: Number,
@@ -73,11 +74,12 @@ const nItems = useRouteQuery<number>('n', 100, {
 const { data: dataOfSubmittedItems, executeQuery: refetchItems } =
   await useFetchRoomItemsQuery({
     variables: computed(() => ({
-      condition: { roomId: route.params.id as string },
+      condition: { roomId: toValue(roomId) },
       filter: { contributedAt: { isNull: false } },
       orderBy: ['ORDER_ASC', 'CONTRIBUTED_AT_ASC'],
       first: toValue(nItems),
     })),
+    pause: logicNot(roomId),
   })
 
 const submittedItems = computed(
@@ -87,10 +89,10 @@ const submittedItems = computed(
 // fetch my draft items
 const { data: dataOfMyDraftItems, executeQuery: refetchDrafts } =
   await useFetchRoomItemsQuery({
-    pause: logicNot(currentUser),
+    pause: computed(() => !currentUser.value || !roomId.value),
     variables: computed(() => ({
       condition: {
-        roomId: route.params.id as string,
+        roomId: toValue(roomId),
         contributorId: currentUser.value?.id,
       },
       filter: { contributedAt: { isNull: true } },

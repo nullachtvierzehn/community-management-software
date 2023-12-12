@@ -16,14 +16,25 @@
     </main>
 
     <!-- Navigation -->
+
     <nav
       class="border-0 border-slate-200 border-t-2 -m-4 p-4 mt-4 flex gap-4 flex-wrap"
     >
-      <NuxtLink class="" :to="{ name: 'room/about' }"> Über </NuxtLink>
-      <NuxtLink :to="{ name: 'room/members' }"> Mitglieder </NuxtLink>
-      <NuxtLink :to="{ name: 'room/messages' }"> Nachrichten </NuxtLink>
-      <NuxtLink :to="{ name: 'room/materials' }"> Materialien </NuxtLink>
-      <NuxtLink :to="{ name: 'room/items' }"> Inhalte </NuxtLink>
+      <NuxtLink class="" :to="{ name: 'room/about', params: { id: roomId } }">
+        Über
+      </NuxtLink>
+      <NuxtLink :to="{ name: 'room/members', params: { id: roomId } }">
+        Mitglieder
+      </NuxtLink>
+      <NuxtLink :to="{ name: 'room/messages', params: { id: roomId } }">
+        Nachrichten
+      </NuxtLink>
+      <NuxtLink :to="{ name: 'room/materials', params: { id: roomId } }">
+        Materialien
+      </NuxtLink>
+      <NuxtLink :to="{ name: 'room/items', params: { id: roomId } }">
+        Inhalte
+      </NuxtLink>
     </nav>
   </article>
 </template>
@@ -41,12 +52,18 @@ definePageMeta({
 })
 
 const route = useRoute()
+const roomId = ref(route.params.id as string)
+whenever(
+  () => route.params.id as string,
+  (newId) => (roomId.value = newId)
+)
 
 const { data } = await useGetRoomQuery({
-  variables: computed(() => ({ id: toValue(route.params.id) as string })),
+  variables: computed(() => ({ id: toValue(roomId) })),
+  pause: logicNot(roomId),
 })
 
-const room = computed(() => data.value?.room)
+const room = computed(() => (route.params.id ? data.value?.room : undefined))
 
 provide(roomInjectionKey, room)
 </script>
