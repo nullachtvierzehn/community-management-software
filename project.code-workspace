@@ -19,8 +19,8 @@
       "vue"
     ],
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true,
-      "source.fixAll.stylelint": true
+      "source.fixAll.eslint": "always",
+      "source.fixAll.stylelint": "always"
     },
     "files.associations": {
       "*.css": "tailwindcss"
