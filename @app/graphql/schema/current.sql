@@ -3252,6 +3252,13 @@ CREATE INDEX user_authentications_user_id_idx ON app_public.user_authentications
 
 
 --
+-- Name: users_on_fuzzy_username; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX users_on_fuzzy_username ON app_public.users USING gist (username public.gist_trgm_ops (siglen='12'));
+
+
+--
 -- Name: room_messages _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 

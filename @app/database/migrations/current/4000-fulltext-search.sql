@@ -31,6 +31,8 @@ comment on type app_public.textsearch_match is $$
 @foreignKey (topic_id) references app_public.topics (id)|@fieldName topic
 $$;
 
+create index if not exists users_on_fuzzy_username on app_public.users using gist (username gist_trgm_ops(siglen=12));
+
 create or replace function app_public.global_search(
   term text, 
   entities app_public.textsearchable_entity[] default '{user,topic}'
