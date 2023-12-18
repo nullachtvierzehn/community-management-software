@@ -165,6 +165,21 @@ CREATE TYPE app_public.topic_visibility AS ENUM (
 
 
 --
+-- Name: tiptap_document_as_plain_text(jsonb); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) RETURNS text
+    LANGUAGE sql IMMUTABLE PARALLEL SAFE
+    AS $_$
+  select string_agg(elem#>>'{}', E'\n')
+  from jsonb_path_query(
+    document,
+    'strict $.** ? (@.type == "text" && @.text.type() == "string").text'
+  ) as elem
+$_$;
+
+
+--
 -- Name: assert_valid_password(text); Type: FUNCTION; Schema: app_private; Owner: -
 --
 
@@ -2079,6 +2094,15 @@ $$;
 
 
 --
+-- Name: text_array_to_string(text[], text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.text_array_to_string(text[], text) RETURNS text
+    LANGUAGE internal IMMUTABLE STRICT PARALLEL SAFE
+    AS $$array_to_text$$;
+
+
+--
 -- Name: topics; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -2094,6 +2118,7 @@ CREATE TABLE app_public.topics (
     content jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    fulltext_index_column tsvector GENERATED ALWAYS AS (((setweight(to_tsvector('german'::regconfig, title), 'A'::"char") || setweight(to_tsvector('german'::regconfig, public.text_array_to_string(tags, ' '::text)), 'A'::"char")) || setweight(to_tsvector('german'::regconfig, app_hidden.tiptap_document_as_plain_text(content)), 'B'::"char"))) STORED,
     CONSTRAINT valid_slug CHECK ((slug ~ '^[\w\d-]+(/[\w\d-]+)*$'::text))
 );
 
@@ -2153,13 +2178,9 @@ COMMENT ON COLUMN app_public.topics.content IS 'The topics contents as JSON. Can
 
 CREATE FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) RETURNS text
     LANGUAGE sql IMMUTABLE PARALLEL SAFE
-    AS $_$
-  select string_agg(elem#>>'{}', E'\n')
-  from jsonb_path_query(
-    topic.content,
-    'strict $.** ? (@.type == "text" && @.text.type() == "string").text'
-  ) as elem
-$_$;
+    AS $$
+  select app_hidden.tiptap_document_as_plain_text(topic.content)
+$$;
 
 
 --
@@ -3046,6 +3067,13 @@ CREATE INDEX topics_on_content ON app_public.topics USING gin (content jsonb_pat
 --
 
 CREATE INDEX topics_on_created_at ON app_public.topics USING brin (created_at);
+
+
+--
+-- Name: topics_on_fulltext_index_column; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX topics_on_fulltext_index_column ON app_public.topics USING gin (fulltext_index_column);
 
 
 --
@@ -3941,6 +3969,14 @@ GRANT USAGE ON SCHEMA app_public TO null18_cms_app_users;
 
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO null18_cms_app_users;
+
+
+--
+-- Name: FUNCTION tiptap_document_as_plain_text(document jsonb); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) TO null18_cms_app_users;
 
 
 --

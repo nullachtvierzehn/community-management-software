@@ -47,7 +47,7 @@ comment on column app_public.topics.content is
   E'The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html';
 
 
-create or replace function app_public.topics_content_as_plain_text(topic app_public.topics)
+create or replace function app_hidden.tiptap_document_as_plain_text(document jsonb)
   returns text
   language sql
   immutable
@@ -55,11 +55,31 @@ create or replace function app_public.topics_content_as_plain_text(topic app_pub
 as $$
   select string_agg(elem#>>'{}', E'\n')
   from jsonb_path_query(
-    topic.content,
+    document,
     'strict $.** ? (@.type == "text" && @.text.type() == "string").text'
   ) as elem
 $$;
 
+
+create or replace function app_public.topics_content_as_plain_text(topic app_public.topics)
+  returns text
+  language sql
+  immutable
+  parallel safe
+as $$
+  select app_hidden.tiptap_document_as_plain_text(topic.content)
+$$;
+
+alter table app_public.topics
+  add column fulltext_index_column tsvector
+    constraint autogenerate_fulltext_index_column
+    generated always as (
+      setweight(to_tsvector('german', title), 'A') ||
+      setweight(to_tsvector('german', text_array_to_string(tags, ' ')), 'A') ||
+      setweight(to_tsvector('german', app_hidden.tiptap_document_as_plain_text(content)), 'B')
+    ) stored;
+
+create index topics_on_fulltext_index_column on app_public.topics using gin (fulltext_index_column);
 
 create or replace function app_public.topics_content_preview(topic app_public.topics, n_first_items integer default 3)
   returns jsonb

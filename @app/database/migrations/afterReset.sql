@@ -11,4 +11,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 
+-- Add an immutable version of array_to_text, see https://dba.stackexchange.com/questions/299039/optimize-query-matching-first-n-items-of-an-array
+CREATE OR REPLACE FUNCTION public.text_array_to_string(text[], text)
+RETURNS text
+LANGUAGE internal IMMUTABLE PARALLEL SAFE STRICT AS 'array_to_text';
+
 COMMIT;
