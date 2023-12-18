@@ -74,9 +74,10 @@ alter table app_public.topics
   add column fulltext_index_column tsvector
     constraint autogenerate_fulltext_index_column
     generated always as (
-      setweight(to_tsvector('german', title), 'A') ||
-      setweight(to_tsvector('german', text_array_to_string(tags, ' ')), 'A') ||
-      setweight(to_tsvector('german', app_hidden.tiptap_document_as_plain_text(content)), 'B')
+      setweight(to_tsvector('german', coalesce(title, '')), 'A') ||
+      setweight(to_tsvector('german', coalesce(slug, '')), 'A') ||
+      setweight(to_tsvector('german', coalesce(text_array_to_string(tags, ' '), '')), 'A') ||
+      setweight(to_tsvector('german', coalesce(app_hidden.tiptap_document_as_plain_text(content), '')), 'B')
     ) stored;
 
 create index topics_on_fulltext_index_column on app_public.topics using gin (fulltext_index_column);

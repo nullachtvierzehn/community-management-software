@@ -66,6 +66,20 @@ COMMENT ON EXTENSION citext IS 'data type for case-insensitive character strings
 
 
 --
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+--
 -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -151,6 +165,66 @@ CREATE TYPE app_public.room_visibility AS ENUM (
     'signed_in_users',
     'public'
 );
+
+
+--
+-- Name: textsearchable_entity; Type: TYPE; Schema: app_public; Owner: -
+--
+
+CREATE TYPE app_public.textsearchable_entity AS ENUM (
+    'user',
+    'topic'
+);
+
+
+--
+-- Name: textsearch_match; Type: TYPE; Schema: app_public; Owner: -
+--
+
+CREATE TYPE app_public.textsearch_match AS (
+	id uuid,
+	type app_public.textsearchable_entity,
+	title text,
+	snippet text,
+	rank_or_similarity real,
+	user_id uuid,
+	topic_id uuid
+);
+
+
+--
+-- Name: TYPE textsearch_match; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TYPE app_public.textsearch_match IS '
+@primaryKey id
+@foreignKey (user_id) references app_public.users (id)|@fieldName user
+@foreignKey (topic_id) references app_public.topics (id)|@fieldName topic
+';
+
+
+--
+-- Name: COLUMN textsearch_match.type; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.textsearch_match.type IS '@notNull
+@behavior +filterBy';
+
+
+--
+-- Name: COLUMN textsearch_match.title; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.textsearch_match.title IS '@notNull
+@behavior +orderBy +filterBy';
+
+
+--
+-- Name: COLUMN textsearch_match.rank_or_similarity; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.textsearch_match.rank_or_similarity IS '@notNull
+@behavior +orderBy +filterBy';
 
 
 --
@@ -1294,6 +1368,58 @@ COMMENT ON FUNCTION app_public.fulltext(message app_public.room_messages) IS '@b
 
 
 --
+-- Name: global_search(text, app_public.textsearchable_entity[]); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[] DEFAULT '{user,topic}'::app_public.textsearchable_entity[]) RETURNS SETOF app_public.textsearch_match
+    LANGUAGE sql STABLE ROWS 10 PARALLEL SAFE
+    AS $$
+  -- fetch users
+  select
+    id,
+    'user'::app_public.textsearchable_entity as "type",
+    username as title,
+    null as snippet,
+    word_similarity(term, username) as rank_or_similarity,
+    id as "user_id",
+    null::uuid as topic_id
+  from app_public.users
+  where
+    length(term) >= 3
+    and 'user' = any (entities)
+    and term <% username
+  -- fetch topics
+  union all
+  select 
+    id,
+    'topic'::app_public.textsearchable_entity as "type",
+    coalesce(title, slug, 'Thema ' || id) as title,
+    ts_headline('german', app_hidden.tiptap_document_as_plain_text(topics.content), query) as snippet,
+    ts_rank_cd(array[0.3, 0.5, 0.8, 1.0], fulltext_index_column, query, 32 /* normalization to [0..1) by rank / (rank+1) */) as rank_or_similarity,
+    null::uuid as "user_id",
+    id as topic_id
+  from 
+    app_public.topics, 
+    websearch_to_tsquery('german', term) as query
+  where
+    length(term) >= 3
+    and 'topic' = any (entities)
+    and query @@ fulltext_index_column
+  order by rank_or_similarity desc
+$$;
+
+
+--
+-- Name: FUNCTION global_search(term text, entities app_public.textsearchable_entity[]); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[]) IS '
+@filterable
+@sortable
+';
+
+
+--
 -- Name: invite_to_organization(uuid, public.citext, public.citext); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -2118,7 +2244,7 @@ CREATE TABLE app_public.topics (
     content jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    fulltext_index_column tsvector GENERATED ALWAYS AS (((setweight(to_tsvector('german'::regconfig, title), 'A'::"char") || setweight(to_tsvector('german'::regconfig, public.text_array_to_string(tags, ' '::text)), 'A'::"char")) || setweight(to_tsvector('german'::regconfig, app_hidden.tiptap_document_as_plain_text(content)), 'B'::"char"))) STORED,
+    fulltext_index_column tsvector GENERATED ALWAYS AS ((((setweight(to_tsvector('german'::regconfig, COALESCE(title, ''::text)), 'A'::"char") || setweight(to_tsvector('german'::regconfig, COALESCE(slug, ''::text)), 'A'::"char")) || setweight(to_tsvector('german'::regconfig, COALESCE(public.text_array_to_string(tags, ' '::text), ''::text)), 'A'::"char")) || setweight(to_tsvector('german'::regconfig, COALESCE(app_hidden.tiptap_document_as_plain_text(content), ''::text)), 'B'::"char"))) STORED,
     CONSTRAINT valid_slug CHECK ((slug ~ '^[\w\d-]+(/[\w\d-]+)*$'::text))
 );
 
@@ -3972,6 +4098,20 @@ GRANT USAGE ON SCHEMA public TO null18_cms_app_users;
 
 
 --
+-- Name: TYPE textsearchable_entity; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT ALL ON TYPE app_public.textsearchable_entity TO null18_cms_app_users;
+
+
+--
+-- Name: TYPE textsearch_match; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT ALL ON TYPE app_public.textsearch_match TO null18_cms_app_users;
+
+
+--
 -- Name: FUNCTION tiptap_document_as_plain_text(document jsonb); Type: ACL; Schema: app_hidden; Owner: -
 --
 
@@ -4278,6 +4418,14 @@ GRANT ALL ON FUNCTION app_public.forgot_password(email public.citext) TO null18_
 
 REVOKE ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) TO null18_cms_app_users;
+
+
+--
+-- Name: FUNCTION global_search(term text, entities app_public.textsearchable_entity[]); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[]) TO null18_cms_app_users;
 
 
 --

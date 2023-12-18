@@ -2606,6 +2606,42 @@ type Query implements Node {
   ): CurrentUserMemberOrganizationIdsConnection
   fetchDraftInRoom(roomId: UUID!): RoomMessage
 
+  """Reads and enables pagination through a set of `TextsearchMatch`."""
+  globalSearch(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: TextsearchMatchCondition
+    entities: [TextsearchableEntity]
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: TextsearchMatchFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `TextsearchMatch`."""
+    orderBy: [TextsearchMatchesOrderBy!]
+    term: String!
+  ): TextsearchMatchesConnection
+
   """Reads and enables pagination through a set of `RoomSubscription`."""
   myRoomSubscriptions(
     """Read all values in the set after (below) this cursor."""
@@ -5135,6 +5171,178 @@ input StringListFilter {
 
   """Overlaps the specified list of values."""
   overlaps: [String]
+}
+
+type TextsearchMatch {
+  id: UUID!
+  rankOrSimilarity: Float!
+  snippet: String
+  title: String!
+
+  """Reads a single `Topic` that is related to this `TextsearchMatch`."""
+  topic: Topic
+  topicId: UUID
+  type: TextsearchableEntity!
+
+  """Reads a single `User` that is related to this `TextsearchMatch`."""
+  user: User
+  userId: UUID
+}
+
+"""
+A condition to be used against `TextsearchMatch` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input TextsearchMatchCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `rankOrSimilarity` field."""
+  rankOrSimilarity: Float
+
+  """Checks for equality with the object’s `snippet` field."""
+  snippet: String
+
+  """Checks for equality with the object’s `title` field."""
+  title: String
+
+  """Checks for equality with the object’s `topicId` field."""
+  topicId: UUID
+
+  """Checks for equality with the object’s `type` field."""
+  type: TextsearchableEntity
+
+  """Checks for equality with the object’s `userId` field."""
+  userId: UUID
+}
+
+"""
+A filter to be used against `TextsearchMatch` object types. All fields are combined with a logical ‘and.’
+"""
+input TextsearchMatchFilter {
+  """Checks for all expressions in this list."""
+  and: [TextsearchMatchFilter!]
+
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Negates the expression."""
+  not: TextsearchMatchFilter
+
+  """Checks for any expressions in this list."""
+  or: [TextsearchMatchFilter!]
+
+  """Filter by the object’s `rankOrSimilarity` field."""
+  rankOrSimilarity: FloatFilter
+
+  """Filter by the object’s `snippet` field."""
+  snippet: StringFilter
+
+  """Filter by the object’s `title` field."""
+  title: StringFilter
+
+  """Filter by the object’s `topicId` field."""
+  topicId: UUIDFilter
+
+  """Filter by the object’s `type` field."""
+  type: TextsearchableEntityFilter
+
+  """Filter by the object’s `userId` field."""
+  userId: UUIDFilter
+}
+
+"""A connection to a list of `TextsearchMatch` values."""
+type TextsearchMatchesConnection {
+  """
+  A list of edges which contains the `TextsearchMatch` and cursor to aid in pagination.
+  """
+  edges: [TextsearchMatchesEdge!]!
+
+  """A list of `TextsearchMatch` objects."""
+  nodes: [TextsearchMatch!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `TextsearchMatch` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `TextsearchMatch` edge in the connection."""
+type TextsearchMatchesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `TextsearchMatch` at the end of the edge."""
+  node: TextsearchMatch!
+}
+
+"""Methods to use when ordering `TextsearchMatch`."""
+enum TextsearchMatchesOrderBy {
+  ID_ASC
+  ID_DESC
+  NATURAL
+  RANK_OR_SIMILARITY_ASC
+  RANK_OR_SIMILARITY_DESC
+  SNIPPET_ASC
+  SNIPPET_DESC
+  TITLE_ASC
+  TITLE_DESC
+  TOPIC_ID_ASC
+  TOPIC_ID_DESC
+  TYPE_ASC
+  TYPE_DESC
+  USER_ID_ASC
+  USER_ID_DESC
+}
+
+enum TextsearchableEntity {
+  TOPIC
+  USER
+}
+
+"""
+A filter to be used against TextsearchableEntity fields. All fields are combined with a logical ‘and.’
+"""
+input TextsearchableEntityFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: TextsearchableEntity
+
+  """Equal to the specified value."""
+  equalTo: TextsearchableEntity
+
+  """Greater than the specified value."""
+  greaterThan: TextsearchableEntity
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: TextsearchableEntity
+
+  """Included in the specified list."""
+  in: [TextsearchableEntity!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: TextsearchableEntity
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: TextsearchableEntity
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: TextsearchableEntity
+
+  """Not equal to the specified value."""
+  notEqualTo: TextsearchableEntity
+
+  """Not included in the specified list."""
+  notIn: [TextsearchableEntity!]
 }
 
 """

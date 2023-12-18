@@ -1,0 +1,83 @@
+create extension if not exists pg_trgm with schema public;
+
+drop type if exists 
+  app_public.textsearchable_entity, 
+  app_public.textsearch_match cascade;
+
+create type app_public.textsearchable_entity as enum ('user', 'topic');
+
+create type app_public.textsearch_match as (
+  id uuid,
+  "type" app_public.textsearchable_entity,
+  title text,
+  snippet text,
+  rank_or_similarity float4,
+  "user_id" uuid,
+  topic_id uuid
+);
+
+grant usage on type app_public.textsearch_match, app_public.textsearchable_entity to :DATABASE_VISITOR;
+
+comment on column app_public.textsearch_match."type" is
+  E'@notNull\n@behavior +filterBy';
+comment on column app_public.textsearch_match.title is
+  E'@notNull\n@behavior +orderBy +filterBy';
+comment on column app_public.textsearch_match.rank_or_similarity is
+  E'@notNull\n@behavior +orderBy +filterBy';
+
+comment on type app_public.textsearch_match is $$
+@primaryKey id
+@foreignKey (user_id) references app_public.users (id)|@fieldName user
+@foreignKey (topic_id) references app_public.topics (id)|@fieldName topic
+$$;
+
+create or replace function app_public.global_search(
+  term text, 
+  entities app_public.textsearchable_entity[] default '{user,topic}'
+)
+  returns setof app_public.textsearch_match
+  language sql
+  stable
+  parallel safe
+  rows 10
+as $$
+  -- fetch users
+  select
+    id,
+    'user'::app_public.textsearchable_entity as "type",
+    username as title,
+    null as snippet,
+    word_similarity(term, username) as rank_or_similarity,
+    id as "user_id",
+    null::uuid as topic_id
+  from app_public.users
+  where
+    length(term) >= 3
+    and 'user' = any (entities)
+    and term <% username
+  -- fetch topics
+  union all
+  select 
+    id,
+    'topic'::app_public.textsearchable_entity as "type",
+    coalesce(title, slug, 'Thema ' || id) as title,
+    ts_headline('german', app_hidden.tiptap_document_as_plain_text(topics.content), query) as snippet,
+    ts_rank_cd(array[0.3, 0.5, 0.8, 1.0], fulltext_index_column, query, 32 /* normalization to [0..1) by rank / (rank+1) */) as rank_or_similarity,
+    null::uuid as "user_id",
+    id as topic_id
+  from 
+    app_public.topics, 
+    websearch_to_tsquery('german', term) as query
+  where
+    length(term) >= 3
+    and 'topic' = any (entities)
+    and query @@ fulltext_index_column
+  order by rank_or_similarity desc
+$$;
+
+grant execute on function app_public.global_search(text,app_public.textsearchable_entity[]) to :DATABASE_VISITOR;
+
+comment on function app_public.global_search(text,app_public.textsearchable_entity[]) is $$
+@filterable
+@sortable
+$$;

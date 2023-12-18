@@ -55,6 +55,8 @@ export type Query = Node & {
   /** Reads and enables pagination through a set of `Uuid`. */
   currentUserMemberOrganizationIds: Maybe<CurrentUserMemberOrganizationIdsConnection>;
   fetchDraftInRoom: Maybe<RoomMessage>;
+  /** Reads and enables pagination through a set of `TextsearchMatch`. */
+  globalSearch: Maybe<TextsearchMatchesConnection>;
   /** Reads and enables pagination through a set of `RoomSubscription`. */
   myRoomSubscriptions: Maybe<RoomSubscriptionsConnection>;
   /** Reads and enables pagination through a set of `Uuid`. */
@@ -179,6 +181,21 @@ export type QueryCurrentUserMemberOrganizationIdsArgs = {
 /** The root query type which gives access points into the data universe. */
 export type QueryFetchDraftInRoomArgs = {
   roomId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryGlobalSearchArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<TextsearchMatchCondition>;
+  entities?: InputMaybe<Array<InputMaybe<TextsearchableEntity>>>;
+  filter?: InputMaybe<TextsearchMatchFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<TextsearchMatchesOrderBy>>;
+  term: Scalars['String']['input'];
 };
 
 
@@ -2938,6 +2955,136 @@ export type CurrentUserMemberOrganizationIdsEdge = {
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `UUID` at the end of the edge. */
   node: Maybe<Scalars['UUID']['output']>;
+};
+
+/**
+ * A condition to be used against `TextsearchMatch` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type TextsearchMatchCondition = {
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `rankOrSimilarity` field. */
+  rankOrSimilarity?: InputMaybe<Scalars['Float']['input']>;
+  /** Checks for equality with the object’s `snippet` field. */
+  snippet?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `title` field. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `topicId` field. */
+  topicId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `type` field. */
+  type?: InputMaybe<TextsearchableEntity>;
+  /** Checks for equality with the object’s `userId` field. */
+  userId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+export type TextsearchableEntity =
+  | 'TOPIC'
+  | 'USER';
+
+/** A filter to be used against `TextsearchMatch` object types. All fields are combined with a logical ‘and.’ */
+export type TextsearchMatchFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<TextsearchMatchFilter>>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<TextsearchMatchFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<TextsearchMatchFilter>>;
+  /** Filter by the object’s `rankOrSimilarity` field. */
+  rankOrSimilarity?: InputMaybe<FloatFilter>;
+  /** Filter by the object’s `snippet` field. */
+  snippet?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `title` field. */
+  title?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `topicId` field. */
+  topicId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `type` field. */
+  type?: InputMaybe<TextsearchableEntityFilter>;
+  /** Filter by the object’s `userId` field. */
+  userId?: InputMaybe<UuidFilter>;
+};
+
+/** A filter to be used against TextsearchableEntity fields. All fields are combined with a logical ‘and.’ */
+export type TextsearchableEntityFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<TextsearchableEntity>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<TextsearchableEntity>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<TextsearchableEntity>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<TextsearchableEntity>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<TextsearchableEntity>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<TextsearchableEntity>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<TextsearchableEntity>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<TextsearchableEntity>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<TextsearchableEntity>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<TextsearchableEntity>>;
+};
+
+/** Methods to use when ordering `TextsearchMatch`. */
+export type TextsearchMatchesOrderBy =
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'NATURAL'
+  | 'RANK_OR_SIMILARITY_ASC'
+  | 'RANK_OR_SIMILARITY_DESC'
+  | 'SNIPPET_ASC'
+  | 'SNIPPET_DESC'
+  | 'TITLE_ASC'
+  | 'TITLE_DESC'
+  | 'TOPIC_ID_ASC'
+  | 'TOPIC_ID_DESC'
+  | 'TYPE_ASC'
+  | 'TYPE_DESC'
+  | 'USER_ID_ASC'
+  | 'USER_ID_DESC';
+
+/** A connection to a list of `TextsearchMatch` values. */
+export type TextsearchMatchesConnection = {
+  __typename?: 'TextsearchMatchesConnection';
+  /** A list of edges which contains the `TextsearchMatch` and cursor to aid in pagination. */
+  edges: Array<TextsearchMatchesEdge>;
+  /** A list of `TextsearchMatch` objects. */
+  nodes: Array<TextsearchMatch>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `TextsearchMatch` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `TextsearchMatch` edge in the connection. */
+export type TextsearchMatchesEdge = {
+  __typename?: 'TextsearchMatchesEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `TextsearchMatch` at the end of the edge. */
+  node: TextsearchMatch;
+};
+
+export type TextsearchMatch = {
+  __typename?: 'TextsearchMatch';
+  id: Scalars['UUID']['output'];
+  rankOrSimilarity: Scalars['Float']['output'];
+  snippet: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  /** Reads a single `Topic` that is related to this `TextsearchMatch`. */
+  topic: Maybe<Topic>;
+  topicId: Maybe<Scalars['UUID']['output']>;
+  type: TextsearchableEntity;
+  /** Reads a single `User` that is related to this `TextsearchMatch`. */
+  user: Maybe<User>;
+  userId: Maybe<Scalars['UUID']['output']>;
 };
 
 /** A connection to a list of `UUID` values. */
