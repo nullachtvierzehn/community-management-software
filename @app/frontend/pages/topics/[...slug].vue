@@ -34,13 +34,12 @@ definePageMeta({
 
 const route = useRoute()
 const edit = useRouteQuery('edit')
-const slug = computed(() => (route.params.slug as string[]).join('/'))
+const slug = computed(() => {
+  if (typeof route.params.slug === 'string') return route.params.slug
+  else return route.params.slug.join('/')
+})
 
-const {
-  data,
-  fetching,
-  //then: fetchedTopic,
-} = await useFetchDetailedTopicsQuery({
+const { data, fetching } = await useFetchDetailedTopicsQuery({
   variables: computed(() => ({
     filter: {
       organizationExists: false,
@@ -54,9 +53,9 @@ const {
 if (import.meta.server) {
   await useAsyncData(() =>
     Promise.all([{ then: fetchedTopic }]).then(([topicResponse]) => {
-      if (topicResponse.error) throw topicResponse.error;
+      if (topicResponse.error) throw topicResponse.error
     })
-  );
+  )
 }
 */
 

@@ -1,11 +1,13 @@
 <template>
   <div class="room-item">
     <!-- message body -->
+
+    <NuxtLink :to="`/topics/${modelValue.topic?.slug}`">Zum Topic</NuxtLink>
     <div class="bg-green-300 p-2 overflow-hidden rounded-md shadow-md max-h-32">
       <NuxtLink
         :to="{
           name: 'topic/show',
-          params: { slug: modelValue.topic?.slug.split('/') },
+          params: { slug: modelValue?.topic?.slug.split('/') },
         }"
       >
         <tiptap-viewer
