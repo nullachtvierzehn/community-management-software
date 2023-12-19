@@ -25,7 +25,10 @@
       </div>
       <div v-else-if="!isPaused && data" class="modal__matches p-4">
         <template v-for="match in matches" :key="match.id">
-          <div class="modal__match rounded-md bg-gray-500 p-2 shadow-sm">
+          <div
+            class="modal__match rounded-md bg-gray-500 p-2 shadow-sm"
+            @click="emit('clickMatch', match)"
+          >
             <div class="text-xl font-semibold">{{ match.title }}</div>
             <div v-if="match.type == 'TOPIC'" class="italic">Thema</div>
             <div v-else-if="match.type == 'USER'" class="italic">User</div>
@@ -37,7 +40,13 @@
 </template>
 
 <script lang="ts" setup>
-import { type TextsearchableEntity, useGlobalSearchQuery } from '~/graphql'
+import {
+  type GlobalSearchQuery,
+  type TextsearchableEntity,
+  useGlobalSearchQuery,
+} from '~/graphql'
+
+type Match = NonNullable<GlobalSearchQuery['globalSearch']>['nodes'][0]
 
 const props = withDefaults(
   defineProps<{
@@ -49,6 +58,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: 'update:show', show: boolean): void
+  (e: 'clickMatch', match: Match): void
 }>()
 
 const term = useState(() => '')
