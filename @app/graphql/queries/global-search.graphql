@@ -1,0 +1,15 @@
+query GlobalSearch(
+  $term: String!
+  $entities: [TextsearchableEntity!] = [TOPIC, USER]
+) {
+  globalSearch(term: $term, entities: $entities) {
+    totalCount
+    nodes {
+      id
+      rankOrSimilarity
+      snippet
+      title
+      type
+    }
+  }
+}

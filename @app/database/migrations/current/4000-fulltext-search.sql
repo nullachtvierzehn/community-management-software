@@ -54,8 +54,7 @@ as $$
     null::uuid as topic_id
   from app_public.users
   where
-    length(term) >= 3
-    and 'user' = any (entities)
+    'user' = any (entities)
     and term <% username
   -- fetch topics
   union all
@@ -71,8 +70,7 @@ as $$
     app_public.topics, 
     websearch_to_tsquery('german', term) as query
   where
-    length(term) >= 3
-    and 'topic' = any (entities)
+    'topic' = any (entities)
     and query @@ fulltext_index_column
   order by rank_or_similarity desc
 $$;

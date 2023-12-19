@@ -5,12 +5,18 @@
     <client-only>
       <Teleport to="#roomHeaderButtons">
         <button @click="addNewMessage()">neue Nachricht</button>
-        <button @click="addNewTopic()">neues Thema</button>
+        <button @click="showSearchModal = true">neues Thema</button>
       </Teleport>
       <template #fallback>
         <noscript>Some buttons here for nonscript clients.</noscript>
       </template>
     </client-only>
+
+    <!-- search modal -->
+
+    <Teleport to="body">
+      <SearchModal v-model:show="showSearchModal" :entities="['TOPIC']" />
+    </Teleport>
 
     <div
       v-for="item in myDraftItems"
@@ -63,6 +69,7 @@ definePageMeta({
 })
 
 const route = useRoute()
+const showSearchModal = useState(() => false)
 const roomId = ref(route.params.id as string)
 const currentUser = useCurrentUser()
 const nItems = useRouteQuery<number>('n', 100, {

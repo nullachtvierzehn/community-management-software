@@ -1385,8 +1385,7 @@ CREATE FUNCTION app_public.global_search(term text, entities app_public.textsear
     null::uuid as topic_id
   from app_public.users
   where
-    length(term) >= 3
-    and 'user' = any (entities)
+    'user' = any (entities)
     and term <% username
   -- fetch topics
   union all
@@ -1402,8 +1401,7 @@ CREATE FUNCTION app_public.global_search(term text, entities app_public.textsear
     app_public.topics, 
     websearch_to_tsquery('german', term) as query
   where
-    length(term) >= 3
-    and 'topic' = any (entities)
+    'topic' = any (entities)
     and query @@ fulltext_index_column
   order by rank_or_similarity desc
 $$;

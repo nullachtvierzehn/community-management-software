@@ -5676,6 +5676,14 @@ export type GetUserByUsernameQueryVariables = Exact<{
 
 export type GetUserByUsernameQuery = { __typename?: 'Query', userByUsername: { __typename?: 'User', id: string, username: string } | null };
 
+export type GlobalSearchQueryVariables = Exact<{
+  term: Scalars['String']['input'];
+  entities?: InputMaybe<Array<TextsearchableEntity> | TextsearchableEntity>;
+}>;
+
+
+export type GlobalSearchQuery = { __typename?: 'Query', globalSearch: { __typename?: 'TextsearchMatchesConnection', totalCount: number, nodes: Array<{ __typename?: 'TextsearchMatch', id: string, rankOrSimilarity: number, snippet: string | null, title: string, type: TextsearchableEntity }> } | null };
+
 export type LoginMutationVariables = Exact<{
   username: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -6055,6 +6063,20 @@ export const GetUserByUsername = gql`
   userByUsername(username: $username) {
     id
     username
+  }
+}
+    `;
+export const GlobalSearch = gql`
+    query GlobalSearch($term: String!, $entities: [TextsearchableEntity!] = [TOPIC, USER]) {
+  globalSearch(term: $term, entities: $entities) {
+    totalCount
+    nodes {
+      id
+      rankOrSimilarity
+      snippet
+      title
+      type
+    }
   }
 }
     `;
@@ -6524,6 +6546,24 @@ export const GetUserByUsernameDocument = gql`
 
 export function useGetUserByUsernameQuery(options: Omit<Urql.UseQueryArgs<never, GetUserByUsernameQueryVariables>, 'query'>) {
   return Urql.useQuery<GetUserByUsernameQuery, GetUserByUsernameQueryVariables>({ query: GetUserByUsernameDocument, ...options });
+};
+export const GlobalSearchDocument = gql`
+    query GlobalSearch($term: String!, $entities: [TextsearchableEntity!] = [TOPIC, USER]) {
+  globalSearch(term: $term, entities: $entities) {
+    totalCount
+    nodes {
+      id
+      rankOrSimilarity
+      snippet
+      title
+      type
+    }
+  }
+}
+    `;
+
+export function useGlobalSearchQuery(options: Omit<Urql.UseQueryArgs<never, GlobalSearchQueryVariables>, 'query'>) {
+  return Urql.useQuery<GlobalSearchQuery, GlobalSearchQueryVariables>({ query: GlobalSearchDocument, ...options });
 };
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
