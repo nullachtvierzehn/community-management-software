@@ -132,7 +132,7 @@ create policy select_peers on app_public.room_subscriptions for select using (ro
 -- You should be able to unsubscribe from your rooms.
 create policy delete_own on app_public.room_subscriptions for delete using (subscriber_id = app_public.current_user_id());
 -- Maintainers can unsubscribe others from their rooms.
-create policy manage_as_moderator on app_public.room_subscriptions for all using (id in (select app_public.my_subscribed_room_ids(minimum_role => 'moderator')));
+create policy manage_as_moderator on app_public.room_subscriptions for all using (room_id in (select app_public.my_subscribed_room_ids(minimum_role => 'moderator')));
 -- You should be able to subscribe public rooms
 create policy subscribe_rooms on app_public.room_subscriptions for insert with check (
   exists (
@@ -152,6 +152,38 @@ create policy subscribe_rooms on app_public.room_subscriptions for insert with c
       )
   )
 );
+
+create or replace function app_hidden.verify_role_updates_on_room_subscriptions()
+returns trigger
+language plpgsql
+as $$
+declare
+  me app_public.users := app_public.current_user();
+  room app_public.rooms := (select r from app_public.rooms as r where id = new.room_id);
+  my_subscription app_public.room_subscriptions := (select s from app_public.my_room_subscription(room) as s);
+begin
+  if (new.role > old.role and me.is_admin is distinct from true) then
+    if new.subscriber_id = me.id then
+      raise exception 'cannot upgrade your own privileges';
+    elsif my_subscription is null or new.role > my_subscription.role then
+      raise exception 'cannot upgrade other subscribers to a role greater than yours';
+    end if;
+  end if;
+  return new;
+end
+$$;
+
+create constraint trigger t900_verify_role_updates_on_room_subscriptions
+after update on app_public.room_subscriptions
+for each row
+when (new.role > old.role)
+execute function  app_hidden.verify_role_updates_on_room_subscriptions();
+
+-- Admins should be able to add subscriptions
+create policy insert_as_admin
+on app_public.room_subscriptions
+for insert
+with check (exists (select from app_public.current_user() where is_admin));
 
 create trigger _100_timestamps
   before insert or update on app_public.room_subscriptions

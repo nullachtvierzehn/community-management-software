@@ -2,8 +2,19 @@
   <section v-if="!currentRoom">
     <h1>Fehler: Raum konnte nicht vollständig geladen werden.</h1>
   </section>
-  <section v-else>
+  <section v-else @keyup.esc="showUserModal = false">
     <h1>Mitglieder</h1>
+    <button @click="showUserModal = true">+</button>
+
+    <Teleport to="body">
+      <SearchModal
+        v-model:show="showUserModal"
+        :entities="['USER']"
+        :skip-ids="memberIds"
+        :focus-on-show="true"
+        @click-match="addUserById($event.id)"
+      ></SearchModal>
+    </Teleport>
 
     <!-- Show option to become admin of orphaned rooms. -->
     <div v-if="currentRoom.nSubscriptions === '0' && currentUser">
@@ -17,10 +28,8 @@
       :key="subscription.subscriberId"
       class="subscription"
     >
-      <div v-if="subscription.subscriber" class="subscription__username">
-        {{ subscription.subscriber.username }}
-      </div>
-      <div v-else class="subscription__username">Mitglied unbekannt</div>
+      <room-subscription :value="subscription" class="subscription__username">
+      </room-subscription>
     </div>
   </section>
 </template>
@@ -39,8 +48,11 @@ definePageMeta({
 })
 
 const route = useRoute()
+const showUserModal = ref(false)
 const currentUser = useCurrentUser()
 const currentRoom = inject(roomInjectionKey)
+const { executeMutation: createSubscription } =
+  useCreateRoomSubscriptionMutation()
 
 // fetch subscriptions
 const { data: dataOfSubscriptions, executeQuery: refetchSubscriptions } =
@@ -55,15 +67,29 @@ const subscriptions = computed(
   () => dataOfSubscriptions.value?.roomSubscriptions?.nodes ?? []
 )
 
-// create subscriptions
-const { executeMutation } = useCreateRoomSubscriptionMutation()
+const memberIds = computed(
+  () =>
+    dataOfSubscriptions.value?.roomSubscriptions?.nodes.map(
+      (n) => n.subscriberId
+    ) ?? []
+)
+
 async function becomeAdmin() {
   const user = toValue(currentUser)
   const room = toValue(currentRoom)
   if (!user) throw new Error('user is not signed in')
   if (!room) throw new Error('room is not available')
-  await executeMutation({
+  await createSubscription({
     subscription: { roomId: room.id, subscriberId: user.id, role: 'ADMIN' },
+  })
+  refetchSubscriptions({ requestPolicy: 'cache-and-network' })
+}
+
+async function addUserById(id: string) {
+  const room = toValue(currentRoom)
+  if (!room) throw new Error('room is not available')
+  const { data, error } = await createSubscription({
+    subscription: { roomId: room.id, subscriberId: id, role: 'MEMBER' },
   })
   refetchSubscriptions({ requestPolicy: 'cache-and-network' })
 }

@@ -1,0 +1,13 @@
+mutation UpdateRoomSubscription($oldId: UUID!, $patch: RoomSubscriptionPatch!) {
+  updateRoomSubscription(input: { patch: $patch, id: $oldId }) {
+    roomSubscription {
+      id
+      room {
+        id
+      }
+      subscriber {
+        id
+      }
+    }
+  }
+}

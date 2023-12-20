@@ -1,8 +1,23 @@
 query GlobalSearch(
   $term: String!
   $entities: [TextsearchableEntity!] = [TOPIC, USER]
+  $filter: TextsearchMatchFilter
+  $first: Int
+  $last: Int
+  $after: Cursor
+  $before: Cursor
+  $condition: TextsearchMatchCondition
 ) {
-  globalSearch(term: $term, entities: $entities) {
+  globalSearch(
+    term: $term
+    entities: $entities
+    filter: $filter
+    first: $first
+    last: $last
+    after: $after
+    before: $before
+    condition: $condition
+  ) {
     totalCount
     nodes {
       id

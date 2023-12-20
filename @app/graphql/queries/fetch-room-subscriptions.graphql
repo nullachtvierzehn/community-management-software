@@ -28,9 +28,10 @@ query FetchRoomSubscriptions(
       subscriberId
       subscriber {
         id
-        username
+        ...ShortProfile
       }
       roomId
+      role
       room {
         id
         title

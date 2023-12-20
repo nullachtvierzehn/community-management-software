@@ -5614,7 +5614,7 @@ export type FetchRoomSubscriptionsQueryVariables = Exact<{
 }>;
 
 
-export type FetchRoomSubscriptionsQuery = { __typename?: 'Query', roomSubscriptions: { __typename?: 'RoomSubscriptionsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, subscriber: { __typename?: 'User', id: string, username: string } | null, room: { __typename?: 'Room', id: string, title: string | null } | null }> } | null };
+export type FetchRoomSubscriptionsQuery = { __typename?: 'Query', roomSubscriptions: { __typename?: 'RoomSubscriptionsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, role: RoomRole, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null }> } | null };
 
 export type FetchRoomsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5679,6 +5679,12 @@ export type GetUserByUsernameQuery = { __typename?: 'Query', userByUsername: { _
 export type GlobalSearchQueryVariables = Exact<{
   term: Scalars['String']['input'];
   entities?: InputMaybe<Array<TextsearchableEntity> | TextsearchableEntity>;
+  filter?: InputMaybe<TextsearchMatchFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<TextsearchMatchCondition>;
 }>;
 
 
@@ -5718,6 +5724,14 @@ export type UpdateRoomMessageMutationVariables = Exact<{
 
 
 export type UpdateRoomMessageMutation = { __typename?: 'Mutation', updateRoomMessage: { __typename?: 'UpdateRoomMessagePayload', roomMessage: { __typename?: 'RoomMessage', id: string, updatedAt: string, answeredMessage: { __typename?: 'RoomMessage', id: string } | null } | null } | null };
+
+export type UpdateRoomSubscriptionMutationVariables = Exact<{
+  oldId: Scalars['UUID']['input'];
+  patch: RoomSubscriptionPatch;
+}>;
+
+
+export type UpdateRoomSubscriptionMutation = { __typename?: 'Mutation', updateRoomSubscription: { __typename?: 'UpdateRoomSubscriptionPayload', roomSubscription: { __typename?: 'RoomSubscription', id: string, room: { __typename?: 'Room', id: string } | null, subscriber: { __typename?: 'User', id: string } | null } | null } | null };
 
 export type UpdateTopicMutationVariables = Exact<{
   oldId: Scalars['UUID']['input'];
@@ -5940,9 +5954,10 @@ export const FetchRoomSubscriptions = gql`
       subscriberId
       subscriber {
         id
-        username
+        ...ShortProfile
       }
       roomId
+      role
       room {
         id
         title
@@ -5950,7 +5965,7 @@ export const FetchRoomSubscriptions = gql`
     }
   }
 }
-    `;
+    ${ShortProfile}`;
 export const FetchRooms = gql`
     query FetchRooms {
   rooms {
@@ -6067,8 +6082,8 @@ export const GetUserByUsername = gql`
 }
     `;
 export const GlobalSearch = gql`
-    query GlobalSearch($term: String!, $entities: [TextsearchableEntity!] = [TOPIC, USER]) {
-  globalSearch(term: $term, entities: $entities) {
+    query GlobalSearch($term: String!, $entities: [TextsearchableEntity!] = [TOPIC, USER], $filter: TextsearchMatchFilter, $first: Int, $last: Int, $after: Cursor, $before: Cursor, $condition: TextsearchMatchCondition) {
+  globalSearch(term: $term, entities: $entities, filter: $filter, first: $first, last: $last, after: $after, before: $before, condition: $condition) {
     totalCount
     nodes {
       id
@@ -6121,6 +6136,21 @@ export const UpdateRoomMessage = gql`
       id
       updatedAt
       answeredMessage {
+        id
+      }
+    }
+  }
+}
+    `;
+export const UpdateRoomSubscription = gql`
+    mutation UpdateRoomSubscription($oldId: UUID!, $patch: RoomSubscriptionPatch!) {
+  updateRoomSubscription(input: {patch: $patch, id: $oldId}) {
+    roomSubscription {
+      id
+      room {
+        id
+      }
+      subscriber {
         id
       }
     }
@@ -6385,9 +6415,10 @@ export const FetchRoomSubscriptionsDocument = gql`
       subscriberId
       subscriber {
         id
-        username
+        ...ShortProfile
       }
       roomId
+      role
       room {
         id
         title
@@ -6395,7 +6426,7 @@ export const FetchRoomSubscriptionsDocument = gql`
     }
   }
 }
-    `;
+    ${ShortProfileFragmentDoc}`;
 
 export function useFetchRoomSubscriptionsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomSubscriptionsQueryVariables>, 'query'>) {
   return Urql.useQuery<FetchRoomSubscriptionsQuery, FetchRoomSubscriptionsQueryVariables>({ query: FetchRoomSubscriptionsDocument, ...options });
@@ -6548,8 +6579,8 @@ export function useGetUserByUsernameQuery(options: Omit<Urql.UseQueryArgs<never,
   return Urql.useQuery<GetUserByUsernameQuery, GetUserByUsernameQueryVariables>({ query: GetUserByUsernameDocument, ...options });
 };
 export const GlobalSearchDocument = gql`
-    query GlobalSearch($term: String!, $entities: [TextsearchableEntity!] = [TOPIC, USER]) {
-  globalSearch(term: $term, entities: $entities) {
+    query GlobalSearch($term: String!, $entities: [TextsearchableEntity!] = [TOPIC, USER], $filter: TextsearchMatchFilter, $first: Int, $last: Int, $after: Cursor, $before: Cursor, $condition: TextsearchMatchCondition) {
+  globalSearch(term: $term, entities: $entities, filter: $filter, first: $first, last: $last, after: $after, before: $before, condition: $condition) {
     totalCount
     nodes {
       id
@@ -6627,6 +6658,25 @@ export const UpdateRoomMessageDocument = gql`
 
 export function useUpdateRoomMessageMutation() {
   return Urql.useMutation<UpdateRoomMessageMutation, UpdateRoomMessageMutationVariables>(UpdateRoomMessageDocument);
+};
+export const UpdateRoomSubscriptionDocument = gql`
+    mutation UpdateRoomSubscription($oldId: UUID!, $patch: RoomSubscriptionPatch!) {
+  updateRoomSubscription(input: {patch: $patch, id: $oldId}) {
+    roomSubscription {
+      id
+      room {
+        id
+      }
+      subscriber {
+        id
+      }
+    }
+  }
+}
+    `;
+
+export function useUpdateRoomSubscriptionMutation() {
+  return Urql.useMutation<UpdateRoomSubscriptionMutation, UpdateRoomSubscriptionMutationVariables>(UpdateRoomSubscriptionDocument);
 };
 export const UpdateTopicDocument = gql`
     mutation UpdateTopic($oldId: UUID!, $patch: TopicPatch!) {

@@ -2,17 +2,8 @@
   <section>
     <h1 class="sr-only">Entwürfe</h1>
     <!-- my draft items-->
-    <client-only>
-      <Teleport to="#roomHeaderButtons">
-        <button @click="addNewMessage()">neue Nachricht</button>
-        <button @click="showSearchModal = true">neues Thema</button>
-      </Teleport>
-      <template #fallback>
-        <noscript>Some buttons here for nonscript clients.</noscript>
-      </template>
-    </client-only>
-
-    <!-- search modal -->
+    <button @click="addNewMessage()">neue Nachricht</button>
+    <button @click="showSearchModal = true">neues Thema</button>
 
     <Teleport to="body">
       <SearchModal v-model:show="showSearchModal" :entities="['TOPIC']" />

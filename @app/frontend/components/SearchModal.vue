@@ -9,10 +9,12 @@
     >
       <div class="modal__search-input p-4 border-b border-b-gray-200">
         <input
+          ref="searchField"
           v-model="term"
           type="search"
           class="text-black w-full rounded-sm text-2xl shadow-sm mb-2 p-1"
           placeholder="Suche…"
+          @keyup.esc="emit('update:show', false)"
         />
         <div v-if="isPaused">Die Suche läuft ab 3 Buchstaben.</div>
         <div v-if="!isPaused && typeof totalCount === 'number'">
@@ -52,8 +54,15 @@ const props = withDefaults(
   defineProps<{
     show: boolean
     entities: TextsearchableEntity[]
+    skipIds: string[]
+    focusOnShow: boolean
   }>(),
-  { show: false, entities: () => ['TOPIC', 'USER'] }
+  {
+    show: false,
+    entities: () => ['TOPIC', 'USER'],
+    skipIds: () => [],
+    focusOnShow: false,
+  }
 )
 
 const emit = defineEmits<{
@@ -62,11 +71,13 @@ const emit = defineEmits<{
 }>()
 
 const term = useState(() => '')
+const searchField = ref<HTMLInputElement>()
 
 const { data, isPaused, error } = await useGlobalSearchQuery({
   variables: computed(() => ({
     term: toValue(term),
     entities: props.entities,
+    filter: { id: { notIn: props.skipIds } },
   })),
   requestPolicy: 'cache-and-network',
   pause: computed(() => term.value.length < 3),
@@ -74,6 +85,10 @@ const { data, isPaused, error } = await useGlobalSearchQuery({
 
 const totalCount = computed(() => data.value?.globalSearch?.totalCount)
 const matches = computed(() => data.value?.globalSearch?.nodes ?? [])
+
+onMounted(() => {
+  if (props.focusOnShow) searchField.value?.focus()
+})
 </script>
 
 <style lang="postcss" scoped></style>

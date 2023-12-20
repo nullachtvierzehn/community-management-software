@@ -3,12 +3,15 @@
     class="grid box-border m-4 p-4 bg-gray-200 rounded-xl h-[calc(100vh-2*theme(space.4))]"
   >
     <!-- Room's title -->
-    <header class="flex justify-between">
-      <h1 v-if="room" class="text-2xl font-bold mb-2">
-        Raum: {{ room.title }}
-      </h1>
-      <div id="roomHeaderButtons"></div>
-    </header>
+    <!--
+
+      <header class="flex justify-between">
+        <h1 v-if="room" class="text-2xl font-bold mb-2">
+          Raum: {{ room.title }}
+        </h1>
+        <div id="roomHeaderButtons"></div>
+      </header>
+    -->
 
     <!-- Tab -->
     <main class="overflow-scroll">
@@ -26,12 +29,15 @@
       <NuxtLink :to="{ name: 'room/members', params: { id: roomId } }">
         Mitglieder
       </NuxtLink>
-      <NuxtLink :to="{ name: 'room/messages', params: { id: roomId } }">
-        Nachrichten
-      </NuxtLink>
-      <NuxtLink :to="{ name: 'room/materials', params: { id: roomId } }">
-        Materialien
-      </NuxtLink>
+      <!--
+
+        <NuxtLink :to="{ name: 'room/messages', params: { id: roomId } }">
+          Nachrichten
+        </NuxtLink>
+        <NuxtLink :to="{ name: 'room/materials', params: { id: roomId } }">
+          Materialien
+        </NuxtLink>
+      -->
       <NuxtLink :to="{ name: 'room/items', params: { id: roomId } }">
         Inhalte
       </NuxtLink>
