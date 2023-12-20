@@ -1,10 +1,11 @@
 import { app } from '../app.js'
 import { ownerPool } from '../database/pool.js'
 import clearSessionData from '../utils/clear-session-data.js'
+import loginSchema from '../validations/login-input.js'
 
 export default app.post(
   '/login',
-  { schema: { body: { $ref: 'validations#/definitions/loginInput' } } },
+  { schema: { body: loginSchema } },
   async (request, reply) => {
     const { username, password } = request.body
     try {

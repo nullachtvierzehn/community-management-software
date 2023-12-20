@@ -23,8 +23,7 @@
     "bun-types": "latest",
     "graphile-utils": "^5.0.0-beta.15",
     "nodemon": "^3.0.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.0"
+    "ts-node": "^10.9.1"
   },
   "dependencies": {
     "@fastify/cookie": "^9.1.0",
@@ -46,7 +45,7 @@
     "lodash-es": "^4.17.21",
     "mjml": "^4.14.1",
     "nodemailer": "^6.9.7",
-    "postgraphile": "beta",
-    "postgraphile-plugin-connection-filter": "beta"
+    "postgraphile": "5.0.0-beta.18",
+    "postgraphile-plugin-connection-filter": "3.0.0-beta.1"
   }
 }

@@ -1,10 +1,11 @@
 import { app } from '../app.js'
 import { ownerPool } from '../database/pool.js'
 import { ERROR_MESSAGE_OVERRIDES } from '../utils/handle-errors.js'
+import registrationSchema from '../validations/registration-input.js'
 
 app.post(
   '/register',
-  { schema: { body: { $ref: 'validations#/definitions/registrationInput' } } },
+  { schema: { body: registrationSchema } },
   async (request, reply) => {
     const { username, password, email, name, avatarUrl } = request.body
     try {

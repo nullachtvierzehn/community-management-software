@@ -1,6 +1,7 @@
 {
   "name": "root",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev:frontend": "npm run --workspace @app/frontend dev",
     "dev:backend": "npm run --workspace @app/backend dev",
@@ -20,7 +21,9 @@
   },
   "resolutions": {
     "grafast": "0.1.1-beta.1",
-    "**/grafast": "0.1.1-beta.1"
+    "**/grafast": "0.1.1-beta.1",
+    "typescript": "5.2.2",
+    "**/typescript": "5.2.2"
   },
   "dependencies": {
     "@fastify/secure-session": "^7.1.0",
@@ -51,7 +54,8 @@
     "patch-package": "^8.0.0",
     "prettier": "^3.1.0",
     "stylelint": "^15.11.0",
-    "stylelint-prettier": "^4.1.0"
+    "stylelint-prettier": "^4.1.0",
+    "typescript": "~5.2.0"
   },
   "packageManager": "npm@10.2.0",
   "engines": {

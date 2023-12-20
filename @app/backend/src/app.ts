@@ -10,9 +10,7 @@ import validations from './validations/index.js'
 
 export const app = fastify({
   logger: true,
-}).withTypeProvider<
-  JsonSchemaToTsProvider<{ references: [typeof validations] }>
->()
+}).withTypeProvider<JsonSchemaToTsProvider>()
 
 app.addSchema(validations)
 await app.register(fastifyWebsocket)

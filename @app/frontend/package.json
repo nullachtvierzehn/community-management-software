@@ -28,8 +28,10 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@intlify/vue-i18n-bridge": "^1.1.0",
+    "@intlify/vue-router-bridge": "^1.1.0",
     "@nuxt-alt/proxy": "^2.3.2",
-    "@nuxtjs/i18n": "^8.0.0-rc.8",
+    "@nuxtjs/i18n": "^8.0.0-rc.11",
     "@tailwindcss/typography": "^0.5.10",
     "@tiptap/core": "^2.1.12",
     "@tiptap/extension-dropcursor": "^2.1.12",
@@ -52,6 +54,7 @@
     "graphql": "^16.8.1",
     "lodash": "^4.17.21",
     "remixicon": "^3.5.0",
-    "vee-validate": "^4.12.2"
+    "vee-validate": "^4.12.2",
+    "vue-demi": "^0.14.6"
   }
 }
