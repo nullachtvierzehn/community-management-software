@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "python-worker"
+version = "0.1.0"
+description = ""
+authors = ["Timo Stolz <timo.stolz@nullachtvierzehn.de>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+procrastinate = "^0.32.0"
+pypdfium2 = "^4.25.0"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

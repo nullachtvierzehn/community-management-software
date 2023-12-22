@@ -11,6 +11,7 @@
     "bradlc.vscode-tailwindcss",
     "cpylua.language-postcss",
     "ms-vscode-remote.vscode-remote-extensionpack",
-    "ckolkman.vscode-postgres"
+    "ckolkman.vscode-postgres",
+    "ms-python.python"
   ]
 }
