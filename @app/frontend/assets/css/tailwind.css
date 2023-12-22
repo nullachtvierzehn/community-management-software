@@ -3,6 +3,18 @@
 @tailwind utilities;
 
 @layer components {
+  .btn-bar {
+    @apply flex gap-2;
+  }
+
+  .btn {
+    @apply rounded-md px-3 py-2;
+
+    &.btn_primary {
+      @apply bg-gray-700 text-white;
+    }
+  }
+
   .form-grid {
     display: grid;
     grid-template-columns: [label-start] 1fr [label-end field-start] 2fr [field-end];
@@ -23,12 +35,14 @@
       }
 
       & .form-input__error {
+        @apply mt-1 text-red-700;
         grid-column: field;
       }
     }
 
-    & > button {
-      grid-column: 2;
+    & > .btn,
+    & > .btn-bar {
+      grid-column: field;
     }
   }
 

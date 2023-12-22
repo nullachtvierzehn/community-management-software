@@ -18,7 +18,7 @@
         type="password"
       />
     </label>
-    <button class="" type="submit">ok</button>
+    <button class="btn btn_primary" type="submit">ok</button>
   </form>
   <pre v-if="error">{{ error }}</pre>
   <pre v-if="data">{{ data }}</pre>

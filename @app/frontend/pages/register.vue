@@ -95,7 +95,7 @@
 
         <!-- submit button -->
         <button
-          class="block"
+          class="btn btn_primary"
           :disabled="
             (!meta.touched && !meta.valid) || registrationInTransmission
           "
