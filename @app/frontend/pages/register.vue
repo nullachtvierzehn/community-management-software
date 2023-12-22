@@ -2,13 +2,16 @@
   <article>
     <h1>Als neu:e Benutzer:in anmelden</h1>
     <section>
-      <form @submit.prevent="onSubmit">
+      <form class="form-grid" @submit.prevent="onSubmit">
         <!-- username -->
-        <label for="registrationInputUsername" class="block">
-          <span>Login-Name</span>
+        <div class="form-input">
+          <label for="registrationInputUsername" class="form-input__label"
+            >Login-Name</label
+          >
           <input
             id="registrationInputUsername"
             v-model="username"
+            class="form-input__field"
             type="text"
             v-bind="usernameAttrs"
             aria-describedby="registrationInputUsernameErrors"
@@ -16,29 +19,43 @@
           <div
             v-show="fieldErrors.username"
             id="registrationInputUsernameErrors"
+            class="form-input__error"
           >
             {{ fieldErrors.username }}
           </div>
-        </label>
+        </div>
 
         <!-- email -->
-        <label for="registrationInputEmail" class="block">
-          <span>E-Mail</span>
+        <div class="form-input">
+          <label for="registrationInputEmail" class="form-input__label"
+            >E-Mail</label
+          >
           <input
             id="registrationInputEmail"
             v-model="email"
+            class="form-input__field"
             type="email"
             v-bind="emailAttrs"
+            aria-describedby="registrationInputEmailErrors"
           />
-          <div v-show="fieldErrors.email">{{ fieldErrors.email }}</div>
-        </label>
+          <div
+            v-show="fieldErrors.email"
+            id="registrationInputEmailErrors"
+            class="form-input__error"
+          >
+            {{ fieldErrors.email }}
+          </div>
+        </div>
 
         <!-- password -->
-        <label for="registrationInputPassword" class="block">
-          <span>Passwort</span>
+        <div class="form-input">
+          <label for="registrationInputPassword" class="form-input__label"
+            >Passwort</label
+          >
           <input
             id="registrationInputPassword"
             v-model="password"
+            class="form-input__field"
             type="password"
             v-bind="passwordAttrs"
             aria-describedby="registrationInputPasswordErrors"
@@ -46,17 +63,23 @@
           <div
             v-show="fieldErrors.password"
             id="registrationInputPasswordErrors"
+            class="form-input__error"
           >
             {{ fieldErrors.password }}
           </div>
-        </label>
+        </div>
 
         <!-- password confirmation -->
-        <label for="registrationInputConfirmPassword" class="block">
-          <span>Passwort bestätigen</span>
+        <div class="form-input">
+          <label
+            for="registrationInputConfirmPassword"
+            class="form-input__label"
+            >Passwort bestätigen</label
+          >
           <input
             id="registrationInputConfirmPassword"
             v-model="confirmPassword"
+            class="form-input__field"
             type="password"
             v-bind="confirmPasswordAttrs"
             aria-describedby="registrationInputConfirmPasswordErrors"
@@ -64,10 +87,11 @@
           <div
             v-show="fieldErrors.confirmPassword"
             id="registrationInputConfirmPasswordErrors"
+            class="form-input__error"
           >
             {{ fieldErrors.confirmPassword }}
           </div>
-        </label>
+        </div>
 
         <!-- submit button -->
         <button

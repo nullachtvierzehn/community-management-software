@@ -1,3 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .form-grid {
+    display: grid;
+    grid-template-columns: [label-start] 1fr [label-end field-start] 2fr [field-end];
+    gap: 1rem;
+
+    & .form-input {
+      display: grid;
+      grid-column: span 2;
+      grid-template-columns: subgrid;
+      align-items: center;
+
+      & .form-input__label {
+        grid-column: label;
+      }
+
+      & .form-input__field {
+        grid-column: field;
+      }
+
+      & .form-input__error {
+        grid-column: field;
+      }
+    }
+
+    & > button {
+      grid-column: 2;
+    }
+  }
+
+  .form-input .form-input__field {
+    @apply border border-black p-2;
+  }
+}

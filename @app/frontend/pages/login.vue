@@ -1,14 +1,24 @@
 <template>
-  <form action="post" @submit.prevent="login()">
-    <label for="loginInputUsername" class="block">
-      <span>Login-Name</span>
-      <input id="loginInputUsername" v-model="username" type="text" />
+  <form action="post" class="form-grid max-w-[500px]" @submit.prevent="login()">
+    <label for="loginInputUsername" class="form-input">
+      <span class="form-input__label">Login-Name</span>
+      <input
+        id="loginInputUsername"
+        v-model="username"
+        class="form-input__field"
+        type="text"
+      />
     </label>
-    <label for="loginInputPassword" class="block">
-      <span>Passwort</span>
-      <input id="loginInputPassword" v-model="password" type="password" />
+    <label for="loginInputPassword" class="form-input">
+      <span class="form-input__label">Passwort</span>
+      <input
+        id="loginInputPassword"
+        v-model="password"
+        class="form-input__field"
+        type="password"
+      />
     </label>
-    <button type="submit">ok</button>
+    <button class="" type="submit">ok</button>
   </form>
   <pre v-if="error">{{ error }}</pre>
   <pre v-if="data">{{ data }}</pre>
