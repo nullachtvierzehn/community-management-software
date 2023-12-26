@@ -85,6 +85,12 @@ async def process_pdf(file_id: str):
             """
             INSERT INTO app_public.pdf_files (id, title, pages, metadata, content_as_plain_text, thumbnail_id)
             VALUES (%(id)s, %(title)s, %(pages)s, %(metadata)s, %(plain_text)s, %(thumbnail_id)s)
+            ON CONFLICT (id) DO UPDATE SET
+                title = EXCLUDED.title, 
+                pages = EXCLUDED.pages, 
+                metadata = EXCLUDED.metadata, 
+                content_as_plain_text = EXCLUDED.content_as_plain_text, 
+                thumbnail_id = EXCLUDED.thumbnail_id
             RETURNING *
             """,
             dict(
