@@ -38,6 +38,7 @@ export default defineNuxtConfig({
   // `proxy` is added by module @nuxt-alt/proxy, see https://github.com/nuxt-alt/proxy
   proxy: {
     proxies: {
+      '/backend/files': { target: 'http://localhost:3001', changeOrigin: true },
       '/graphql': { target: 'http://localhost:3001', changeOrigin: true },
       '/graphiql': { target: 'http://localhost:3001', changeOrigin: true },
     },

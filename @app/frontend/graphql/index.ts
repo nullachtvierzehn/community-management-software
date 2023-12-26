@@ -55,6 +55,12 @@ export type Query = Node & {
   /** Reads and enables pagination through a set of `Uuid`. */
   currentUserMemberOrganizationIds: Maybe<CurrentUserMemberOrganizationIdsConnection>;
   fetchDraftInRoom: Maybe<RoomMessage>;
+  /** Get a single `File`. */
+  file: Maybe<File>;
+  /** Reads a single `File` using its globally unique `ID`. */
+  fileByNodeId: Maybe<File>;
+  /** Reads and enables pagination through a set of `File`. */
+  files: Maybe<FilesConnection>;
   /** Reads and enables pagination through a set of `TextsearchMatch`. */
   globalSearch: Maybe<TextsearchMatchesConnection>;
   /** Reads and enables pagination through a set of `RoomSubscription`. */
@@ -82,6 +88,12 @@ export type Query = Node & {
   organizationMemberships: Maybe<OrganizationMembershipsConnection>;
   /** Reads and enables pagination through a set of `Organization`. */
   organizations: Maybe<OrganizationsConnection>;
+  /** Get a single `PdfFile`. */
+  pdfFile: Maybe<PdfFile>;
+  /** Reads a single `PdfFile` using its globally unique `ID`. */
+  pdfFileByNodeId: Maybe<PdfFile>;
+  /** Reads and enables pagination through a set of `PdfFile`. */
+  pdfFiles: Maybe<PdfFilesConnection>;
   /**
    * Exposes the root query type nested one level down. This is helpful for Relay 1
    * which can only query top level fields if they are in a particular form.
@@ -181,6 +193,31 @@ export type QueryCurrentUserMemberOrganizationIdsArgs = {
 /** The root query type which gives access points into the data universe. */
 export type QueryFetchDraftInRoomArgs = {
   roomId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryFileArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryFileByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryFilesArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<FileCondition>;
+  filter?: InputMaybe<FileFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<FilesOrderBy>>;
 };
 
 
@@ -296,6 +333,31 @@ export type QueryOrganizationsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<OrganizationsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryPdfFileArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryPdfFileByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryPdfFilesArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<PdfFileCondition>;
+  filter?: InputMaybe<PdfFileFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<PdfFilesOrderBy>>;
 };
 
 
@@ -580,6 +642,8 @@ export type User = Node & {
   createdAt: Scalars['Datetime']['output'];
   /** Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room. */
   defaultHandlingOfNotifications: NotificationSetting;
+  /** Reads and enables pagination through a set of `File`. */
+  filesByContributorId: FilesConnection;
   hasPassword: Maybe<Scalars['Boolean']['output']>;
   /** Unique identifier for the user. */
   id: Scalars['UUID']['output'];
@@ -620,6 +684,19 @@ export type UserAuthoredTopicsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<TopicsOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
+export type UserFilesByContributorIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<FileCondition>;
+  filter?: InputMaybe<FileFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<FilesOrderBy>>;
 };
 
 
@@ -801,6 +878,10 @@ export type UserFilter = {
   createdAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `defaultHandlingOfNotifications` field. */
   defaultHandlingOfNotifications?: InputMaybe<NotificationSettingFilter>;
+  /** Filter by the object’s `filesByContributorId` relation. */
+  filesByContributorId?: InputMaybe<UserToManyFileFilter>;
+  /** Some related `filesByContributorId` exist. */
+  filesByContributorIdExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `hasPassword` field. */
   hasPassword?: InputMaybe<BooleanFilter>;
   /** Filter by the object’s `id` field. */
@@ -993,30 +1074,56 @@ export type NotificationSetting =
   | 'IMMEDIATE'
   | 'SILENCED';
 
-/** A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’ */
-export type BooleanFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+/** A filter to be used against many `File` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyFileFilter = {
+  /** Every related `File` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<FileFilter>;
+  /** No related `File` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<FileFilter>;
+  /** Some related `File` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<FileFilter>;
+};
+
+/** A filter to be used against `File` object types. All fields are combined with a logical ‘and.’ */
+export type FileFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<FileFilter>>;
+  /** Filter by the object’s `contributor` relation. */
+  contributor?: InputMaybe<UserFilter>;
+  /** A related `contributor` exists. */
+  contributorExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `contributorId` field. */
+  contributorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `filename` field. */
+  filename?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `mimeType` field. */
+  mimeType?: InputMaybe<StringFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<FileFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<FileFilter>>;
+  /** Filter by the object’s `pathOnStorage` field. */
+  pathOnStorage?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `pdfFile` relation. */
+  pdfFile?: InputMaybe<PdfFileFilter>;
+  /** A related `pdfFile` exists. */
+  pdfFileExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `pdfFilesByThumbnailId` relation. */
+  pdfFilesByThumbnailId?: InputMaybe<FileToManyPdfFileFilter>;
+  /** Some related `pdfFilesByThumbnailId` exist. */
+  pdfFilesByThumbnailIdExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `sha256` field. */
+  sha256?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `totalBytes` field. */
+  totalBytes?: InputMaybe<IntFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `uploadedBytes` field. */
+  uploadedBytes?: InputMaybe<IntFilter>;
 };
 
 /** A filter to be used against UUID fields. All fields are combined with a logical ‘and.’ */
@@ -1043,6 +1150,136 @@ export type UuidFilter = {
   notEqualTo?: InputMaybe<Scalars['UUID']['input']>;
   /** Not included in the specified list. */
   notIn?: InputMaybe<Array<Scalars['UUID']['input']>>;
+};
+
+/** A filter to be used against `PdfFile` object types. All fields are combined with a logical ‘and.’ */
+export type PdfFileFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<PdfFileFilter>>;
+  /** Filter by the object’s `contentAsPlainText` field. */
+  contentAsPlainText?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `file` relation. */
+  file?: InputMaybe<FileFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `metadata` field. */
+  metadata?: InputMaybe<JsonFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<PdfFileFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<PdfFileFilter>>;
+  /** Filter by the object’s `pages` field. */
+  pages?: InputMaybe<IntFilter>;
+  /** Filter by the object’s `thumbnail` relation. */
+  thumbnail?: InputMaybe<FileFilter>;
+  /** A related `thumbnail` exists. */
+  thumbnailExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `thumbnailId` field. */
+  thumbnailId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `title` field. */
+  title?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against JSON fields. All fields are combined with a logical ‘and.’ */
+export type JsonFilter = {
+  /** Contained by the specified JSON. */
+  containedBy?: InputMaybe<Scalars['JSON']['input']>;
+  /** Contains the specified JSON. */
+  contains?: InputMaybe<Scalars['JSON']['input']>;
+  /** Contains all of the specified keys. */
+  containsAllKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Contains any of the specified keys. */
+  containsAnyKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Contains the specified key. */
+  containsKey?: InputMaybe<Scalars['String']['input']>;
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['JSON']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['JSON']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['JSON']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['JSON']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['JSON']['input']>>;
+};
+
+/** A filter to be used against Int fields. All fields are combined with a logical ‘and.’ */
+export type IntFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['Int']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['Int']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['Int']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['Int']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['Int']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['Int']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['Int']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['Int']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
+/** A filter to be used against many `PdfFile` object types. All fields are combined with a logical ‘and.’ */
+export type FileToManyPdfFileFilter = {
+  /** Every related `PdfFile` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<PdfFileFilter>;
+  /** No related `PdfFile` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<PdfFileFilter>;
+  /** Some related `PdfFile` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<PdfFileFilter>;
+};
+
+/** A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’ */
+export type BooleanFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['Boolean']['input']>>;
 };
 
 /** A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
@@ -1410,42 +1647,6 @@ export type RoomHistoryVisibility =
   | 'INVITATION'
   | 'SPECIFIED_DATE'
   | 'SUBSCRIPTION';
-
-/** A filter to be used against JSON fields. All fields are combined with a logical ‘and.’ */
-export type JsonFilter = {
-  /** Contained by the specified JSON. */
-  containedBy?: InputMaybe<Scalars['JSON']['input']>;
-  /** Contains the specified JSON. */
-  contains?: InputMaybe<Scalars['JSON']['input']>;
-  /** Contains all of the specified keys. */
-  containsAllKeys?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** Contains any of the specified keys. */
-  containsAnyKeys?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** Contains the specified key. */
-  containsKey?: InputMaybe<Scalars['String']['input']>;
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['JSON']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['JSON']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['JSON']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['JSON']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['JSON']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['JSON']['input']>>;
-};
 
 /** A filter to be used against Float fields. All fields are combined with a logical ‘and.’ */
 export type FloatFilter = {
@@ -2750,6 +2951,194 @@ export type RoomSubscriptionsEdge = {
   node: RoomSubscription;
 };
 
+/** A condition to be used against `File` object types. All fields are tested for equality and combined with a logical ‘and.’ */
+export type FileCondition = {
+  /** Checks for equality with the object’s `contributorId` field. */
+  contributorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `filename` field. */
+  filename?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `mimeType` field. */
+  mimeType?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `pathOnStorage` field. */
+  pathOnStorage?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `sha256` field. */
+  sha256?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `totalBytes` field. */
+  totalBytes?: InputMaybe<Scalars['Int']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `uploadedBytes` field. */
+  uploadedBytes?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** Methods to use when ordering `File`. */
+export type FilesOrderBy =
+  | 'CONTRIBUTOR_ID_ASC'
+  | 'CONTRIBUTOR_ID_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'FILENAME_ASC'
+  | 'FILENAME_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'MIME_TYPE_ASC'
+  | 'MIME_TYPE_DESC'
+  | 'NATURAL'
+  | 'PATH_ON_STORAGE_ASC'
+  | 'PATH_ON_STORAGE_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'SHA256_ASC'
+  | 'SHA256_DESC'
+  | 'TOTAL_BYTES_ASC'
+  | 'TOTAL_BYTES_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC'
+  | 'UPLOADED_BYTES_ASC'
+  | 'UPLOADED_BYTES_DESC';
+
+/** A connection to a list of `File` values. */
+export type FilesConnection = {
+  __typename?: 'FilesConnection';
+  /** A list of edges which contains the `File` and cursor to aid in pagination. */
+  edges: Array<FilesEdge>;
+  /** A list of `File` objects. */
+  nodes: Array<File>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `File` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `File` edge in the connection. */
+export type FilesEdge = {
+  __typename?: 'FilesEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `File` at the end of the edge. */
+  node: File;
+};
+
+export type File = Node & {
+  __typename?: 'File';
+  /** Reads a single `User` that is related to this `File`. */
+  contributor: Maybe<User>;
+  contributorId: Maybe<Scalars['UUID']['output']>;
+  createdAt: Scalars['Datetime']['output'];
+  filename: Maybe<Scalars['String']['output']>;
+  id: Scalars['UUID']['output'];
+  mimeType: Maybe<Scalars['String']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  pathOnStorage: Maybe<Scalars['String']['output']>;
+  /** Reads a single `PdfFile` that is related to this `File`. */
+  pdfFile: Maybe<PdfFile>;
+  /** Reads and enables pagination through a set of `PdfFile`. */
+  pdfFilesByThumbnailId: PdfFilesConnection;
+  sha256: Maybe<Scalars['String']['output']>;
+  totalBytes: Maybe<Scalars['Int']['output']>;
+  updatedAt: Scalars['Datetime']['output'];
+  uploadedBytes: Maybe<Scalars['Int']['output']>;
+};
+
+
+export type FilePdfFilesByThumbnailIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<PdfFileCondition>;
+  filter?: InputMaybe<PdfFileFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<PdfFilesOrderBy>>;
+};
+
+export type PdfFile = Node & {
+  __typename?: 'PdfFile';
+  contentAsPlainText: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Datetime']['output'];
+  /** Reads a single `File` that is related to this `PdfFile`. */
+  file: Maybe<File>;
+  id: Scalars['UUID']['output'];
+  metadata: Maybe<Scalars['JSON']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  pages: Scalars['Int']['output'];
+  /** Reads a single `File` that is related to this `PdfFile`. */
+  thumbnail: Maybe<File>;
+  thumbnailId: Maybe<Scalars['UUID']['output']>;
+  title: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+/** A condition to be used against `PdfFile` object types. All fields are tested for equality and combined with a logical ‘and.’ */
+export type PdfFileCondition = {
+  /** Checks for equality with the object’s `contentAsPlainText` field. */
+  contentAsPlainText?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `metadata` field. */
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `pages` field. */
+  pages?: InputMaybe<Scalars['Int']['input']>;
+  /** Checks for equality with the object’s `thumbnailId` field. */
+  thumbnailId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `title` field. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `PdfFile`. */
+export type PdfFilesOrderBy =
+  | 'CONTENT_AS_PLAIN_TEXT_ASC'
+  | 'CONTENT_AS_PLAIN_TEXT_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'METADATA_ASC'
+  | 'METADATA_DESC'
+  | 'NATURAL'
+  | 'PAGES_ASC'
+  | 'PAGES_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'THUMBNAIL_ID_ASC'
+  | 'THUMBNAIL_ID_DESC'
+  | 'TITLE_ASC'
+  | 'TITLE_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `PdfFile` values. */
+export type PdfFilesConnection = {
+  __typename?: 'PdfFilesConnection';
+  /** A list of edges which contains the `PdfFile` and cursor to aid in pagination. */
+  edges: Array<PdfFilesEdge>;
+  /** A list of `PdfFile` objects. */
+  nodes: Array<PdfFile>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `PdfFile` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `PdfFile` edge in the connection. */
+export type PdfFilesEdge = {
+  __typename?: 'PdfFilesEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `PdfFile` at the end of the edge. */
+  node: PdfFile;
+};
+
 /**
  * A condition to be used against `UserAuthentication` object types. All fields are
  * tested for equality and combined with a logical ‘and.’
@@ -3246,7 +3635,11 @@ export type Mutation = {
   changePassword: Maybe<ChangePasswordPayload>;
   /** If you're certain you want to delete your account, use `requestAccountDeletion` to request an account deletion token, and then supply the token through this mutation to complete account deletion. */
   confirmAccountDeletion: Maybe<ConfirmAccountDeletionPayload>;
+  /** Creates a single `File`. */
+  createFile: Maybe<CreateFilePayload>;
   createOrganization: Maybe<CreateOrganizationPayload>;
+  /** Creates a single `PdfFile`. */
+  createPdfFile: Maybe<CreatePdfFilePayload>;
   /** Creates a single `Room`. */
   createRoom: Maybe<CreateRoomPayload>;
   /** Creates a single `RoomItem`. */
@@ -3263,7 +3656,15 @@ export type Mutation = {
   createUser: Maybe<CreateUserPayload>;
   /** Creates a single `UserEmail`. */
   createUserEmail: Maybe<CreateUserEmailPayload>;
+  /** Deletes a single `File` using a unique key. */
+  deleteFile: Maybe<DeleteFilePayload>;
+  /** Deletes a single `File` using its globally unique id. */
+  deleteFileByNodeId: Maybe<DeleteFilePayload>;
   deleteOrganization: Maybe<DeleteOrganizationPayload>;
+  /** Deletes a single `PdfFile` using a unique key. */
+  deletePdfFile: Maybe<DeletePdfFilePayload>;
+  /** Deletes a single `PdfFile` using its globally unique id. */
+  deletePdfFileByNodeId: Maybe<DeletePdfFilePayload>;
   /** Deletes a single `Room` using a unique key. */
   deleteRoom: Maybe<DeleteRoomPayload>;
   /** Deletes a single `Room` using its globally unique id. */
@@ -3327,12 +3728,20 @@ export type Mutation = {
   sendRoomMessage: Maybe<SendRoomMessagePayload>;
   transferOrganizationBillingContact: Maybe<TransferOrganizationBillingContactPayload>;
   transferOrganizationOwnership: Maybe<TransferOrganizationOwnershipPayload>;
+  /** Updates a single `File` using a unique key and a patch. */
+  updateFile: Maybe<UpdateFilePayload>;
+  /** Updates a single `File` using its globally unique id and a patch. */
+  updateFileByNodeId: Maybe<UpdateFilePayload>;
   /** Updates a single `Organization` using a unique key and a patch. */
   updateOrganization: Maybe<UpdateOrganizationPayload>;
   /** Updates a single `Organization` using its globally unique id and a patch. */
   updateOrganizationByNodeId: Maybe<UpdateOrganizationPayload>;
   /** Updates a single `Organization` using a unique key and a patch. */
   updateOrganizationBySlug: Maybe<UpdateOrganizationPayload>;
+  /** Updates a single `PdfFile` using a unique key and a patch. */
+  updatePdfFile: Maybe<UpdatePdfFilePayload>;
+  /** Updates a single `PdfFile` using its globally unique id and a patch. */
+  updatePdfFileByNodeId: Maybe<UpdatePdfFilePayload>;
   /** Updates a single `Room` using a unique key and a patch. */
   updateRoom: Maybe<UpdateRoomPayload>;
   /** Updates a single `Room` using its globally unique id and a patch. */
@@ -3387,8 +3796,20 @@ export type MutationConfirmAccountDeletionArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateFileArgs = {
+  input: CreateFileInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationCreateOrganizationArgs = {
   input: CreateOrganizationInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreatePdfFileArgs = {
+  input: CreatePdfFileInput;
 };
 
 
@@ -3441,8 +3862,32 @@ export type MutationCreateUserEmailArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteFileArgs = {
+  input: DeleteFileInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteFileByNodeIdArgs = {
+  input: DeleteFileByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationDeleteOrganizationArgs = {
   input: DeleteOrganizationInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeletePdfFileArgs = {
+  input: DeletePdfFileInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeletePdfFileByNodeIdArgs = {
+  input: DeletePdfFileByNodeIdInput;
 };
 
 
@@ -3645,6 +4090,18 @@ export type MutationTransferOrganizationOwnershipArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateFileArgs = {
+  input: UpdateFileInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateFileByNodeIdArgs = {
+  input: UpdateFileByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationUpdateOrganizationArgs = {
   input: UpdateOrganizationInput;
 };
@@ -3659,6 +4116,18 @@ export type MutationUpdateOrganizationByNodeIdArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationUpdateOrganizationBySlugArgs = {
   input: UpdateOrganizationBySlugInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdatePdfFileArgs = {
+  input: UpdatePdfFileInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdatePdfFileByNodeIdArgs = {
+  input: UpdatePdfFileByNodeIdInput;
 };
 
 
@@ -3827,6 +4296,51 @@ export type ConfirmAccountDeletionPayload = {
   query: Maybe<Query>;
 };
 
+/** All input for the create `File` mutation. */
+export type CreateFileInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `File` to be created by this mutation. */
+  file: FileInput;
+};
+
+/** An input for mutations affecting `File` */
+export type FileInput = {
+  contributorId?: InputMaybe<Scalars['UUID']['input']>;
+  filename?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  mimeType?: InputMaybe<Scalars['String']['input']>;
+  totalBytes?: InputMaybe<Scalars['Int']['input']>;
+  uploadedBytes?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** The output of our create `File` mutation. */
+export type CreateFilePayload = {
+  __typename?: 'CreateFilePayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `User` that is related to this `File`. */
+  contributor: Maybe<User>;
+  /** The `File` that was created by this mutation. */
+  file: Maybe<File>;
+  /** An edge for our `File`. May be used by Relay 1. */
+  fileEdge: Maybe<FilesEdge>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our create `File` mutation. */
+export type CreateFilePayloadFileEdgeArgs = {
+  orderBy?: Array<FilesOrderBy>;
+};
+
 /** All input for the `createOrganization` mutation. */
 export type CreateOrganizationInput = {
   /**
@@ -3857,6 +4371,53 @@ export type CreateOrganizationPayload = {
 /** The output of our `createOrganization` mutation. */
 export type CreateOrganizationPayloadOrganizationEdgeArgs = {
   orderBy?: Array<OrganizationsOrderBy>;
+};
+
+/** All input for the create `PdfFile` mutation. */
+export type CreatePdfFileInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `PdfFile` to be created by this mutation. */
+  pdfFile: PdfFileInput;
+};
+
+/** An input for mutations affecting `PdfFile` */
+export type PdfFileInput = {
+  contentAsPlainText?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  pages: Scalars['Int']['input'];
+  thumbnailId?: InputMaybe<Scalars['UUID']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The output of our create `PdfFile` mutation. */
+export type CreatePdfFilePayload = {
+  __typename?: 'CreatePdfFilePayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `File` that is related to this `PdfFile`. */
+  file: Maybe<File>;
+  /** The `PdfFile` that was created by this mutation. */
+  pdfFile: Maybe<PdfFile>;
+  /** An edge for our `PdfFile`. May be used by Relay 1. */
+  pdfFileEdge: Maybe<PdfFilesEdge>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `File` that is related to this `PdfFile`. */
+  thumbnail: Maybe<File>;
+};
+
+
+/** The output of our create `PdfFile` mutation. */
+export type CreatePdfFilePayloadPdfFileEdgeArgs = {
+  orderBy?: Array<PdfFilesOrderBy>;
 };
 
 /** All input for the create `Room` mutation. */
@@ -4244,6 +4805,52 @@ export type CreateUserEmailPayloadUserEmailEdgeArgs = {
   orderBy?: Array<UserEmailsOrderBy>;
 };
 
+/** All input for the `deleteFile` mutation. */
+export type DeleteFileInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `File` mutation. */
+export type DeleteFilePayload = {
+  __typename?: 'DeleteFilePayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `User` that is related to this `File`. */
+  contributor: Maybe<User>;
+  deletedFileNodeId: Maybe<Scalars['ID']['output']>;
+  /** The `File` that was deleted by this mutation. */
+  file: Maybe<File>;
+  /** An edge for our `File`. May be used by Relay 1. */
+  fileEdge: Maybe<FilesEdge>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our delete `File` mutation. */
+export type DeleteFilePayloadFileEdgeArgs = {
+  orderBy?: Array<FilesOrderBy>;
+};
+
+/** All input for the `deleteFileByNodeId` mutation. */
+export type DeleteFileByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `File` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
 /** All input for the `deleteOrganization` mutation. */
 export type DeleteOrganizationInput = {
   /**
@@ -4264,6 +4871,54 @@ export type DeleteOrganizationPayload = {
   clientMutationId: Maybe<Scalars['String']['output']>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
   query: Maybe<Query>;
+};
+
+/** All input for the `deletePdfFile` mutation. */
+export type DeletePdfFileInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `PdfFile` mutation. */
+export type DeletePdfFilePayload = {
+  __typename?: 'DeletePdfFilePayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedPdfFileNodeId: Maybe<Scalars['ID']['output']>;
+  /** Reads a single `File` that is related to this `PdfFile`. */
+  file: Maybe<File>;
+  /** The `PdfFile` that was deleted by this mutation. */
+  pdfFile: Maybe<PdfFile>;
+  /** An edge for our `PdfFile`. May be used by Relay 1. */
+  pdfFileEdge: Maybe<PdfFilesEdge>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `File` that is related to this `PdfFile`. */
+  thumbnail: Maybe<File>;
+};
+
+
+/** The output of our delete `PdfFile` mutation. */
+export type DeletePdfFilePayloadPdfFileEdgeArgs = {
+  orderBy?: Array<PdfFilesOrderBy>;
+};
+
+/** All input for the `deletePdfFileByNodeId` mutation. */
+export type DeletePdfFileByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `PdfFile` to be deleted. */
+  nodeId: Scalars['ID']['input'];
 };
 
 /** All input for the `deleteRoom` mutation. */
@@ -5011,6 +5666,64 @@ export type TransferOrganizationOwnershipPayloadOrganizationEdgeArgs = {
   orderBy?: Array<OrganizationsOrderBy>;
 };
 
+/** All input for the `updateFile` mutation. */
+export type UpdateFileInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `File` being updated. */
+  patch: FilePatch;
+};
+
+/** Represents an update to a `File`. Fields that are set will be updated. */
+export type FilePatch = {
+  filename?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  mimeType?: InputMaybe<Scalars['String']['input']>;
+  totalBytes?: InputMaybe<Scalars['Int']['input']>;
+  uploadedBytes?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** The output of our update `File` mutation. */
+export type UpdateFilePayload = {
+  __typename?: 'UpdateFilePayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `User` that is related to this `File`. */
+  contributor: Maybe<User>;
+  /** The `File` that was updated by this mutation. */
+  file: Maybe<File>;
+  /** An edge for our `File`. May be used by Relay 1. */
+  fileEdge: Maybe<FilesEdge>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our update `File` mutation. */
+export type UpdateFilePayloadFileEdgeArgs = {
+  orderBy?: Array<FilesOrderBy>;
+};
+
+/** All input for the `updateFileByNodeId` mutation. */
+export type UpdateFileByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `File` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `File` being updated. */
+  patch: FilePatch;
+};
+
 /** All input for the `updateOrganization` mutation. */
 export type UpdateOrganizationInput = {
   /**
@@ -5074,6 +5787,67 @@ export type UpdateOrganizationBySlugInput = {
   /** An object where the defined keys will be set on the `Organization` being updated. */
   patch: OrganizationPatch;
   slug: Scalars['String']['input'];
+};
+
+/** All input for the `updatePdfFile` mutation. */
+export type UpdatePdfFileInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `PdfFile` being updated. */
+  patch: PdfFilePatch;
+};
+
+/** Represents an update to a `PdfFile`. Fields that are set will be updated. */
+export type PdfFilePatch = {
+  contentAsPlainText?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  pages?: InputMaybe<Scalars['Int']['input']>;
+  thumbnailId?: InputMaybe<Scalars['UUID']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The output of our update `PdfFile` mutation. */
+export type UpdatePdfFilePayload = {
+  __typename?: 'UpdatePdfFilePayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `File` that is related to this `PdfFile`. */
+  file: Maybe<File>;
+  /** The `PdfFile` that was updated by this mutation. */
+  pdfFile: Maybe<PdfFile>;
+  /** An edge for our `PdfFile`. May be used by Relay 1. */
+  pdfFileEdge: Maybe<PdfFilesEdge>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `File` that is related to this `PdfFile`. */
+  thumbnail: Maybe<File>;
+};
+
+
+/** The output of our update `PdfFile` mutation. */
+export type UpdatePdfFilePayloadPdfFileEdgeArgs = {
+  orderBy?: Array<PdfFilesOrderBy>;
+};
+
+/** All input for the `updatePdfFileByNodeId` mutation. */
+export type UpdatePdfFileByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `PdfFile` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `PdfFile` being updated. */
+  patch: PdfFilePatch;
 };
 
 /** All input for the `updateRoom` mutation. */
