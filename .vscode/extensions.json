@@ -12,6 +12,7 @@
     "cpylua.language-postcss",
     "ms-vscode-remote.vscode-remote-extensionpack",
     "ckolkman.vscode-postgres",
-    "ms-python.python"
+    "ms-python.python",
+    "ms-pyright.pyright"
   ]
 }
