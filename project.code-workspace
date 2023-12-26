@@ -47,6 +47,10 @@
     {
       "name": "Graphql",
       "path": "./@app/graphql"
+    },
+    {
+      "name": "Python-Worker",
+      "path": "./@app/python-worker"
     }
   ]
 }
