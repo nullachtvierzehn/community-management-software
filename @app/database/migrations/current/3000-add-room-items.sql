@@ -91,6 +91,11 @@ grant insert (type, room_id, parent_id, contributor_id, "order", contributed_at,
 grant update ("order", contributed_at, is_visible_for, is_visible_since, is_visible_since_date, message_body, topic_id) on app_public.room_items to :DATABASE_VISITOR;
 grant delete on app_public.room_items to :DATABASE_VISITOR;
 
+create trigger _100_timestamps
+  before insert or update on app_public.room_items
+  for each row
+  execute procedure app_private.tg__timestamps();
+
 alter table app_public.room_items enable row level security;
 
 create policy hide_my_drafts_from_others

@@ -1,5 +1,5 @@
-const findConfig = require("find-config");
-require("dotenv").config({ path: findConfig(".env") });
+const findConfig = require('find-config')
+require('dotenv').config({ path: findConfig('.env') })
 
 /*
  * Graphile Migrate configuration.
@@ -27,7 +27,7 @@ module.exports = {
    * <value>`
    */
   pgSettings: {
-    search_path: "app_public,app_private,app_hidden,public",
+    search_path: 'app_public,app_private,app_hidden,public',
   },
 
   /*
@@ -48,8 +48,8 @@ module.exports = {
    * these.
    */
   placeholders: {
-    ":DATABASE_AUTHENTICATOR": "!ENV",
-    ":DATABASE_VISITOR": "!ENV",
+    ':DATABASE_AUTHENTICATOR': '!ENV',
+    ':DATABASE_VISITOR': '!ENV',
   },
 
   /*
@@ -72,14 +72,11 @@ module.exports = {
    * afterReset: actions executed after a `graphile-migrate reset` command.
    */
   afterReset: [
-    "!afterReset.sql",
-    /*
+    '!afterReset.sql',
     {
-      _: "command",
-      command: "npx --no-install graphile-worker --schema-only",
+      _: 'command',
+      command: 'graphile-worker --connection "$GM_DBURL" --schema-only',
     },
-    */
-    // { "_": "command", "command": "graphile-worker --schema-only" },
   ],
 
   /*
@@ -87,18 +84,20 @@ module.exports = {
    */
   afterAllMigrations: [
     {
-      _: "command",
+      _: 'command',
       shadow: true,
-      command: "pg_dump \"$GM_DBURL\" --no-sync --schema-only --no-owner --exclude-schema=graphile_migrate --exclude-schema=graphile_worker --file=../graphql/schema/committed.sql",
+      command:
+        'pg_dump "$GM_DBURL" --no-sync --schema-only --no-owner --exclude-schema=graphile_migrate --exclude-schema=graphile_worker --file=../graphql/schema/committed.sql',
     },
   ],
 
-  "beforeCurrent": [
+  beforeCurrent: [
     {
-      "_": "command",
-      "shadow": false,
-      "command": "pg_dump \"$GM_DBURL\" --data-only --schema app_public --schema app_hidden --schema app_private --on-conflict-do-nothing --column-inserts --rows-per-insert=1 --no-comments --rows-per-insert=1000 --file migrations/current-data/dump-$(date +\"%Y-%m-%d-T-%H-%M-%S-%3N\").sql"
-    }
+      _: 'command',
+      shadow: false,
+      command:
+        'pg_dump "$GM_DBURL" --data-only --schema app_public --schema app_hidden --schema app_private --on-conflict-do-nothing --column-inserts --rows-per-insert=1 --no-comments --rows-per-insert=1000 --file migrations/current-data/dump-$(date +"%Y-%m-%d-T-%H-%M-%S-%3N").sql',
+    },
   ],
 
   /*
@@ -108,22 +107,25 @@ module.exports = {
   afterCurrent: [
     // dump current schema
     {
-      _: "command",
+      _: 'command',
       shadow: false,
-      command: "pg_dump \"$GM_DBURL\" --no-sync --schema-only --no-owner --exclude-schema=graphile_migrate --exclude-schema=graphile_worker --file=../graphql/schema/current.sql",
+      command:
+        'pg_dump "$GM_DBURL" --no-sync --schema-only --no-owner --exclude-schema=graphile_migrate --exclude-schema=graphile_worker --file=../graphql/schema/current.sql',
     },
     // drop all but the latest 5 data dumps
     {
-      "_": "command",
-      "shadow": false,
-      "command": "ls -r migrations/current-data/dump-*.sql | tail -n +6 | xargs -I {} rm -- {}"
+      _: 'command',
+      shadow: false,
+      command:
+        'ls -r migrations/current-data/dump-*.sql | tail -n +6 | xargs -I {} rm -- {}',
     },
     // restore the latest data dump
     {
-      "_": "command",
-      "shadow": false,
-      "command": "psql \"$GM_DBURL\" < $(ls -t migrations/current-data/dump-*.sql | head -1)"
-    }
+      _: 'command',
+      shadow: false,
+      command:
+        'psql "$GM_DBURL" < $(ls -t migrations/current-data/dump-*.sql | head -1)',
+    },
   ],
 
   /*
@@ -150,5 +152,5 @@ module.exports = {
    */
   // migrationsFolder: "./migrations",
 
-  "//generatedWith": "1.4.1",
-};
+  '//generatedWith': '1.4.1',
+}

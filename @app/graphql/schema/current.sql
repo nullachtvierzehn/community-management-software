@@ -45,6 +45,13 @@ CREATE SCHEMA postgraphile_watch;
 
 
 --
+-- Name: procrastinate; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA procrastinate;
+
+
+--
 -- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
 
@@ -235,6 +242,33 @@ CREATE TYPE app_public.topic_visibility AS ENUM (
     'organization_members',
     'signed_in_users',
     'public'
+);
+
+
+--
+-- Name: procrastinate_job_event_type; Type: TYPE; Schema: procrastinate; Owner: -
+--
+
+CREATE TYPE procrastinate.procrastinate_job_event_type AS ENUM (
+    'deferred',
+    'started',
+    'deferred_for_retry',
+    'failed',
+    'succeeded',
+    'cancelled',
+    'scheduled'
+);
+
+
+--
+-- Name: procrastinate_job_status; Type: TYPE; Schema: procrastinate; Owner: -
+--
+
+CREATE TYPE procrastinate.procrastinate_job_status AS ENUM (
+    'todo',
+    'doing',
+    'succeeded',
+    'failed'
 );
 
 
@@ -2513,6 +2547,379 @@ $$;
 
 
 --
+-- Name: procrastinate_defer_job(character varying, character varying, text, text, jsonb, timestamp with time zone); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_defer_job(queue_name character varying, task_name character varying, lock text, queueing_lock text, args jsonb, scheduled_at timestamp with time zone) RETURNS bigint
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	job_id bigint;
+BEGIN
+    INSERT INTO procrastinate_jobs (queue_name, task_name, lock, queueing_lock, args, scheduled_at)
+    VALUES (queue_name, task_name, lock, queueing_lock, args, scheduled_at)
+    RETURNING id INTO job_id;
+
+    RETURN job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_defer_periodic_job(character varying, character varying, character varying, character varying, bigint); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _defer_timestamp bigint) RETURNS bigint
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	_job_id bigint;
+	_defer_id bigint;
+BEGIN
+
+    INSERT
+        INTO procrastinate_periodic_defers (task_name, queue_name, defer_timestamp)
+        VALUES (_task_name, _queue_name, _defer_timestamp)
+        ON CONFLICT DO NOTHING
+        RETURNING id into _defer_id;
+
+    IF _defer_id IS NULL THEN
+        RETURN NULL;
+    END IF;
+
+    UPDATE procrastinate_periodic_defers
+        SET job_id = procrastinate_defer_job(
+                _queue_name,
+                _task_name,
+                _lock,
+                _queueing_lock,
+                ('{"timestamp": ' || _defer_timestamp || '}')::jsonb,
+                NULL
+            )
+        WHERE id = _defer_id
+        RETURNING job_id INTO _job_id;
+
+    DELETE
+        FROM procrastinate_periodic_defers
+        USING (
+            SELECT id
+            FROM procrastinate_periodic_defers
+            WHERE procrastinate_periodic_defers.task_name = _task_name
+            AND procrastinate_periodic_defers.queue_name = _queue_name
+            AND procrastinate_periodic_defers.defer_timestamp < _defer_timestamp
+            ORDER BY id
+            FOR UPDATE
+        ) to_delete
+        WHERE procrastinate_periodic_defers.id = to_delete.id;
+
+    RETURN _job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_defer_periodic_job(character varying, character varying, character varying, character varying, character varying, bigint, jsonb); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _periodic_id character varying, _defer_timestamp bigint, _args jsonb) RETURNS bigint
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	_job_id bigint;
+	_defer_id bigint;
+BEGIN
+
+    INSERT
+        INTO procrastinate_periodic_defers (task_name, periodic_id, defer_timestamp)
+        VALUES (_task_name, _periodic_id, _defer_timestamp)
+        ON CONFLICT DO NOTHING
+        RETURNING id into _defer_id;
+
+    IF _defer_id IS NULL THEN
+        RETURN NULL;
+    END IF;
+
+    UPDATE procrastinate_periodic_defers
+        SET job_id = procrastinate_defer_job(
+                _queue_name,
+                _task_name,
+                _lock,
+                _queueing_lock,
+                _args,
+                NULL
+            )
+        WHERE id = _defer_id
+        RETURNING job_id INTO _job_id;
+
+    DELETE
+        FROM procrastinate_periodic_defers
+        USING (
+            SELECT id
+            FROM procrastinate_periodic_defers
+            WHERE procrastinate_periodic_defers.task_name = _task_name
+            AND procrastinate_periodic_defers.periodic_id = _periodic_id
+            AND procrastinate_periodic_defers.defer_timestamp < _defer_timestamp
+            ORDER BY id
+            FOR UPDATE
+        ) to_delete
+        WHERE procrastinate_periodic_defers.id = to_delete.id;
+
+    RETURN _job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_jobs; Type: TABLE; Schema: procrastinate; Owner: -
+--
+
+CREATE TABLE procrastinate.procrastinate_jobs (
+    id bigint NOT NULL,
+    queue_name character varying(128) NOT NULL,
+    task_name character varying(128) NOT NULL,
+    lock text,
+    queueing_lock text,
+    args jsonb DEFAULT '{}'::jsonb NOT NULL,
+    status procrastinate.procrastinate_job_status DEFAULT 'todo'::procrastinate.procrastinate_job_status NOT NULL,
+    scheduled_at timestamp with time zone,
+    attempts integer DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: procrastinate_fetch_job(character varying[]); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_fetch_job(target_queue_names character varying[]) RETURNS procrastinate.procrastinate_jobs
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	found_jobs procrastinate_jobs;
+BEGIN
+    WITH candidate AS (
+        SELECT jobs.*
+            FROM procrastinate_jobs AS jobs
+            WHERE
+                -- reject the job if its lock has earlier jobs
+                NOT EXISTS (
+                    SELECT 1
+                        FROM procrastinate_jobs AS earlier_jobs
+                        WHERE
+                            jobs.lock IS NOT NULL
+                            AND earlier_jobs.lock = jobs.lock
+                            AND earlier_jobs.status IN ('todo', 'doing')
+                            AND earlier_jobs.id < jobs.id)
+                AND jobs.status = 'todo'
+                AND (target_queue_names IS NULL OR jobs.queue_name = ANY( target_queue_names ))
+                AND (jobs.scheduled_at IS NULL OR jobs.scheduled_at <= now())
+            ORDER BY jobs.id ASC LIMIT 1
+            FOR UPDATE OF jobs SKIP LOCKED
+    )
+    UPDATE procrastinate_jobs
+        SET status = 'doing'
+        FROM candidate
+        WHERE procrastinate_jobs.id = candidate.id
+        RETURNING procrastinate_jobs.* INTO found_jobs;
+
+	RETURN found_jobs;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_finish_job(integer, procrastinate.procrastinate_job_status); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    UPDATE procrastinate_jobs
+    SET status = end_status,
+        attempts = attempts + 1
+    WHERE id = job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_finish_job(integer, procrastinate.procrastinate_job_status, timestamp with time zone); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    UPDATE procrastinate_jobs
+    SET status = end_status,
+        attempts = attempts + 1,
+        scheduled_at = COALESCE(next_scheduled_at, scheduled_at)
+    WHERE id = job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_finish_job(integer, procrastinate.procrastinate_job_status, timestamp with time zone, boolean); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone, delete_job boolean) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    _job_id bigint;
+BEGIN
+    IF end_status NOT IN ('succeeded', 'failed') THEN
+        RAISE 'End status should be either "succeeded" or "failed" (job id: %)', job_id;
+    END IF;
+    IF delete_job THEN
+        DELETE FROM procrastinate_jobs
+        WHERE id = job_id AND status IN ('todo', 'doing')
+        RETURNING id INTO _job_id;
+    ELSE
+        UPDATE procrastinate_jobs
+        SET status = end_status,
+            attempts =
+                CASE
+                    WHEN status = 'doing' THEN attempts + 1
+                    ELSE attempts
+                END
+        WHERE id = job_id AND status IN ('todo', 'doing')
+        RETURNING id INTO _job_id;
+    END IF;
+    IF _job_id IS NULL THEN
+        RAISE 'Job was not found or not in "doing" or "todo" status (job id: %)', job_id;
+    END IF;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_notify_queue(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_notify_queue() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+	PERFORM pg_notify('procrastinate_queue#' || NEW.queue_name, NEW.task_name);
+	PERFORM pg_notify('procrastinate_any_queue', NEW.task_name);
+	RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_retry_job(integer, timestamp with time zone); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_retry_job(job_id integer, retry_at timestamp with time zone) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    _job_id bigint;
+BEGIN
+    UPDATE procrastinate_jobs
+    SET status = 'todo',
+        attempts = attempts + 1,
+        scheduled_at = retry_at
+    WHERE id = job_id AND status = 'doing'
+    RETURNING id INTO _job_id;
+    IF _job_id IS NULL THEN
+        RAISE 'Job was not found or not in "doing" status (job id: %)', job_id;
+    END IF;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_trigger_scheduled_events_procedure(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_trigger_scheduled_events_procedure() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    INSERT INTO procrastinate_events(job_id, type, at)
+        VALUES (NEW.id, 'scheduled'::procrastinate_job_event_type, NEW.scheduled_at);
+
+	RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_trigger_status_events_procedure_insert(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    INSERT INTO procrastinate_events(job_id, type)
+        VALUES (NEW.id, 'deferred'::procrastinate_job_event_type);
+	RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_trigger_status_events_procedure_update(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    WITH t AS (
+        SELECT CASE
+            WHEN OLD.status = 'todo'::procrastinate_job_status
+                AND NEW.status = 'doing'::procrastinate_job_status
+                THEN 'started'::procrastinate_job_event_type
+            WHEN OLD.status = 'doing'::procrastinate_job_status
+                AND NEW.status = 'todo'::procrastinate_job_status
+                THEN 'deferred_for_retry'::procrastinate_job_event_type
+            WHEN OLD.status = 'doing'::procrastinate_job_status
+                AND NEW.status = 'failed'::procrastinate_job_status
+                THEN 'failed'::procrastinate_job_event_type
+            WHEN OLD.status = 'doing'::procrastinate_job_status
+                AND NEW.status = 'succeeded'::procrastinate_job_status
+                THEN 'succeeded'::procrastinate_job_event_type
+            WHEN OLD.status = 'todo'::procrastinate_job_status
+                AND (
+                    NEW.status = 'failed'::procrastinate_job_status
+                    OR NEW.status = 'succeeded'::procrastinate_job_status
+                )
+                THEN 'cancelled'::procrastinate_job_event_type
+            ELSE NULL
+        END as event_type
+    )
+    INSERT INTO procrastinate_events(job_id, type)
+        SELECT NEW.id, t.event_type
+        FROM t
+        WHERE t.event_type IS NOT NULL;
+	RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_unlink_periodic_defers(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_unlink_periodic_defers() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    UPDATE procrastinate_periodic_defers
+    SET job_id = NULL
+    WHERE job_id = OLD.id;
+    RETURN OLD;
+END;
+$$;
+
+
+--
 -- Name: connect_pg_simple_sessions; Type: TABLE; Schema: app_private; Owner: -
 --
 
@@ -2618,6 +3025,24 @@ COMMENT ON TABLE app_private.user_secrets IS 'The contents of this table should 
 
 
 --
+-- Name: files; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.files (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    contributor_id uuid DEFAULT app_public.current_user_id(),
+    uploaded_bytes integer,
+    total_bytes integer,
+    filename text,
+    path_on_storage text,
+    mime_type text,
+    sha256 text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: organization_invitations; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -2643,6 +3068,23 @@ CREATE TABLE app_public.organization_memberships (
     is_owner boolean DEFAULT false NOT NULL,
     is_billing_contact boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: pdf_files; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.pdf_files (
+    id uuid NOT NULL,
+    title text,
+    pages smallint NOT NULL,
+    metadata jsonb,
+    content_as_plain_text text,
+    fulltext_index_column tsvector GENERATED ALWAYS AS (to_tsvector('german'::regconfig, content_as_plain_text)) STORED,
+    thumbnail_id uuid,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2777,6 +3219,110 @@ COMMENT ON COLUMN app_public.user_authentications.details IS 'Additional profile
 
 
 --
+-- Name: procrastinate_events; Type: TABLE; Schema: procrastinate; Owner: -
+--
+
+CREATE TABLE procrastinate.procrastinate_events (
+    id bigint NOT NULL,
+    job_id integer NOT NULL,
+    type procrastinate.procrastinate_job_event_type,
+    at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: procrastinate_events_id_seq; Type: SEQUENCE; Schema: procrastinate; Owner: -
+--
+
+CREATE SEQUENCE procrastinate.procrastinate_events_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: procrastinate_events_id_seq; Type: SEQUENCE OWNED BY; Schema: procrastinate; Owner: -
+--
+
+ALTER SEQUENCE procrastinate.procrastinate_events_id_seq OWNED BY procrastinate.procrastinate_events.id;
+
+
+--
+-- Name: procrastinate_jobs_id_seq; Type: SEQUENCE; Schema: procrastinate; Owner: -
+--
+
+CREATE SEQUENCE procrastinate.procrastinate_jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: procrastinate_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: procrastinate; Owner: -
+--
+
+ALTER SEQUENCE procrastinate.procrastinate_jobs_id_seq OWNED BY procrastinate.procrastinate_jobs.id;
+
+
+--
+-- Name: procrastinate_periodic_defers; Type: TABLE; Schema: procrastinate; Owner: -
+--
+
+CREATE TABLE procrastinate.procrastinate_periodic_defers (
+    id bigint NOT NULL,
+    task_name character varying(128) NOT NULL,
+    defer_timestamp bigint,
+    job_id bigint,
+    queue_name character varying(128),
+    periodic_id character varying(128) DEFAULT ''::character varying NOT NULL
+);
+
+
+--
+-- Name: procrastinate_periodic_defers_id_seq; Type: SEQUENCE; Schema: procrastinate; Owner: -
+--
+
+CREATE SEQUENCE procrastinate.procrastinate_periodic_defers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: procrastinate_periodic_defers_id_seq; Type: SEQUENCE OWNED BY; Schema: procrastinate; Owner: -
+--
+
+ALTER SEQUENCE procrastinate.procrastinate_periodic_defers_id_seq OWNED BY procrastinate.procrastinate_periodic_defers.id;
+
+
+--
+-- Name: procrastinate_events id; Type: DEFAULT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_events ALTER COLUMN id SET DEFAULT nextval('procrastinate.procrastinate_events_id_seq'::regclass);
+
+
+--
+-- Name: procrastinate_jobs id; Type: DEFAULT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_jobs ALTER COLUMN id SET DEFAULT nextval('procrastinate.procrastinate_jobs_id_seq'::regclass);
+
+
+--
+-- Name: procrastinate_periodic_defers id; Type: DEFAULT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers ALTER COLUMN id SET DEFAULT nextval('procrastinate.procrastinate_periodic_defers_id_seq'::regclass);
+
+
+--
 -- Name: connect_pg_simple_sessions session_pkey; Type: CONSTRAINT; Schema: app_private; Owner: -
 --
 
@@ -2822,6 +3368,14 @@ ALTER TABLE ONLY app_private.user_email_secrets
 
 ALTER TABLE ONLY app_private.user_secrets
     ADD CONSTRAINT user_secrets_pkey PRIMARY KEY (user_id);
+
+
+--
+-- Name: files files_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.files
+    ADD CONSTRAINT files_pkey PRIMARY KEY (id);
 
 
 --
@@ -2886,6 +3440,14 @@ ALTER TABLE ONLY app_public.organizations
 
 ALTER TABLE ONLY app_public.organizations
     ADD CONSTRAINT organizations_slug_key UNIQUE (slug);
+
+
+--
+-- Name: pdf_files pdf_files_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.pdf_files
+    ADD CONSTRAINT pdf_files_pkey PRIMARY KEY (id);
 
 
 --
@@ -2998,6 +3560,38 @@ ALTER TABLE ONLY app_public.users
 
 ALTER TABLE ONLY app_public.users
     ADD CONSTRAINT users_username_key UNIQUE (username);
+
+
+--
+-- Name: procrastinate_events procrastinate_events_pkey; Type: CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_events
+    ADD CONSTRAINT procrastinate_events_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procrastinate_jobs procrastinate_jobs_pkey; Type: CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_jobs
+    ADD CONSTRAINT procrastinate_jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procrastinate_periodic_defers procrastinate_periodic_defers_pkey; Type: CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers
+    ADD CONSTRAINT procrastinate_periodic_defers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procrastinate_periodic_defers procrastinate_periodic_defers_unique; Type: CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers
+    ADD CONSTRAINT procrastinate_periodic_defers_unique UNIQUE (task_name, periodic_id, defer_timestamp);
 
 
 --
@@ -3281,6 +3875,69 @@ CREATE INDEX users_on_fuzzy_username ON app_public.users USING gist (username pu
 
 
 --
+-- Name: procrastinate_events_job_id_fkey; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE INDEX procrastinate_events_job_id_fkey ON procrastinate.procrastinate_events USING btree (job_id);
+
+
+--
+-- Name: procrastinate_jobs_id_lock_idx; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE INDEX procrastinate_jobs_id_lock_idx ON procrastinate.procrastinate_jobs USING btree (id, lock) WHERE (status = ANY (ARRAY['todo'::procrastinate.procrastinate_job_status, 'doing'::procrastinate.procrastinate_job_status]));
+
+
+--
+-- Name: procrastinate_jobs_lock_idx; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE UNIQUE INDEX procrastinate_jobs_lock_idx ON procrastinate.procrastinate_jobs USING btree (lock) WHERE (status = 'doing'::procrastinate.procrastinate_job_status);
+
+
+--
+-- Name: procrastinate_jobs_queue_name_idx; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE INDEX procrastinate_jobs_queue_name_idx ON procrastinate.procrastinate_jobs USING btree (queue_name);
+
+
+--
+-- Name: procrastinate_jobs_queueing_lock_idx; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE UNIQUE INDEX procrastinate_jobs_queueing_lock_idx ON procrastinate.procrastinate_jobs USING btree (queueing_lock) WHERE (status = 'todo'::procrastinate.procrastinate_job_status);
+
+
+--
+-- Name: procrastinate_periodic_defers_job_id_fkey; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE INDEX procrastinate_periodic_defers_job_id_fkey ON procrastinate.procrastinate_periodic_defers USING btree (job_id);
+
+
+--
+-- Name: files _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.files FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
+
+
+--
+-- Name: pdf_files _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.pdf_files FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
+
+
+--
+-- Name: room_items _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.room_items FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
+
+
+--
 -- Name: room_messages _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -3421,6 +4078,41 @@ CREATE CONSTRAINT TRIGGER t900_verify_role_updates_on_room_subscriptions AFTER U
 
 
 --
+-- Name: procrastinate_jobs procrastinate_jobs_notify_queue; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_jobs_notify_queue AFTER INSERT ON procrastinate.procrastinate_jobs FOR EACH ROW WHEN ((new.status = 'todo'::procrastinate.procrastinate_job_status)) EXECUTE FUNCTION procrastinate.procrastinate_notify_queue();
+
+
+--
+-- Name: procrastinate_jobs procrastinate_trigger_delete_jobs; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_trigger_delete_jobs BEFORE DELETE ON procrastinate.procrastinate_jobs FOR EACH ROW EXECUTE FUNCTION procrastinate.procrastinate_unlink_periodic_defers();
+
+
+--
+-- Name: procrastinate_jobs procrastinate_trigger_scheduled_events; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_trigger_scheduled_events AFTER INSERT OR UPDATE ON procrastinate.procrastinate_jobs FOR EACH ROW WHEN (((new.scheduled_at IS NOT NULL) AND (new.status = 'todo'::procrastinate.procrastinate_job_status))) EXECUTE FUNCTION procrastinate.procrastinate_trigger_scheduled_events_procedure();
+
+
+--
+-- Name: procrastinate_jobs procrastinate_trigger_status_events_insert; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_trigger_status_events_insert AFTER INSERT ON procrastinate.procrastinate_jobs FOR EACH ROW WHEN ((new.status = 'todo'::procrastinate.procrastinate_job_status)) EXECUTE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_insert();
+
+
+--
+-- Name: procrastinate_jobs procrastinate_trigger_status_events_update; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_trigger_status_events_update AFTER UPDATE OF status ON procrastinate.procrastinate_jobs FOR EACH ROW EXECUTE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update();
+
+
+--
 -- Name: sessions sessions_user_id_fkey; Type: FK CONSTRAINT; Schema: app_private; Owner: -
 --
 
@@ -3496,6 +4188,22 @@ ALTER TABLE ONLY app_public.room_items
 --
 
 COMMENT ON CONSTRAINT contributor ON app_public.room_items IS '@foreignFieldName roomItems';
+
+
+--
+-- Name: files contributor; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.files
+    ADD CONSTRAINT contributor FOREIGN KEY (contributor_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: pdf_files file; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.pdf_files
+    ADD CONSTRAINT file FOREIGN KEY (id) REFERENCES app_public.files(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -3647,6 +4355,14 @@ ALTER TABLE ONLY app_public.room_messages
 
 
 --
+-- Name: pdf_files thumbnail; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.pdf_files
+    ADD CONSTRAINT thumbnail FOREIGN KEY (thumbnail_id) REFERENCES app_public.files(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: room_message_attachments topic; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -3676,6 +4392,22 @@ ALTER TABLE ONLY app_public.user_authentications
 
 ALTER TABLE ONLY app_public.user_emails
     ADD CONSTRAINT user_emails_user_id_fkey FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: procrastinate_events procrastinate_events_job_id_fkey; Type: FK CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_events
+    ADD CONSTRAINT procrastinate_events_job_id_fkey FOREIGN KEY (job_id) REFERENCES procrastinate.procrastinate_jobs(id) ON DELETE CASCADE;
+
+
+--
+-- Name: procrastinate_periodic_defers procrastinate_periodic_defers_job_id_fkey; Type: FK CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers
+    ADD CONSTRAINT procrastinate_periodic_defers_job_id_fkey FOREIGN KEY (job_id) REFERENCES procrastinate.procrastinate_jobs(id);
 
 
 --
@@ -3826,7 +4558,7 @@ CREATE POLICY manage_my_drafts ON app_public.room_items USING (((contributed_at 
 -- Name: room_messages only_authors_should_access_their_message_drafts; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY only_authors_should_access_their_message_drafts ON app_public.room_messages AS RESTRICTIVE TO null18_cms_app_users USING (((sent_at IS NOT NULL) OR (sender_id = app_public.current_user_id())));
+CREATE POLICY only_authors_should_access_their_message_drafts ON app_public.room_messages AS RESTRICTIVE TO null814_cms_app_users USING (((sent_at IS NOT NULL) OR (sender_id = app_public.current_user_id())));
 
 
 --
@@ -3851,7 +4583,7 @@ ALTER TABLE app_public.organizations ENABLE ROW LEVEL SECURITY;
 -- Name: room_messages require_messages_from_current_user; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY require_messages_from_current_user ON app_public.room_messages AS RESTRICTIVE FOR INSERT TO null18_cms_app_users WITH CHECK ((sender_id = app_public.current_user_id()));
+CREATE POLICY require_messages_from_current_user ON app_public.room_messages AS RESTRICTIVE FOR INSERT TO null814_cms_app_users WITH CHECK ((sender_id = app_public.current_user_id()));
 
 
 --
@@ -4124,14 +4856,14 @@ ALTER TABLE app_public.users ENABLE ROW LEVEL SECURITY;
 -- Name: SCHEMA app_hidden; Type: ACL; Schema: -; Owner: -
 --
 
-GRANT USAGE ON SCHEMA app_hidden TO null18_cms_app_users;
+GRANT USAGE ON SCHEMA app_hidden TO null814_cms_app_users;
 
 
 --
 -- Name: SCHEMA app_public; Type: ACL; Schema: -; Owner: -
 --
 
-GRANT USAGE ON SCHEMA app_public TO null18_cms_app_users;
+GRANT USAGE ON SCHEMA app_public TO null814_cms_app_users;
 
 
 --
@@ -4139,21 +4871,21 @@ GRANT USAGE ON SCHEMA app_public TO null18_cms_app_users;
 --
 
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
-GRANT USAGE ON SCHEMA public TO null18_cms_app_users;
+GRANT USAGE ON SCHEMA public TO null814_cms_app_users;
 
 
 --
 -- Name: TYPE textsearchable_entity; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT ALL ON TYPE app_public.textsearchable_entity TO null18_cms_app_users;
+GRANT ALL ON TYPE app_public.textsearchable_entity TO null814_cms_app_users;
 
 
 --
 -- Name: TYPE textsearch_match; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT ALL ON TYPE app_public.textsearch_match TO null18_cms_app_users;
+GRANT ALL ON TYPE app_public.textsearch_match TO null814_cms_app_users;
 
 
 --
@@ -4161,7 +4893,7 @@ GRANT ALL ON TYPE app_public.textsearch_match TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) TO null814_cms_app_users;
 
 
 --
@@ -4169,7 +4901,7 @@ GRANT ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) T
 --
 
 REVOKE ALL ON FUNCTION app_hidden.verify_role_updates_on_room_subscriptions() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_hidden.verify_role_updates_on_room_subscriptions() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_hidden.verify_role_updates_on_room_subscriptions() TO null814_cms_app_users;
 
 
 --
@@ -4183,42 +4915,42 @@ REVOKE ALL ON FUNCTION app_private.assert_valid_password(new_password text) FROM
 -- Name: TABLE users; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.users TO null18_cms_app_users;
+GRANT SELECT ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.username; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(username) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT UPDATE(username) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.name; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(name) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT UPDATE(name) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.avatar_url; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(avatar_url) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT UPDATE(avatar_url) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.default_handling_of_notifications; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(default_handling_of_notifications),UPDATE(default_handling_of_notifications) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT INSERT(default_handling_of_notifications),UPDATE(default_handling_of_notifications) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.sending_time_for_deferred_notifications; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(sending_time_for_deferred_notifications),UPDATE(sending_time_for_deferred_notifications) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT INSERT(sending_time_for_deferred_notifications),UPDATE(sending_time_for_deferred_notifications) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
@@ -4296,7 +5028,7 @@ REVOKE ALL ON FUNCTION app_private.tg_user_secrets__insert_with_user() FROM PUBL
 --
 
 REVOKE ALL ON FUNCTION app_public.accept_invitation_to_organization(invitation_id uuid, code text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.accept_invitation_to_organization(invitation_id uuid, code text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.accept_invitation_to_organization(invitation_id uuid, code text) TO null814_cms_app_users;
 
 
 --
@@ -4304,7 +5036,7 @@ GRANT ALL ON FUNCTION app_public.accept_invitation_to_organization(invitation_id
 --
 
 REVOKE ALL ON FUNCTION app_public.change_password(old_password text, new_password text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.change_password(old_password text, new_password text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.change_password(old_password text, new_password text) TO null814_cms_app_users;
 
 
 --
@@ -4312,28 +5044,28 @@ GRANT ALL ON FUNCTION app_public.change_password(old_password text, new_password
 --
 
 REVOKE ALL ON FUNCTION app_public.confirm_account_deletion(token text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.confirm_account_deletion(token text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.confirm_account_deletion(token text) TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE organizations; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.organizations TO null18_cms_app_users;
+GRANT SELECT ON TABLE app_public.organizations TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN organizations.slug; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(slug) ON TABLE app_public.organizations TO null18_cms_app_users;
+GRANT UPDATE(slug) ON TABLE app_public.organizations TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN organizations.name; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(name) ON TABLE app_public.organizations TO null18_cms_app_users;
+GRANT UPDATE(name) ON TABLE app_public.organizations TO null814_cms_app_users;
 
 
 --
@@ -4341,7 +5073,7 @@ GRANT UPDATE(name) ON TABLE app_public.organizations TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public.create_organization(slug public.citext, name text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.create_organization(slug public.citext, name text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.create_organization(slug public.citext, name text) TO null814_cms_app_users;
 
 
 --
@@ -4349,7 +5081,7 @@ GRANT ALL ON FUNCTION app_public.create_organization(slug public.citext, name te
 --
 
 REVOKE ALL ON FUNCTION app_public.current_session_id() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_session_id() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_session_id() TO null814_cms_app_users;
 
 
 --
@@ -4357,7 +5089,7 @@ GRANT ALL ON FUNCTION app_public.current_session_id() TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public."current_user"() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public."current_user"() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public."current_user"() TO null814_cms_app_users;
 
 
 --
@@ -4365,7 +5097,7 @@ GRANT ALL ON FUNCTION app_public."current_user"() TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public.current_user_first_owned_organization_id() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_user_first_owned_organization_id() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_user_first_owned_organization_id() TO null814_cms_app_users;
 
 
 --
@@ -4373,7 +5105,7 @@ GRANT ALL ON FUNCTION app_public.current_user_first_owned_organization_id() TO n
 --
 
 REVOKE ALL ON FUNCTION app_public.current_user_id() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_user_id() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_user_id() TO null814_cms_app_users;
 
 
 --
@@ -4381,7 +5113,7 @@ GRANT ALL ON FUNCTION app_public.current_user_id() TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public.current_user_invited_organization_ids() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_user_invited_organization_ids() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_user_invited_organization_ids() TO null814_cms_app_users;
 
 
 --
@@ -4389,7 +5121,7 @@ GRANT ALL ON FUNCTION app_public.current_user_invited_organization_ids() TO null
 --
 
 REVOKE ALL ON FUNCTION app_public.current_user_member_organization_ids() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_user_member_organization_ids() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_user_member_organization_ids() TO null814_cms_app_users;
 
 
 --
@@ -4397,56 +5129,56 @@ GRANT ALL ON FUNCTION app_public.current_user_member_organization_ids() TO null1
 --
 
 REVOKE ALL ON FUNCTION app_public.delete_organization(organization_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.delete_organization(organization_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.delete_organization(organization_id uuid) TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE room_messages; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.room_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(room_id) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(room_id) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.sender_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(sender_id) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(sender_id) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.answered_message_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(answered_message_id),UPDATE(answered_message_id) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(answered_message_id),UPDATE(answered_message_id) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.body; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(body),UPDATE(body) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(body),UPDATE(body) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.language; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(language),UPDATE(language) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(language),UPDATE(language) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.sent_at; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(sent_at),UPDATE(sent_at) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(sent_at),UPDATE(sent_at) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
@@ -4454,7 +5186,7 @@ GRANT INSERT(sent_at),UPDATE(sent_at) ON TABLE app_public.room_messages TO null1
 --
 
 REVOKE ALL ON FUNCTION app_public.fetch_draft_in_room(room_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.fetch_draft_in_room(room_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.fetch_draft_in_room(room_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -4462,7 +5194,7 @@ GRANT ALL ON FUNCTION app_public.fetch_draft_in_room(room_id uuid) TO null18_cms
 --
 
 REVOKE ALL ON FUNCTION app_public.forgot_password(email public.citext) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.forgot_password(email public.citext) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.forgot_password(email public.citext) TO null814_cms_app_users;
 
 
 --
@@ -4470,7 +5202,7 @@ GRANT ALL ON FUNCTION app_public.forgot_password(email public.citext) TO null18_
 --
 
 REVOKE ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) TO null814_cms_app_users;
 
 
 --
@@ -4478,7 +5210,7 @@ GRANT ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) TO n
 --
 
 REVOKE ALL ON FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[]) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[]) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[]) TO null814_cms_app_users;
 
 
 --
@@ -4486,49 +5218,49 @@ GRANT ALL ON FUNCTION app_public.global_search(term text, entities app_public.te
 --
 
 REVOKE ALL ON FUNCTION app_public.invite_to_organization(organization_id uuid, username public.citext, email public.citext) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.invite_to_organization(organization_id uuid, username public.citext, email public.citext) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.invite_to_organization(organization_id uuid, username public.citext, email public.citext) TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE rooms; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.title; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(title),UPDATE(title) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(title),UPDATE(title) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.abstract; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(abstract),UPDATE(abstract) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(abstract),UPDATE(abstract) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.is_visible_for; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.items_are_visible_since; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(items_are_visible_since),UPDATE(items_are_visible_since) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(items_are_visible_since),UPDATE(items_are_visible_since) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.is_anonymous_posting_allowed; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_anonymous_posting_allowed),UPDATE(is_anonymous_posting_allowed) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(is_anonymous_posting_allowed),UPDATE(is_anonymous_posting_allowed) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
@@ -4536,7 +5268,7 @@ GRANT INSERT(is_anonymous_posting_allowed),UPDATE(is_anonymous_posting_allowed) 
 --
 
 REVOKE ALL ON FUNCTION app_public.latest_message(room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.latest_message(room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.latest_message(room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -4544,21 +5276,21 @@ GRANT ALL ON FUNCTION app_public.latest_message(room app_public.rooms) TO null18
 --
 
 REVOKE ALL ON FUNCTION app_public.logout() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.logout() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.logout() TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE user_emails; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.user_emails TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.user_emails TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN user_emails.email; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(email) ON TABLE app_public.user_emails TO null18_cms_app_users;
+GRANT INSERT(email) ON TABLE app_public.user_emails TO null814_cms_app_users;
 
 
 --
@@ -4566,7 +5298,7 @@ GRANT INSERT(email) ON TABLE app_public.user_emails TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public.make_email_primary(email_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.make_email_primary(email_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.make_email_primary(email_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -4574,42 +5306,42 @@ GRANT ALL ON FUNCTION app_public.make_email_primary(email_id uuid) TO null18_cms
 --
 
 REVOKE ALL ON FUNCTION app_public.my_first_interaction(room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_first_interaction(room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_first_interaction(room app_public.rooms) TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE room_subscriptions; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_subscriptions.room_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(room_id) ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT INSERT(room_id) ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_subscriptions.subscriber_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(subscriber_id) ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT INSERT(subscriber_id) ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_subscriptions.role; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(role),UPDATE(role) ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT INSERT(role),UPDATE(role) ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_subscriptions.notifications; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(notifications),UPDATE(notifications) ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT INSERT(notifications),UPDATE(notifications) ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
@@ -4617,7 +5349,7 @@ GRANT INSERT(notifications),UPDATE(notifications) ON TABLE app_public.room_subsc
 --
 
 REVOKE ALL ON FUNCTION app_public.my_room_subscription(in_room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_room_subscription(in_room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_room_subscription(in_room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -4625,7 +5357,7 @@ GRANT ALL ON FUNCTION app_public.my_room_subscription(in_room app_public.rooms) 
 --
 
 REVOKE ALL ON FUNCTION app_public.my_room_subscription_id(in_room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_room_subscription_id(in_room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_room_subscription_id(in_room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -4633,7 +5365,7 @@ GRANT ALL ON FUNCTION app_public.my_room_subscription_id(in_room app_public.room
 --
 
 REVOKE ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.room_role) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.room_role) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.room_role) TO null814_cms_app_users;
 
 
 --
@@ -4641,7 +5373,7 @@ GRANT ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.r
 --
 
 REVOKE ALL ON FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.room_role) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.room_role) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.room_role) TO null814_cms_app_users;
 
 
 --
@@ -4649,7 +5381,7 @@ GRANT ALL ON FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.
 --
 
 REVOKE ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role) TO null814_cms_app_users;
 
 
 --
@@ -4657,7 +5389,7 @@ GRANT ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min
 --
 
 REVOKE ALL ON FUNCTION app_public.organization_for_invitation(invitation_id uuid, code text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.organization_for_invitation(invitation_id uuid, code text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.organization_for_invitation(invitation_id uuid, code text) TO null814_cms_app_users;
 
 
 --
@@ -4665,7 +5397,7 @@ GRANT ALL ON FUNCTION app_public.organization_for_invitation(invitation_id uuid,
 --
 
 REVOKE ALL ON FUNCTION app_public.organizations_current_user_is_billing_contact(org app_public.organizations) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.organizations_current_user_is_billing_contact(org app_public.organizations) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.organizations_current_user_is_billing_contact(org app_public.organizations) TO null814_cms_app_users;
 
 
 --
@@ -4673,7 +5405,7 @@ GRANT ALL ON FUNCTION app_public.organizations_current_user_is_billing_contact(o
 --
 
 REVOKE ALL ON FUNCTION app_public.organizations_current_user_is_owner(org app_public.organizations) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.organizations_current_user_is_owner(org app_public.organizations) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.organizations_current_user_is_owner(org app_public.organizations) TO null814_cms_app_users;
 
 
 --
@@ -4681,7 +5413,7 @@ GRANT ALL ON FUNCTION app_public.organizations_current_user_is_owner(org app_pub
 --
 
 REVOKE ALL ON FUNCTION app_public.remove_from_organization(organization_id uuid, user_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.remove_from_organization(organization_id uuid, user_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.remove_from_organization(organization_id uuid, user_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -4689,7 +5421,7 @@ GRANT ALL ON FUNCTION app_public.remove_from_organization(organization_id uuid, 
 --
 
 REVOKE ALL ON FUNCTION app_public.request_account_deletion() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.request_account_deletion() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.request_account_deletion() TO null814_cms_app_users;
 
 
 --
@@ -4697,7 +5429,7 @@ GRANT ALL ON FUNCTION app_public.request_account_deletion() TO null18_cms_app_us
 --
 
 REVOKE ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -4705,7 +5437,7 @@ GRANT ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) T
 --
 
 REVOKE ALL ON FUNCTION app_public.send_room_message(draft_id uuid, OUT room_message app_public.room_messages) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.send_room_message(draft_id uuid, OUT room_message app_public.room_messages) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.send_room_message(draft_id uuid, OUT room_message app_public.room_messages) TO null814_cms_app_users;
 
 
 --
@@ -4713,7 +5445,7 @@ GRANT ALL ON FUNCTION app_public.send_room_message(draft_id uuid, OUT room_messa
 --
 
 REVOKE ALL ON FUNCTION app_public.tg__graphql_subscription() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg__graphql_subscription() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg__graphql_subscription() TO null814_cms_app_users;
 
 
 --
@@ -4721,7 +5453,7 @@ GRANT ALL ON FUNCTION app_public.tg__graphql_subscription() TO null18_cms_app_us
 --
 
 REVOKE ALL ON FUNCTION app_public.tg_user_emails__forbid_if_verified() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg_user_emails__forbid_if_verified() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg_user_emails__forbid_if_verified() TO null814_cms_app_users;
 
 
 --
@@ -4729,7 +5461,7 @@ GRANT ALL ON FUNCTION app_public.tg_user_emails__forbid_if_verified() TO null18_
 --
 
 REVOKE ALL ON FUNCTION app_public.tg_user_emails__prevent_delete_last_email() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg_user_emails__prevent_delete_last_email() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg_user_emails__prevent_delete_last_email() TO null814_cms_app_users;
 
 
 --
@@ -4737,7 +5469,7 @@ GRANT ALL ON FUNCTION app_public.tg_user_emails__prevent_delete_last_email() TO 
 --
 
 REVOKE ALL ON FUNCTION app_public.tg_user_emails__verify_account_on_verified() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg_user_emails__verify_account_on_verified() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg_user_emails__verify_account_on_verified() TO null814_cms_app_users;
 
 
 --
@@ -4745,63 +5477,63 @@ GRANT ALL ON FUNCTION app_public.tg_user_emails__verify_account_on_verified() TO
 --
 
 REVOKE ALL ON FUNCTION app_public.tg_users__deletion_organization_checks_and_actions() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg_users__deletion_organization_checks_and_actions() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg_users__deletion_organization_checks_and_actions() TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE topics; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.author_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(author_id),UPDATE(author_id) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(author_id),UPDATE(author_id) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.organization_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.slug; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.title; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(title),UPDATE(title) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(title),UPDATE(title) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.license; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(license),UPDATE(license) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(license),UPDATE(license) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.is_visible_for; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.content; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(content),UPDATE(content) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(content),UPDATE(content) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
@@ -4809,7 +5541,7 @@ GRANT INSERT(content),UPDATE(content) ON TABLE app_public.topics TO null18_cms_a
 --
 
 REVOKE ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) TO null814_cms_app_users;
 
 
 --
@@ -4817,7 +5549,7 @@ GRANT ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.t
 --
 
 REVOKE ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics, n_first_items integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics, n_first_items integer) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics, n_first_items integer) TO null814_cms_app_users;
 
 
 --
@@ -4825,7 +5557,7 @@ GRANT ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics,
 --
 
 REVOKE ALL ON FUNCTION app_public.transfer_organization_billing_contact(organization_id uuid, user_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.transfer_organization_billing_contact(organization_id uuid, user_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.transfer_organization_billing_contact(organization_id uuid, user_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -4833,7 +5565,7 @@ GRANT ALL ON FUNCTION app_public.transfer_organization_billing_contact(organizat
 --
 
 REVOKE ALL ON FUNCTION app_public.transfer_organization_ownership(organization_id uuid, user_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.transfer_organization_ownership(organization_id uuid, user_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.transfer_organization_ownership(organization_id uuid, user_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -4841,7 +5573,7 @@ GRANT ALL ON FUNCTION app_public.transfer_organization_ownership(organization_id
 --
 
 REVOKE ALL ON FUNCTION app_public.users_has_password(u app_public.users) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.users_has_password(u app_public.users) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.users_has_password(u app_public.users) TO null814_cms_app_users;
 
 
 --
@@ -4849,182 +5581,371 @@ GRANT ALL ON FUNCTION app_public.users_has_password(u app_public.users) TO null1
 --
 
 REVOKE ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION procrastinate_defer_job(queue_name character varying, task_name character varying, lock text, queueing_lock text, args jsonb, scheduled_at timestamp with time zone); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_defer_job(queue_name character varying, task_name character varying, lock text, queueing_lock text, args jsonb, scheduled_at timestamp with time zone) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _defer_timestamp bigint); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _defer_timestamp bigint) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _periodic_id character varying, _defer_timestamp bigint, _args jsonb); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _periodic_id character varying, _defer_timestamp bigint, _args jsonb) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_fetch_job(target_queue_names character varying[]); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_fetch_job(target_queue_names character varying[]) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone, delete_job boolean); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone, delete_job boolean) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_notify_queue(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_notify_queue() FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_retry_job(job_id integer, retry_at timestamp with time zone); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_retry_job(job_id integer, retry_at timestamp with time zone) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_trigger_scheduled_events_procedure(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_scheduled_events_procedure() FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_trigger_status_events_procedure_insert(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_insert() FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_trigger_status_events_procedure_update(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update() FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_unlink_periodic_defers(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_unlink_periodic_defers() FROM PUBLIC;
+
+
+--
+-- Name: TABLE files; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN files.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id),UPDATE(id) ON TABLE app_public.files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN files.contributor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(contributor_id) ON TABLE app_public.files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN files.uploaded_bytes; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(uploaded_bytes),UPDATE(uploaded_bytes) ON TABLE app_public.files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN files.total_bytes; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(total_bytes),UPDATE(total_bytes) ON TABLE app_public.files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN files.filename; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(filename),UPDATE(filename) ON TABLE app_public.files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN files.mime_type; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(mime_type),UPDATE(mime_type) ON TABLE app_public.files TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE organization_memberships; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.organization_memberships TO null18_cms_app_users;
+GRANT SELECT ON TABLE app_public.organization_memberships TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE pdf_files; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.pdf_files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN pdf_files.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id),UPDATE(id) ON TABLE app_public.pdf_files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN pdf_files.title; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(title),UPDATE(title) ON TABLE app_public.pdf_files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN pdf_files.pages; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(pages),UPDATE(pages) ON TABLE app_public.pdf_files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN pdf_files.metadata; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(metadata),UPDATE(metadata) ON TABLE app_public.pdf_files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN pdf_files.content_as_plain_text; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(content_as_plain_text),UPDATE(content_as_plain_text) ON TABLE app_public.pdf_files TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN pdf_files.thumbnail_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(thumbnail_id),UPDATE(thumbnail_id) ON TABLE app_public.pdf_files TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE room_items; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.type; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(type) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(type) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.room_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(room_id) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(room_id) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.parent_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(parent_id) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(parent_id) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.contributor_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(contributor_id) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(contributor_id) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items."order"; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT("order"),UPDATE("order") ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT("order"),UPDATE("order") ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.contributed_at; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(contributed_at),UPDATE(contributed_at) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(contributed_at),UPDATE(contributed_at) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.is_visible_for; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.is_visible_since; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_since),UPDATE(is_visible_since) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(is_visible_since),UPDATE(is_visible_since) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.is_visible_since_date; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_since_date),UPDATE(is_visible_since_date) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(is_visible_since_date),UPDATE(is_visible_since_date) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.topic_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(topic_id),UPDATE(topic_id) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(topic_id),UPDATE(topic_id) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.message_body; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(message_body),UPDATE(message_body) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(message_body),UPDATE(message_body) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE room_message_attachments; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.room_message_attachments TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_message_attachments.id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(id) ON TABLE app_public.room_message_attachments TO null18_cms_app_users;
+GRANT INSERT(id) ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_message_attachments.room_message_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(room_message_id) ON TABLE app_public.room_message_attachments TO null18_cms_app_users;
+GRANT INSERT(room_message_id) ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_message_attachments.topic_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(topic_id) ON TABLE app_public.room_message_attachments TO null18_cms_app_users;
+GRANT INSERT(topic_id) ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE user_authentications; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: app_hidden; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA app_hidden GRANT SELECT,USAGE ON SEQUENCES TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA app_hidden GRANT SELECT,USAGE ON SEQUENCES TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: app_hidden; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA app_hidden GRANT ALL ON FUNCTIONS TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA app_hidden GRANT ALL ON FUNCTIONS TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: app_public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA app_public GRANT SELECT,USAGE ON SEQUENCES TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA app_public GRANT SELECT,USAGE ON SEQUENCES TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: app_public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA app_public GRANT ALL ON FUNCTIONS TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA app_public GRANT ALL ON FUNCTIONS TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA public GRANT SELECT,USAGE ON SEQUENCES TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA public GRANT SELECT,USAGE ON SEQUENCES TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA public GRANT ALL ON FUNCTIONS TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA public GRANT ALL ON FUNCTIONS TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: -; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner REVOKE ALL ON FUNCTIONS FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner REVOKE ALL ON FUNCTIONS FROM PUBLIC;
 
 
 --
