@@ -49,6 +49,13 @@ const answers = await inquirer.prompt(
     },
     {
       type: 'input',
+      name: 'SUPERUSER_DATABASE_URL',
+      message:
+        'Can a superuser connect to the database? Helpful for setting up watchers.',
+      default: (answers) => `postgres:///${answers.DATABASE_NAME}`,
+    },
+    {
+      type: 'input',
       name: 'DATABASE_OWNER',
       message: 'Who owns the database?',
       default: (answers) => `${answers.DATABASE_NAME}_owner`,

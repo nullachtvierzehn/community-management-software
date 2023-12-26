@@ -92,8 +92,9 @@ export const preset: GraphileConfig.Preset = {
   pgServices: [
     makePgService({
       pool,
-      superuserConnectionString: config.database.rootUrl,
+      superuserConnectionString: process.env.SUPERUSER_DATABASE_URL,
       schemas: ['app_public'],
+      pubsub: true,
     }),
   ],
 }
