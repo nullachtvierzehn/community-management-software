@@ -52,10 +52,10 @@ type Match = NonNullable<GlobalSearchQuery['globalSearch']>['nodes'][0]
 
 const props = withDefaults(
   defineProps<{
-    show: boolean
-    entities: TextsearchableEntity[]
-    skipIds: string[]
-    focusOnShow: boolean
+    show?: boolean
+    entities?: TextsearchableEntity[]
+    skipIds?: string[]
+    focusOnShow?: boolean
   }>(),
   {
     show: false,

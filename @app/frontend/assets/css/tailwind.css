@@ -16,6 +16,11 @@
   }
 
   .form-grid {
+    /* 
+     * https://web.dev/articles/css-subgrid?hl=de
+     * https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout/Subgrid
+     */
+
     display: grid;
     grid-template-columns: [label-start] 1fr [label-end field-start] 2fr [field-end];
     gap: 1rem;

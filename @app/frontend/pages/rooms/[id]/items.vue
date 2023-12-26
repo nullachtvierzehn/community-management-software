@@ -5,9 +5,9 @@
     <button @click="addNewMessage()">neue Nachricht</button>
     <button @click="showSearchModal = true">neues Thema</button>
 
-    <Teleport to="body">
-      <SearchModal v-model:show="showSearchModal" :entities="['TOPIC']" />
-    </Teleport>
+      <Teleport to="body" v-if="showSearchModal">
+        <SearchModal v-model:show="showSearchModal" :entities="['TOPIC']" />
+      </Teleport>
 
     <div
       v-for="item in myDraftItems"
