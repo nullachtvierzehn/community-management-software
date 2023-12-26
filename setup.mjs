@@ -5,6 +5,7 @@ import fs from 'fs'
 import inquirer from 'inquirer'
 import pg from 'pg'
 import sodium from 'sodium-native'
+import path from 'path'
 
 function generatePassword(n_bytes = 16) {
   return crypto.randomBytes(n_bytes).toString('base64url')
@@ -123,6 +124,12 @@ const answers = await inquirer.prompt(
         'The root url. This is needed any time we use absolute URLs. Must NOT end with a slash.',
       default: (answers) => `http://localhost:${answers.FRONTEND_PORT}`,
       transformer: (value) => value.trim().replace(/\/$/, ''),
+    },
+    {
+      type: 'input',
+      name: 'UPLOAD_FOLDER',
+      message: 'This is where file uploads are stored.',
+      default: (answers) => path.join(process.cwd(), 'uploads'),
     },
   ],
   envValues

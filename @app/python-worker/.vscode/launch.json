@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // https://code.visualstudio.com/docs/python/debugging
+      "name": "python worker",
+      "type": "python",
+      "request": "launch",
+      "module": "python_worker",
+      "justMyCode": true,
+      "console": "internalConsole",
+      "autoReload": { "enable": true },
+      "subProcess": true,
+      "cwd": "${workspaceFolder:Python-Worker}"
+    }
+  ]
+}

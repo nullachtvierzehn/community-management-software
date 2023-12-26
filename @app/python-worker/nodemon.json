@@ -1,0 +1,8 @@
+{
+  "watch": ["python_worker"],
+  "ext": "py",
+  "env": {
+    "PYTHONPATH": "."
+  },
+  "exec": "poetry run -- procrastinate --app=python_worker.app worker --concurrency=5"
+}
