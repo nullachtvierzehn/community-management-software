@@ -245,10 +245,21 @@ async function runDatabaseSetup() {
   )
 
   await client.end()
-  execSync('npm run --workspace @app/database reset -- --erase')
+  console.log(
+    execSync('npm run --workspace @app/database reset -- --erase').toString(
+      'utf-8'
+    )
+  )
+  console.log(
+    execSync(
+      'PYTHONPATH=. poetry run -- procrastinate --app=python_worker.app schema --apply',
+      { cwd: '@app/python-worker' }
+    ).toString('utf-8')
+  )
 }
 
 fs.writeFileSync('.env', stringify(answers), { encoding: 'utf-8' })
+execSync('PYTHONPATH=. poetry install', { cwd: '@app/python-worker' })
 
 if (dbSetupIsPartlyComplete) {
   const confirm = await inquirer.prompt({
