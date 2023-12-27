@@ -11,6 +11,7 @@ import { PostGraphileConnectionFilterPreset } from 'postgraphile-plugin-connecti
 
 import config from '../config/index.js'
 import { ownerPool, pool } from '../database/pool.js'
+import { maskError } from './handleErrors.js'
 import OrderByUsernamePlugin from './plugins/order-by-username-plugin.js'
 import PassportLoginPlugin from './plugins/PassportLoginPlugin.js'
 
@@ -53,6 +54,7 @@ export const preset: GraphileConfig.Preset = {
     sortExport: true,
   },
   grafast: {
+    explain: process.env.NODE_ENV === 'development', // @see https://postgraphile.org/postgraphile/next/debugging/#step-4-viewing-the-generated-sql
     async context(ctx, args) {
       const contextExtensions: Partial<Grafast.Context> = {
         rootPgPool: ownerPool,
@@ -88,6 +90,7 @@ export const preset: GraphileConfig.Preset = {
     port: 3001,
     watch: true,
     websockets: true,
+    maskError,
   },
   pgServices: [
     makePgService({
