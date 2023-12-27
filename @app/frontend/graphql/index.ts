@@ -6479,6 +6479,22 @@ export type RegisterUserMutationVariables = Exact<{
 
 export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'RegisterPayload', user: { __typename?: 'User', id: string, username: string, createdAt: string } } | null };
 
+export type ForgotPasswordMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type ForgotPasswordMutation = { __typename?: 'Mutation', forgotPassword: { __typename?: 'ForgotPasswordPayload', clientMutationId: string | null } | null };
+
+export type ResetPasswordMutationVariables = Exact<{
+  id: Scalars['UUID']['input'];
+  token: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
+}>;
+
+
+export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: { __typename?: 'ResetPasswordPayload', success: boolean | null } | null };
+
 export type RoomItemAsListItemFragment = { __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null };
 
 export type ShortProfileFragment = { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null };
@@ -6887,6 +6903,20 @@ export const RegisterUser = gql`
       username
       createdAt
     }
+  }
+}
+    `;
+export const ForgotPassword = gql`
+    mutation ForgotPassword($email: String!) {
+  forgotPassword(input: {email: $email}) {
+    clientMutationId
+  }
+}
+    `;
+export const ResetPassword = gql`
+    mutation ResetPassword($id: UUID!, $token: String!, $newPassword: String!) {
+  resetPassword(input: {userId: $id, resetToken: $token, newPassword: $newPassword}) {
+    success
   }
 }
     `;
@@ -7398,6 +7428,28 @@ export const RegisterUserDocument = gql`
 
 export function useRegisterUserMutation() {
   return Urql.useMutation<RegisterUserMutation, RegisterUserMutationVariables>(RegisterUserDocument);
+};
+export const ForgotPasswordDocument = gql`
+    mutation ForgotPassword($email: String!) {
+  forgotPassword(input: {email: $email}) {
+    clientMutationId
+  }
+}
+    `;
+
+export function useForgotPasswordMutation() {
+  return Urql.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument);
+};
+export const ResetPasswordDocument = gql`
+    mutation ResetPassword($id: UUID!, $token: String!, $newPassword: String!) {
+  resetPassword(input: {userId: $id, resetToken: $token, newPassword: $newPassword}) {
+    success
+  }
+}
+    `;
+
+export function useResetPasswordMutation() {
+  return Urql.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument);
 };
 export const UpdateRoomItemDocument = gql`
     mutation UpdateRoomItem($oldId: UUID!, $patch: RoomItemPatch!) {

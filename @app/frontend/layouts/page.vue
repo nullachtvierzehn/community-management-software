@@ -8,4 +8,8 @@
 article :deep(h1) {
   @apply text-4xl font-bold mb-4;
 }
+
+article :deep(p) {
+  @apply my-4;
+}
 </style>

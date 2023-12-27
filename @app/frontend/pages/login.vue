@@ -42,13 +42,31 @@
       </div>
     </div>
 
-    <button class="btn btn_primary" type="submit" :disabled="!meta.valid">
-      ok
-    </button>
+    <div class="form-input">
+      <button
+        class="form-input__field btn btn_primary"
+        type="submit"
+        :disabled="!meta.valid"
+      >
+        ok
+      </button>
+      <div v-if="error" class="form-input__error">
+        <p v-if="invalidCredentials">
+          Login-Name und Passwort passen nicht zusammen. Magst Du
+          <NuxtLink to="/reset-password">Dein Passwort zurücksetzen</NuxtLink>?
+        </p>
+        <div v-else>
+          <p>Beim Einloggen kam es zu einem unbekannten Fehler:</p>
+          <pre>{{ errorAsJson }}</pre>
+          <pre>{{ data }}</pre>
+        </div>
+      </div>
+    </div>
   </form>
 
-  <pre v-if="error">{{ error }}</pre>
-  <pre v-if="data">{{ data }}</pre>
+  <p v-if="data?.login?.user">
+    Du hast Dich eingeloggt. Vielen Dank, dass Du wieder bei uns zu Besuch bist.
+  </p>
 </template>
 
 <script lang="ts" setup>
@@ -63,6 +81,12 @@ definePageMeta({
 })
 
 const { data, executeMutation, error } = useLoginMutation()
+
+const invalidCredentials = computed(
+  () => error.value?.graphQLErrors.some((e) => e.extensions.code === 'CREDS')
+)
+
+const errorAsJson = computed(() => JSON.stringify(error))
 
 const {
   defineField,

@@ -1,5 +1,10 @@
 <template>
-  <h1>Als neu:e Benutzer:in anmelden</h1>
+  <h1>Mich zum ersten Mal anmelden</h1>
+  <p>
+    Falls Du zum ersten Mal hier bist, kannst Du das Formular unten ausfüllen.
+    Beim nächsten Mal kannst Du Dich
+    <NuxtLink to="/login">hier einloggen.</NuxtLink>
+  </p>
   <section>
     <form class="form-grid" @submit.prevent="onSubmit">
       <!-- username -->
@@ -71,7 +76,7 @@
       <!-- password confirmation -->
       <div class="form-input">
         <label for="registrationInputConfirmPassword" class="form-input__label"
-          >Passwort bestätigen</label
+          >Passwort nochmal eintippen</label
         >
         <input
           id="registrationInputConfirmPassword"

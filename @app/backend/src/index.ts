@@ -3,7 +3,7 @@ import './routes/index.js'
 import { app } from './app.js'
 import { ownerPool, pool } from './database/pool.js'
 import { grafservInstance, preset } from './graphile/index.js'
-//import { runner } from './worker/index.js'
+import { runner } from './worker/index.js'
 
 // Add the Grafserv instance's route handlers to the Fastify app
 grafservInstance.addTo(app).catch((e: any) => {
@@ -14,7 +14,7 @@ grafservInstance.addTo(app).catch((e: any) => {
 // Run cleanup-jobs when the app is closed.
 app.addHook('onClose', async () => {
   // First, stop the runner, because it still depends on the database pools.
-  //await runner.stop()
+  await runner.stop()
   // Then, disconnect the database pools.
   await Promise.all([pool.end(), ownerPool.end()]).then(() =>
     console.log('database pools disconnected')
