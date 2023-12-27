@@ -1,5 +1,7 @@
 <template>
-  <form action="post" class="form-grid max-w-[500px]" @submit.prevent="login()">
+  <h1>Einloggen</h1>
+
+  <form action="post" class="form-grid" @submit.prevent="login()">
     <label for="loginInputUsername" class="form-input">
       <span class="form-input__label">Login-Name</span>
       <input
@@ -9,6 +11,7 @@
         type="text"
       />
     </label>
+
     <label for="loginInputPassword" class="form-input">
       <span class="form-input__label">Passwort</span>
       <input
@@ -18,14 +21,20 @@
         type="password"
       />
     </label>
+
     <button class="btn btn_primary" type="submit">ok</button>
   </form>
+
   <pre v-if="error">{{ error }}</pre>
   <pre v-if="data">{{ data }}</pre>
 </template>
 
 <script lang="ts" setup>
 import { useLoginMutation } from '~/graphql'
+
+definePageMeta({
+  layout: 'page',
+})
 
 const username = ref('')
 const password = ref('')

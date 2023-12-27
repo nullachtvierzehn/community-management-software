@@ -1,111 +1,105 @@
 <template>
-  <article>
-    <h1>Als neu:e Benutzer:in anmelden</h1>
-    <section>
-      <form class="form-grid" @submit.prevent="onSubmit">
-        <!-- username -->
-        <div class="form-input">
-          <label for="registrationInputUsername" class="form-input__label"
-            >Login-Name</label
-          >
-          <input
-            id="registrationInputUsername"
-            v-model="username"
-            class="form-input__field"
-            type="text"
-            v-bind="usernameAttrs"
-            aria-describedby="registrationInputUsernameErrors"
-          />
-          <div
-            v-show="fieldErrors.username"
-            id="registrationInputUsernameErrors"
-            class="form-input__error"
-          >
-            {{ fieldErrors.username }}
-          </div>
-        </div>
-
-        <!-- email -->
-        <div class="form-input">
-          <label for="registrationInputEmail" class="form-input__label"
-            >E-Mail</label
-          >
-          <input
-            id="registrationInputEmail"
-            v-model="email"
-            class="form-input__field"
-            type="email"
-            v-bind="emailAttrs"
-            aria-describedby="registrationInputEmailErrors"
-          />
-          <div
-            v-show="fieldErrors.email"
-            id="registrationInputEmailErrors"
-            class="form-input__error"
-          >
-            {{ fieldErrors.email }}
-          </div>
-        </div>
-
-        <!-- password -->
-        <div class="form-input">
-          <label for="registrationInputPassword" class="form-input__label"
-            >Passwort</label
-          >
-          <input
-            id="registrationInputPassword"
-            v-model="password"
-            class="form-input__field"
-            type="password"
-            v-bind="passwordAttrs"
-            aria-describedby="registrationInputPasswordErrors"
-          />
-          <div
-            v-show="fieldErrors.password"
-            id="registrationInputPasswordErrors"
-            class="form-input__error"
-          >
-            {{ fieldErrors.password }}
-          </div>
-        </div>
-
-        <!-- password confirmation -->
-        <div class="form-input">
-          <label
-            for="registrationInputConfirmPassword"
-            class="form-input__label"
-            >Passwort bestätigen</label
-          >
-          <input
-            id="registrationInputConfirmPassword"
-            v-model="confirmPassword"
-            class="form-input__field"
-            type="password"
-            v-bind="confirmPasswordAttrs"
-            aria-describedby="registrationInputConfirmPasswordErrors"
-          />
-          <div
-            v-show="fieldErrors.confirmPassword"
-            id="registrationInputConfirmPasswordErrors"
-            class="form-input__error"
-          >
-            {{ fieldErrors.confirmPassword }}
-          </div>
-        </div>
-
-        <!-- submit button -->
-        <button
-          class="btn btn_primary"
-          :disabled="
-            (!meta.touched && !meta.valid) || registrationInTransmission
-          "
+  <h1>Als neu:e Benutzer:in anmelden</h1>
+  <section>
+    <form class="form-grid" @submit.prevent="onSubmit">
+      <!-- username -->
+      <div class="form-input">
+        <label for="registrationInputUsername" class="form-input__label"
+          >Login-Name</label
         >
-          abschicken
-        </button>
-      </form>
-    </section>
-    <pre>{{ error }}</pre>
-  </article>
+        <input
+          id="registrationInputUsername"
+          v-model="username"
+          class="form-input__field"
+          type="text"
+          v-bind="usernameAttrs"
+          aria-describedby="registrationInputUsernameErrors"
+        />
+        <div
+          v-show="fieldErrors.username"
+          id="registrationInputUsernameErrors"
+          class="form-input__error"
+        >
+          {{ fieldErrors.username }}
+        </div>
+      </div>
+
+      <!-- email -->
+      <div class="form-input">
+        <label for="registrationInputEmail" class="form-input__label"
+          >E-Mail</label
+        >
+        <input
+          id="registrationInputEmail"
+          v-model="email"
+          class="form-input__field"
+          type="email"
+          v-bind="emailAttrs"
+          aria-describedby="registrationInputEmailErrors"
+        />
+        <div
+          v-show="fieldErrors.email"
+          id="registrationInputEmailErrors"
+          class="form-input__error"
+        >
+          {{ fieldErrors.email }}
+        </div>
+      </div>
+
+      <!-- password -->
+      <div class="form-input">
+        <label for="registrationInputPassword" class="form-input__label"
+          >Passwort</label
+        >
+        <input
+          id="registrationInputPassword"
+          v-model="password"
+          class="form-input__field"
+          type="password"
+          v-bind="passwordAttrs"
+          aria-describedby="registrationInputPasswordErrors"
+        />
+        <div
+          v-show="fieldErrors.password"
+          id="registrationInputPasswordErrors"
+          class="form-input__error"
+        >
+          {{ fieldErrors.password }}
+        </div>
+      </div>
+
+      <!-- password confirmation -->
+      <div class="form-input">
+        <label for="registrationInputConfirmPassword" class="form-input__label"
+          >Passwort bestätigen</label
+        >
+        <input
+          id="registrationInputConfirmPassword"
+          v-model="confirmPassword"
+          class="form-input__field"
+          type="password"
+          v-bind="confirmPasswordAttrs"
+          aria-describedby="registrationInputConfirmPasswordErrors"
+        />
+        <div
+          v-show="fieldErrors.confirmPassword"
+          id="registrationInputConfirmPasswordErrors"
+          class="form-input__error"
+        >
+          {{ fieldErrors.confirmPassword }}
+        </div>
+      </div>
+
+      <!-- submit button -->
+      <button
+        class="btn btn_primary"
+        :disabled="(!meta.touched && !meta.valid) || registrationInTransmission"
+      >
+        abschicken
+      </button>
+    </form>
+  </section>
+  <pre>{{ error }}</pre>
 </template>
 
 <script setup lang="ts">
@@ -120,6 +114,10 @@ import {
   type GetUserByUsernameQuery,
   useRegisterUserMutation,
 } from '~/graphql'
+
+definePageMeta({
+  layout: 'page',
+})
 
 const app = useNuxtApp()
 

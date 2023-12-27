@@ -22,14 +22,35 @@
      */
 
     display: grid;
-    grid-template-columns: [label-start] 1fr [label-end field-start] 2fr [field-end];
-    gap: 1rem;
+    column-gap: 1rem;
+
+    grid-template:
+      'label' auto
+      'field' auto
+      'error' auto
+      / 1fr;
+
+    @media screen(sm) {
+      grid-template:
+        'label field' auto
+        '.     error' auto
+        / 1fr 2fr;
+    }
 
     & .form-input {
+      @apply mb-4;
+
       display: grid;
-      grid-column: span 2;
-      grid-template-columns: subgrid;
+      grid-template: subgrid / subgrid;
       align-items: center;
+
+      grid-column: span 1;
+      grid-row: span 3;
+
+      @media screen(sm) {
+        grid-column: span 2;
+        grid-row: span 2;
+      }
 
       & .form-input__label {
         grid-column: label;
@@ -41,7 +62,7 @@
 
       & .form-input__error {
         @apply mt-1 text-red-700;
-        grid-column: field;
+        grid-column: error;
       }
     }
 
