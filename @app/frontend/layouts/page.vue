@@ -4,8 +4,8 @@
   </article>
 </template>
 
-<style lang="postcss">
-article h1 {
+<style lang="postcss" scoped>
+article :deep(h1) {
   @apply text-4xl font-bold mb-4;
 }
 </style>

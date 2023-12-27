@@ -103,7 +103,6 @@
 </template>
 
 <script setup lang="ts">
-import type { Client } from '@urql/vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { omit } from 'lodash'
 import { useForm } from 'vee-validate'
