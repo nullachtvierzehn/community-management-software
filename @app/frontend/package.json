@@ -28,6 +28,8 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@fontsource-variable/merriweather-sans": "^5.0.9",
+    "@fontsource/merriweather": "^5.0.8",
     "@intlify/vue-i18n-bridge": "^1.1.0",
     "@intlify/vue-router-bridge": "^1.1.0",
     "@nuxt-alt/proxy": "^2.3.2",

@@ -27,6 +27,14 @@ export default defineNuxtConfig({
   },
   ssr: true,
   devtools: { enabled: true },
+  css: [
+    '@fontsource-variable/merriweather-sans/wght-italic.css',
+    '@fontsource-variable/merriweather-sans/wght.css',
+    '@fontsource/merriweather/400.css',
+    '@fontsource/merriweather/400-italic.css',
+    '@fontsource/merriweather/700.css',
+    '@fontsource/merriweather/700-italic.css',
+  ],
   postcss: {
     plugins: {
       'tailwindcss/nesting': {},
