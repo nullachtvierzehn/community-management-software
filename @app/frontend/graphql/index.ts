@@ -3355,6 +3355,8 @@ export type TextsearchMatchCondition = {
   id?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `rankOrSimilarity` field. */
   rankOrSimilarity?: InputMaybe<Scalars['Float']['input']>;
+  /** Checks for equality with the object’s `roomId` field. */
+  roomId?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `snippet` field. */
   snippet?: InputMaybe<Scalars['String']['input']>;
   /** Checks for equality with the object’s `title` field. */
@@ -3368,6 +3370,7 @@ export type TextsearchMatchCondition = {
 };
 
 export type TextsearchableEntity =
+  | 'ROOM'
   | 'TOPIC'
   | 'USER';
 
@@ -3383,6 +3386,8 @@ export type TextsearchMatchFilter = {
   or?: InputMaybe<Array<TextsearchMatchFilter>>;
   /** Filter by the object’s `rankOrSimilarity` field. */
   rankOrSimilarity?: InputMaybe<FloatFilter>;
+  /** Filter by the object’s `roomId` field. */
+  roomId?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `snippet` field. */
   snippet?: InputMaybe<StringFilter>;
   /** Filter by the object’s `title` field. */
@@ -3428,6 +3433,8 @@ export type TextsearchMatchesOrderBy =
   | 'NATURAL'
   | 'RANK_OR_SIMILARITY_ASC'
   | 'RANK_OR_SIMILARITY_DESC'
+  | 'ROOM_ID_ASC'
+  | 'ROOM_ID_DESC'
   | 'SNIPPET_ASC'
   | 'SNIPPET_DESC'
   | 'TITLE_ASC'
@@ -3465,6 +3472,9 @@ export type TextsearchMatch = {
   __typename?: 'TextsearchMatch';
   id: Scalars['UUID']['output'];
   rankOrSimilarity: Scalars['Float']['output'];
+  /** Reads a single `Room` that is related to this `TextsearchMatch`. */
+  room: Maybe<Room>;
+  roomId: Maybe<Scalars['UUID']['output']>;
   snippet: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   /** Reads a single `Topic` that is related to this `TextsearchMatch`. */
