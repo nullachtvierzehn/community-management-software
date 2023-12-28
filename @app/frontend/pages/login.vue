@@ -71,6 +71,7 @@
 
 <script lang="ts" setup>
 import { toTypedSchema } from '@vee-validate/zod'
+import { useRouteQuery } from '@vueuse/router'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
 
@@ -80,6 +81,8 @@ definePageMeta({
   layout: 'page',
 })
 
+const router = useRouter()
+const next = useRouteQuery<string | null>('next')
 const { data, executeMutation, error } = useLoginMutation()
 
 const invalidCredentials = computed(
@@ -114,10 +117,13 @@ const [password, passwordAttrs] = defineField('password', {
 })
 
 async function login() {
-  await executeMutation({
+  const { data, error } = await executeMutation({
     username: toValue(username)!,
     password: toValue(password)!,
   })
+  if (!error && data?.login?.user) {
+    router.push(next.value ?? '/profile')
+  }
 }
 
 const onSubmit = handleSubmit(login)

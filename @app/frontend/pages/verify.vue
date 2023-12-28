@@ -1,44 +1,71 @@
 <template>
-  <article>
-    <template v-if="verificationSucceeded">
-      <h1>E-Mail-Adresse bestätigt</h1>
-      <p>Vielen Dank! Ihre E-Mail-Adresse ist jetzt bestätigt.</p>
-    </template>
-    <template v-else>
-      <h1>E-Mail-Adresse bestätigen</h1>
-      <form @submit.prevent="onSubmit">
-        <label for="emailVerificationId" class="block">
-          <span>Kennung</span>
-          <input
-            id="emailVerificationId"
-            v-model.lazy="id"
-            v-bind="idAttrs"
-            type="text"
-            aria-describedby="emailVerificationIdErrors"
-          />
-          <div v-show="fieldErrors.id" id="emailVerificationIdErrors">
-            {{ fieldErrors.id }}
-          </div>
+  <template v-if="verificationSucceeded">
+    <h1>E-Mail-Adresse bestätigt</h1>
+    <p>
+      Vielen Dank! Deine E-Mail-Adresse ist jetzt bestätigt. Möchtest Du Dich
+      <NuxtLink to="/login">einloggen</NuxtLink>?
+    </p>
+  </template>
+  <template v-else>
+    <h1>E-Mail-Adresse bestätigen</h1>
+    <form class="form-grid" @submit.prevent="onSubmit">
+      <div class="form-input">
+        <label for="emailVerificationId" class="form-input__label">
+          Benutzer-Kennung
         </label>
-        <label for="emailVerificationToken" class="block">
-          <span>Token</span>
-          <input
-            id="emailVerificationToken"
-            v-model.lazy="token"
-            v-bind="tokenAttrs"
-            type="text"
-            aria-describedby="emailVerificationTokenErrors"
-          />
-          <div v-show="fieldErrors.token" id="emailVerificationTokenErrors">
-            {{ fieldErrors.token }}
-          </div>
+        <input
+          id="emailVerificationId"
+          v-model.lazy="id"
+          class="form-input__field"
+          v-bind="idAttrs"
+          type="text"
+          aria-describedby="emailVerificationIdErrors"
+        />
+        <div
+          v-show="fieldErrors.id"
+          id="emailVerificationIdErrors"
+          class="form-input__error"
+        >
+          {{ fieldErrors.id }}
+        </div>
+      </div>
+
+      <label class="form-input">
+        <label for="emailVerificationToken" class="form-input__label">
+          Token as der E-Mail
         </label>
-        <button type="submit">Abschicken</button>
-        <pre>{{ fieldErrors }}</pre>
-        <pre>{{ meta }}</pre>
-      </form>
-    </template>
-  </article>
+        <input
+          id="emailVerificationToken"
+          v-model.lazy="token"
+          class="form-input__field"
+          v-bind="tokenAttrs"
+          type="text"
+          aria-describedby="emailVerificationTokenErrors"
+        />
+        <div
+          v-show="fieldErrors.token"
+          id="emailVerificationTokenErrors"
+          class="form-input__error"
+        >
+          {{ fieldErrors.token }}
+        </div>
+      </label>
+
+      <div class="form-input">
+        <button type="submit" class="form-input__field btn btn_primary">
+          Abschicken
+        </button>
+        <div v-if="verificationError" class="form-input__error">
+          <p>
+            Leider gab es einen technischen Fehler. Versuche es bitte noch
+            einmal und schreibe sonst an
+            <a href="mailto:hilfe@psychisch.fit">hilfe@psychisch.fit</a>, damit
+            wir Dir helfen können.
+          </p>
+        </div>
+      </div>
+    </form>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -48,6 +75,16 @@ import { useForm } from 'vee-validate'
 import { z } from 'zod'
 
 import { useVerifyEmailMutation } from '~/graphql'
+
+definePageMeta({
+  layout: 'page',
+})
+
+const {
+  executeMutation: verifyMutation,
+  fetching: sending,
+  error: verificationError,
+} = useVerifyEmailMutation()
 
 const verificationSucceeded = useState<boolean>(() => false)
 const idFromUrl = useRouteQuery<string>('id', '')
@@ -78,15 +115,12 @@ const [token, tokenAttrs] = defineField('token', {
 syncRef(idFromUrl, id as Ref<string>, { direction: 'both' })
 syncRef(tokenFromUrl, token as Ref<string>, { direction: 'both' })
 
-const { executeMutation: verifyMutation, fetching: sending } =
-  useVerifyEmailMutation()
-
 const onSubmit = handleSubmit(async ({ id, token }) => {
   const { data, error } = await verifyMutation({
     id,
     token,
   })
-  verificationSucceeded.value = !error && (data?.verifyEmail?.ok ?? false)
+  verificationSucceeded.value = !error && (data?.verifyEmail?.success ?? false)
 })
 
 if (import.meta.browser) {

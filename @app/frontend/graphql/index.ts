@@ -6294,6 +6294,14 @@ export type VerifyEmailPayload = {
   query: Maybe<Query>;
 };
 
+export type ChangePasswordMutationVariables = Exact<{
+  oldPassword: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
+}>;
+
+
+export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'ChangePasswordPayload', success: boolean | null } | null };
+
 export type CreateRoomItemMutationVariables = Exact<{
   item: RoomItemInput;
 }>;
@@ -6472,6 +6480,11 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginPayload', user: { __typename?: 'User', id: string, username: string } } | null };
 
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'LogoutPayload', success: boolean | null } | null };
+
 export type RegisterUserMutationVariables = Exact<{
   form: RegisterInput;
 }>;
@@ -6537,7 +6550,7 @@ export type VerifyEmailMutationVariables = Exact<{
 }>;
 
 
-export type VerifyEmailMutation = { __typename?: 'Mutation', verifyEmail: { __typename?: 'VerifyEmailPayload', ok: boolean | null } | null };
+export type VerifyEmailMutation = { __typename?: 'Mutation', verifyEmail: { __typename?: 'VerifyEmailPayload', success: boolean | null, query: { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null } | null };
 
 export const ShortProfile = gql`
     fragment ShortProfile on User {
@@ -6583,6 +6596,13 @@ export const RoomItemAsListItem = gql`
   isVisibleSinceDate
 }
     ${ShortProfile}`;
+export const ChangePassword = gql`
+    mutation ChangePassword($oldPassword: String!, $newPassword: String!) {
+  changePassword(input: {oldPassword: $oldPassword, newPassword: $newPassword}) {
+    success: boolean
+  }
+}
+    `;
 export const CreateRoomItem = gql`
     mutation CreateRoomItem($item: RoomItemInput!) {
   createRoomItem(input: {roomItem: $item}) {
@@ -6895,6 +6915,13 @@ export const Login = gql`
   }
 }
     `;
+export const Logout = gql`
+    mutation Logout {
+  logout {
+    success
+  }
+}
+    `;
 export const RegisterUser = gql`
     mutation RegisterUser($form: RegisterInput!) {
   register(input: $form) {
@@ -6974,10 +7001,16 @@ export const UpdateTopic = gql`
 export const VerifyEmail = gql`
     mutation VerifyEmail($id: UUID!, $token: String!) {
   verifyEmail(input: {userEmailId: $id, token: $token}) {
-    ok: boolean
+    success: boolean
+    query {
+      currentUser {
+        id
+        ...ShortProfile
+      }
+    }
   }
 }
-    `;
+    ${ShortProfile}`;
 export const ShortProfileFragmentDoc = gql`
     fragment ShortProfile on User {
   id
@@ -7022,6 +7055,17 @@ export const RoomItemAsListItemFragmentDoc = gql`
   isVisibleSinceDate
 }
     ${ShortProfileFragmentDoc}`;
+export const ChangePasswordDocument = gql`
+    mutation ChangePassword($oldPassword: String!, $newPassword: String!) {
+  changePassword(input: {oldPassword: $oldPassword, newPassword: $newPassword}) {
+    success: boolean
+  }
+}
+    `;
+
+export function useChangePasswordMutation() {
+  return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
+};
 export const CreateRoomItemDocument = gql`
     mutation CreateRoomItem($item: RoomItemInput!) {
   createRoomItem(input: {roomItem: $item}) {
@@ -7414,6 +7458,17 @@ export const LoginDocument = gql`
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
 };
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout {
+    success
+  }
+}
+    `;
+
+export function useLogoutMutation() {
+  return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
+};
 export const RegisterUserDocument = gql`
     mutation RegisterUser($form: RegisterInput!) {
   register(input: $form) {
@@ -7521,10 +7576,16 @@ export function useUpdateTopicMutation() {
 export const VerifyEmailDocument = gql`
     mutation VerifyEmail($id: UUID!, $token: String!) {
   verifyEmail(input: {userEmailId: $id, token: $token}) {
-    ok: boolean
+    success: boolean
+    query {
+      currentUser {
+        id
+        ...ShortProfile
+      }
+    }
   }
 }
-    `;
+    ${ShortProfileFragmentDoc}`;
 
 export function useVerifyEmailMutation() {
   return Urql.useMutation<VerifyEmailMutation, VerifyEmailMutationVariables>(VerifyEmailDocument);

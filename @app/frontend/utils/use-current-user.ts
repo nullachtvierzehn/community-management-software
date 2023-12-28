@@ -6,27 +6,39 @@ import {
   provide,
 } from 'vue'
 
-import {
-  type GetCurrentUserQuery,
-  useGetCurrentUserQuery,
-} from '~/graphql/index.js'
+import { type CurrentUserQuery, useCurrentUserQuery } from '~/graphql/index.js'
 
-export type CurretUser = GetCurrentUserQuery['currentUser'] | undefined
+export type ActsAsPromiseLike<T> = T & PromiseLike<T>
+
+export type CurrentUser = CurrentUserQuery['currentUser'] | undefined
 
 export const currentUserInjectionKey = Symbol('currentUser') as InjectionKey<
-  ComputedRef<CurretUser>
+  ActsAsPromiseLike<ComputedRef<CurrentUser>>
 >
 
-export function useCurrentUser() {
+export function useCurrentUser(): ActsAsPromiseLike<ComputedRef<CurrentUser>> {
   return inject(
     currentUserInjectionKey,
     () => {
-      const { data } = useGetCurrentUserQuery({
+      const response = useCurrentUserQuery({
         requestPolicy: 'cache-and-network',
       })
-      const ref = computed(() => data.value?.currentUser)
-      provide(currentUserInjectionKey, ref)
-      return ref
+
+      // create computed rect
+      const currentUser = computed(
+        () => response.data.value?.currentUser
+      ) as ActsAsPromiseLike<ComputedRef<CurrentUser>>
+
+      // add promise interface
+      currentUser.then = function (onResolve, onReject) {
+        const promise = response.then((value) => {
+          return computed(() => value.data.value?.currentUser)
+        })
+        return promise.then(onResolve, onReject)
+      }
+
+      provide(currentUserInjectionKey, currentUser)
+      return currentUser
     },
     true
   )
