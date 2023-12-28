@@ -2,7 +2,12 @@
   <template v-if="user">
     <h1>Hallo {{ user.username }}</h1>
     <p>Du bist eingeloggt.</p>
-    <button class="btn btn_primary" @click="logout()">ausloggen</button>
+    <div class="btn-bar">
+      <button class="btn btn_primary" @click="logout()">ausloggen</button>
+      <NuxtLink class="btn btn_primary" to="/profile/change-password"
+        >Passwort ändern</NuxtLink
+      >
+    </div>
   </template>
   <template v-else>
     <h1>Bitte einloggen</h1>
