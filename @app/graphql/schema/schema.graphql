@@ -5983,6 +5983,10 @@ input StringListFilter {
 type TextsearchMatch {
   id: UUID!
   rankOrSimilarity: Float!
+
+  """Reads a single `Room` that is related to this `TextsearchMatch`."""
+  room: Room
+  roomId: UUID
   snippet: String
   title: String!
 
@@ -6006,6 +6010,9 @@ input TextsearchMatchCondition {
 
   """Checks for equality with the object’s `rankOrSimilarity` field."""
   rankOrSimilarity: Float
+
+  """Checks for equality with the object’s `roomId` field."""
+  roomId: UUID
 
   """Checks for equality with the object’s `snippet` field."""
   snippet: String
@@ -6041,6 +6048,9 @@ input TextsearchMatchFilter {
 
   """Filter by the object’s `rankOrSimilarity` field."""
   rankOrSimilarity: FloatFilter
+
+  """Filter by the object’s `roomId` field."""
+  roomId: UUIDFilter
 
   """Filter by the object’s `snippet` field."""
   snippet: StringFilter
@@ -6093,6 +6103,8 @@ enum TextsearchMatchesOrderBy {
   NATURAL
   RANK_OR_SIMILARITY_ASC
   RANK_OR_SIMILARITY_DESC
+  ROOM_ID_ASC
+  ROOM_ID_DESC
   SNIPPET_ASC
   SNIPPET_DESC
   TITLE_ASC
@@ -6106,6 +6118,7 @@ enum TextsearchMatchesOrderBy {
 }
 
 enum TextsearchableEntity {
+  ROOM
   TOPIC
   USER
 }

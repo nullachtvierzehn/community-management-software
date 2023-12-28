@@ -25,6 +25,12 @@ create table if not exists app_public.rooms (
   id uuid primary key default uuid_generate_v1mc(),
   title text,
   abstract text,
+  fulltext_index_column tsvector
+    constraint autogenerate_fulltext_index_column
+    generated always as (
+      setweight(to_tsvector('german', coalesce(title, '')), 'A') ||
+      setweight(to_tsvector('german', coalesce(abstract, '')), 'B')
+    ) stored,
   organization_id uuid
     default app_public.current_user_first_owned_organization_id()
     constraint organization
@@ -54,6 +60,8 @@ comment on column app_public.rooms.items_are_visible_since is
   E'Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room''s audience.';
 
 create index rooms_on_title on app_public.rooms (title);
+create index rooms_on_fuzzy_title on app_public.rooms using gist (title gist_trgm_ops(siglen=12));
+create index rooms_on_fulltext_index_column on app_public.rooms using gin (fulltext_index_column);
 create index rooms_on_organization_id on app_public.rooms (organization_id);
 create index rooms_on_created_at on app_public.rooms using brin (created_at);
 create index rooms_on_updated_at on app_public.rooms (updated_at);

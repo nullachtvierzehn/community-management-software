@@ -22311,6 +22311,30 @@
               "deprecationReason": null
             },
             {
+              "name": "room",
+              "description": "Reads a single `Room` that is related to this `TextsearchMatch`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Room",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "roomId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "snippet",
               "description": null,
               "args": [],
@@ -22430,6 +22454,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "roomId",
+              "description": "Checks for equality with the object’s `roomId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
                 "ofType": null
               },
               "defaultValue": null
@@ -22557,6 +22591,16 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "FloatFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "roomId",
+              "description": "Filter by the object’s `roomId` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UUIDFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -22785,6 +22829,18 @@
               "deprecationReason": null
             },
             {
+              "name": "ROOM_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ROOM_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "SNIPPET_ASC",
               "description": null,
               "isDeprecated": false,
@@ -22855,6 +22911,12 @@
           "inputFields": null,
           "interfaces": null,
           "enumValues": [
+            {
+              "name": "ROOM",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
             {
               "name": "TOPIC",
               "description": null,
