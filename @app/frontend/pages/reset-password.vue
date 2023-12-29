@@ -105,7 +105,7 @@ const {
       .object({
         password: z
           .string()
-          .min(8, 'Das Passwort soll mindestens acht Zeichen enthalten.'),
+          .min(8, 'Das Passwort soll mindestens acht Zeichen lang sein.'),
         confirmPassword: z
           .string()
           .min(
