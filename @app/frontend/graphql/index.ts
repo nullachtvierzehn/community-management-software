@@ -4748,6 +4748,8 @@ export type TopicInput = {
   organizationId?: InputMaybe<Scalars['UUID']['input']>;
   /** Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with. */
   slug: Scalars['String']['input'];
+  /** Each topic can be categorized using tags. */
+  tags?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** Each topic has an optional title. In case of an article, this would be the headline. */
   title?: InputMaybe<Scalars['String']['input']>;
 };
@@ -6194,6 +6196,8 @@ export type TopicPatch = {
   organizationId?: InputMaybe<Scalars['UUID']['input']>;
   /** Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with. */
   slug?: InputMaybe<Scalars['String']['input']>;
+  /** Each topic can be categorized using tags. */
+  tags?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** Each topic has an optional title. In case of an article, this would be the headline. */
   title?: InputMaybe<Scalars['String']['input']>;
 };
@@ -6391,7 +6395,7 @@ export type CreateTopicMutationVariables = Exact<{
 }>;
 
 
-export type CreateTopicMutation = { __typename?: 'Mutation', createTopic: { __typename?: 'CreateTopicPayload', topic: { __typename?: 'Topic', id: string } | null } | null };
+export type CreateTopicMutation = { __typename?: 'Mutation', createTopic: { __typename?: 'CreateTopicPayload', topic: { __typename?: 'Topic', id: string, slug: string } | null } | null };
 
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6740,6 +6744,7 @@ export const CreateTopic = gql`
   createTopic(input: {topic: $topic}) {
     topic {
       id
+      slug
     }
   }
 }
@@ -7233,6 +7238,7 @@ export const CreateTopicDocument = gql`
   createTopic(input: {topic: $topic}) {
     topic {
       id
+      slug
     }
   }
 }

@@ -28,6 +28,19 @@ create table app_public.topics (
     unique nulls not distinct (slug, organization_id)
 );
 
+grant select on app_public.topics to :DATABASE_VISITOR;
+grant insert (slug, title, content, tags, author_id, organization_id, is_visible_for, license) on app_public.topics to :DATABASE_VISITOR;
+grant update (slug, title, content, tags, author_id, organization_id, is_visible_for, license) on app_public.topics to :DATABASE_VISITOR;
+grant delete on app_public.topics to :DATABASE_VISITOR;
+
+create unique index topics_have_an_unique_slug on app_public.topics (slug) where (organization_id is null);
+create index topics_on_title on app_public.topics (title);
+create index topics_on_author_id on app_public.topics (author_id);
+create index topics_on_organization_id on app_public.topics (organization_id);
+create index topics_on_tags on app_public.topics using gin (tags);
+create index topics_on_content on app_public.topics using gin (content jsonb_path_ops);
+create index topics_on_created_at on app_public.topics using brin (created_at);
+create index topics_on_updated_at on app_public.topics (updated_at);
 
 comment on table app_public.topics is
   E'A topic is a short text about something. Most topics should have the scope of a micro learning unit.';
@@ -100,21 +113,6 @@ as $$
     null_value_treatment => 'use_json_null'
   )
 $$;
-
-
-create unique index topics_have_an_unique_slug on app_public.topics (slug) where (organization_id is null);
-create index topics_on_title on app_public.topics (title);
-create index topics_on_author_id on app_public.topics (author_id);
-create index topics_on_organization_id on app_public.topics (organization_id);
-create index topics_on_tags on app_public.topics using gin (tags);
-create index topics_on_content on app_public.topics using gin (content jsonb_path_ops);
-create index topics_on_created_at on app_public.topics using brin (created_at);
-create index topics_on_updated_at on app_public.topics (updated_at);
-
-grant select on app_public.topics to :DATABASE_VISITOR;
-grant insert (slug, title, content, author_id, organization_id, is_visible_for, license) on app_public.topics to :DATABASE_VISITOR;
-grant update (slug, title, content, author_id, organization_id, is_visible_for, license) on app_public.topics to :DATABASE_VISITOR;
-grant delete on app_public.topics to :DATABASE_VISITOR;
 
 alter table app_public.topics enable row level security;
 create policy select_public on app_public.topics for select using (is_visible_for = 'public');

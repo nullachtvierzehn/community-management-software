@@ -58,6 +58,17 @@
               "done": false,
               "start": 1703844220561
             }
+          },
+          {
+            "key": 1703849950846,
+            "children": [],
+            "todo": {
+              "content": "Show items around last visit and from there scroll to newer items",
+              "id": 1703849950846,
+              "level": "default",
+              "done": false,
+              "start": 1703849950846
+            }
           }
         ],
         "todo": {
@@ -84,6 +95,6 @@
     "showEndTime": false,
     "simpleMode": false,
     "lang": "en",
-    "version": "1703844223592"
+    "version": "1703849964653"
   }
 }

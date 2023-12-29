@@ -6517,6 +6517,9 @@ input TopicInput {
   """
   slug: String!
 
+  """Each topic can be categorized using tags."""
+  tags: [String]
+
   """
   Each topic has an optional title. In case of an article, this would be the headline.
   """
@@ -6547,6 +6550,9 @@ input TopicPatch {
   Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with.
   """
   slug: String
+
+  """Each topic can be categorized using tags."""
+  tags: [String]
 
   """
   Each topic has an optional title. In case of an article, this would be the headline.

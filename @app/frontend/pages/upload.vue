@@ -19,7 +19,7 @@ function upload() {
   const file = toValue(fileRef)
   if (!file) return
   // Create a new tus upload
-  var upload = new Upload(file, {
+  const upload = new Upload(file, {
     // Endpoint is the upload creation URL from your tus server
     endpoint: 'http://localhost:3000/backend/files/',
     // Retry delays will enable tus-js-client to automatically retry on errors
@@ -35,7 +35,7 @@ function upload() {
     },
     // Callback for reporting upload progress
     onProgress: function (bytesUploaded, bytesTotal) {
-      var percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2)
+      const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2)
       console.log(bytesUploaded, bytesTotal, percentage + '%')
     },
     // Callback for once the upload is completed

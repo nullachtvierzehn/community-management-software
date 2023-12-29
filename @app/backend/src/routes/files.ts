@@ -1,15 +1,12 @@
-import { randomUUID } from 'crypto'
-import fs from 'fs'
-import path from 'path'
-
-import { Server } from '@tus/server'
+import { Session, SessionData } from '@fastify/secure-session'
 import { FileStore } from '@tus/file-store'
+import { Server } from '@tus/server'
+import { randomUUID } from 'crypto'
+import { type PoolClient } from 'pg'
 
 import { app } from '../app.js'
-import { pool } from '../database/pool.js'
 import config from '../config/index.js'
-import { Session, SessionData } from '@fastify/secure-session'
-import { type PoolClient } from 'pg'
+import { pool } from '../database/pool.js'
 
 export const datastore = new FileStore({
   directory: process.env.UPLOAD_FOLDER as string,
@@ -53,7 +50,7 @@ export const server = new Server({
 
   // for server api @see https://github.com/tus/tus-node-server/tree/main/packages/server
   // for examples @see https://github.com/tus/tus-node-server/tree/main/packages/server#example-integrate-tus-into-fastify
-  namingFunction(req) {
+  namingFunction(_req) {
     return randomUUID()
   },
   async onIncomingRequest(req) {

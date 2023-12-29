@@ -15,6 +15,10 @@
     }
   }
 
+  .card {
+    @apply rounded-md bg-gray-300 p-4;
+  }
+
   .form-grid {
     /* 
      * https://web.dev/articles/css-subgrid?hl=de
@@ -53,7 +57,9 @@
       }
 
       & .form-input__label {
+        @apply mt-2;
         grid-column: label;
+        align-self: flex-start;
       }
 
       & .form-input__field {
@@ -66,13 +72,28 @@
       }
     }
 
+    & .form-input.form-input_long {
+      @media screen(sm) {
+        & .form-input__label,
+        & .form-input__field {
+          grid-column: 1 / span 2;
+        }
+      }
+    }
+
     & > .btn,
     & > .btn-bar {
       grid-column: field;
     }
   }
 
-  .form-input .form-input__field {
-    @apply border border-black p-2;
+  .form-input input.form-input__field,
+  .form-input textarea.form-input__field,
+  .form-input
+    .form-input__field
+    input:not([type='radio']):not([type='checkbox']),
+  .form-input .form-input__field textarea,
+  .form-input .form-input__field .multiselect-wrapper {
+    @apply border border-black p-2 w-full;
   }
 }

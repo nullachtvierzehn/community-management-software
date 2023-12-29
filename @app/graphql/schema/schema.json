@@ -24447,6 +24447,20 @@
               "defaultValue": null
             },
             {
+              "name": "tags",
+              "description": "Each topic can be categorized using tags.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
               "name": "title",
               "description": "Each topic has an optional title. In case of an article, this would be the headline.",
               "type": {
@@ -24524,6 +24538,20 @@
                 "kind": "SCALAR",
                 "name": "String",
                 "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "tags",
+              "description": "Each topic can be categorized using tags.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
               },
               "defaultValue": null
             },

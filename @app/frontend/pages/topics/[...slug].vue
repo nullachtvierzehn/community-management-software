@@ -1,7 +1,7 @@
 <template>
   <article v-if="fetching">Lädt...</article>
   <template v-else-if="!topic && edit === 'true'">
-    <tiptap-editor v-model:json="editableJson" />
+    <tiptap-editor v-model:json="editableJson" name="content" />
     <button @click="save()">speichern</button>
   </template>
   <article v-else-if="!topic && edit !== 'true'">
@@ -13,7 +13,7 @@
     <tiptap-viewer :content="topic.content" />
   </article>
   <article v-else-if="topic && edit === 'true'">
-    <tiptap-editor v-model:json="editableJson" />
+    <tiptap-editor v-model:json="editableJson" name="content" />
     <button @click="save()">speichern</button>
   </article>
 </template>

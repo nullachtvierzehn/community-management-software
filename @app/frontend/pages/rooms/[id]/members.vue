@@ -6,15 +6,15 @@
     <h1>Mitglieder</h1>
     <button @click="showUserModal = true">+</button>
 
-      <Teleport to="body" v-if="showUserModal">
-        <SearchModal
+    <Teleport v-if="showUserModal" to="body">
+      <SearchModal
         v-model:show="showUserModal"
         :entities="['USER']"
         :skip-ids="memberIds"
         :focus-on-show="true"
         @click-match="addUserById($event.id)"
-        ></SearchModal>
-      </Teleport>
+      ></SearchModal>
+    </Teleport>
 
     <!-- Show option to become admin of orphaned rooms. -->
     <div v-if="currentRoom.nSubscriptions === '0' && currentUser">

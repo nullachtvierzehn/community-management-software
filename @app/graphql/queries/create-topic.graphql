@@ -2,6 +2,7 @@ mutation CreateTopic($topic: TopicInput!) {
   createTopic(input: { topic: $topic }) {
     topic {
       id
+      slug
     }
   }
 }

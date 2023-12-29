@@ -1,6 +1,7 @@
 <template>
   <button
     v-if="action"
+    type="button"
     class="tiptap-editor__menu-item"
     :class="{ 'is-active': isActive ? isActive() : null }"
     :title="title"

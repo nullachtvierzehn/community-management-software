@@ -5827,6 +5827,13 @@ GRANT INSERT(license),UPDATE(license) ON TABLE app_public.topics TO null18_cms_a
 
 
 --
+-- Name: COLUMN topics.tags; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(tags),UPDATE(tags) ON TABLE app_public.topics TO null18_cms_app_users;
+
+
+--
 -- Name: COLUMN topics.is_visible_for; Type: ACL; Schema: app_public; Owner: -
 --
 

@@ -3,7 +3,7 @@
     <slot name="menu" :editor="editor">
       <menu-bar :editor="editor" />
     </slot>
-    <editor-content :editor="editor" />
+    <editor-content ref="editorElement" :editor="editor" />
   </div>
 </template>
 
@@ -17,10 +17,17 @@ import {
   type JSONContent,
   useEditor,
 } from '@tiptap/vue-3'
+import { useField } from 'vee-validate'
 
 const props = defineProps<
-  { json: JSONContent; html?: null } | { json?: null; html: HTMLContent }
+  { name: string } & (
+    | { json: JSONContent; html?: null }
+    | { json?: null; html: HTMLContent }
+  )
 >()
+
+const editorElement = ref<HTMLElement>()
+const { handleBlur, handleChange } = useField(() => props.name)
 
 const emit = defineEmits<{
   (e: 'update:json', value: JSONContent): void
@@ -36,9 +43,19 @@ const editor = useEditor({
   ],
   content: props.json ?? props.html,
   onUpdate({ editor }) {
-    console.log('update!!!!', editor.getHTML())
-    emit('update:json', editor.getJSON())
-    emit('update:html', editor.getHTML())
+    if (props.json) {
+      const json = editor.getJSON()
+      emit('update:json', json)
+      handleChange(json)
+    }
+    if (props.html) {
+      const html = editor.getHTML()
+      emit('update:html', html)
+      handleChange(html)
+    }
+  },
+  onBlur({ event }) {
+    handleBlur(event)
   },
 })
 </script>

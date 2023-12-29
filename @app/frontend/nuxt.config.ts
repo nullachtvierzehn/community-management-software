@@ -28,6 +28,7 @@ export default defineNuxtConfig({
   ssr: true,
   devtools: { enabled: true },
   css: [
+    '@vueform/multiselect/themes/default.css',
     '@fontsource-variable/merriweather-sans/wght-italic.css',
     '@fontsource-variable/merriweather-sans/wght.css',
     '@fontsource/merriweather/400.css',
