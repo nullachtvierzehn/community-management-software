@@ -18,6 +18,8 @@ create table app_public.room_subscriptions (
       on update cascade on delete cascade,
   "role" app_public.room_role not null default 'member',
   notifications app_public.notification_setting not null default 'default',
+  last_visit_at timestamptz,
+  is_starred boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint one_subscription_per_user_and_room
@@ -38,8 +40,8 @@ comment on constraint room on app_public.room_subscriptions is
   E'@foreignFieldName subscriptions';
 
 grant select on app_public.room_subscriptions to :DATABASE_VISITOR;
-grant insert (room_id, subscriber_id, "role", notifications) on app_public.room_subscriptions to :DATABASE_VISITOR;
-grant update ("role", notifications) on app_public.room_subscriptions to :DATABASE_VISITOR;
+grant insert (room_id, subscriber_id, "role", notifications, last_visit_at) on app_public.room_subscriptions to :DATABASE_VISITOR;
+grant update ("role", notifications, last_visit_at) on app_public.room_subscriptions to :DATABASE_VISITOR;
 grant delete on app_public.room_subscriptions to :DATABASE_VISITOR;
 
 
@@ -77,8 +79,8 @@ $$;
 
 grant execute on function app_public.my_room_subscription(app_public.rooms) to :DATABASE_VISITOR;
 comment on function app_public.my_room_subscription(app_public.rooms) is $$
-@behavior typeField
-@name mySubscription
+@behavior typeField +filterBy
+@fieldName mySubscription
 $$;
 
 create function app_public.my_room_subscription_id(in_room app_public.rooms)
@@ -93,10 +95,9 @@ as $$
 $$;
 
 grant execute on function app_public.my_room_subscription_id(app_public.rooms) to :DATABASE_VISITOR;
-comment on function app_public.my_room_subscription(app_public.rooms) is $$
-@behavior typeField
-@filterable
-@name mySubscriptionId
+comment on function app_public.my_room_subscription_id(app_public.rooms) is $$
+@behavior typeField +filterBy
+@fieldName mySubscriptionId
 $$;
 
 create function app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role default 'member')

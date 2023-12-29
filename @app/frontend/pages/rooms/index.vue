@@ -1,25 +1,40 @@
 <template>
-  <article>
-    <h1>Räume</h1>
+    <header class="flex justify-between items-center">
+      <h1>Räume</h1>
+      <NuxtLink to="/rooms/create" class="btn btn_primary">neu</NuxtLink>
+    </header>
+    <!--
+
+      <section>
+        <h1>Neuen Raum anlegen</h1>
+        <form @submit.prevent="createRoom">
+          <label>
+            <span>Neuer Raum:</span>
+            <input v-model="nameOfNewRoom" />
+          </label>
+          <button type="submit">ok</button>
+        </form>
+      </section>
+    -->
     <section>
-      <h1>Neuen Raum anlegen</h1>
-      <form @submit.prevent="createRoom">
-        <label>
-          <span>Neuer Raum:</span>
-          <input v-model="nameOfNewRoom" />
-        </label>
-        <button type="submit">ok</button>
-      </form>
-    </section>
-    <section v-for="room in rooms" :key="room.id" class="room">
-      <NuxtLink :to="`/rooms/${room.id}`">
-        <h1 v-if="room.title">
-          {{ room.title }}
-        </h1>
-        <h1 v-else>Raum {{ room.id.substring(0, 5) }}...</h1>
+      <h1>Liste</h1>
+      <NuxtLink v-for="room in rooms" :key="room.id" :to="`/rooms/${room.id}/about`" custom v-slot="{ navigate }">
+        <div class="rounded-md bg-gray-300 p-4" @click="navigate()">
+          <h2 v-if="room.title">
+            {{ room.title }}
+          </h2>
+          <h2 v-else>Raum {{ room.id.substring(0, 5) }}...</h2>
+          <p v-if="room.abstract">
+            {{ room.abstract }}
+          </p>
+          <ul>
+            <li>{{ room.nSubscriptions }} Mitglieder</li>
+            <li>{{ room.nItems }} Nachrichten</li>
+            <li v-if="room.mySubscription && room.nItemsSinceLastVisit">{{ room.nItemsSinceLastVisit }} Nachrichten seit dem letzten Besuch.</li>
+          </ul>
+        </div>
       </NuxtLink>
     </section>
-  </article>
 </template>
 
 <script lang="ts" setup>
@@ -28,6 +43,7 @@ import { computed } from 'vue'
 import { useCreateRoomMutation, useFetchRoomsQuery } from '~/graphql'
 
 definePageMeta({
+  layout: 'page',
   alias: ['/raeume', '/r%C3%A4ume'],
 })
 

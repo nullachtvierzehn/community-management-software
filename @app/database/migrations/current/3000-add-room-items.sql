@@ -84,7 +84,9 @@ create index room_items_on_room_id_and_order on app_public.room_items (room_id, 
 create index room_items_on_parent_id on app_public.room_items (parent_id);
 create index room_items_on_contributor_id on app_public.room_items (contributor_id);
 create index room_items_on_created_at on app_public.room_items using brin (created_at);
-create index room_items_on_updated_at on app_public.room_items using brin (updated_at);
+create index room_items_on_updated_at on app_public.room_items (updated_at);
+create index room_items_on_contributed_at_and_room_id on app_public.room_items (contributed_at, room_id) where (contributed_at is not null);
+
 
 grant select on app_public.room_items to :DATABASE_VISITOR;
 grant insert (type, room_id, parent_id, contributor_id, "order", contributed_at, is_visible_for, is_visible_since, is_visible_since_date, message_body, topic_id) on app_public.room_items to :DATABASE_VISITOR;
@@ -154,3 +156,96 @@ create policy manage_by_admins
   on app_public.room_items
   for all
   using (room_id in (select app_public.my_subscribed_room_ids('admin')));
+
+
+create or replace function app_public.n_items(room app_public.rooms)
+  returns bigint
+  language sql
+  stable
+  parallel safe
+as $$
+  select count(*) 
+  from app_public.room_items 
+  where 
+    room_id = room.id 
+    and contributed_at is not null
+$$;
+
+grant execute on function app_public.n_items(app_public.rooms) to :DATABASE_VISITOR; 
+comment on function app_public.n_items(app_public.rooms)
+  is E'@behavior +typeField +orderBy +filterBy';
+
+
+create or replace function app_public.n_items_since(room app_public.rooms, "interval" interval)
+  returns bigint
+  language sql
+  stable
+  parallel safe
+as $$
+  select count(*) 
+  from app_public.room_items 
+  where 
+    room_id = room.id 
+    and contributed_at is not null
+    and contributed_at > (now() - "interval")
+$$;
+
+grant execute on function app_public.n_items_since(app_public.rooms, interval) to :DATABASE_VISITOR; 
+comment on function app_public.n_items_since(app_public.rooms, interval)
+  is E'@behavior +typeField +orderBy +filterBy';
+
+
+create or replace function app_public.n_items_since_date(room app_public.rooms, "date" timestamptz)
+  returns bigint
+  language sql
+  stable
+  parallel safe
+as $$
+  select count(*) 
+  from app_public.room_items 
+  where 
+    room_id = room.id 
+    and contributed_at is not null
+    and contributed_at > "date"
+$$;
+
+grant execute on function app_public.n_items_since_date(app_public.rooms, timestamptz) to :DATABASE_VISITOR; 
+comment on function app_public.n_items_since_date(app_public.rooms, timestamptz)
+  is E'@behavior +typeField +orderBy +filterBy';
+
+
+create or replace function app_public.n_items_since_last_visit(room app_public.rooms)
+  returns bigint
+  language sql
+  stable
+  parallel safe
+as $$
+  select count(*) 
+  from app_public.my_room_subscription(room) as s
+  join app_public.room_items as i on (i.contributed_at > s.last_visit_at)
+  where 
+    i.room_id = room.id
+$$;
+
+grant execute on function app_public.n_items_since_last_visit(app_public.rooms) to :DATABASE_VISITOR;
+comment on function app_public.n_items_since_last_visit(app_public.rooms)
+  is E'@behavior +typeField +orderBy +filterBy';
+
+
+create function app_public.latest_item(room app_public.rooms)
+returns app_public.room_items
+language sql
+stable
+parallel safe
+as $$
+  select *
+  from app_public.room_items
+  where
+    room_id = room.id
+    and contributed_at is not null
+  order by contributed_at desc
+  limit 1
+$$;
+
+grant execute on function app_public.latest_item(app_public.rooms) to :DATABASE_VISITOR;
+comment on function app_public.latest_item(app_public.rooms) is E'@behavior typeField';

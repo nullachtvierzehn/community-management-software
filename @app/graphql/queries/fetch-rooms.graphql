@@ -1,19 +1,51 @@
-query FetchRooms {
-  rooms {
+query FetchRooms(
+  $after: Cursor
+  $before: Cursor
+  $condition: RoomCondition
+  $filter: RoomFilter
+  $first: Int
+  $last: Int
+  $offset: Int
+  $orderBy: [RoomsOrderBy!]
+) {
+  rooms(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
     nodes {
       id
       title
       abstract
       createdAt
-      latestMessage {
+      latestItem {
         id
-        createdAt
-        sender {
-          id
-          username
+        contributedAt
+        contributor {
+          ...ShortProfile
         }
       }
+      mySubscription {
+        id
+        lastVisitAt
+        isStarred
+        role
+      }
       nSubscriptions
+      nItems
+      nItemsSinceLastVisit
     }
   }
 }

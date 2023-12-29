@@ -1,6 +1,7 @@
 drop table if exists app_public.pdf_files;
 drop table if exists app_public.files;
 
+drop function if exists app_public.latest_item(app_public.rooms);
 drop table if exists app_public.room_items;
 drop type if exists app_public.room_item_type;
 
@@ -34,6 +35,10 @@ drop function if exists app_public.n_room_subscriptions(room app_public.rooms, m
 drop table if exists app_public.room_subscriptions;
 drop type if exists app_public.notification_setting;
 
+drop function if exists app_public.n_items(room app_public.rooms);
+drop function if exists app_public.n_items_since(room app_public.rooms, interval);
+drop function if exists app_public.n_items_since_date(room app_public.rooms, timestamptz);
+drop function if exists app_public.n_items_since_last_visit(room app_public.rooms);
 drop table if exists app_public.rooms;
 drop type if exists app_public.room_visibility;
 drop type if exists app_public.room_history_visibility;

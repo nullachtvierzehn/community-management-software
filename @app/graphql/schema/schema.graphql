@@ -4206,6 +4206,7 @@ type Room implements Node {
   """
   itemsAreVisibleSince: RoomHistoryVisibility!
   itemsAreVisibleSinceDate: Datetime!
+  latestItem: RoomItem
   latestMessage: RoomMessage
 
   """Reads and enables pagination through a set of `RoomMessage`."""
@@ -4244,7 +4245,12 @@ type Room implements Node {
 
   "\nDate of subscription or first sent message, whatever is earlier.\n"
   myFirstInteraction: Datetime
-  myRoomSubscription: RoomSubscription
+  mySubscription: RoomSubscription
+  mySubscriptionId: UUID
+  nItems: BigInt
+  nItemsSince(interval: IntervalInput!): BigInt
+  nItemsSinceDate(date: Datetime!): BigInt
+  nItemsSinceLastVisit: BigInt
   nSubscriptions(minRole: RoomRole): BigInt
 
   """
@@ -4335,8 +4341,14 @@ input RoomCondition {
   """Checks for equality with the object’s `myFirstInteraction` field."""
   myFirstInteraction: Datetime
 
-  """Checks for equality with the object’s `myRoomSubscriptionId` field."""
-  myRoomSubscriptionId: UUID
+  """Checks for equality with the object’s `mySubscriptionId` field."""
+  mySubscriptionId: UUID
+
+  """Checks for equality with the object’s `nItems` field."""
+  nItems: BigInt
+
+  """Checks for equality with the object’s `nItemsSinceLastVisit` field."""
+  nItemsSinceLastVisit: BigInt
 
   """Checks for equality with the object’s `nSubscriptions` field."""
   nSubscriptions: BigInt
@@ -4400,8 +4412,14 @@ input RoomFilter {
   """Filter by the object’s `myFirstInteraction` field."""
   myFirstInteraction: DatetimeFilter
 
-  """Filter by the object’s `myRoomSubscriptionId` field."""
-  myRoomSubscriptionId: UUIDFilter
+  """Filter by the object’s `mySubscriptionId` field."""
+  mySubscriptionId: UUIDFilter
+
+  """Filter by the object’s `nItems` field."""
+  nItems: BigIntFilter
+
+  """Filter by the object’s `nItemsSinceLastVisit` field."""
+  nItemsSinceLastVisit: BigIntFilter
 
   """Filter by the object’s `nSubscriptions` field."""
   nSubscriptions: BigIntFilter
@@ -5414,6 +5432,8 @@ input RoomRoleFilter {
 type RoomSubscription implements Node {
   createdAt: Datetime!
   id: UUID!
+  isStarred: Boolean!
+  lastVisitAt: Datetime
 
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
@@ -5447,6 +5467,12 @@ input RoomSubscriptionCondition {
   """Checks for equality with the object’s `id` field."""
   id: UUID
 
+  """Checks for equality with the object’s `isStarred` field."""
+  isStarred: Boolean
+
+  """Checks for equality with the object’s `lastVisitAt` field."""
+  lastVisitAt: Datetime
+
   """Checks for equality with the object’s `notifications` field."""
   notifications: NotificationSetting
 
@@ -5475,6 +5501,12 @@ input RoomSubscriptionFilter {
 
   """Filter by the object’s `id` field."""
   id: UUIDFilter
+
+  """Filter by the object’s `isStarred` field."""
+  isStarred: BooleanFilter
+
+  """Filter by the object’s `lastVisitAt` field."""
+  lastVisitAt: DatetimeFilter
 
   """Negates the expression."""
   not: RoomSubscriptionFilter
@@ -5506,6 +5538,7 @@ input RoomSubscriptionFilter {
 
 """An input for mutations affecting `RoomSubscription`"""
 input RoomSubscriptionInput {
+  lastVisitAt: Datetime
   notifications: NotificationSetting
 
   """Maintainers can manage subscriptions and delete the room."""
@@ -5520,6 +5553,7 @@ input RoomSubscriptionInput {
 Represents an update to a `RoomSubscription`. Fields that are set will be updated.
 """
 input RoomSubscriptionPatch {
+  lastVisitAt: Datetime
   notifications: NotificationSetting
 
   """Maintainers can manage subscriptions and delete the room."""
@@ -5560,6 +5594,10 @@ enum RoomSubscriptionsOrderBy {
   CREATED_AT_DESC
   ID_ASC
   ID_DESC
+  IS_STARRED_ASC
+  IS_STARRED_DESC
+  LAST_VISIT_AT_ASC
+  LAST_VISIT_AT_DESC
   NATURAL
   NOTIFICATIONS_ASC
   NOTIFICATIONS_DESC
@@ -5733,6 +5771,10 @@ enum RoomsOrderBy {
   ITEMS_ARE_VISIBLE_SINCE_DATE_DESC
   ITEMS_ARE_VISIBLE_SINCE_DESC
   NATURAL
+  N_ITEMS_ASC
+  N_ITEMS_DESC
+  N_ITEMS_SINCE_LAST_VISIT_ASC
+  N_ITEMS_SINCE_LAST_VISIT_DESC
   N_SUBSCRIPTIONS_ASC
   N_SUBSCRIPTIONS_DESC
   ORGANIZATION_ID_ASC

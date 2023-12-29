@@ -1404,8 +1404,12 @@ export type RoomFilter = {
   messagesExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `myFirstInteraction` field. */
   myFirstInteraction?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `myRoomSubscriptionId` field. */
-  myRoomSubscriptionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `mySubscriptionId` field. */
+  mySubscriptionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `nItems` field. */
+  nItems?: InputMaybe<BigIntFilter>;
+  /** Filter by the object’s `nItemsSinceLastVisit` field. */
+  nItemsSinceLastVisit?: InputMaybe<BigIntFilter>;
   /** Negates the expression. */
   not?: InputMaybe<RoomFilter>;
   /** Filter by the object’s `nSubscriptions` field. */
@@ -1846,6 +1850,10 @@ export type RoomSubscriptionFilter = {
   createdAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `id` field. */
   id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isStarred` field. */
+  isStarred?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `lastVisitAt` field. */
+  lastVisitAt?: InputMaybe<DatetimeFilter>;
   /** Negates the expression. */
   not?: InputMaybe<RoomSubscriptionFilter>;
   /** Filter by the object’s `notifications` field. */
@@ -2368,8 +2376,12 @@ export type RoomCondition = {
   itemsAreVisibleSinceDate?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `myFirstInteraction` field. */
   myFirstInteraction?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Checks for equality with the object’s `myRoomSubscriptionId` field. */
-  myRoomSubscriptionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `mySubscriptionId` field. */
+  mySubscriptionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `nItems` field. */
+  nItems?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Checks for equality with the object’s `nItemsSinceLastVisit` field. */
+  nItemsSinceLastVisit?: InputMaybe<Scalars['BigInt']['input']>;
   /** Checks for equality with the object’s `nSubscriptions` field. */
   nSubscriptions?: InputMaybe<Scalars['BigInt']['input']>;
   /** Checks for equality with the object’s `organizationId` field. */
@@ -2400,6 +2412,10 @@ export type RoomsOrderBy =
   | 'ITEMS_ARE_VISIBLE_SINCE_DATE_ASC'
   | 'ITEMS_ARE_VISIBLE_SINCE_DATE_DESC'
   | 'ITEMS_ARE_VISIBLE_SINCE_DESC'
+  | 'N_ITEMS_ASC'
+  | 'N_ITEMS_DESC'
+  | 'N_ITEMS_SINCE_LAST_VISIT_ASC'
+  | 'N_ITEMS_SINCE_LAST_VISIT_DESC'
   | 'N_SUBSCRIPTIONS_ASC'
   | 'N_SUBSCRIPTIONS_DESC'
   | 'NATURAL'
@@ -2451,6 +2467,7 @@ export type Room = Node & {
   /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience. */
   itemsAreVisibleSince: RoomHistoryVisibility;
   itemsAreVisibleSinceDate: Scalars['Datetime']['output'];
+  latestItem: Maybe<RoomItem>;
   latestMessage: Maybe<RoomMessage>;
   /** Reads and enables pagination through a set of `RoomMessage`. */
   messages: RoomMessagesConnection;
@@ -2460,7 +2477,12 @@ export type Room = Node & {
    *
    */
   myFirstInteraction: Maybe<Scalars['Datetime']['output']>;
-  myRoomSubscription: Maybe<RoomSubscription>;
+  mySubscription: Maybe<RoomSubscription>;
+  mySubscriptionId: Maybe<Scalars['UUID']['output']>;
+  nItems: Maybe<Scalars['BigInt']['output']>;
+  nItemsSince: Maybe<Scalars['BigInt']['output']>;
+  nItemsSinceDate: Maybe<Scalars['BigInt']['output']>;
+  nItemsSinceLastVisit: Maybe<Scalars['BigInt']['output']>;
   /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
   nodeId: Scalars['ID']['output'];
   nSubscriptions: Maybe<Scalars['BigInt']['output']>;
@@ -2498,6 +2520,18 @@ export type RoomMessagesArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<RoomMessagesOrderBy>>;
+};
+
+
+/** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
+export type RoomNItemsSinceArgs = {
+  interval: IntervalInput;
+};
+
+
+/** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
+export type RoomNItemsSinceDateArgs = {
+  date: Scalars['Datetime']['input'];
 };
 
 
@@ -2871,6 +2905,8 @@ export type RoomSubscription = Node & {
   __typename?: 'RoomSubscription';
   createdAt: Scalars['Datetime']['output'];
   id: Scalars['UUID']['output'];
+  isStarred: Scalars['Boolean']['output'];
+  lastVisitAt: Maybe<Scalars['Datetime']['output']>;
   /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
   nodeId: Scalars['ID']['output'];
   notifications: NotificationSetting;
@@ -2895,6 +2931,10 @@ export type RoomSubscriptionCondition = {
   createdAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `id` field. */
   id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `isStarred` field. */
+  isStarred?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Checks for equality with the object’s `lastVisitAt` field. */
+  lastVisitAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `notifications` field. */
   notifications?: InputMaybe<NotificationSetting>;
   /** Checks for equality with the object’s `role` field. */
@@ -2913,6 +2953,10 @@ export type RoomSubscriptionsOrderBy =
   | 'CREATED_AT_DESC'
   | 'ID_ASC'
   | 'ID_DESC'
+  | 'IS_STARRED_ASC'
+  | 'IS_STARRED_DESC'
+  | 'LAST_VISIT_AT_ASC'
+  | 'LAST_VISIT_AT_DESC'
   | 'NATURAL'
   | 'NOTIFICATIONS_ASC'
   | 'NOTIFICATIONS_DESC'
@@ -4646,6 +4690,7 @@ export type CreateRoomSubscriptionInput = {
 
 /** An input for mutations affecting `RoomSubscription` */
 export type RoomSubscriptionInput = {
+  lastVisitAt?: InputMaybe<Scalars['Datetime']['input']>;
   notifications?: InputMaybe<NotificationSetting>;
   /** Maintainers can manage subscriptions and delete the room. */
   role?: InputMaybe<RoomRole>;
@@ -6066,6 +6111,7 @@ export type UpdateRoomSubscriptionInput = {
 
 /** Represents an update to a `RoomSubscription`. Fields that are set will be updated. */
 export type RoomSubscriptionPatch = {
+  lastVisitAt?: InputMaybe<Scalars['Datetime']['input']>;
   notifications?: InputMaybe<NotificationSetting>;
   /** Maintainers can manage subscriptions and delete the room. */
   role?: InputMaybe<RoomRole>;
@@ -6408,10 +6454,19 @@ export type FetchRoomSubscriptionsQueryVariables = Exact<{
 
 export type FetchRoomSubscriptionsQuery = { __typename?: 'Query', roomSubscriptions: { __typename?: 'RoomSubscriptionsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, role: RoomRole, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null }> } | null };
 
-export type FetchRoomsQueryVariables = Exact<{ [key: string]: never; }>;
+export type FetchRoomsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomCondition>;
+  filter?: InputMaybe<RoomFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomsOrderBy> | RoomsOrderBy>;
+}>;
 
 
-export type FetchRoomsQuery = { __typename?: 'Query', rooms: { __typename?: 'RoomsConnection', nodes: Array<{ __typename?: 'Room', id: string, title: string | null, abstract: string | null, createdAt: string, nSubscriptions: any | null, latestMessage: { __typename?: 'RoomMessage', id: string, createdAt: string, sender: { __typename?: 'User', id: string, username: string } | null } | null }> } | null };
+export type FetchRoomsQuery = { __typename?: 'Query', rooms: { __typename?: 'RoomsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: any | null, endCursor: any | null }, nodes: Array<{ __typename?: 'Room', id: string, title: string | null, abstract: string | null, createdAt: string, nSubscriptions: any | null, nItems: any | null, nItemsSinceLastVisit: any | null, latestItem: { __typename?: 'RoomItem', id: string, contributedAt: string | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, mySubscription: { __typename?: 'RoomSubscription', id: string, lastVisitAt: string | null, isStarred: boolean, role: RoomRole } | null }> } | null };
 
 export type FetchTopicsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6787,26 +6842,40 @@ export const FetchRoomSubscriptions = gql`
 }
     ${ShortProfile}`;
 export const FetchRooms = gql`
-    query FetchRooms {
-  rooms {
+    query FetchRooms($after: Cursor, $before: Cursor, $condition: RoomCondition, $filter: RoomFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomsOrderBy!]) {
+  rooms(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
     nodes {
       id
       title
       abstract
       createdAt
-      latestMessage {
+      latestItem {
         id
-        createdAt
-        sender {
-          id
-          username
+        contributedAt
+        contributor {
+          ...ShortProfile
         }
       }
+      mySubscription {
+        id
+        lastVisitAt
+        isStarred
+        role
+      }
       nSubscriptions
+      nItems
+      nItemsSinceLastVisit
     }
   }
 }
-    `;
+    ${ShortProfile}`;
 export const FetchTopics = gql`
     query FetchTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
   topics(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
@@ -7290,26 +7359,40 @@ export function useFetchRoomSubscriptionsQuery(options: Omit<Urql.UseQueryArgs<n
   return Urql.useQuery<FetchRoomSubscriptionsQuery, FetchRoomSubscriptionsQueryVariables>({ query: FetchRoomSubscriptionsDocument, ...options });
 };
 export const FetchRoomsDocument = gql`
-    query FetchRooms {
-  rooms {
+    query FetchRooms($after: Cursor, $before: Cursor, $condition: RoomCondition, $filter: RoomFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomsOrderBy!]) {
+  rooms(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
     nodes {
       id
       title
       abstract
       createdAt
-      latestMessage {
+      latestItem {
         id
-        createdAt
-        sender {
-          id
-          username
+        contributedAt
+        contributor {
+          ...ShortProfile
         }
       }
+      mySubscription {
+        id
+        lastVisitAt
+        isStarred
+        role
+      }
       nSubscriptions
+      nItems
+      nItemsSinceLastVisit
     }
   }
 }
-    `;
+    ${ShortProfileFragmentDoc}`;
 
 export function useFetchRoomsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomsQueryVariables>, 'query'>) {
   return Urql.useQuery<FetchRoomsQuery, FetchRoomsQueryVariables>({ query: FetchRoomsDocument, ...options });

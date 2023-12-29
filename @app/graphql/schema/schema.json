@@ -15525,6 +15525,18 @@
               "deprecationReason": null
             },
             {
+              "name": "latestItem",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomItem",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "latestMessage",
               "description": null,
               "args": [],
@@ -15654,12 +15666,102 @@
               "deprecationReason": null
             },
             {
-              "name": "myRoomSubscription",
+              "name": "mySubscription",
               "description": null,
               "args": [],
               "type": {
                 "kind": "OBJECT",
                 "name": "RoomSubscription",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "mySubscriptionId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nItems",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nItemsSince",
+              "description": null,
+              "args": [
+                {
+                  "name": "interval",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "IntervalInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nItemsSinceDate",
+              "description": null,
+              "args": [
+                {
+                  "name": "date",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Datetime",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nItemsSinceLastVisit",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -15980,11 +16082,31 @@
               "defaultValue": null
             },
             {
-              "name": "myRoomSubscriptionId",
-              "description": "Checks for equality with the object’s `myRoomSubscriptionId` field.",
+              "name": "mySubscriptionId",
+              "description": "Checks for equality with the object’s `mySubscriptionId` field.",
               "type": {
                 "kind": "SCALAR",
                 "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nItems",
+              "description": "Checks for equality with the object’s `nItems` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nItemsSinceLastVisit",
+              "description": "Checks for equality with the object’s `nItemsSinceLastVisit` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
                 "ofType": null
               },
               "defaultValue": null
@@ -16199,11 +16321,31 @@
               "defaultValue": null
             },
             {
-              "name": "myRoomSubscriptionId",
-              "description": "Filter by the object’s `myRoomSubscriptionId` field.",
+              "name": "mySubscriptionId",
+              "description": "Filter by the object’s `mySubscriptionId` field.",
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nItems",
+              "description": "Filter by the object’s `nItems` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BigIntFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nItemsSinceLastVisit",
+              "description": "Filter by the object’s `nItemsSinceLastVisit` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BigIntFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -20152,6 +20294,34 @@
               "deprecationReason": null
             },
             {
+              "name": "isStarred",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "lastVisitAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "nodeId",
               "description": "A globally unique identifier. Can be used in various places throughout the system to identify this single value.",
               "args": [],
@@ -20310,6 +20480,26 @@
               "defaultValue": null
             },
             {
+              "name": "isStarred",
+              "description": "Checks for equality with the object’s `isStarred` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "lastVisitAt",
+              "description": "Checks for equality with the object’s `lastVisitAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "notifications",
               "description": "Checks for equality with the object’s `notifications` field.",
               "type": {
@@ -20404,6 +20594,26 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isStarred",
+              "description": "Filter by the object’s `isStarred` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BooleanFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "lastVisitAt",
+              "description": "Filter by the object’s `lastVisitAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -20518,6 +20728,16 @@
           "fields": null,
           "inputFields": [
             {
+              "name": "lastVisitAt",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "notifications",
               "description": null,
               "type": {
@@ -20572,6 +20792,16 @@
           "description": "Represents an update to a `RoomSubscription`. Fields that are set will be updated.",
           "fields": null,
           "inputFields": [
+            {
+              "name": "lastVisitAt",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
             {
               "name": "notifications",
               "description": null,
@@ -20755,6 +20985,30 @@
             },
             {
               "name": "ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_STARRED_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_STARRED_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LAST_VISIT_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LAST_VISIT_AT_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -21395,6 +21649,30 @@
             },
             {
               "name": "NATURAL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "N_ITEMS_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "N_ITEMS_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "N_ITEMS_SINCE_LAST_VISIT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "N_ITEMS_SINCE_LAST_VISIT_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null

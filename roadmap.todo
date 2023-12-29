@@ -1,0 +1,89 @@
+{
+  "todotree": {
+    "tree": [
+      {
+        "key": 1703844104997,
+        "children": [
+          {
+            "key": 1703844122555,
+            "children": [],
+            "todo": {
+              "content": "Show subscribers",
+              "id": 1703844122555,
+              "level": "default",
+              "done": false,
+              "start": 1703844122555
+            }
+          },
+          {
+            "key": 1703844138900,
+            "children": [],
+            "todo": {
+              "content": "Show items",
+              "id": 1703844138900,
+              "level": "default",
+              "done": false,
+              "start": 1703844138901
+            }
+          },
+          {
+            "key": 1703844153883,
+            "children": [],
+            "todo": {
+              "content": "Show items since last visit",
+              "id": 1703844153883,
+              "level": "default",
+              "done": false,
+              "start": 1703844153883
+            }
+          },
+          {
+            "key": 1703844214502,
+            "children": [],
+            "todo": {
+              "content": "Add create dialog",
+              "id": 1703844214502,
+              "level": "default",
+              "done": false,
+              "start": 1703844214502
+            }
+          },
+          {
+            "key": 1703844220561,
+            "children": [],
+            "todo": {
+              "content": "Add search diaglog",
+              "id": 1703844220561,
+              "level": "default",
+              "done": false,
+              "start": 1703844220561
+            }
+          }
+        ],
+        "todo": {
+          "content": "Rooms",
+          "id": 1703844104997,
+          "level": "default",
+          "done": false,
+          "start": 1703844104997
+        }
+      }
+    ],
+    "expandKeys": [
+      1703844104997,
+      1703844122555
+    ],
+    "schema": "https://github.com/Saber2pr/vsc-ext-todolist/blob/master/src/api/type.ts#L3",
+    "add_mode": "bottom",
+    "virtual": false,
+    "timelines": [],
+    "showLine": false,
+    "playFontSize": 24,
+    "title": "roadmap",
+    "autoSort": false,
+    "showEndTime": false,
+    "simpleMode": false,
+    "lang": "en",
+    "version": "1703844223592"
+  }
+}
