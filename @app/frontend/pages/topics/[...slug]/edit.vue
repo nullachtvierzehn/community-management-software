@@ -1,5 +1,5 @@
 <template>
-  <h1>Neues Thema anlegen</h1>
+  <h1>Thema bearbeiten</h1>
   <form class="form-grid" @submit="onSubmit">
     <!-- title -->
     <div class="form-input">
@@ -80,24 +80,42 @@
 </template>
 
 <script setup lang="ts">
-import { type JSONContent } from '@tiptap/core'
 import { toTypedSchema } from '@vee-validate/zod'
 import Multiselect from '@vueform/multiselect'
 import { default as slugModule } from 'slug'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
 
-import { useCreateTopicMutation } from '~/graphql'
+import { useFetchDetailedTopicsQuery, useUpdateTopicMutation } from '~/graphql'
 
 definePageMeta({
+  name: 'topic/edit',
   layout: 'page',
   middleware: ['auth'],
 })
 
+const route = useRoute()
 const router = useRouter()
-const { executeMutation: createMutation } = useCreateTopicMutation()
+const { executeMutation: updateMutation } = useUpdateTopicMutation()
 const updateSlugFromTitle = useState(() => true)
 const app = useNuxtApp()
+
+const slugFromRoute = computed(() => {
+  if (typeof route.params.slug === 'string') return route.params.slug
+  else return route.params.slug.join('/')
+})
+
+const { data, fetching } = await useFetchDetailedTopicsQuery({
+  variables: computed(() => ({
+    filter: {
+      organizationExists: false,
+      slug: { equalTo: toValue(slugFromRoute) },
+    },
+    first: 1,
+  })),
+})
+
+const topic = computed(() => data.value?.topics?.nodes[0])
 
 const {
   defineField,
@@ -117,10 +135,10 @@ const {
     })
   ),
   initialValues: {
-    title: '',
-    slug: '',
-    content: { type: 'doc', content: [] } as JSONContent,
-    tags: [],
+    title: topic.value?.title ?? '',
+    slug: topic.value?.slug ?? '',
+    content: topic.value?.content ?? { type: 'doc', content: [] },
+    tags: (topic.value?.tags as null | string[]) ?? [],
   },
 })
 
@@ -147,14 +165,15 @@ watch(
 
 const onSubmit = handleSubmit(async (values) => {
   if (process.browser) {
-    const { data, error } = await createMutation({
-      topic: values,
+    const { data, error } = await updateMutation({
+      patch: values,
+      oldId: topic.value!.id,
     })
-    const topic = data?.createTopic?.topic
-    if (topic && !error) {
+    const updatedTopic = data?.updateTopic?.topic
+    if (updatedTopic && !error) {
       router.push({
         name: 'topic/show',
-        params: { slug: topic.slug.split('/') },
+        params: { slug: updatedTopic.slug.split('/') },
       })
     }
   }

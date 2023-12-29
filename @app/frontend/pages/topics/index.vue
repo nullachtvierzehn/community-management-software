@@ -6,17 +6,19 @@
 
   <section name="topics">
     <h1>Liste</h1>
-    <NuxtLink
-      v-for="topic in topics"
-      :key="topic.id"
-      v-slot="{ navigate }"
-      :to="{ name: 'topic/show', params: { slug: topic.slug } }"
-      custom
-    >
-      <div class="card cursor-pointer" @click="navigate()">
-        <h2>{{ topic.title ?? topic.slug ?? topic.id }}</h2>
-      </div>
-    </NuxtLink>
+    <div class="grid gap-4">
+      <NuxtLink
+        v-for="topic in topics"
+        :key="topic.id"
+        v-slot="{ navigate }"
+        :to="{ name: 'topic/show', params: { slug: topic.slug } }"
+        custom
+      >
+        <div class="card cursor-pointer" @click="navigate()">
+          <h2>{{ topic.title ?? topic.slug ?? topic.id }}</h2>
+        </div>
+      </NuxtLink>
+    </div>
   </section>
 </template>
 

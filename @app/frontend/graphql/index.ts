@@ -6611,7 +6611,7 @@ export type UpdateTopicMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTopicMutation = { __typename?: 'Mutation', updateTopic: { __typename?: 'UpdateTopicPayload', topic: { __typename?: 'Topic', id: string, updatedAt: string } | null } | null };
+export type UpdateTopicMutation = { __typename?: 'Mutation', updateTopic: { __typename?: 'UpdateTopicPayload', topic: { __typename?: 'Topic', id: string, slug: string, updatedAt: string } | null } | null };
 
 export type VerifyEmailMutationVariables = Exact<{
   id: Scalars['UUID']['input'];
@@ -7077,6 +7077,7 @@ export const UpdateTopic = gql`
   updateTopic(input: {patch: $patch, id: $oldId}) {
     topic {
       id
+      slug
       updatedAt
     }
   }
@@ -7663,6 +7664,7 @@ export const UpdateTopicDocument = gql`
   updateTopic(input: {patch: $patch, id: $oldId}) {
     topic {
       id
+      slug
       updatedAt
     }
   }
