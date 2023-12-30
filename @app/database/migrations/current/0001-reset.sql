@@ -2,6 +2,7 @@ drop table if exists app_public.pdf_files;
 drop table if exists app_public.files;
 
 drop function if exists app_public.latest_item(app_public.rooms);
+drop function if exists app_public.nth_item_since_last_visit(item app_public.room_items);
 drop table if exists app_public.room_items;
 drop type if exists app_public.room_item_type;
 

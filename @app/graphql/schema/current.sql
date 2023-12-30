@@ -2079,6 +2079,49 @@ COMMENT ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min_r
 
 
 --
+-- Name: nth_item_since_last_visit(app_public.room_items); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.nth_item_since_last_visit(item app_public.room_items) RETURNS bigint
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  with items_in_same_room as (
+    select 
+    ri.id as item_id,
+    ri.room_id,
+    case 
+      when ri.contributed_at > s.last_visit_at
+      then row_number() over (
+        partition by ri.room_id, ri.contributed_at > s.last_visit_at
+        order by ri.contributed_at asc
+      )
+      when ri.contributed_at <= s.last_visit_at
+      then -1 * row_number() over (
+        partition by ri.room_id, ri.contributed_at > s.last_visit_at
+        order by ri.contributed_at desc
+      )
+    end as n
+    from app_public.room_items as ri
+    join app_public.rooms as r on (ri.room_id = r.id)
+    join lateral app_public.my_room_subscription(r) as s on (true)
+    where ri.contributed_at is not null
+  )
+  select n 
+  from items_in_same_room 
+  where 
+    items_in_same_room.item_id = item.id
+    and items_in_same_room.room_id = item.room_id
+$$;
+
+
+--
+-- Name: FUNCTION nth_item_since_last_visit(item app_public.room_items); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.nth_item_since_last_visit(item app_public.room_items) IS '@behavior typeField +orderBy +filterBy';
+
+
+--
 -- Name: organization_for_invitation(uuid, text); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -5686,6 +5729,14 @@ GRANT ALL ON FUNCTION app_public.n_items_since_last_visit(room app_public.rooms)
 
 REVOKE ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role) TO null18_cms_app_users;
+
+
+--
+-- Name: FUNCTION nth_item_since_last_visit(item app_public.room_items); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.nth_item_since_last_visit(item app_public.room_items) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.nth_item_since_last_visit(item app_public.room_items) TO null18_cms_app_users;
 
 
 --

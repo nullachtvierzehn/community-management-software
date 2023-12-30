@@ -30,4 +30,5 @@ fragment RoomItemAsListItem on RoomItem {
   isVisibleFor
   isVisibleSince
   isVisibleSinceDate
+  nthItemSinceLastVisit
 }

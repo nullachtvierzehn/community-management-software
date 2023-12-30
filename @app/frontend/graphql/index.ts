@@ -1550,6 +1550,8 @@ export type RoomItemFilter = {
   messageBody?: InputMaybe<JsonFilter>;
   /** Negates the expression. */
   not?: InputMaybe<RoomItemFilter>;
+  /** Filter by the object’s `nthItemSinceLastVisit` field. */
+  nthItemSinceLastVisit?: InputMaybe<BigIntFilter>;
   /** Checks for any expressions in this list. */
   or?: InputMaybe<Array<RoomItemFilter>>;
   /** Filter by the object’s `order` field. */
@@ -1651,6 +1653,32 @@ export type RoomHistoryVisibility =
   | 'INVITATION'
   | 'SPECIFIED_DATE'
   | 'SUBSCRIPTION';
+
+/** A filter to be used against BigInt fields. All fields are combined with a logical ‘and.’ */
+export type BigIntFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['BigInt']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+};
 
 /** A filter to be used against Float fields. All fields are combined with a logical ‘and.’ */
 export type FloatFilter = {
@@ -1804,32 +1832,6 @@ export type RoomMessageAttachmentFilter = {
   topic?: InputMaybe<TopicFilter>;
   /** Filter by the object’s `topicId` field. */
   topicId?: InputMaybe<UuidFilter>;
-};
-
-/** A filter to be used against BigInt fields. All fields are combined with a logical ‘and.’ */
-export type BigIntFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['BigInt']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['BigInt']['input']>>;
 };
 
 /** A filter to be used against many `RoomSubscription` object types. All fields are combined with a logical ‘and.’ */
@@ -2595,6 +2597,8 @@ export type RoomItemCondition = {
   isVisibleSinceDate?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `messageBody` field. */
   messageBody?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `nthItemSinceLastVisit` field. */
+  nthItemSinceLastVisit?: InputMaybe<Scalars['BigInt']['input']>;
   /** Checks for equality with the object’s `order` field. */
   order?: InputMaybe<Scalars['Float']['input']>;
   /** Checks for equality with the object’s `parentId` field. */

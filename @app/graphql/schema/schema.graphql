@@ -4584,6 +4584,7 @@ type RoomItem implements Node {
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
+  nthItemSinceLastVisit: BigInt
 
   """
   The default order is 0, but you can change it to different values to sort the items.
@@ -4639,6 +4640,9 @@ input RoomItemCondition {
 
   """Checks for equality with the object’s `messageBody` field."""
   messageBody: JSON
+
+  """Checks for equality with the object’s `nthItemSinceLastVisit` field."""
+  nthItemSinceLastVisit: BigInt
 
   """Checks for equality with the object’s `order` field."""
   order: Float
@@ -4704,6 +4708,9 @@ input RoomItemFilter {
 
   """Negates the expression."""
   not: RoomItemFilter
+
+  """Filter by the object’s `nthItemSinceLastVisit` field."""
+  nthItemSinceLastVisit: BigIntFilter
 
   """Checks for any expressions in this list."""
   or: [RoomItemFilter!]
@@ -4914,6 +4921,8 @@ enum RoomItemsOrderBy {
   MESSAGE_BODY_ASC
   MESSAGE_BODY_DESC
   NATURAL
+  NTH_ITEM_SINCE_LAST_VISIT_ASC
+  NTH_ITEM_SINCE_LAST_VISIT_DESC
   ORDER_ASC
   ORDER_DESC
   PARENT_ID_ASC

@@ -249,3 +249,41 @@ $$;
 
 grant execute on function app_public.latest_item(app_public.rooms) to :DATABASE_VISITOR;
 comment on function app_public.latest_item(app_public.rooms) is E'@behavior typeField';
+
+
+create function app_public.nth_item_since_last_visit(item app_public.room_items)
+returns bigint
+language sql
+stable
+parallel safe
+as $$
+  with items_in_same_room as (
+    select 
+    ri.id as item_id,
+    ri.room_id,
+    case 
+      when ri.contributed_at > s.last_visit_at
+      then row_number() over (
+        partition by ri.room_id, ri.contributed_at > s.last_visit_at
+        order by ri.contributed_at asc
+      )
+      when ri.contributed_at <= s.last_visit_at
+      then -1 * row_number() over (
+        partition by ri.room_id, ri.contributed_at > s.last_visit_at
+        order by ri.contributed_at desc
+      )
+    end as n
+    from app_public.room_items as ri
+    join app_public.rooms as r on (ri.room_id = r.id)
+    join lateral app_public.my_room_subscription(r) as s on (true)
+    where ri.contributed_at is not null
+  )
+  select n 
+  from items_in_same_room 
+  where 
+    items_in_same_room.item_id = item.id
+    and items_in_same_room.room_id = item.room_id
+$$;
+
+grant execute on function app_public.nth_item_since_last_visit(app_public.room_items) to :DATABASE_VISITOR;
+comment on function app_public.nth_item_since_last_visit(app_public.room_items) is E'@behavior typeField +orderBy +filterBy';
