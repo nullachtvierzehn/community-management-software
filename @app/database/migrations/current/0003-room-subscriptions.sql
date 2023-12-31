@@ -163,12 +163,20 @@ declare
   room app_public.rooms := (select r from app_public.rooms as r where id = new.room_id);
   my_subscription app_public.room_subscriptions := (select s from app_public.my_room_subscription(room) as s);
 begin
-  if (new.role > old.role and me.is_admin is distinct from true) then
-    if new.subscriber_id = me.id then
-      raise exception 'cannot upgrade your own privileges';
-    elsif my_subscription is null or new.role > my_subscription.role then
-      raise exception 'cannot upgrade other subscribers to a role greater than yours';
-    end if;
+  if me is null then
+    raise exception 'You must log in to update subscriptions of a room' using errcode = 'LOGIN';
+  end if;
+  if my_subscription is null then
+    raise exception 'You must be subscribed to a room to update its subscriptions.' using errcode = 'DNIED';
+  end if;
+  if new.subscriber_id = me.id and new.role > old.role then
+    raise exception 'You cannot promote yourself.' using errcode = 'DNIED';
+  end if;
+  if new.subscriber_id <> me.id and new.role > my_subscription.role then
+    raise exception 'You cannot promote others to a higher role than your own.' using errcode = 'DNIED';
+  end if;
+  if new.subscriber_id <> me.id and old.role > my_subscription.role then
+    raise exception 'You cannot change the role of others if they are ranked higher than you.' using errcode = 'DNIED';
   end if;
   return new;
 end
@@ -177,7 +185,11 @@ $$;
 create constraint trigger t900_verify_role_updates_on_room_subscriptions
 after update on app_public.room_subscriptions
 for each row
-when (new.role > old.role)
+when (
+  new.role is distinct from old.role
+  -- Does only apply along with row level security.
+  and row_security_active('app_public.room_subscriptions')
+)
 execute function  app_hidden.verify_role_updates_on_room_subscriptions();
 
 -- Admins should be able to add subscriptions

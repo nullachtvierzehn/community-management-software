@@ -302,12 +302,20 @@ declare
   room app_public.rooms := (select r from app_public.rooms as r where id = new.room_id);
   my_subscription app_public.room_subscriptions := (select s from app_public.my_room_subscription(room) as s);
 begin
-  if (new.role > old.role and me.is_admin is distinct from true) then
-    if new.subscriber_id = me.id then
-      raise exception 'cannot upgrade your own privileges';
-    elsif my_subscription is null or new.role > my_subscription.role then
-      raise exception 'cannot upgrade other subscribers to a role greater than yours';
-    end if;
+  if me is null then
+    raise exception 'You must log in to update subscriptions of a room' using errcode = 'LOGIN';
+  end if;
+  if my_subscription is null then
+    raise exception 'You must be subscribed to a room to update its subscriptions.' using errcode = 'DNIED';
+  end if;
+  if new.subscriber_id = me.id and new.role > old.role then
+    raise exception 'You cannot promote yourself.' using errcode = 'DNIED';
+  end if;
+  if new.subscriber_id <> me.id and new.role > my_subscription.role then
+    raise exception 'You cannot promote others to a higher role than your own.' using errcode = 'DNIED';
+  end if;
+  if new.subscriber_id <> me.id and old.role > my_subscription.role then
+    raise exception 'You cannot change the role of others if they are ranked higher than you.' using errcode = 'DNIED';
   end if;
   return new;
 end
@@ -4290,7 +4298,7 @@ CREATE TRIGGER _900_send_verification_email AFTER INSERT ON app_public.user_emai
 -- Name: room_subscriptions t900_verify_role_updates_on_room_subscriptions; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
-CREATE CONSTRAINT TRIGGER t900_verify_role_updates_on_room_subscriptions AFTER UPDATE ON app_public.room_subscriptions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW WHEN ((new.role > old.role)) EXECUTE FUNCTION app_hidden.verify_role_updates_on_room_subscriptions();
+CREATE CONSTRAINT TRIGGER t900_verify_role_updates_on_room_subscriptions AFTER UPDATE ON app_public.room_subscriptions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW WHEN (((new.role IS DISTINCT FROM old.role) AND row_security_active('app_public.room_subscriptions'::text))) EXECUTE FUNCTION app_hidden.verify_role_updates_on_room_subscriptions();
 
 
 --

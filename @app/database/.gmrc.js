@@ -50,6 +50,7 @@ module.exports = {
   placeholders: {
     ':DATABASE_AUTHENTICATOR': '!ENV',
     ':DATABASE_VISITOR': '!ENV',
+    ':DATABASE_OWNER': '!ENV',
   },
 
   /*
