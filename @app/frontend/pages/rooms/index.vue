@@ -22,12 +22,14 @@
       v-for="room in rooms"
       :key="room.id"
       v-slot="{ navigate }"
-      :to="`/rooms/${room.id}/about`"
+      :to="{ name: 'room/about', params: { id: room.id } }"
       custom
     >
-      <div class="card" @click="navigate()">
+      <div class="card cursor-pointer" @click="navigate()">
         <h2 v-if="room.title">
-          {{ room.title }}
+          <NuxtLink :to="{ name: 'room/about', params: { id: room.id } }">{{
+            room.title
+          }}</NuxtLink>
         </h2>
         <h2 v-else>Raum {{ room.id.substring(0, 5) }}...</h2>
         <p v-if="room.abstract">
