@@ -109,6 +109,8 @@ const {
   },
 })
 
+const _r = useState(() => true)
+
 const [username, usernameAttrs] = defineField('username', {
   validateOnModelUpdate: false,
 })

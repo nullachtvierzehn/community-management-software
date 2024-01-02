@@ -1,7 +1,36 @@
 <template>
-  <article
-    class="grid box-border m-4 p-4 bg-gray-200 rounded-xl h-[calc(100vh-2*theme(space.4))]"
-  >
+  <template v-if="!room">
+    <p>Raum nicht gefunden.</p>
+  </template>
+  <template v-else>
+    <header class="border-b border-gray-300 bg-white shadow drop-shadow-lg">
+      <div class="container mx-auto p-0.5">
+        <h1 class="my-4 text-3xl font-bold">{{ room.title }}</h1>
+        <nav class="flex gap-4 flex-wrap my-4">
+          <NuxtLink :to="{ name: 'room/items', params: { id: roomId } }">
+            Verlauf
+          </NuxtLink>
+          <NuxtLink :to="{ name: 'room/members', params: { id: roomId } }">
+            Beteiligte
+          </NuxtLink>
+          <NuxtLink
+            class=""
+            :to="{ name: 'room/about', params: { id: roomId } }"
+          >
+            Über
+          </NuxtLink>
+          <!--
+
+        <NuxtLink :to="{ name: 'room/messages', params: { id: roomId } }">
+          Nachrichten
+        </NuxtLink>
+        <NuxtLink :to="{ name: 'room/materials', params: { id: roomId } }">
+          Materialien
+        </NuxtLink>
+      -->
+        </nav>
+      </div>
+    </header>
     <!-- Room's title -->
     <!--
 
@@ -14,35 +43,12 @@
     -->
 
     <!-- Tab -->
-    <main class="overflow-scroll">
+    <main>
       <NuxtPage />
     </main>
 
     <!-- Navigation -->
-
-    <nav
-      class="border-0 border-slate-200 border-t-2 -m-4 p-4 mt-4 flex gap-4 flex-wrap"
-    >
-      <NuxtLink class="" :to="{ name: 'room/about', params: { id: roomId } }">
-        Über
-      </NuxtLink>
-      <NuxtLink :to="{ name: 'room/members', params: { id: roomId } }">
-        Mitglieder
-      </NuxtLink>
-      <!--
-
-        <NuxtLink :to="{ name: 'room/messages', params: { id: roomId } }">
-          Nachrichten
-        </NuxtLink>
-        <NuxtLink :to="{ name: 'room/materials', params: { id: roomId } }">
-          Materialien
-        </NuxtLink>
-      -->
-      <NuxtLink :to="{ name: 'room/items', params: { id: roomId } }">
-        Inhalte
-      </NuxtLink>
-    </nav>
-  </article>
+  </template>
 </template>
 
 <script lang="ts" setup>

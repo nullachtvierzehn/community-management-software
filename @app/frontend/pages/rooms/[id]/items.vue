@@ -1,18 +1,20 @@
 <template>
-  <section>
-    <h1 class="sr-only">Entwürfe</h1>
-    <!-- my draft items-->
-    <button @click="addNewMessage()">neue Nachricht</button>
-    <button @click="showSearchModal = true">neues Thema</button>
+  <button @click="addNewMessage()">neue Nachricht</button>
+  <button @click="showSearchModal = true">neues Thema</button>
 
-    <Teleport v-if="showSearchModal" to="body">
-      <SearchModal v-model:show="showSearchModal" :entities="['TOPIC']" />
-    </Teleport>
+  <Teleport v-if="showSearchModal" to="body">
+    <SearchModal v-model:show="showSearchModal" :entities="['TOPIC']" />
+  </Teleport>
+
+  <!-- my draft items-->
+  <section class="container mx-auto grid gap-3 mb-3">
+    <h1 class="sr-only">Entwürfe</h1>
 
     <div
       v-for="item in myDraftItems"
       :key="item.id"
-      class="room-item room-item_is-draft"
+      class="border-2 border-gray-300 p-4 rounded-lg w-[80%]"
+      :class="{ 'justify-self-end': isByCurrentUser }"
     >
       <RoomItemMessageEditor
         v-if="item.type === 'MESSAGE'"
@@ -27,12 +29,13 @@
   </section>
 
   <!-- submitted items -->
-  <section class="grid gap-3">
+  <section class="container mx-auto grid gap-3">
     <h1 class="sr-only">Inhalte</h1>
     <div
       v-for="item in submittedItems"
       :key="item.id"
-      class="block bg-gray-100 p-3 rounded-lg"
+      class="border-2 border-gray-300 p-4 rounded-lg w-[80%]"
+      :class="{ 'justify-self-end': isByCurrentUser }"
     >
       <RoomItemMessageViewer
         v-if="item.type === 'MESSAGE'"
@@ -51,6 +54,7 @@
 import { generateJSON } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
 import { useRouteQuery } from '@vueuse/router'
+import type { UnwrapRef } from 'vue'
 
 import { useCreateRoomItemMutation, useFetchRoomItemsQuery } from '~/graphql'
 
@@ -62,7 +66,7 @@ definePageMeta({
 const route = useRoute()
 const showSearchModal = useState(() => false)
 const roomId = ref(route.params.id as string)
-const currentUser = useCurrentUser()
+const currentUser = await useCurrentUser()
 const nItems = useRouteQuery<number>('n', 100, {
   transform: Number,
   mode: 'replace',
@@ -74,7 +78,7 @@ const { data: dataOfSubmittedItems, executeQuery: refetchItems } =
     variables: computed(() => ({
       condition: { roomId: toValue(roomId) },
       filter: { contributedAt: { isNull: false } },
-      orderBy: ['ORDER_ASC', 'CONTRIBUTED_AT_ASC'],
+      orderBy: ['CONTRIBUTED_AT_DESC'],
       first: toValue(nItems),
     })),
     pause: logicNot(roomId),
@@ -83,6 +87,13 @@ const { data: dataOfSubmittedItems, executeQuery: refetchItems } =
 const submittedItems = computed(
   () => dataOfSubmittedItems.value?.roomItems?.nodes ?? []
 )
+
+function isByCurrentUser(item: UnwrapRef<typeof submittedItems>[0]) {
+  const user = toValue(currentUser)
+  if (!user) return null
+  else if (item.contributor?.id === user.id) return true
+  else return false
+}
 
 // fetch my draft items
 const { data: dataOfMyDraftItems, executeQuery: refetchDrafts } =
@@ -133,3 +144,17 @@ async function addNewTopic() {
   await refetchDrafts()
 }
 </script>
+
+<style lang="postcss" scoped>
+:deep(.tiptap-editor) {
+  @apply border-gray-300 min-h-32;
+}
+
+:deep(.tiptap-editor__menu-bar) {
+  @apply bg-gray-300;
+}
+
+:deep(.tiptap-editor__menu-item) {
+  color: black;
+}
+</style>

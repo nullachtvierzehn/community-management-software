@@ -61,7 +61,7 @@ const editor = useEditor({
 </script>
 
 <style>
-.tiptap-editor {
+:where(.tiptap-editor) {
   border: 2px solid black;
   border-radius: 0.5rem;
   overflow: hidden;

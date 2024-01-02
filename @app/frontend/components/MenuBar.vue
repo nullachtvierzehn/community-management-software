@@ -187,18 +187,8 @@ const items = ref<
 </script>
 
 <style>
-.tiptap-editor__menu-bar {
+:where(.tiptap-editor__menu-bar) {
   display: flex;
   background-color: black;
-}
-</style>
-
-<style lang="css" scoped>
-.divider {
-  background-color: rgba(255, 255, 255, 0.25);
-  height: 1.25rem;
-  margin-left: 0.5rem;
-  margin-right: 0.75rem;
-  width: 1px;
 }
 </style>

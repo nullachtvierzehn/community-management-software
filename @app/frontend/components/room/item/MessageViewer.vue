@@ -1,33 +1,32 @@
 <template>
-  <div class="room-item message">
+  <div>
     <div class="flex mb-2 justify-between">
       <!-- user profile -->
-      <UserName
-        :profile="modelValue.contributor"
-        class="font-bold room-item__contributor"
-      />
+      <UserName :profile="modelValue.contributor" class="font-bold" />
 
       <!-- contribution date -->
-      <div
-        v-if="modelValue.contributedAt"
-        class="italic room-item__contribution-date"
-      >
+      <div v-if="modelValue.contributedAt" class="italic">
         {{ $dayjs(modelValue.contributedAt).fromNow() }}
       </div>
     </div>
 
     <!-- message body -->
-    <tiptap-viewer
-      class="room-item__content room-item__message"
-      :content="modelValue.messageBody"
-    />
+    <tiptap-viewer class="" :content="modelValue.messageBody" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { type RoomItemAsListItemFragment } from '~/graphql'
 
-defineProps<{
+const props = defineProps<{
   modelValue: RoomItemAsListItemFragment
 }>()
+
+const currentUser = await useCurrentUser()
+const byCurrentuser = computed(
+  () =>
+    (currentUser.value &&
+      props.modelValue.contributor?.id === currentUser.value?.id) ??
+    false
+)
 </script>

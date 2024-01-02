@@ -6407,7 +6407,7 @@ export type CreateTopicMutation = { __typename?: 'Mutation', createTopic: { __ty
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, username: string } | null };
+export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null };
 
 export type FetchDetailedTopicsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6496,7 +6496,7 @@ export type FetchTopicsQuery = { __typename?: 'Query', topics: { __typename?: 'T
 export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, username: string, createdAt: string, userEmails: { __typename?: 'UserEmailsConnection', nodes: Array<{ __typename?: 'UserEmail', id: string, isPrimary: boolean, email: string }> } } | null };
+export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null, userEmails: { __typename?: 'UserEmailsConnection', nodes: Array<{ __typename?: 'UserEmail', id: string, isPrimary: boolean, email: string }> } } | null };
 
 export type GetRoomMessageQueryVariables = Exact<{
   id: Scalars['UUID']['input'];
@@ -6761,10 +6761,10 @@ export const CurrentUser = gql`
     query CurrentUser {
   currentUser {
     id
-    username
+    ...ShortProfile
   }
 }
-    `;
+    ${ShortProfile}`;
 export const FetchDetailedTopics = gql`
     query FetchDetailedTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
   topics(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
@@ -6919,8 +6919,7 @@ export const GetCurrentUser = gql`
     query GetCurrentUser {
   currentUser {
     id
-    username
-    createdAt
+    ...ShortProfile
     userEmails {
       nodes {
         id
@@ -6930,7 +6929,7 @@ export const GetCurrentUser = gql`
     }
   }
 }
-    `;
+    ${ShortProfile}`;
 export const GetRoomMessage = gql`
     query GetRoomMessage($id: UUID!) {
   roomMessage(id: $id) {
@@ -7261,10 +7260,10 @@ export const CurrentUserDocument = gql`
     query CurrentUser {
   currentUser {
     id
-    username
+    ...ShortProfile
   }
 }
-    `;
+    ${ShortProfileFragmentDoc}`;
 
 export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, CurrentUserQueryVariables>, 'query'>) {
   return Urql.useQuery<CurrentUserQuery, CurrentUserQueryVariables>({ query: CurrentUserDocument, ...options });
@@ -7447,8 +7446,7 @@ export const GetCurrentUserDocument = gql`
     query GetCurrentUser {
   currentUser {
     id
-    username
-    createdAt
+    ...ShortProfile
     userEmails {
       nodes {
         id
@@ -7458,7 +7456,7 @@ export const GetCurrentUserDocument = gql`
     }
   }
 }
-    `;
+    ${ShortProfileFragmentDoc}`;
 
 export function useGetCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, GetCurrentUserQueryVariables>, 'query'>) {
   return Urql.useQuery<GetCurrentUserQuery, GetCurrentUserQueryVariables>({ query: GetCurrentUserDocument, ...options });
