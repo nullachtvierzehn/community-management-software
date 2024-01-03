@@ -1380,6 +1380,8 @@ export type RoomFilter = {
   and?: InputMaybe<Array<RoomFilter>>;
   /** Filter by the object’s `createdAt` field. */
   createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `draftItemsAreVisibleFor` field. */
+  draftItemsAreVisibleFor?: InputMaybe<RoomRoleFilter>;
   /** Filter by the object’s `extendVisibilityOfItemsBy` field. */
   extendVisibilityOfItemsBy?: InputMaybe<IntervalFilter>;
   /** Filter by the object’s `id` field. */
@@ -1431,6 +1433,40 @@ export type RoomFilter = {
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
 };
+
+/** A filter to be used against RoomRole fields. All fields are combined with a logical ‘and.’ */
+export type RoomRoleFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<RoomRole>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<RoomRole>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<RoomRole>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<RoomRole>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<RoomRole>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<RoomRole>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<RoomRole>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<RoomRole>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<RoomRole>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<RoomRole>>;
+};
+
+export type RoomRole =
+  | 'ADMIN'
+  | 'BANNED'
+  | 'MEMBER'
+  | 'MODERATOR'
+  | 'PROSPECT'
+  | 'PUBLIC';
 
 /** A filter to be used against Interval fields. All fields are combined with a logical ‘and.’ */
 export type IntervalFilter = {
@@ -1587,40 +1623,6 @@ export type RoomItemToManyRoomItemFilter = {
   /** Some related `RoomItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<RoomItemFilter>;
 };
-
-/** A filter to be used against RoomRole fields. All fields are combined with a logical ‘and.’ */
-export type RoomRoleFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<RoomRole>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<RoomRole>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<RoomRole>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<RoomRole>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<RoomRole>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<RoomRole>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<RoomRole>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<RoomRole>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<RoomRole>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<RoomRole>>;
-};
-
-export type RoomRole =
-  | 'ADMIN'
-  | 'BANNED'
-  | 'MEMBER'
-  | 'MODERATOR'
-  | 'PROSPECT'
-  | 'PUBLIC';
 
 /** A filter to be used against RoomHistoryVisibility fields. All fields are combined with a logical ‘and.’ */
 export type RoomHistoryVisibilityFilter = {
@@ -2362,6 +2364,8 @@ export type RoomCondition = {
   abstract?: InputMaybe<Scalars['String']['input']>;
   /** Checks for equality with the object’s `createdAt` field. */
   createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `draftItemsAreVisibleFor` field. */
+  draftItemsAreVisibleFor?: InputMaybe<RoomRole>;
   /** Checks for equality with the object’s `extendVisibilityOfItemsBy` field. */
   extendVisibilityOfItemsBy?: InputMaybe<IntervalInput>;
   /** Checks for equality with the object’s `id` field. */
@@ -2400,6 +2404,8 @@ export type RoomsOrderBy =
   | 'ABSTRACT_DESC'
   | 'CREATED_AT_ASC'
   | 'CREATED_AT_DESC'
+  | 'DRAFT_ITEMS_ARE_VISIBLE_FOR_ASC'
+  | 'DRAFT_ITEMS_ARE_VISIBLE_FOR_DESC'
   | 'EXTEND_VISIBILITY_OF_ITEMS_BY_ASC'
   | 'EXTEND_VISIBILITY_OF_ITEMS_BY_DESC'
   | 'ID_ASC'
@@ -2458,6 +2464,7 @@ export type Room = Node & {
   /** Each room has an optional abstract. */
   abstract: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Datetime']['output'];
+  draftItemsAreVisibleFor: Maybe<RoomRole>;
   extendVisibilityOfItemsBy: Interval;
   id: Scalars['UUID']['output'];
   isAnonymousPostingAllowed: Scalars['Boolean']['output'];
@@ -5999,6 +6006,8 @@ export type RoomItemPatch = {
   messageBody?: InputMaybe<Scalars['JSON']['input']>;
   /** The default order is 0, but you can change it to different values to sort the items. */
   order?: InputMaybe<Scalars['Float']['input']>;
+  /** The items in a room can be connected to each other, basically forming one or multiple trees. For example, you can use this to keep track of conversations. */
+  parentId?: InputMaybe<Scalars['UUID']['input']>;
   topicId?: InputMaybe<Scalars['UUID']['input']>;
 };
 
@@ -6409,6 +6418,13 @@ export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null };
 
+export type DeleteRoomItemMutationVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type DeleteRoomItemMutation = { __typename?: 'Mutation', deleteRoomItem: { __typename?: 'DeleteRoomItemPayload', room: { __typename?: 'Room', id: string } | null } | null };
+
 export type FetchDetailedTopicsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6435,7 +6451,7 @@ export type FetchRoomItemsQueryVariables = Exact<{
 }>;
 
 
-export type FetchRoomItemsQuery = { __typename?: 'Query', roomItems: { __typename?: 'RoomItemsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, nthItemSinceLastVisit: any | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null }> } | null };
+export type FetchRoomItemsQuery = { __typename?: 'Query', roomItems: { __typename?: 'RoomItemsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, parentId: string | null, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, nthItemSinceLastVisit: any | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string, type: RoomItemType, createdAt: string, contributedAt: string | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null }> } | null };
 
 export type FetchRoomMessagesQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6584,7 +6600,7 @@ export type ResetPasswordMutationVariables = Exact<{
 
 export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: { __typename?: 'ResetPasswordPayload', success: boolean | null } | null };
 
-export type RoomItemAsListItemFragment = { __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, nthItemSinceLastVisit: any | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null };
+export type RoomItemAsListItemFragment = { __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, parentId: string | null, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, nthItemSinceLastVisit: any | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string, type: RoomItemType, createdAt: string, contributedAt: string | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null };
 
 export type ShortProfileFragment = { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null };
 
@@ -6611,6 +6627,14 @@ export type UpdateRoomSubscriptionMutationVariables = Exact<{
 
 
 export type UpdateRoomSubscriptionMutation = { __typename?: 'Mutation', updateRoomSubscription: { __typename?: 'UpdateRoomSubscriptionPayload', roomSubscription: { __typename?: 'RoomSubscription', id: string, room: { __typename?: 'Room', id: string } | null, subscriber: { __typename?: 'User', id: string } | null } | null } | null };
+
+export type UpdateRoomMutationVariables = Exact<{
+  oldId: Scalars['UUID']['input'];
+  patch: RoomPatch;
+}>;
+
+
+export type UpdateRoomMutation = { __typename?: 'Mutation', updateRoom: { __typename?: 'UpdateRoomPayload', room: { __typename?: 'Room', id: string, updatedAt: string } | null } | null };
 
 export type UpdateTopicMutationVariables = Exact<{
   oldId: Scalars['UUID']['input'];
@@ -6649,8 +6673,16 @@ export const RoomItemAsListItem = gql`
     ...ShortProfile
   }
   order
+  parentId
   parent {
     id
+    type
+    createdAt
+    contributedAt
+    contributor {
+      id
+      ...ShortProfile
+    }
   }
   room {
     id
@@ -6765,6 +6797,15 @@ export const CurrentUser = gql`
   }
 }
     ${ShortProfile}`;
+export const DeleteRoomItem = gql`
+    mutation DeleteRoomItem($id: UUID!) {
+  deleteRoomItem(input: {id: $id}) {
+    room {
+      id
+    }
+  }
+}
+    `;
 export const FetchDetailedTopics = gql`
     query FetchDetailedTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
   topics(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
@@ -7079,6 +7120,16 @@ export const UpdateRoomSubscription = gql`
   }
 }
     `;
+export const UpdateRoom = gql`
+    mutation UpdateRoom($oldId: UUID!, $patch: RoomPatch!) {
+  updateRoom(input: {patch: $patch, id: $oldId}) {
+    room {
+      id
+      updatedAt
+    }
+  }
+}
+    `;
 export const UpdateTopic = gql`
     mutation UpdateTopic($oldId: UUID!, $patch: TopicPatch!) {
   updateTopic(input: {patch: $patch, id: $oldId}) {
@@ -7124,8 +7175,16 @@ export const RoomItemAsListItemFragmentDoc = gql`
     ...ShortProfile
   }
   order
+  parentId
   parent {
     id
+    type
+    createdAt
+    contributedAt
+    contributor {
+      id
+      ...ShortProfile
+    }
   }
   room {
     id
@@ -7267,6 +7326,19 @@ export const CurrentUserDocument = gql`
 
 export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, CurrentUserQueryVariables>, 'query'>) {
   return Urql.useQuery<CurrentUserQuery, CurrentUserQueryVariables>({ query: CurrentUserDocument, ...options });
+};
+export const DeleteRoomItemDocument = gql`
+    mutation DeleteRoomItem($id: UUID!) {
+  deleteRoomItem(input: {id: $id}) {
+    room {
+      id
+    }
+  }
+}
+    `;
+
+export function useDeleteRoomItemMutation() {
+  return Urql.useMutation<DeleteRoomItemMutation, DeleteRoomItemMutationVariables>(DeleteRoomItemDocument);
 };
 export const FetchDetailedTopicsDocument = gql`
     query FetchDetailedTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
@@ -7665,6 +7737,20 @@ export const UpdateRoomSubscriptionDocument = gql`
 
 export function useUpdateRoomSubscriptionMutation() {
   return Urql.useMutation<UpdateRoomSubscriptionMutation, UpdateRoomSubscriptionMutationVariables>(UpdateRoomSubscriptionDocument);
+};
+export const UpdateRoomDocument = gql`
+    mutation UpdateRoom($oldId: UUID!, $patch: RoomPatch!) {
+  updateRoom(input: {patch: $patch, id: $oldId}) {
+    room {
+      id
+      updatedAt
+    }
+  }
+}
+    `;
+
+export function useUpdateRoomMutation() {
+  return Urql.useMutation<UpdateRoomMutation, UpdateRoomMutationVariables>(UpdateRoomDocument);
 };
 export const UpdateTopicDocument = gql`
     mutation UpdateTopic($oldId: UUID!, $patch: TopicPatch!) {

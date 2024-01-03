@@ -97,7 +97,7 @@ module.exports = {
       _: 'command',
       shadow: false,
       command:
-        'pg_dump "$GM_DBURL" --data-only --schema app_public --schema app_hidden --schema app_private --on-conflict-do-nothing --column-inserts --rows-per-insert=1 --no-comments --rows-per-insert=1000 --file migrations/current-data/dump-$(date +"%Y-%m-%d-T-%H-%M-%S-%3N").sql',
+        'pg_dump "$GM_DBURL" --data-only --schema app_public --schema app_hidden --schema app_private --on-conflict-do-nothing --column-inserts --no-comments --file migrations/current-data/dump-$(date +"%Y-%m-%d-T-%H-%M-%S-%3N").sql',
     },
   ],
 
@@ -125,7 +125,7 @@ module.exports = {
       _: 'command',
       shadow: false,
       command:
-        'psql "$GM_DBURL" < $(ls -t migrations/current-data/dump-*.sql | head -1)',
+        'psql --disable-triggers "$GM_DBURL" < $(ls -t migrations/current-data/dump-*.sql | head -1)',
     },
   ],
 

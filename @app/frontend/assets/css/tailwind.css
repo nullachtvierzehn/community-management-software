@@ -97,3 +97,13 @@
     @apply border border-black p-2 w-full;
   }
 }
+
+
+.tiptap, .tiptap-contents {
+  & p {
+    @apply my-2;
+  }
+  & blockquote {
+    @apply border-l-4 border-gray-300 my-2 pl-2;
+  }
+}

@@ -6,9 +6,8 @@ import {
   provide,
 } from 'vue'
 
-import { type CurrentUserQuery, useCurrentUserQuery } from '~/graphql/index.js'
-
-export type ActsAsPromiseLike<T> = T & PromiseLike<T>
+import { type CurrentUserQuery, useCurrentUserQuery } from '~/graphql'
+import { type ActsAsPromiseLike } from '~/utils/types'
 
 export type CurrentUser = CurrentUserQuery['currentUser'] | undefined
 

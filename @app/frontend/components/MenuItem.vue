@@ -25,7 +25,7 @@ defineProps<{
 }>()
 </script>
 
-<style lang="css">
+<style lang="postcss">
 .tiptap-editor__menu-item {
   background: transparent;
   border: none;
@@ -47,5 +47,6 @@ defineProps<{
 .tiptap-editor__menu-item.is-active,
 .tiptap-editor__menu-item:hover {
   background-color: #303030;
+  color: #fff;
 }
 </style>

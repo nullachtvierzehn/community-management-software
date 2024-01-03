@@ -2,7 +2,7 @@
   <div class="tiptap-editor__menu-bar">
     <slot name="firstButtons" />
     <div
-      v-for="(section, i) in items"
+      v-for="(section, i) in selectedItems"
       :key="`section-${i}`"
       class="tiptap-editor__menu-section"
     >
@@ -22,6 +22,7 @@ import { ref } from 'vue'
 
 const props = defineProps<{
   editor?: Editor
+  actions?: string[]
 }>()
 
 const items = ref<
@@ -137,13 +138,13 @@ const items = ref<
           action: () => props.editor?.chain().focus().toggleTaskList().run(),
           isActive: () => props.editor?.isActive('taskList'),
         },
+        {
+          icon: 'code-box-line',
+          title: 'Code Block',
+          action: () => props.editor?.chain().focus().toggleCodeBlock().run(),
+          isActive: () => props.editor?.isActive('codeBlock'),
+        },
         */
-    {
-      icon: 'code-box-line',
-      title: 'Code Block',
-      action: () => props.editor?.chain().focus().toggleCodeBlock().run(),
-      isActive: () => props.editor?.isActive('codeBlock'),
-    },
   ],
   [
     {
@@ -184,11 +185,18 @@ const items = ref<
     },
   ],
 ])
+
+const selectedItems = computed(() =>
+  props.actions
+    ? items.value.map((section) =>
+        section.filter((action) => props.actions?.includes(action.icon))
+      )
+    : items.value
+)
 </script>
 
-<style>
+<style lang="postcss">
 :where(.tiptap-editor__menu-bar) {
-  display: flex;
-  background-color: black;
+  @apply flex flex-wrap;
 }
 </style>

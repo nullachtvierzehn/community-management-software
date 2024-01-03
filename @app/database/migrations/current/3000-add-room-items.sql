@@ -90,7 +90,7 @@ create index room_items_on_contributed_at_and_room_id on app_public.room_items (
 
 grant select on app_public.room_items to :DATABASE_VISITOR;
 grant insert (type, room_id, parent_id, contributor_id, "order", contributed_at, is_visible_for, is_visible_since, is_visible_since_date, message_body, topic_id) on app_public.room_items to :DATABASE_VISITOR;
-grant update ("order", contributed_at, is_visible_for, is_visible_since, is_visible_since_date, message_body, topic_id) on app_public.room_items to :DATABASE_VISITOR;
+grant update ("order", parent_id, contributed_at, is_visible_for, is_visible_since, is_visible_since_date, message_body, topic_id) on app_public.room_items to :DATABASE_VISITOR;
 grant delete on app_public.room_items to :DATABASE_VISITOR;
 
 create trigger _100_timestamps
@@ -99,15 +99,6 @@ create trigger _100_timestamps
   execute procedure app_private.tg__timestamps();
 
 alter table app_public.room_items enable row level security;
-
-create policy hide_my_drafts_from_others
-  on app_public.room_items
-  as restrictive
-  for all
-  using (
-    contributed_at is not null
-    or contributor_id = app_public.current_user_id()
-  );
 
 create policy manage_my_drafts
   on app_public.room_items
@@ -133,14 +124,22 @@ create policy show_others_to_members
   using (exists(
     select from app_public.rooms as r
     left join lateral app_public.my_room_subscription(in_room => r) as s on (true)
-    where 
+    join lateral (
+      select coalesce(room_items.is_visible_for, case
+        when room_items.contributed_at is null then r.draft_items_are_visible_for
+        else r.items_are_visible_for
+      end) as is_visible_for
+    ) as this_item on (true)
+    where
+      -- Does apply to the room of the item and the client's subscribtion, if any.
       r.id = room_items.room_id
       and s."role" is distinct from 'banned'
-      and case coalesce(room_items.is_visible_for, r.items_are_visible_for)
+      -- Everybody can see public items, even if currently signed out.
+      and case this_item.is_visible_for
         when 'public'
           then true
         else 
-          s."role" >= coalesce(room_items.is_visible_for, r.items_are_visible_for)
+          s."role" >= this_item.is_visible_for
       end
       and case coalesce(room_items.is_visible_since, r.items_are_visible_since) 
         when 'always' 
@@ -148,7 +147,7 @@ create policy show_others_to_members
         when 'specified_date' 
           then room_items.contributed_at >= coalesce(room_items.is_visible_since_date, r.items_are_visible_since_date)
         else 
-          room_items.contributed_at >= s.created_at
+          room_items.contributed_at is null or room_items.contributed_at >= s.created_at
       end 
   ));
 

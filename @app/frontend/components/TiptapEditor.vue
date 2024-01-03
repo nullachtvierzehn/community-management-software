@@ -1,9 +1,13 @@
 <template>
   <div class="tiptap-editor">
     <slot name="menu" :editor="editor">
-      <menu-bar :editor="editor" />
+      <menu-bar :editor="editor" :actions="actions" />
     </slot>
-    <editor-content ref="editorElement" :editor="editor" />
+    <editor-content
+      ref="editorElement"
+      :editor="editor"
+      class="tiptap-editor__content"
+    />
   </div>
 </template>
 
@@ -20,7 +24,7 @@ import {
 import { useField } from 'vee-validate'
 
 const props = defineProps<
-  { name: string } & (
+  { name: string; actions?: string[] } & (
     | { json: JSONContent; html?: null }
     | { json?: null; html: HTMLContent }
   )
@@ -65,5 +69,9 @@ const editor = useEditor({
   border: 2px solid black;
   border-radius: 0.5rem;
   overflow: hidden;
+}
+
+:where(.tiptap-editor__content > .tiptap) {
+  min-height: 4rem;
 }
 </style>

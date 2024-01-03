@@ -4157,6 +4157,7 @@ type Room implements Node {
   """Each room has an optional abstract."""
   abstract: String
   createdAt: Datetime!
+  draftItemsAreVisibleFor: RoomRole
   extendVisibilityOfItemsBy: Interval!
   id: UUID!
   isAnonymousPostingAllowed: Boolean!
@@ -4311,6 +4312,9 @@ input RoomCondition {
   """Checks for equality with the object’s `createdAt` field."""
   createdAt: Datetime
 
+  """Checks for equality with the object’s `draftItemsAreVisibleFor` field."""
+  draftItemsAreVisibleFor: RoomRole
+
   """
   Checks for equality with the object’s `extendVisibilityOfItemsBy` field.
   """
@@ -4375,6 +4379,9 @@ input RoomFilter {
 
   """Filter by the object’s `createdAt` field."""
   createdAt: DatetimeFilter
+
+  """Filter by the object’s `draftItemsAreVisibleFor` field."""
+  draftItemsAreVisibleFor: RoomRoleFilter
 
   """Filter by the object’s `extendVisibilityOfItemsBy` field."""
   extendVisibilityOfItemsBy: IntervalFilter
@@ -4806,6 +4813,11 @@ input RoomItemPatch {
   The default order is 0, but you can change it to different values to sort the items.
   """
   order: Float
+
+  """
+  The items in a room can be connected to each other, basically forming one or multiple trees. For example, you can use this to keep track of conversations.
+  """
+  parentId: UUID
   topicId: UUID
 }
 
@@ -5765,6 +5777,8 @@ enum RoomsOrderBy {
   ABSTRACT_DESC
   CREATED_AT_ASC
   CREATED_AT_DESC
+  DRAFT_ITEMS_ARE_VISIBLE_FOR_ASC
+  DRAFT_ITEMS_ARE_VISIBLE_FOR_DESC
   EXTEND_VISIBILITY_OF_ITEMS_BY_ASC
   EXTEND_VISIBILITY_OF_ITEMS_BY_DESC
   ID_ASC

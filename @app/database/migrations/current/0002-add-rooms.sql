@@ -40,6 +40,7 @@ create table if not exists app_public.rooms (
   items_are_visible_for app_public.room_role not null default 'public',
   items_are_visible_since app_public.room_history_visibility not null default 'always',
   items_are_visible_since_date timestamptz not null default now(),
+  draft_items_are_visible_for app_public.room_role,
   extend_visibility_of_items_by interval not null default '0 hours',
   is_anonymous_posting_allowed boolean not null default false,
   created_at timestamptz not null default now(),

@@ -15308,6 +15308,18 @@
               "deprecationReason": null
             },
             {
+              "name": "draftItemsAreVisibleFor",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomRole",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "extendVisibilityOfItemsBy",
               "description": null,
               "args": [],
@@ -16002,6 +16014,16 @@
               "defaultValue": null
             },
             {
+              "name": "draftItemsAreVisibleFor",
+              "description": "Checks for equality with the object’s `draftItemsAreVisibleFor` field.",
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomRole",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "extendVisibilityOfItemsBy",
               "description": "Checks for equality with the object’s `extendVisibilityOfItemsBy` field.",
               "type": {
@@ -16196,6 +16218,16 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "draftItemsAreVisibleFor",
+              "description": "Filter by the object’s `draftItemsAreVisibleFor` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "RoomRoleFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -17731,6 +17763,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "parentId",
+              "description": "The items in a room can be connected to each other, basically forming one or multiple trees. For example, you can use this to keep track of conversations.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
                 "ofType": null
               },
               "defaultValue": null
@@ -21603,6 +21645,18 @@
             },
             {
               "name": "CREATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "DRAFT_ITEMS_ARE_VISIBLE_FOR_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "DRAFT_ITEMS_ARE_VISIBLE_FOR_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null

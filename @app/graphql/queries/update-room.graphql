@@ -1,0 +1,8 @@
+mutation UpdateRoom($oldId: UUID!, $patch: RoomPatch!) {
+  updateRoom(input: { patch: $patch, id: $oldId }) {
+    room {
+      id
+      updatedAt
+    }
+  }
+}

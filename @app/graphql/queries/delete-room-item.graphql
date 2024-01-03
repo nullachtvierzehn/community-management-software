@@ -1,0 +1,7 @@
+mutation DeleteRoomItem($id: UUID!) {
+  deleteRoomItem(input: { id: $id }) {
+    room {
+      id
+    }
+  }
+}

@@ -9,8 +9,16 @@ fragment RoomItemAsListItem on RoomItem {
     ...ShortProfile
   }
   order
+  parentId
   parent {
     id
+    type
+    createdAt
+    contributedAt
+    contributor {
+      id
+      ...ShortProfile
+    }
   }
   room {
     id

@@ -1,16 +1,31 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div v-if="profile" class="short-profile__username">
-    {{ profile.username }}
-  </div>
-  <div v-else class="short-profile__username short-profile__username_imputed">
+  <component :is="tag" v-if="profile">
+    <span class="short-profile__username">{{ profile.username }}</span
+    >&nbsp;<span v-if="isMe">(ich)</span>
+  </component>
+  <component
+    :is="tag"
+    v-else
+    class="short-profile__username short-profile__username_imputed"
+  >
     [[ gelöscht ]]
-  </div>
+  </component>
 </template>
 
 <script setup lang="ts">
 import { type ShortProfileFragment } from '~/graphql'
-defineProps<{
-  profile?: ShortProfileFragment | null
-}>()
+
+const props = withDefaults(
+  defineProps<{
+    profile?: ShortProfileFragment | null
+    tag?: string
+  }>(),
+  { tag: 'div', profile: null }
+)
+
+const currentUser = await useCurrentUser()
+const isMe = computed(
+  () => currentUser.value?.id && currentUser.value.id === props.profile?.id
+)
 </script>
