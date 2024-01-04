@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 from . import app
 
@@ -9,6 +10,5 @@ async def main():
     async with app.open_async():
         await app.run_worker_async(wait=True)
 
-with app.open():
-    # FIXME: must be restarted when database shuts down
-    app.run_worker(wait=True)
+
+asyncio.run(main())

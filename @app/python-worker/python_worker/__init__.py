@@ -30,7 +30,7 @@ connector = AiopgConnector(
 )
 
 app = App(connector=connector)
-app.open()
+#app.open()
 
 
 @app.task(name="test")
