@@ -68,8 +68,8 @@ create index rooms_on_created_at on app_public.rooms using brin (created_at);
 create index rooms_on_updated_at on app_public.rooms (updated_at);
 
 grant select on app_public.rooms to :DATABASE_VISITOR;
-grant insert (title, abstract, is_visible_for, items_are_visible_since, is_anonymous_posting_allowed) on app_public.rooms to :DATABASE_VISITOR;
-grant update (title, abstract, is_visible_for, items_are_visible_since, is_anonymous_posting_allowed) on app_public.rooms to :DATABASE_VISITOR;
+grant insert (title, abstract, is_visible_for, items_are_visible_for, items_are_visible_since, is_anonymous_posting_allowed) on app_public.rooms to :DATABASE_VISITOR;
+grant update (title, abstract, is_visible_for, items_are_visible_for, items_are_visible_since, is_anonymous_posting_allowed) on app_public.rooms to :DATABASE_VISITOR;
 grant delete on app_public.rooms to :DATABASE_VISITOR;
 
 alter table app_public.rooms enable row level security;

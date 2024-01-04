@@ -13,6 +13,8 @@ fragment ShortRoomSubscription on RoomSubscription {
   lastVisitAt
   notifications
   role
+  createdAt
+  updatedAt
 }
 
 query GetRoomSubscriptionOfUserInRoom($userId: UUID!, $roomId: UUID!) {

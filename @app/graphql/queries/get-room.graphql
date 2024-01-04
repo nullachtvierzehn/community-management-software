@@ -3,7 +3,10 @@ query GetRoom($id: UUID!) {
     id
     title
     abstract
+    hasSubscriptions
     nSubscriptions
+    isVisibleFor
+    itemsAreVisibleFor
     latestItem {
       id
       contributedAt

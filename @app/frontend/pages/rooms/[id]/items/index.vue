@@ -1,62 +1,96 @@
 <template>
-  <div class="container mx-auto flex justify-end">
-    <button
-      v-if="subscription"
-      class="btn btn_primary my-4"
-      @click="addNewMessage()"
-    >
-      neue Nachricht
-    </button>
-  </div>
+  <!-- Raum existiert nicht. -->
+  <template v-if="!room">
+    <p>Raum nicht gefunden.</p>
+  </template>
 
-  <Teleport v-if="showSearchModal" to="body">
-    <SearchModal v-model:show="showSearchModal" :entities="['TOPIC']" />
-  </Teleport>
-
-  <!-- submitted items -->
-  <section class="container mx-auto grid gap-3 mt-4">
-    <h1 class="sr-only">Inhalte</h1>
-    <template v-for="item in items" :key="item.id">
-      <div
-        :id="`item-${item.id}`"
-        class="border-2 border-gray-300 p-4 rounded-lg w-[80%]"
-        :class="{ 'justify-self-end': isByCurrentUser(item) }"
-      >
-        <RoomItemMessageEditor
-          v-if="
-            item.type === 'MESSAGE' && isDraft(item) && isByCurrentUser(item)
-          "
-          :model-value="item"
-        />
-        <RoomItemMessageViewer
-          v-else-if="item.type === 'MESSAGE'"
-          :model-value="item"
-          @respond="addNewMessage(item)"
-          @go-to-parent="goToParent($event)"
-        />
-        <RoomItemTopicEditor
-          v-else-if="
-            item.type === 'TOPIC' && isDraft(item) && isByCurrentUser(item)
-          "
-          :model-value="item"
-        />
-        <RoomItemTopicViewer
-          v-else-if="item.type === 'TOPIC'"
-          :model-value="item"
-        />
-        <pre v-else>{{ item }}</pre>
-      </div>
-      <div
-        v-if="item.nthItemSinceLastVisit === '1' && subscription?.lastVisitAt"
-        class="text-red-600 border-t border-red-600 text-center cursor-pointer"
-        @click="visitToNow()"
-      >
-        Zuletzt warst Du
-        {{ formatDateFromNow(subscription.lastVisitAt) }} hier. Zu den neuen
-        Nachrichten.
+  <!-- Room requires subscription. -->
+  <template
+    v-else-if="
+      orderOfRole(room.itemsAreVisibleFor) >
+      orderOfRole(subscription?.role ?? 'PUBLIC')
+    "
+  >
+    <template v-if="subscription">
+      <p>
+        Inhalte sind nur sichtbar, wenn Sie mindestens die Rolle
+        {{ room.itemsAreVisibleFor }} haben. Sie haben die Rolle
+        {{ subscription.role }}.
+      </p>
+    </template>
+    <template v-else>
+      <div class="container mx-auto mt-4">
+        <p>
+          Sie müssen Mitglied im Raum sein, um die Nachrichten sehen zu können.
+        </p>
+        <button class="btn btn_primary mt-4" @click="subscribe()">
+          Mitglied werden
+        </button>
       </div>
     </template>
-  </section>
+  </template>
+
+  <!-- Items are accessible. -->
+  <template v-else>
+    <div class="container mx-auto flex justify-end">
+      <button
+        v-if="subscription"
+        class="btn btn_primary my-4"
+        @click="addNewMessage()"
+      >
+        neue Nachricht
+      </button>
+    </div>
+
+    <Teleport v-if="showSearchModal" to="body">
+      <SearchModal v-model:show="showSearchModal" :entities="['TOPIC']" />
+    </Teleport>
+
+    <!-- submitted items -->
+    <section class="container mx-auto grid gap-3 mt-4">
+      <h1 class="sr-only">Inhalte</h1>
+      <template v-for="item in items" :key="item.id">
+        <div
+          :id="`item-${item.id}`"
+          class="border-2 border-gray-300 p-4 rounded-lg w-[80%]"
+          :class="{ 'justify-self-end': isByCurrentUser(item) }"
+        >
+          <RoomItemMessageEditor
+            v-if="
+              item.type === 'MESSAGE' && isDraft(item) && isByCurrentUser(item)
+            "
+            :model-value="item"
+          />
+          <RoomItemMessageViewer
+            v-else-if="item.type === 'MESSAGE'"
+            :model-value="item"
+            @respond="addNewMessage(item)"
+            @go-to-parent="goToParent($event)"
+          />
+          <RoomItemTopicEditor
+            v-else-if="
+              item.type === 'TOPIC' && isDraft(item) && isByCurrentUser(item)
+            "
+            :model-value="item"
+          />
+          <RoomItemTopicViewer
+            v-else-if="item.type === 'TOPIC'"
+            :model-value="item"
+          />
+          <pre v-else>{{ item }}</pre>
+        </div>
+        <div
+          v-if="item.nthItemSinceLastVisit === '1' && subscription?.lastVisitAt"
+          class="text-red-600 border-t border-red-600 text-center cursor-pointer"
+          @click="visitToNow()"
+        >
+          Zuletzt warst Du
+          {{ formatDateFromNow(subscription.lastVisitAt) }} hier. Zu den neuen
+          Nachrichten.
+        </div>
+      </template>
+    </section>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -71,7 +105,7 @@ definePageMeta({
 })
 
 const currentUser = await useCurrentUser()
-const _room = await useRoom()
+const { room, subscribe } = await useRoomWithTools()
 const { subscription, update: updateSubscription } =
   await useSubscriptionWithTools()
 
@@ -113,6 +147,16 @@ function isDraft(item: Item) {
 async function visitToNow() {
   await updateSubscription({ lastVisitAt: new Date().toISOString() })
 }
+
+// set lastVisitAt, if not yet done
+watch(
+  subscription,
+  (subscription) => {
+    if (subscription && !subscription.lastVisitAt)
+      updateSubscription({ lastVisitAt: new Date().toISOString() })
+  },
+  { immediate: true }
+)
 
 // add new items
 const { executeMutation: addMutation } = useCreateRoomItemMutation()

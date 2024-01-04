@@ -1,6 +1,9 @@
 <template>
   <div class="subscription">
     <UserName class="subscription__username" :profile="value.subscriber" />
+    <div class="subscription__date">
+      {{ formatDate(value.createdAt, 'DD.MM.YY') }}
+    </div>
     <select
       ref="roleSelect"
       v-model="role"

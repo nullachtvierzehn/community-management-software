@@ -1510,6 +1510,84 @@ COMMENT ON FUNCTION app_public.global_search(term text, entities app_public.text
 
 
 --
+-- Name: rooms; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.rooms (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    title text,
+    abstract text,
+    fulltext_index_column tsvector GENERATED ALWAYS AS ((setweight(to_tsvector('german'::regconfig, COALESCE(title, ''::text)), 'A'::"char") || setweight(to_tsvector('german'::regconfig, COALESCE(abstract, ''::text)), 'B'::"char"))) STORED,
+    organization_id uuid DEFAULT app_public.current_user_first_owned_organization_id(),
+    is_visible_for app_public.room_visibility DEFAULT 'public'::app_public.room_visibility NOT NULL,
+    items_are_visible_for app_public.room_role DEFAULT 'public'::app_public.room_role NOT NULL,
+    items_are_visible_since app_public.room_history_visibility DEFAULT 'always'::app_public.room_history_visibility NOT NULL,
+    items_are_visible_since_date timestamp with time zone DEFAULT now() NOT NULL,
+    draft_items_are_visible_for app_public.room_role,
+    extend_visibility_of_items_by interval DEFAULT '00:00:00'::interval NOT NULL,
+    is_anonymous_posting_allowed boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE rooms; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.rooms IS 'A room is a place where users meet. At the same time, it is a container for messages and handed-out materials.';
+
+
+--
+-- Name: COLUMN rooms.title; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.rooms.title IS 'Each room has an optional title.';
+
+
+--
+-- Name: COLUMN rooms.abstract; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.rooms.abstract IS 'Each room has an optional abstract.';
+
+
+--
+-- Name: COLUMN rooms.is_visible_for; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.rooms.is_visible_for IS 'Rooms can be visible for their subscribers only (`subscribers`), to all members of the room''s organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.';
+
+
+--
+-- Name: COLUMN rooms.items_are_visible_since; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.rooms.items_are_visible_since IS 'Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room''s audience.';
+
+
+--
+-- Name: has_subscriptions(app_public.rooms, app_public.room_role); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role DEFAULT 'member'::app_public.room_role) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER PARALLEL SAFE
+    AS $$
+  select exists (select from app_public.room_subscriptions where "role" >= min_role and room_id = room.id)
+$$;
+
+
+--
+-- Name: FUNCTION has_subscriptions(room app_public.rooms, min_role app_public.room_role); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role) IS '
+@behavior typeField
+@filterable
+';
+
+
+--
 -- Name: invite_to_organization(uuid, public.citext, public.citext); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -1639,63 +1717,6 @@ COMMENT ON COLUMN app_public.room_items.is_visible_for IS 'Decides which role ca
 --
 
 COMMENT ON COLUMN app_public.room_items.is_visible_since IS 'Decides if room items are always visible or only to users who subscribed before they were added. If the value is not set, the default settings of the room will be used.';
-
-
---
--- Name: rooms; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.rooms (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    title text,
-    abstract text,
-    fulltext_index_column tsvector GENERATED ALWAYS AS ((setweight(to_tsvector('german'::regconfig, COALESCE(title, ''::text)), 'A'::"char") || setweight(to_tsvector('german'::regconfig, COALESCE(abstract, ''::text)), 'B'::"char"))) STORED,
-    organization_id uuid DEFAULT app_public.current_user_first_owned_organization_id(),
-    is_visible_for app_public.room_visibility DEFAULT 'public'::app_public.room_visibility NOT NULL,
-    items_are_visible_for app_public.room_role DEFAULT 'public'::app_public.room_role NOT NULL,
-    items_are_visible_since app_public.room_history_visibility DEFAULT 'always'::app_public.room_history_visibility NOT NULL,
-    items_are_visible_since_date timestamp with time zone DEFAULT now() NOT NULL,
-    draft_items_are_visible_for app_public.room_role,
-    extend_visibility_of_items_by interval DEFAULT '00:00:00'::interval NOT NULL,
-    is_anonymous_posting_allowed boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
---
--- Name: TABLE rooms; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON TABLE app_public.rooms IS 'A room is a place where users meet. At the same time, it is a container for messages and handed-out materials.';
-
-
---
--- Name: COLUMN rooms.title; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.rooms.title IS 'Each room has an optional title.';
-
-
---
--- Name: COLUMN rooms.abstract; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.rooms.abstract IS 'Each room has an optional abstract.';
-
-
---
--- Name: COLUMN rooms.is_visible_for; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.rooms.is_visible_for IS 'Rooms can be visible for their subscribers only (`subscribers`), to all members of the room''s organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.';
-
-
---
--- Name: COLUMN rooms.items_are_visible_since; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.rooms.items_are_visible_since IS 'Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room''s audience.';
 
 
 --
@@ -4699,13 +4720,6 @@ CREATE POLICY delete_attachments ON app_public.room_message_attachments FOR DELE
 
 
 --
--- Name: room_subscriptions delete_own; Type: POLICY; Schema: app_public; Owner: -
---
-
-CREATE POLICY delete_own ON app_public.room_subscriptions FOR DELETE USING ((subscriber_id = app_public.current_user_id()));
-
-
---
 -- Name: user_authentications delete_own; Type: POLICY; Schema: app_public; Owner: -
 --
 
@@ -4770,6 +4784,13 @@ CREATE POLICY manage_by_admins ON app_public.room_items USING ((room_id IN ( SEL
 --
 
 CREATE POLICY manage_my_drafts ON app_public.room_items USING (((contributed_at IS NULL) AND (contributor_id = app_public.current_user_id())));
+
+
+--
+-- Name: room_subscriptions manage_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY manage_own ON app_public.room_subscriptions USING ((subscriber_id = app_public.current_user_id()));
 
 
 --
@@ -4910,13 +4931,6 @@ CREATE POLICY select_my_drafts ON app_public.room_messages FOR SELECT USING (((s
 
 
 --
--- Name: room_subscriptions select_own; Type: POLICY; Schema: app_public; Owner: -
---
-
-CREATE POLICY select_own ON app_public.room_subscriptions FOR SELECT USING ((subscriber_id = app_public.current_user_id()));
-
-
---
 -- Name: user_authentications select_own; Type: POLICY; Schema: app_public; Owner: -
 --
 
@@ -5018,7 +5032,7 @@ CREATE POLICY show_subscribed ON app_public.rooms FOR SELECT USING ((id IN ( SEL
 
 CREATE POLICY subscribe_rooms ON app_public.room_subscriptions FOR INSERT WITH CHECK ((EXISTS ( SELECT
    FROM app_public.rooms r
-  WHERE ((room_subscriptions.room_id = r.id) AND (room_subscriptions.subscriber_id = app_public.current_user_id()) AND (((r.is_visible_for >= 'public'::app_public.room_visibility) AND (room_subscriptions.role <= 'member'::app_public.room_role)) OR ((r.is_visible_for <= 'public'::app_public.room_visibility) AND (room_subscriptions.role <= 'prospect'::app_public.room_role)) OR (r.created_at = room_subscriptions.created_at) OR (app_public.n_room_subscriptions(r.*) < 1))))));
+  WHERE ((room_subscriptions.room_id = r.id) AND (room_subscriptions.subscriber_id = app_public.current_user_id()) AND (((r.is_visible_for >= 'public'::app_public.room_visibility) AND (room_subscriptions.role <= 'member'::app_public.room_role)) OR ((r.is_visible_for <= 'public'::app_public.room_visibility) AND (room_subscriptions.role <= 'prospect'::app_public.room_role)) OR (r.created_at = room_subscriptions.created_at) OR (NOT app_public.has_subscriptions(r.*)))))));
 
 
 --
@@ -5437,6 +5451,63 @@ GRANT ALL ON FUNCTION app_public.global_search(term text, entities app_public.te
 
 
 --
+-- Name: TABLE rooms; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.rooms TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN rooms.title; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(title),UPDATE(title) ON TABLE app_public.rooms TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN rooms.abstract; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(abstract),UPDATE(abstract) ON TABLE app_public.rooms TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN rooms.is_visible_for; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.rooms TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN rooms.items_are_visible_for; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(items_are_visible_for),UPDATE(items_are_visible_for) ON TABLE app_public.rooms TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN rooms.items_are_visible_since; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(items_are_visible_since),UPDATE(items_are_visible_since) ON TABLE app_public.rooms TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN rooms.is_anonymous_posting_allowed; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(is_anonymous_posting_allowed),UPDATE(is_anonymous_posting_allowed) ON TABLE app_public.rooms TO null18_cms_app_users;
+
+
+--
+-- Name: FUNCTION has_subscriptions(room app_public.rooms, min_role app_public.room_role); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role) TO null18_cms_app_users;
+
+
+--
 -- Name: FUNCTION invite_to_organization(organization_id uuid, username public.citext, email public.citext); Type: ACL; Schema: app_public; Owner: -
 --
 
@@ -5526,48 +5597,6 @@ GRANT INSERT(topic_id),UPDATE(topic_id) ON TABLE app_public.room_items TO null18
 --
 
 GRANT INSERT(message_body),UPDATE(message_body) ON TABLE app_public.room_items TO null18_cms_app_users;
-
-
---
--- Name: TABLE rooms; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.rooms TO null18_cms_app_users;
-
-
---
--- Name: COLUMN rooms.title; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(title),UPDATE(title) ON TABLE app_public.rooms TO null18_cms_app_users;
-
-
---
--- Name: COLUMN rooms.abstract; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(abstract),UPDATE(abstract) ON TABLE app_public.rooms TO null18_cms_app_users;
-
-
---
--- Name: COLUMN rooms.is_visible_for; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.rooms TO null18_cms_app_users;
-
-
---
--- Name: COLUMN rooms.items_are_visible_since; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(items_are_visible_since),UPDATE(items_are_visible_since) ON TABLE app_public.rooms TO null18_cms_app_users;
-
-
---
--- Name: COLUMN rooms.is_anonymous_posting_allowed; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(is_anonymous_posting_allowed),UPDATE(is_anonymous_posting_allowed) ON TABLE app_public.rooms TO null18_cms_app_users;
 
 
 --

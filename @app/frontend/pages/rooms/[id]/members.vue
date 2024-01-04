@@ -22,21 +22,38 @@
     </Teleport>
 
     <!-- Show option to become admin of orphaned rooms. -->
-    <div v-if="room.nSubscriptions === '0' && currentUser">
+    <div v-if="!room.hasSubscriptions">
       <p>Der Raum hat keine Mitglieder.</p>
       <button @click="becomeAdmin()">Ich möchte sein Admin werden.</button>
     </div>
 
+    <!-- -->
+    <div v-if="room.hasSubscriptions && !subscription">
+      <div class="container mx-auto mt-4">
+        <p>
+          Sie müssen Mitglied im Raum sein, um andere Mitglieder sehen zu
+          können.
+        </p>
+        <button class="btn btn_primary mt-4" @click="subscribe()">
+          Mitglied werden
+        </button>
+      </div>
+    </div>
+
     <!-- Show memberships -->
-    <div class="grid grid-cols-[2fr_1fr] gap-1">
-      <div class="grid grid-cols-subgrid col-span-2 rounded-md">
+    <div
+      v-if="room.nSubscriptions > '0'"
+      class="grid grid-cols-[2fr_1fr_1fr] gap-1 mt-4"
+    >
+      <div class="grid grid-cols-subgrid col-span-3 rounded-md">
         <div class="bg-gray-300 p-4">Login-Name</div>
-        <div class="bg-gray-300 p-4">Rolle</div>
+        <div class="bg-gray-300 p-4">Mitglied seit</div>
+        <div class="bg-gray-300 p-4">Status</div>
       </div>
       <room-subscription
         v-for="s in subscriptions"
         :key="s.subscriberId"
-        class="grid grid-cols-subgrid col-span-2"
+        class="grid grid-cols-subgrid col-span-3"
         :value="s"
       >
       </room-subscription>
@@ -101,7 +118,8 @@ async function addUserById(id: string) {
 
 <style lang="postcss" scoped>
 :deep(.subscription__username),
-:deep(.subscription__role) {
+:deep(.subscription__role),
+:deep(.subscription__date) {
   @apply p-4;
 }
 

@@ -125,7 +125,7 @@ module.exports = {
       _: 'command',
       shadow: false,
       command:
-        'psql --disable-triggers "$GM_DBURL" < $(ls -t migrations/current-data/dump-*.sql | head -1)',
+        'psql "$GM_DBURL" < $(ls -t migrations/current-data/dump-*.sql | head -1)',
     },
   ],
 

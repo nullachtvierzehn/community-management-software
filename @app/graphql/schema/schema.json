@@ -15336,6 +15336,29 @@
               "deprecationReason": null
             },
             {
+              "name": "hasSubscriptions",
+              "description": null,
+              "args": [
+                {
+                  "name": "minRole",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "RoomRole",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "id",
               "description": null,
               "args": [],
@@ -16034,6 +16057,16 @@
               "defaultValue": null
             },
             {
+              "name": "hasSubscriptions",
+              "description": "Checks for equality with the object’s `hasSubscriptions` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "id",
               "description": "Checks for equality with the object’s `id` field.",
               "type": {
@@ -16238,6 +16271,16 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "IntervalFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "hasSubscriptions",
+              "description": "Filter by the object’s `hasSubscriptions` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BooleanFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -16699,6 +16742,16 @@
               "type": {
                 "kind": "ENUM",
                 "name": "RoomVisibility",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemsAreVisibleFor",
+              "description": null,
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomRole",
                 "ofType": null
               },
               "defaultValue": null
@@ -20129,6 +20182,16 @@
               "type": {
                 "kind": "ENUM",
                 "name": "RoomVisibility",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemsAreVisibleFor",
+              "description": null,
+              "type": {
+                "kind": "ENUM",
+                "name": "RoomRole",
                 "ofType": null
               },
               "defaultValue": null

@@ -120,6 +120,23 @@ comment on function app_public.n_room_subscriptions(room app_public.rooms, min_r
 @fieldName nSubscriptions
 $$;
 
+create or replace function app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role default 'member')
+returns boolean
+language sql
+stable
+parallel safe
+security definer 
+as $$
+  select exists (select from app_public.room_subscriptions where "role" >= min_role and room_id = room.id)
+$$;
+
+grant execute on function app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role) to :DATABASE_VISITOR;
+
+comment on function app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role) is $$
+@behavior typeField
+@filterable
+$$;
+
 -- Every subscriber should be able to see her or his rooms, even if private.
 create policy show_subscribed on app_public.rooms for select using (id in (select app_public.my_subscribed_room_ids(minimum_role => 'banned')));
 -- Maintainers should be able to update their rooms.
@@ -127,11 +144,11 @@ create policy manage_as_admin on app_public.rooms for all using (id in (select a
 
 alter table app_public.room_subscriptions enable row level security;
 -- You should see your own room_subscriptions.
-create policy select_own on app_public.room_subscriptions for select using (subscriber_id = app_public.current_user_id());
+create policy manage_own on app_public.room_subscriptions for all using (subscriber_id = app_public.current_user_id());
 -- You should see others in your rooms.
 create policy select_peers on app_public.room_subscriptions for select using (room_id in (select app_public.my_subscribed_room_ids()));
 -- You should be able to unsubscribe from your rooms.
-create policy delete_own on app_public.room_subscriptions for delete using (subscriber_id = app_public.current_user_id());
+--create policy delete_own on app_public.room_subscriptions for delete using (subscriber_id = app_public.current_user_id());
 -- Maintainers can unsubscribe others from their rooms.
 create policy manage_as_moderator on app_public.room_subscriptions for all using (room_id in (select app_public.my_subscribed_room_ids(minimum_role => 'moderator')));
 -- You should be able to subscribe public rooms
@@ -149,7 +166,7 @@ create policy subscribe_rooms on app_public.room_subscriptions for insert with c
         -- You can take on all roles when creating a room. This is for the first admins.
         or (r.created_at = room_subscriptions.created_at)
         -- You can take on all roles in orphaned rooms.
-        or (app_public.n_room_subscriptions(r) < 1)
+        or (not app_public.has_subscriptions(r))
       )
   )
 );

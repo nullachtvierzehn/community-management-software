@@ -4,15 +4,16 @@ export default function orderOfRole(role: RoomRole): number {
   switch (role) {
     case 'BANNED':
       return -1
-    case 'PROSPECT':
-      return 0
     case 'PUBLIC':
-    case 'MEMBER':
+      return 0
+    case 'PROSPECT':
       return 1
-    case 'MODERATOR':
+    case 'MEMBER':
       return 2
-    case 'ADMIN':
+    case 'MODERATOR':
       return 3
+    case 'ADMIN':
+      return 4
     default:
       throw new Error(`unsupported value: ${role}`)
   }

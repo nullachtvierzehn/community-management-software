@@ -1384,6 +1384,8 @@ export type RoomFilter = {
   draftItemsAreVisibleFor?: InputMaybe<RoomRoleFilter>;
   /** Filter by the object’s `extendVisibilityOfItemsBy` field. */
   extendVisibilityOfItemsBy?: InputMaybe<IntervalFilter>;
+  /** Filter by the object’s `hasSubscriptions` field. */
+  hasSubscriptions?: InputMaybe<BooleanFilter>;
   /** Filter by the object’s `id` field. */
   id?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `isAnonymousPostingAllowed` field. */
@@ -2368,6 +2370,8 @@ export type RoomCondition = {
   draftItemsAreVisibleFor?: InputMaybe<RoomRole>;
   /** Checks for equality with the object’s `extendVisibilityOfItemsBy` field. */
   extendVisibilityOfItemsBy?: InputMaybe<IntervalInput>;
+  /** Checks for equality with the object’s `hasSubscriptions` field. */
+  hasSubscriptions?: InputMaybe<Scalars['Boolean']['input']>;
   /** Checks for equality with the object’s `id` field. */
   id?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `isAnonymousPostingAllowed` field. */
@@ -2466,6 +2470,7 @@ export type Room = Node & {
   createdAt: Scalars['Datetime']['output'];
   draftItemsAreVisibleFor: Maybe<RoomRole>;
   extendVisibilityOfItemsBy: Interval;
+  hasSubscriptions: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['UUID']['output'];
   isAnonymousPostingAllowed: Scalars['Boolean']['output'];
   /** Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`. */
@@ -2503,6 +2508,12 @@ export type Room = Node & {
   /** Each room has an optional title. */
   title: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['Datetime']['output'];
+};
+
+
+/** A room is a place where users meet. At the same time, it is a container for messages and handed-out materials. */
+export type RoomHasSubscriptionsArgs = {
+  minRole?: InputMaybe<RoomRole>;
 };
 
 
@@ -4506,6 +4517,7 @@ export type RoomInput = {
   isAnonymousPostingAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   /** Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`. */
   isVisibleFor?: InputMaybe<RoomVisibility>;
+  itemsAreVisibleFor?: InputMaybe<RoomRole>;
   /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience. */
   itemsAreVisibleSince?: InputMaybe<RoomHistoryVisibility>;
   /** Each room has an optional title. */
@@ -5940,6 +5952,7 @@ export type RoomPatch = {
   isAnonymousPostingAllowed?: InputMaybe<Scalars['Boolean']['input']>;
   /** Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`. */
   isVisibleFor?: InputMaybe<RoomVisibility>;
+  itemsAreVisibleFor?: InputMaybe<RoomRole>;
   /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience. */
   itemsAreVisibleSince?: InputMaybe<RoomHistoryVisibility>;
   /** Each room has an optional title. */
@@ -6487,7 +6500,7 @@ export type FetchRoomSubscriptionsQueryVariables = Exact<{
 }>;
 
 
-export type FetchRoomSubscriptionsQuery = { __typename?: 'Query', roomSubscriptions: { __typename?: 'RoomSubscriptionsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null }> } | null };
+export type FetchRoomSubscriptionsQuery = { __typename?: 'Query', roomSubscriptions: { __typename?: 'RoomSubscriptionsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null }> } | null };
 
 export type FetchRoomsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6529,7 +6542,7 @@ export type GetRoomMessageQueryVariables = Exact<{
 
 export type GetRoomMessageQuery = { __typename?: 'Query', roomMessage: { __typename?: 'RoomMessage', id: string, body: string | null, sender: { __typename?: 'User', id: string, username: string } | null } | null };
 
-export type ShortRoomSubscriptionFragment = { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null };
+export type ShortRoomSubscriptionFragment = { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null };
 
 export type GetRoomSubscriptionOfUserInRoomQueryVariables = Exact<{
   userId: Scalars['UUID']['input'];
@@ -6537,14 +6550,14 @@ export type GetRoomSubscriptionOfUserInRoomQueryVariables = Exact<{
 }>;
 
 
-export type GetRoomSubscriptionOfUserInRoomQuery = { __typename?: 'Query', roomSubscriptionBySubscriberIdAndRoomId: { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null } | null };
+export type GetRoomSubscriptionOfUserInRoomQuery = { __typename?: 'Query', roomSubscriptionBySubscriberIdAndRoomId: { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null } | null };
 
 export type GetRoomQueryVariables = Exact<{
   id: Scalars['UUID']['input'];
 }>;
 
 
-export type GetRoomQuery = { __typename?: 'Query', room: { __typename?: 'Room', id: string, title: string | null, abstract: string | null, nSubscriptions: any | null, latestItem: { __typename?: 'RoomItem', id: string, contributedAt: string | null, nthItemSinceLastVisit: any | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null } | null };
+export type GetRoomQuery = { __typename?: 'Query', room: { __typename?: 'Room', id: string, title: string | null, abstract: string | null, hasSubscriptions: boolean | null, nSubscriptions: any | null, isVisibleFor: RoomVisibility, itemsAreVisibleFor: RoomRole, latestItem: { __typename?: 'RoomItem', id: string, contributedAt: string | null, nthItemSinceLastVisit: any | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null } | null };
 
 export type GetTopicBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -6644,7 +6657,7 @@ export type UpdateRoomSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateRoomSubscriptionMutation = { __typename?: 'Mutation', updateRoomSubscription: { __typename?: 'UpdateRoomSubscriptionPayload', roomSubscription: { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null } | null } | null };
+export type UpdateRoomSubscriptionMutation = { __typename?: 'Mutation', updateRoomSubscription: { __typename?: 'UpdateRoomSubscriptionPayload', roomSubscription: { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null } | null } | null };
 
 export type UpdateRoomMutationVariables = Exact<{
   oldId: Scalars['UUID']['input'];
@@ -6695,6 +6708,8 @@ export const ShortRoomSubscription = gql`
   lastVisitAt
   notifications
   role
+  createdAt
+  updatedAt
 }
     ${ShortProfile}`;
 export const RoomItemAsListItem = gql`
@@ -7037,7 +7052,10 @@ export const GetRoom = gql`
     id
     title
     abstract
+    hasSubscriptions
     nSubscriptions
+    isVisibleFor
+    itemsAreVisibleFor
     latestItem {
       id
       contributedAt
@@ -7231,6 +7249,8 @@ export const ShortRoomSubscriptionFragmentDoc = gql`
   lastVisitAt
   notifications
   role
+  createdAt
+  updatedAt
 }
     ${ShortProfileFragmentDoc}`;
 export const RoomItemAsListItemFragmentDoc = gql`
@@ -7645,7 +7665,10 @@ export const GetRoomDocument = gql`
     id
     title
     abstract
+    hasSubscriptions
     nSubscriptions
+    isVisibleFor
+    itemsAreVisibleFor
     latestItem {
       id
       contributedAt

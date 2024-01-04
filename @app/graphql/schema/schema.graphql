@@ -4159,6 +4159,7 @@ type Room implements Node {
   createdAt: Datetime!
   draftItemsAreVisibleFor: RoomRole
   extendVisibilityOfItemsBy: Interval!
+  hasSubscriptions(minRole: RoomRole): Boolean
   id: UUID!
   isAnonymousPostingAllowed: Boolean!
 
@@ -4320,6 +4321,9 @@ input RoomCondition {
   """
   extendVisibilityOfItemsBy: IntervalInput
 
+  """Checks for equality with the object’s `hasSubscriptions` field."""
+  hasSubscriptions: Boolean
+
   """Checks for equality with the object’s `id` field."""
   id: UUID
 
@@ -4385,6 +4389,9 @@ input RoomFilter {
 
   """Filter by the object’s `extendVisibilityOfItemsBy` field."""
   extendVisibilityOfItemsBy: IntervalFilter
+
+  """Filter by the object’s `hasSubscriptions` field."""
+  hasSubscriptions: BooleanFilter
 
   """Filter by the object’s `id` field."""
   id: UUIDFilter
@@ -4518,6 +4525,7 @@ input RoomInput {
   Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.
   """
   isVisibleFor: RoomVisibility
+  itemsAreVisibleFor: RoomRole
 
   """
   Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience.
@@ -5388,6 +5396,7 @@ input RoomPatch {
   Rooms can be visible for their subscribers only (`subscribers`), to all members of the room's organisation (`organization_members`), for all currently signed-in users (`signed_in_users`), or general in `public`.
   """
   isVisibleFor: RoomVisibility
+  itemsAreVisibleFor: RoomRole
 
   """
   Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience.
