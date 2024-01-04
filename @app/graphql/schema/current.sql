@@ -139,6 +139,16 @@ CREATE TYPE app_public.room_history_visibility AS ENUM (
 
 
 --
+-- Name: room_item_attachment_type; Type: TYPE; Schema: app_public; Owner: -
+--
+
+CREATE TYPE app_public.room_item_attachment_type AS ENUM (
+    'TOPIC',
+    'FILE'
+);
+
+
+--
 -- Name: room_item_type; Type: TYPE; Schema: app_public; Owner: -
 --
 
@@ -3389,6 +3399,20 @@ CREATE TABLE app_public.pdf_files (
 
 
 --
+-- Name: room_item_attachments; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.room_item_attachments (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    room_item_id uuid NOT NULL,
+    topic_id uuid,
+    file_id uuid,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT either_topic_or_file CHECK ((num_nonnulls(topic_id, file_id) = 1))
+);
+
+
+--
 -- Name: room_message_attachments; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -3676,6 +3700,14 @@ ALTER TABLE ONLY app_public.pdf_files
 
 
 --
+-- Name: room_item_attachments room_item_attachments_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.room_item_attachments
+    ADD CONSTRAINT room_item_attachments_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: room_items room_items_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -3852,6 +3884,34 @@ CREATE INDEX organization_invitations_user_id_idx ON app_public.organization_inv
 --
 
 CREATE INDEX organization_memberships_user_id_idx ON app_public.organization_memberships USING btree (user_id);
+
+
+--
+-- Name: room_item_attachments_on_created_at; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX room_item_attachments_on_created_at ON app_public.room_item_attachments USING brin (created_at);
+
+
+--
+-- Name: room_item_attachments_on_file_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX room_item_attachments_on_file_id ON app_public.room_item_attachments USING btree (file_id);
+
+
+--
+-- Name: room_item_attachments_on_room_item_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX room_item_attachments_on_room_item_id ON app_public.room_item_attachments USING btree (room_item_id);
+
+
+--
+-- Name: room_item_attachments_on_topic_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX room_item_attachments_on_topic_id ON app_public.room_item_attachments USING btree (topic_id);
 
 
 --
@@ -4453,6 +4513,14 @@ ALTER TABLE ONLY app_public.pdf_files
 
 
 --
+-- Name: room_item_attachments file; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.room_item_attachments
+    ADD CONSTRAINT file FOREIGN KEY (file_id) REFERENCES app_public.files(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: rooms organization; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4569,6 +4637,14 @@ COMMENT ON CONSTRAINT room ON app_public.room_items IS '@foreignFieldName items'
 
 
 --
+-- Name: room_item_attachments room_item; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.room_item_attachments
+    ADD CONSTRAINT room_item FOREIGN KEY (room_item_id) REFERENCES app_public.room_items(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: room_message_attachments room_message; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4622,6 +4698,14 @@ ALTER TABLE ONLY app_public.room_message_attachments
 
 ALTER TABLE ONLY app_public.room_items
     ADD CONSTRAINT topic FOREIGN KEY (topic_id) REFERENCES app_public.topics(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: room_item_attachments topic; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.room_item_attachments
+    ADD CONSTRAINT topic FOREIGN KEY (topic_id) REFERENCES app_public.topics(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5109,6 +5193,13 @@ GRANT USAGE ON SCHEMA app_public TO null18_cms_app_users;
 
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO null18_cms_app_users;
+
+
+--
+-- Name: TYPE room_item_attachment_type; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT ALL ON TYPE app_public.room_item_attachment_type TO null18_cms_app_users;
 
 
 --
@@ -6176,6 +6267,41 @@ GRANT INSERT(content_as_plain_text),UPDATE(content_as_plain_text) ON TABLE app_p
 --
 
 GRANT INSERT(thumbnail_id),UPDATE(thumbnail_id) ON TABLE app_public.pdf_files TO null18_cms_app_users;
+
+
+--
+-- Name: TABLE room_item_attachments; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN room_item_attachments.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN room_item_attachments.room_item_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(room_item_id) ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN room_item_attachments.topic_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(topic_id) ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
+
+
+--
+-- Name: COLUMN room_item_attachments.file_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(file_id) ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
 
 
 --

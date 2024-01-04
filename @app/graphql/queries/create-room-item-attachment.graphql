@@ -1,0 +1,14 @@
+mutation CreateRoomItemAttachment($input: RoomItemAttachmentInput!) {
+  createRoomItemAttachment(input: { roomItemAttachment: $input }) {
+    roomItem {
+      id
+      room {
+        id
+      }
+    }
+    roomItemAttachment {
+      id
+      createdAt
+    }
+  }
+}

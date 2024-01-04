@@ -1,3 +1,7 @@
+drop table if exists app_public.room_item_attachments;
+drop type if exists app_public.room_item_attachment_type;
+
+
 drop table if exists app_public.pdf_files;
 drop table if exists app_public.files;
 
