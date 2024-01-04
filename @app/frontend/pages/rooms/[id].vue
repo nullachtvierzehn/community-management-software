@@ -54,7 +54,7 @@ whenever(
   (newId) => (roomId.value = newId)
 )
 
-const room = useRoom({ id: roomId })
+const room = await useRoom({ id: roomId })
 </script>
 
 <style lang="postcss" scoped>

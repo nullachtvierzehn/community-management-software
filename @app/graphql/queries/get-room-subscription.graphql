@@ -1,0 +1,21 @@
+fragment ShortRoomSubscription on RoomSubscription {
+  subscriberId
+  subscriber {
+    id
+    ...ShortProfile
+  }
+  roomId
+  room {
+    id
+    title
+  }
+}
+
+query GetRoomSubscriptionOfUserInRoom($userId: UUID!, $roomId: UUID!) {
+  roomSubscriptionBySubscriberIdAndRoomId(
+    roomId: $roomId
+    subscriberId: $userId
+  ) {
+    ...ShortRoomSubscription
+  }
+}

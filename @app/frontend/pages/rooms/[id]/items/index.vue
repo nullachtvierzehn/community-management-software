@@ -1,6 +1,10 @@
 <template>
   <div class="container mx-auto flex justify-end">
-    <button class="btn btn_primary my-4" @click="addNewMessage()">
+    <button
+      v-if="subscription"
+      class="btn btn_primary my-4"
+      @click="addNewMessage()"
+    >
       neue Nachricht
     </button>
   </div>
@@ -60,7 +64,9 @@ definePageMeta({
   alias: ['/raeume/:id/items', '/r%C3%A4ume/:id/inhalte'],
 })
 
-const room = useRoom()
+const room = await useRoom()
+const subscription = await useSubscription()
+
 const route = useRoute()
 const router = useRouter()
 const showSearchModal = useState(() => false)

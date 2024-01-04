@@ -1,0 +1,12 @@
+mutation DeleteRoomSubscriptionByRoomAndUser($roomId: UUID!, $userId: UUID!) {
+  deleteRoomSubscriptionBySubscriberIdAndRoomId(
+    input: { roomId: $roomId, subscriberId: $userId }
+  ) {
+    roomSubscription {
+      id
+    }
+    room {
+      id
+    }
+  }
+}

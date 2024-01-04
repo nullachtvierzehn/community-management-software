@@ -6425,6 +6425,14 @@ export type DeleteRoomItemMutationVariables = Exact<{
 
 export type DeleteRoomItemMutation = { __typename?: 'Mutation', deleteRoomItem: { __typename?: 'DeleteRoomItemPayload', room: { __typename?: 'Room', id: string } | null } | null };
 
+export type DeleteRoomSubscriptionByRoomAndUserMutationVariables = Exact<{
+  roomId: Scalars['UUID']['input'];
+  userId: Scalars['UUID']['input'];
+}>;
+
+
+export type DeleteRoomSubscriptionByRoomAndUserMutation = { __typename?: 'Mutation', deleteRoomSubscriptionBySubscriberIdAndRoomId: { __typename?: 'DeleteRoomSubscriptionPayload', roomSubscription: { __typename?: 'RoomSubscription', id: string } | null, room: { __typename?: 'Room', id: string } | null } | null };
+
 export type FetchDetailedTopicsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6520,6 +6528,16 @@ export type GetRoomMessageQueryVariables = Exact<{
 
 
 export type GetRoomMessageQuery = { __typename?: 'Query', roomMessage: { __typename?: 'RoomMessage', id: string, body: string | null, sender: { __typename?: 'User', id: string, username: string } | null } | null };
+
+export type ShortRoomSubscriptionFragment = { __typename?: 'RoomSubscription', subscriberId: string, roomId: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null };
+
+export type GetRoomSubscriptionOfUserInRoomQueryVariables = Exact<{
+  userId: Scalars['UUID']['input'];
+  roomId: Scalars['UUID']['input'];
+}>;
+
+
+export type GetRoomSubscriptionOfUserInRoomQuery = { __typename?: 'Query', roomSubscriptionBySubscriberIdAndRoomId: { __typename?: 'RoomSubscription', subscriberId: string, roomId: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null } | null };
 
 export type GetRoomQueryVariables = Exact<{
   id: Scalars['UUID']['input'];
@@ -6661,6 +6679,20 @@ export const ShortProfile = gql`
   avatarUrl
 }
     `;
+export const ShortRoomSubscription = gql`
+    fragment ShortRoomSubscription on RoomSubscription {
+  subscriberId
+  subscriber {
+    id
+    ...ShortProfile
+  }
+  roomId
+  room {
+    id
+    title
+  }
+}
+    ${ShortProfile}`;
 export const RoomItemAsListItem = gql`
     fragment RoomItemAsListItem on RoomItem {
   id
@@ -6800,6 +6832,18 @@ export const CurrentUser = gql`
 export const DeleteRoomItem = gql`
     mutation DeleteRoomItem($id: UUID!) {
   deleteRoomItem(input: {id: $id}) {
+    room {
+      id
+    }
+  }
+}
+    `;
+export const DeleteRoomSubscriptionByRoomAndUser = gql`
+    mutation DeleteRoomSubscriptionByRoomAndUser($roomId: UUID!, $userId: UUID!) {
+  deleteRoomSubscriptionBySubscriberIdAndRoomId(input: {roomId: $roomId, subscriberId: $userId}) {
+    roomSubscription {
+      id
+    }
     room {
       id
     }
@@ -6983,6 +7027,13 @@ export const GetRoomMessage = gql`
   }
 }
     `;
+export const GetRoomSubscriptionOfUserInRoom = gql`
+    query GetRoomSubscriptionOfUserInRoom($userId: UUID!, $roomId: UUID!) {
+  roomSubscriptionBySubscriberIdAndRoomId(roomId: $roomId, subscriberId: $userId) {
+    ...ShortRoomSubscription
+  }
+}
+    ${ShortRoomSubscription}`;
 export const GetRoom = gql`
     query GetRoom($id: UUID!) {
   room(id: $id) {
@@ -7163,6 +7214,20 @@ export const ShortProfileFragmentDoc = gql`
   avatarUrl
 }
     `;
+export const ShortRoomSubscriptionFragmentDoc = gql`
+    fragment ShortRoomSubscription on RoomSubscription {
+  subscriberId
+  subscriber {
+    id
+    ...ShortProfile
+  }
+  roomId
+  room {
+    id
+    title
+  }
+}
+    ${ShortProfileFragmentDoc}`;
 export const RoomItemAsListItemFragmentDoc = gql`
     fragment RoomItemAsListItem on RoomItem {
   id
@@ -7339,6 +7404,22 @@ export const DeleteRoomItemDocument = gql`
 
 export function useDeleteRoomItemMutation() {
   return Urql.useMutation<DeleteRoomItemMutation, DeleteRoomItemMutationVariables>(DeleteRoomItemDocument);
+};
+export const DeleteRoomSubscriptionByRoomAndUserDocument = gql`
+    mutation DeleteRoomSubscriptionByRoomAndUser($roomId: UUID!, $userId: UUID!) {
+  deleteRoomSubscriptionBySubscriberIdAndRoomId(input: {roomId: $roomId, subscriberId: $userId}) {
+    roomSubscription {
+      id
+    }
+    room {
+      id
+    }
+  }
+}
+    `;
+
+export function useDeleteRoomSubscriptionByRoomAndUserMutation() {
+  return Urql.useMutation<DeleteRoomSubscriptionByRoomAndUserMutation, DeleteRoomSubscriptionByRoomAndUserMutationVariables>(DeleteRoomSubscriptionByRoomAndUserDocument);
 };
 export const FetchDetailedTopicsDocument = gql`
     query FetchDetailedTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
@@ -7548,6 +7629,17 @@ export const GetRoomMessageDocument = gql`
 
 export function useGetRoomMessageQuery(options: Omit<Urql.UseQueryArgs<never, GetRoomMessageQueryVariables>, 'query'>) {
   return Urql.useQuery<GetRoomMessageQuery, GetRoomMessageQueryVariables>({ query: GetRoomMessageDocument, ...options });
+};
+export const GetRoomSubscriptionOfUserInRoomDocument = gql`
+    query GetRoomSubscriptionOfUserInRoom($userId: UUID!, $roomId: UUID!) {
+  roomSubscriptionBySubscriberIdAndRoomId(roomId: $roomId, subscriberId: $userId) {
+    ...ShortRoomSubscription
+  }
+}
+    ${ShortRoomSubscriptionFragmentDoc}`;
+
+export function useGetRoomSubscriptionOfUserInRoomQuery(options: Omit<Urql.UseQueryArgs<never, GetRoomSubscriptionOfUserInRoomQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetRoomSubscriptionOfUserInRoomQuery, GetRoomSubscriptionOfUserInRoomQueryVariables>({ query: GetRoomSubscriptionOfUserInRoomDocument, ...options });
 };
 export const GetRoomDocument = gql`
     query GetRoom($id: UUID!) {

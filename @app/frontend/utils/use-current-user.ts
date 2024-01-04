@@ -30,9 +30,12 @@ export function useCurrentUser(): ActsAsPromiseLike<ComputedRef<CurrentUser>> {
 
       // add promise interface
       currentUser.then = function (onResolve, onReject) {
-        const promise = response.then((value) => {
-          return computed(() => value.data.value?.currentUser)
-        })
+        const promise = response.then(
+          (value) => computed(() => value.data.value?.currentUser),
+          (reason) => {
+            throw reason
+          }
+        )
         return promise.then(onResolve, onReject)
       }
 
