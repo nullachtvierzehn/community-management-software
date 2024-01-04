@@ -13,14 +13,14 @@
 
 <script setup lang="ts">
 import {
-  type RoomSubscription,
+  type ShortRoomSubscriptionFragment,
   useUpdateRoomSubscriptionMutation,
 } from '~/graphql'
 
 const { executeMutation, fetching } = useUpdateRoomSubscriptionMutation()
 
 const props = defineProps<{
-  value: RoomSubscription
+  value: ShortRoomSubscriptionFragment
 }>()
 
 const role = ref(props.value.role)

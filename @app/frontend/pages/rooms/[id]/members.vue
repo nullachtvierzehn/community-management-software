@@ -1,5 +1,5 @@
 <template>
-  <section v-if="!currentRoom">
+  <section v-if="!room">
     <h1>Fehler: Raum konnte nicht vollständig geladen werden.</h1>
   </section>
   <section v-else @keyup.esc="showUserModal = false">
@@ -17,7 +17,7 @@
     </Teleport>
 
     <!-- Show option to become admin of orphaned rooms. -->
-    <div v-if="currentRoom.nSubscriptions === '0' && currentUser">
+    <div v-if="room.nSubscriptions === '0' && currentUser">
       <p>Der Raum hat keine Mitglieder.</p>
       <button @click="becomeAdmin()">Ich möchte sein Admin werden.</button>
     </div>
@@ -50,7 +50,7 @@ definePageMeta({
 const route = useRoute()
 const showUserModal = ref(false)
 const currentUser = useCurrentUser()
-const currentRoom = inject(roomInjectionKey)
+const { room, subscribe } = await useRoomWithTools()
 const { executeMutation: createSubscription } =
   useCreateRoomSubscriptionMutation()
 
@@ -75,22 +75,17 @@ const memberIds = computed(
 )
 
 async function becomeAdmin() {
-  const user = toValue(currentUser)
-  const room = toValue(currentRoom)
-  if (!user) throw new Error('user is not signed in')
-  if (!room) throw new Error('room is not available')
-  await createSubscription({
-    subscription: { roomId: room.id, subscriberId: user.id, role: 'ADMIN' },
-  })
+  await subscribe('ADMIN')
   refetchSubscriptions({ requestPolicy: 'cache-and-network' })
 }
 
 async function addUserById(id: string) {
-  const room = toValue(currentRoom)
-  if (!room) throw new Error('room is not available')
-  const { data, error } = await createSubscription({
-    subscription: { roomId: room.id, subscriberId: id, role: 'MEMBER' },
+  const r = toValue(room)
+  if (!r) throw new Error('room is not available')
+  const { error } = await createSubscription({
+    subscription: { roomId: r.id, subscriberId: id, role: 'MEMBER' },
   })
+  if (error) throw error
   refetchSubscriptions({ requestPolicy: 'cache-and-network' })
 }
 </script>

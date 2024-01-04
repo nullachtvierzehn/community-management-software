@@ -1,12 +1,6 @@
-import {
-  cacheExchange,
-  Client,
-  createClient,
-  fetchExchange,
-  ssrExchange,
-} from '@urql/core'
+import { Client, createClient, fetchExchange, ssrExchange } from '@urql/core'
 import { devtoolsExchange } from '@urql/devtools'
-import { type SSRData } from '@urql/vue'
+import { cacheExchange, type SSRData } from '@urql/vue'
 import { ref } from 'vue'
 
 export default defineNuxtPlugin((nuxt) => {

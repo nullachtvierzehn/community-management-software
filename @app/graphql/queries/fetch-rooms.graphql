@@ -34,8 +34,10 @@ query FetchRooms(
         id
         contributedAt
         contributor {
+          id
           ...ShortProfile
         }
+        nthItemSinceLastVisit
       }
       mySubscription {
         id

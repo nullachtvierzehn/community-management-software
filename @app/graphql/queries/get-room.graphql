@@ -4,5 +4,14 @@ query GetRoom($id: UUID!) {
     title
     abstract
     nSubscriptions
+    latestItem {
+      id
+      contributedAt
+      contributor {
+        id
+        ...ShortProfile
+      }
+      nthItemSinceLastVisit
+    }
   }
 }

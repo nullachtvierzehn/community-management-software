@@ -1,4 +1,5 @@
 fragment ShortRoomSubscription on RoomSubscription {
+  id
   subscriberId
   subscriber {
     id
@@ -9,6 +10,9 @@ fragment ShortRoomSubscription on RoomSubscription {
     id
     title
   }
+  lastVisitAt
+  notifications
+  role
 }
 
 query GetRoomSubscriptionOfUserInRoom($userId: UUID!, $roomId: UUID!) {
@@ -16,6 +20,7 @@ query GetRoomSubscriptionOfUserInRoom($userId: UUID!, $roomId: UUID!) {
     roomId: $roomId
     subscriberId: $userId
   ) {
+    id
     ...ShortRoomSubscription
   }
 }

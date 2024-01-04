@@ -13,7 +13,6 @@ import {
   normalizeDate,
   type UseDateFormatOptions,
 } from '@vueuse/shared'
-import { update } from 'lodash'
 
 /**
 Formats a date string using the given format string.

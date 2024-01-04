@@ -14,9 +14,9 @@
   </Teleport>
 
   <!-- submitted items -->
-  <section class="container mx-auto grid gap-3">
+  <section class="container mx-auto grid gap-3 mt-4">
     <h1 class="sr-only">Inhalte</h1>
-    <template v-for="item in submittedItems" :key="item.id">
+    <template v-for="item in items" :key="item.id">
       <div
         :id="`item-${item.id}`"
         class="border-2 border-gray-300 p-4 rounded-lg w-[80%]"
@@ -46,8 +46,14 @@
         />
         <pre v-else>{{ item }}</pre>
       </div>
-      <div v-if="item.nthItemSinceLastVisit === '1'">
-        Hier war Dein letzter Besuch!
+      <div
+        v-if="item.nthItemSinceLastVisit === '1' && subscription?.lastVisitAt"
+        class="text-red-600 border-t border-red-600 text-center cursor-pointer"
+        @click="visitToNow()"
+      >
+        Zuletzt warst Du
+        {{ formatDateFromNow(subscription.lastVisitAt) }} hier. Zu den neuen
+        Nachrichten.
       </div>
     </template>
   </section>
@@ -64,21 +70,22 @@ definePageMeta({
   alias: ['/raeume/:id/items', '/r%C3%A4ume/:id/inhalte'],
 })
 
-const room = await useRoom()
-const subscription = await useSubscription()
+const currentUser = await useCurrentUser()
+const _room = await useRoom()
+const { subscription, update: updateSubscription } =
+  await useSubscriptionWithTools()
 
 const route = useRoute()
 const router = useRouter()
 const showSearchModal = useState(() => false)
 const roomId = ref(route.params.id as string)
-const currentUser = await useCurrentUser()
 const nItems = useRouteQuery<number>('n', 100, {
   transform: Number,
   mode: 'replace',
 })
 
 // fetch items
-const { data: dataOfSubmittedItems, executeQuery: refetchItems } =
+const { data: dataOfItems, executeQuery: refetch } =
   await useFetchRoomItemsQuery({
     variables: computed(() => ({
       condition: { roomId: toValue(roomId) },
@@ -88,11 +95,9 @@ const { data: dataOfSubmittedItems, executeQuery: refetchItems } =
     pause: logicNot(roomId),
   })
 
-const submittedItems = computed(
-  () => dataOfSubmittedItems.value?.roomItems?.nodes ?? []
-)
+const items = computed(() => dataOfItems.value?.roomItems?.nodes ?? [])
 
-type Item = UnwrapRef<typeof submittedItems>[0]
+type Item = UnwrapRef<typeof items>[0]
 
 function isByCurrentUser(item: Item) {
   const user = toValue(currentUser)
@@ -105,27 +110,8 @@ function isDraft(item: Item) {
   return item.contributedAt === null
 }
 
-// fetch my draft items
-const { data: dataOfMyDraftItems, executeQuery: refetchDrafts } =
-  await useFetchRoomItemsQuery({
-    pause: computed(() => !currentUser.value || !roomId.value),
-    variables: computed(() => ({
-      condition: {
-        roomId: toValue(roomId),
-        contributorId: currentUser.value?.id,
-      },
-      filter: { contributedAt: { isNull: true } },
-      orderBy: ['CREATED_AT_ASC'],
-      first: toValue(nItems),
-    })),
-  })
-
-const myDraftItems = computed(
-  () => dataOfMyDraftItems.value?.roomItems?.nodes ?? []
-)
-
-async function refetch() {
-  return Promise.allSettled([refetchItems(), refetchDrafts()])
+async function visitToNow() {
+  await updateSubscription({ lastVisitAt: new Date().toISOString() })
 }
 
 // add new items
@@ -146,22 +132,11 @@ async function addNewMessage(parent?: Item) {
       },
     },
   })
-  await refetchDrafts()
+  await refetch()
 }
 
 async function goToParent(parent: { id: string }) {
   router.push({ hash: `#item-${parent.id}` })
-}
-
-async function addNewTopic() {
-  await addMutation({
-    item: {
-      roomId: route.params.id as string,
-      type: 'TOPIC',
-      contributorId: currentUser.value?.id,
-    },
-  })
-  await refetchDrafts()
 }
 </script>
 
