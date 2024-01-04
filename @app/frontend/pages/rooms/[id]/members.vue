@@ -2,9 +2,14 @@
   <section v-if="!room">
     <h1>Fehler: Raum konnte nicht vollständig geladen werden.</h1>
   </section>
-  <section v-else @keyup.esc="showUserModal = false">
-    <h1>Mitglieder</h1>
-    <button @click="showUserModal = true">+</button>
+  <section v-else class="container mx-auto" @keyup.esc="showUserModal = false">
+    <h1 class="sr-only">Mitglieder</h1>
+
+    <div v-if="subscription?.role === 'ADMIN'" class="flex justify-end my-4">
+      <button class="btn btn_primary" @click="showUserModal = true">
+        Mitglied hinzufügen
+      </button>
+    </div>
 
     <Teleport v-if="showUserModal" to="body">
       <SearchModal
@@ -23,12 +28,17 @@
     </div>
 
     <!-- Show memberships -->
-    <div
-      v-for="subscription in subscriptions"
-      :key="subscription.subscriberId"
-      class="subscription"
-    >
-      <room-subscription :value="subscription" class="subscription__username">
+    <div class="grid grid-cols-[2fr_1fr] gap-1">
+      <div class="grid grid-cols-subgrid col-span-2 rounded-md">
+        <div class="bg-gray-300 p-4">Login-Name</div>
+        <div class="bg-gray-300 p-4">Rolle</div>
+      </div>
+      <room-subscription
+        v-for="s in subscriptions"
+        :key="s.subscriberId"
+        class="grid grid-cols-subgrid col-span-2"
+        :value="s"
+      >
       </room-subscription>
     </div>
   </section>
@@ -39,9 +49,6 @@ import {
   useCreateRoomSubscriptionMutation,
   useFetchRoomSubscriptionsQuery,
 } from '~/graphql'
-import { useCurrentUser } from '~/utils/use-current-user'
-
-import { roomInjectionKey } from '../injection-keys'
 
 definePageMeta({
   name: 'room/members',
@@ -51,6 +58,8 @@ const route = useRoute()
 const showUserModal = ref(false)
 const currentUser = useCurrentUser()
 const { room, subscribe } = await useRoomWithTools()
+const subscription = await useSubscription()
+
 const { executeMutation: createSubscription } =
   useCreateRoomSubscriptionMutation()
 
@@ -89,3 +98,30 @@ async function addUserById(id: string) {
   refetchSubscriptions({ requestPolicy: 'cache-and-network' })
 }
 </script>
+
+<style lang="postcss" scoped>
+:deep(.subscription__username),
+:deep(.subscription__role) {
+  @apply p-4;
+}
+
+:deep(.subscription__role) {
+  @apply border border-gray-700;
+}
+
+:deep(.subscription:nth-child(odd)) {
+  @apply bg-gray-100;
+
+  & .subscription__role {
+    @apply bg-gray-100;
+  }
+}
+
+:deep(.subscription:nth-child(even)) {
+  @apply bg-white;
+
+  & .subscription__role {
+    @apply bg-white;
+  }
+}
+</style>

@@ -6487,7 +6487,7 @@ export type FetchRoomSubscriptionsQueryVariables = Exact<{
 }>;
 
 
-export type FetchRoomSubscriptionsQuery = { __typename?: 'Query', roomSubscriptions: { __typename?: 'RoomSubscriptionsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, role: RoomRole, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null }> } | null };
+export type FetchRoomSubscriptionsQuery = { __typename?: 'Query', roomSubscriptions: { __typename?: 'RoomSubscriptionsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null }> } | null };
 
 export type FetchRoomsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6928,21 +6928,11 @@ export const FetchRoomSubscriptions = gql`
     }
     nodes {
       id
-      subscriberId
-      subscriber {
-        id
-        ...ShortProfile
-      }
-      roomId
-      role
-      room {
-        id
-        title
-      }
+      ...ShortRoomSubscription
     }
   }
 }
-    ${ShortProfile}`;
+    ${ShortRoomSubscription}`;
 export const FetchRooms = gql`
     query FetchRooms($after: Cursor, $before: Cursor, $condition: RoomCondition, $filter: RoomFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomsOrderBy!]) {
   rooms(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
@@ -7522,21 +7512,11 @@ export const FetchRoomSubscriptionsDocument = gql`
     }
     nodes {
       id
-      subscriberId
-      subscriber {
-        id
-        ...ShortProfile
-      }
-      roomId
-      role
-      room {
-        id
-        title
-      }
+      ...ShortRoomSubscription
     }
   }
 }
-    ${ShortProfileFragmentDoc}`;
+    ${ShortRoomSubscriptionFragmentDoc}`;
 
 export function useFetchRoomSubscriptionsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomSubscriptionsQueryVariables>, 'query'>) {
   return Urql.useQuery<FetchRoomSubscriptionsQuery, FetchRoomSubscriptionsQueryVariables>({ query: FetchRoomSubscriptionsDocument, ...options });

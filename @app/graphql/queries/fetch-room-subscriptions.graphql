@@ -25,17 +25,7 @@ query FetchRoomSubscriptions(
     }
     nodes {
       id
-      subscriberId
-      subscriber {
-        id
-        ...ShortProfile
-      }
-      roomId
-      role
-      room {
-        id
-        title
-      }
+      ...ShortRoomSubscription
     }
   }
 }

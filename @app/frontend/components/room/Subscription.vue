@@ -1,7 +1,12 @@
 <template>
-  <div>
-    <UserName :profile="value.subscriber" />
-    <select ref="roleSelect" v-model="role" :disabled="fetching">
+  <div class="subscription">
+    <UserName class="subscription__username" :profile="value.subscriber" />
+    <select
+      ref="roleSelect"
+      v-model="role"
+      class="subscription__role"
+      :disabled="fetching"
+    >
       <option value="BANNED">Gebannt</option>
       <option value="PROSPECT">Kandidat:in</option>
       <option value="MEMBER">Mitglied</option>
