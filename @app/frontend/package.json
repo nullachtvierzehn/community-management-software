@@ -55,6 +55,7 @@
     "@vueuse/router": "^10.6.1",
     "dayjs": "^1.11.10",
     "dayjs-nuxt": "^2.1.9",
+    "find-config": "^1.0.0",
     "graphql": "^16.8.1",
     "lodash": "^4.17.21",
     "remixicon": "^3.5.0",

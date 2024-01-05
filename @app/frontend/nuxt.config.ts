@@ -1,6 +1,11 @@
 import { type ModuleOptions as TailwindOptions } from '@nuxtjs/tailwindcss'
 import type autoprefixer from 'autoprefixer'
 import { type Options as CssNanoOptions } from 'cssnano'
+import { config as loadConfig } from 'dotenv'
+import findConfig from 'find-config'
+
+const configPath = findConfig('.env')
+if (configPath) loadConfig({ path: configPath })
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({

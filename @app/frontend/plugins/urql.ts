@@ -32,8 +32,16 @@ export default defineNuxtPlugin((nuxt) => {
     })
   }
 
+  const url = new URL(
+    '/graphql',
+    process.client
+      ? window.location.href
+      : process.env.ROOT_URL ??
+        `http://localhost: ${process.env.FRONTEND_PORT ?? 3000}`
+  )
+
   const client = createClient({
-    url: 'http://localhost:3000/graphql',
+    url: url.toString(),
     exchanges: [
       ...(process.env.NODE_ENV !== 'production' ? [devtoolsExchange] : []),
       cacheExchange,
