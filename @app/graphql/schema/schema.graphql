@@ -5899,6 +5899,7 @@ type RoomSubscription implements Node {
   createdAt: Datetime!
   id: UUID!
   isStarred: Boolean!
+  lastNotificationAt: Datetime
   lastVisitAt: Datetime
 
   """
@@ -5936,6 +5937,9 @@ input RoomSubscriptionCondition {
   """Checks for equality with the object’s `isStarred` field."""
   isStarred: Boolean
 
+  """Checks for equality with the object’s `lastNotificationAt` field."""
+  lastNotificationAt: Datetime
+
   """Checks for equality with the object’s `lastVisitAt` field."""
   lastVisitAt: Datetime
 
@@ -5970,6 +5974,9 @@ input RoomSubscriptionFilter {
 
   """Filter by the object’s `isStarred` field."""
   isStarred: BooleanFilter
+
+  """Filter by the object’s `lastNotificationAt` field."""
+  lastNotificationAt: DatetimeFilter
 
   """Filter by the object’s `lastVisitAt` field."""
   lastVisitAt: DatetimeFilter
@@ -6062,6 +6069,8 @@ enum RoomSubscriptionsOrderBy {
   ID_DESC
   IS_STARRED_ASC
   IS_STARRED_DESC
+  LAST_NOTIFICATION_AT_ASC
+  LAST_NOTIFICATION_AT_DESC
   LAST_VISIT_AT_ASC
   LAST_VISIT_AT_DESC
   NATURAL

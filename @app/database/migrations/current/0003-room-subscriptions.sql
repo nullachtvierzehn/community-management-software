@@ -19,6 +19,7 @@ create table app_public.room_subscriptions (
   "role" app_public.room_role not null default 'member',
   notifications app_public.notification_setting not null default 'default',
   last_visit_at timestamptz,
+  last_notification_at timestamptz,
   is_starred boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

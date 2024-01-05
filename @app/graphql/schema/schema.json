@@ -22018,6 +22018,18 @@
               "deprecationReason": null
             },
             {
+              "name": "lastNotificationAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "lastVisitAt",
               "description": null,
               "args": [],
@@ -22198,6 +22210,16 @@
               "defaultValue": null
             },
             {
+              "name": "lastNotificationAt",
+              "description": "Checks for equality with the object’s `lastNotificationAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "lastVisitAt",
               "description": "Checks for equality with the object’s `lastVisitAt` field.",
               "type": {
@@ -22312,6 +22334,16 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "BooleanFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "lastNotificationAt",
+              "description": "Filter by the object’s `lastNotificationAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -22705,6 +22737,18 @@
             },
             {
               "name": "IS_STARRED_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LAST_NOTIFICATION_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LAST_NOTIFICATION_AT_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null

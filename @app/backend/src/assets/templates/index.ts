@@ -5,6 +5,7 @@ import organizationInvite from './organization_invite.mjml'
 import passwordReset from './password_reset.mjml'
 import passwordResetUnregistered from './password_reset_unregistered.mjml'
 import verifyEmail from './verify_email.mjml'
+import roomItemNotification from './room_item_notification.mjml'
 
 export const templates = {
   account_activity: accountActivity,
@@ -14,6 +15,7 @@ export const templates = {
   password_reset_unregistered: passwordResetUnregistered,
   verify_email: verifyEmail,
   password_reset: passwordReset,
+  room_item_notification: roomItemNotification,
 } as Record<string, string | undefined>
 
 export {

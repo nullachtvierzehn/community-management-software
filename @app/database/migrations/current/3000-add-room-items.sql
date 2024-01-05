@@ -87,7 +87,6 @@ create index room_items_on_created_at on app_public.room_items using brin (creat
 create index room_items_on_updated_at on app_public.room_items (updated_at);
 create index room_items_on_contributed_at_and_room_id on app_public.room_items (contributed_at, room_id) where (contributed_at is not null);
 
-
 grant select on app_public.room_items to :DATABASE_VISITOR;
 grant insert (type, room_id, parent_id, contributor_id, "order", contributed_at, is_visible_for, is_visible_since, is_visible_since_date, message_body, topic_id) on app_public.room_items to :DATABASE_VISITOR;
 grant update ("order", parent_id, contributed_at, is_visible_for, is_visible_since, is_visible_since_date, message_body, topic_id) on app_public.room_items to :DATABASE_VISITOR;
@@ -97,6 +96,13 @@ create trigger _100_timestamps
   before insert or update on app_public.room_items
   for each row
   execute procedure app_private.tg__timestamps();
+
+create trigger _900_send_notifications
+  after insert or update of contributed_at
+  on app_public.room_items
+  for each row
+  when (NEW.contributed_at is not null)
+  execute procedure app_private.tg__add_job('room_items__send_notifications');
 
 alter table app_public.room_items enable row level security;
 

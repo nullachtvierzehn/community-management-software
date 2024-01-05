@@ -1904,6 +1904,7 @@ CREATE TABLE app_public.room_subscriptions (
     role app_public.room_role DEFAULT 'member'::app_public.room_role NOT NULL,
     notifications app_public.notification_setting DEFAULT 'default'::app_public.notification_setting NOT NULL,
     last_visit_at timestamp with time zone,
+    last_notification_at timestamp with time zone,
     is_starred boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
@@ -4370,6 +4371,13 @@ CREATE TRIGGER _500_verify_account_on_verified AFTER INSERT OR UPDATE OF is_veri
 
 
 --
+-- Name: room_items _900_send_notifications; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _900_send_notifications AFTER INSERT OR UPDATE OF contributed_at ON app_public.room_items FOR EACH ROW WHEN ((new.contributed_at IS NOT NULL)) EXECUTE FUNCTION app_private.tg__add_job('room_items__send_notifications');
+
+
+--
 -- Name: user_emails _900_send_verification_email; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -4961,7 +4969,7 @@ CREATE POLICY select_attachments ON app_public.room_message_attachments FOR SELE
 
 CREATE POLICY select_if_public_or_subscribed ON app_public.room_messages FOR SELECT USING ((EXISTS ( SELECT
    FROM (app_public.rooms r
-     LEFT JOIN LATERAL app_public.my_room_subscription(r.*) s(id, room_id, subscriber_id, role, notifications, last_visit_at, is_starred, created_at, updated_at) ON (true))
+     LEFT JOIN LATERAL app_public.my_room_subscription(r.*) s(id, room_id, subscriber_id, role, notifications, last_visit_at, last_notification_at, is_starred, created_at, updated_at) ON (true))
   WHERE ((room_messages.room_id = r.id) AND ((r.items_are_visible_since >= 'always'::app_public.room_history_visibility) OR ((r.items_are_visible_since >= 'specified_date'::app_public.room_history_visibility) AND (room_messages.created_at >= (r.items_are_visible_since_date - r.extend_visibility_of_items_by))) OR ((r.items_are_visible_since >= 'subscription'::app_public.room_history_visibility) AND (room_messages.created_at >= (s.created_at - r.extend_visibility_of_items_by))))))));
 
 
@@ -5085,7 +5093,7 @@ CREATE POLICY show_mine ON app_public.room_items FOR SELECT USING ((contributor_
 
 CREATE POLICY show_others_to_members ON app_public.room_items FOR SELECT USING ((EXISTS ( SELECT
    FROM ((app_public.rooms r
-     LEFT JOIN LATERAL app_public.my_room_subscription(in_room => r.*) s(id, room_id, subscriber_id, role, notifications, last_visit_at, is_starred, created_at, updated_at) ON (true))
+     LEFT JOIN LATERAL app_public.my_room_subscription(in_room => r.*) s(id, room_id, subscriber_id, role, notifications, last_visit_at, last_notification_at, is_starred, created_at, updated_at) ON (true))
      JOIN LATERAL ( SELECT COALESCE(room_items.is_visible_for,
                 CASE
                     WHEN (room_items.contributed_at IS NULL) THEN r.draft_items_are_visible_for

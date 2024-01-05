@@ -1911,6 +1911,8 @@ export type RoomSubscriptionFilter = {
   id?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `isStarred` field. */
   isStarred?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `lastNotificationAt` field. */
+  lastNotificationAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `lastVisitAt` field. */
   lastVisitAt?: InputMaybe<DatetimeFilter>;
   /** Negates the expression. */
@@ -3266,6 +3268,7 @@ export type RoomSubscription = Node & {
   createdAt: Scalars['Datetime']['output'];
   id: Scalars['UUID']['output'];
   isStarred: Scalars['Boolean']['output'];
+  lastNotificationAt: Maybe<Scalars['Datetime']['output']>;
   lastVisitAt: Maybe<Scalars['Datetime']['output']>;
   /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
   nodeId: Scalars['ID']['output'];
@@ -3293,6 +3296,8 @@ export type RoomSubscriptionCondition = {
   id?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `isStarred` field. */
   isStarred?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Checks for equality with the object’s `lastNotificationAt` field. */
+  lastNotificationAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `lastVisitAt` field. */
   lastVisitAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `notifications` field. */
@@ -3315,6 +3320,8 @@ export type RoomSubscriptionsOrderBy =
   | 'ID_DESC'
   | 'IS_STARRED_ASC'
   | 'IS_STARRED_DESC'
+  | 'LAST_NOTIFICATION_AT_ASC'
+  | 'LAST_NOTIFICATION_AT_DESC'
   | 'LAST_VISIT_AT_ASC'
   | 'LAST_VISIT_AT_DESC'
   | 'NATURAL'

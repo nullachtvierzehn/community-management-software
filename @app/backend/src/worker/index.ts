@@ -9,6 +9,7 @@ import user__forgot_password from './tasks/user__forgot_password.js'
 import user__forgot_password_unregistered_email from './tasks/user__forgot_password_unregistered_email.js'
 import user__send_delete_account_email from './tasks/user__send_delete_account_email.js'
 import user_emails__send_verification from './tasks/user_emails__send_verification.js'
+import room_items__send_notifications from './tasks/room_items__send_notifications.js'
 
 // Run a worker to execute jobs:
 export const runner = await run({
@@ -27,6 +28,7 @@ export const runner = await run({
     user__forgot_password_unregistered_email,
     user__send_delete_account_email,
     user_emails__send_verification,
+    room_items__send_notifications,
   },
 })
 
