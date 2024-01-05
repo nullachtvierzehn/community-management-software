@@ -7,31 +7,15 @@ import findConfig from 'find-config'
 const configPath = findConfig('.env')
 if (configPath) loadConfig({ path: configPath })
 
+const backendUrl = new URL(
+  '',
+  process.client ? window.location.href : process.env.ROOT_URL
+)
+if (process.env.NUXT_BACKEND_PORT)
+  backendUrl.port = process.env.NUXT_BACKEND_PORT
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt-alt/proxy',
-    '@nuxtjs/i18n',
-    'dayjs-nuxt',
-    '@vueuse/nuxt',
-    '@nuxtjs/tailwindcss',
-  ],
-  i18n: {
-    locales: ['de'],
-    defaultLocale: 'de',
-  },
-  dayjs: {
-    locales: ['de'],
-    plugins: ['relativeTime', 'utc', 'timezone'],
-    defaultLocale: 'de',
-    defaultTimezone: 'Europe/Berlin',
-  },
-  sourcemap: {
-    server: true,
-    client: true,
-  },
-  ssr: true,
-  devtools: { enabled: true },
   css: [
     '@vueform/multiselect/themes/default.css',
     '@fontsource-variable/merriweather-sans/wght-italic.css',
@@ -41,6 +25,32 @@ export default defineNuxtConfig({
     '@fontsource/merriweather/700.css',
     '@fontsource/merriweather/700-italic.css',
   ],
+  dayjs: {
+    locales: ['de'],
+    plugins: ['relativeTime', 'utc', 'timezone'],
+    defaultLocale: 'de',
+    defaultTimezone: 'Europe/Berlin',
+  },
+  devtools: { enabled: true },
+  i18n: {
+    locales: ['de'],
+    defaultLocale: 'de',
+  },
+  modules: [
+    '@nuxt-alt/proxy',
+    '@nuxtjs/i18n',
+    'dayjs-nuxt',
+    '@vueuse/nuxt',
+    '@nuxtjs/tailwindcss',
+  ],
+  // `proxy` is added by module @nuxt-alt/proxy, see https://github.com/nuxt-alt/proxy
+  proxy: {
+    proxies: {
+      '/backend/files': { target: backendUrl.toString(), changeOrigin: true },
+      '/graphql': { target: backendUrl.toString(), changeOrigin: true },
+      '/graphiql': { target: backendUrl.toString(), changeOrigin: true },
+    },
+  },
   postcss: {
     plugins: {
       'tailwindcss/nesting': {},
@@ -49,12 +59,9 @@ export default defineNuxtConfig({
       cssnano: {} satisfies Partial<CssNanoOptions>,
     },
   },
-  // `proxy` is added by module @nuxt-alt/proxy, see https://github.com/nuxt-alt/proxy
-  proxy: {
-    proxies: {
-      '/backend/files': { target: 'http://localhost:3001', changeOrigin: true },
-      '/graphql': { target: 'http://localhost:3001', changeOrigin: true },
-      '/graphiql': { target: 'http://localhost:3001', changeOrigin: true },
-    },
+  sourcemap: {
+    server: true,
+    client: true,
   },
+  ssr: true,
 })

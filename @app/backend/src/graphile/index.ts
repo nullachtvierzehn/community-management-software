@@ -87,7 +87,7 @@ export const preset: GraphileConfig.Preset = {
     },
   },
   grafserv: {
-    port: 3001,
+    port: parseInt(process.env.BACKEND_PORT ?? '3001'),
     watch: true,
     websockets: true,
     maskError,

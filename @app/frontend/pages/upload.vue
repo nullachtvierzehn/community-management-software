@@ -21,7 +21,7 @@ function upload() {
   // Create a new tus upload
   const upload = new Upload(file, {
     // Endpoint is the upload creation URL from your tus server
-    endpoint: 'http://localhost:3000/backend/files/',
+    endpoint: new URL('/backend/files', process.client ? window.location.href : process.env.ROOT_URL).toString(),
     // Retry delays will enable tus-js-client to automatically retry on errors
     retryDelays: [0, 3000, 5000, 10000, 20000],
     // Attach additional meta data about the file for the server

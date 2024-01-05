@@ -21,6 +21,7 @@ if not (UPLOAD_FOLDER := os.getenv("UPLOAD_FOLDER")):
 
 connector = AiopgConnector(
     host=os.getenv("DATABASE_HOST"),
+    port=os.getenv("DATABASE_PORT"),
     user=os.getenv("DATABASE_OWNER"),
     dbname=os.getenv("DATABASE_NAME"),
     password=os.getenv("DATABASE_OWNER_PASSWORD"),
@@ -30,7 +31,7 @@ connector = AiopgConnector(
 )
 
 app = App(connector=connector)
-#app.open()
+# app.open()
 
 
 @app.task(name="test")
