@@ -1,3 +1,26 @@
+fragment RoomItemAttachmentAsLink on RoomItemAttachment {
+  id
+  fileId
+  file {
+    id
+    filename
+    mimeType
+    pdfFile {
+      pages
+    }
+  }
+  topicId
+  topic {
+    title
+    slug
+    contentPreview
+    author {
+      id
+      ...ShortProfile
+    }
+  }
+}
+
 query FetchRoomItemAttachments(
   $after: Cursor
   $before: Cursor
@@ -24,26 +47,7 @@ query FetchRoomItemAttachments(
       hasPreviousPage
     }
     nodes {
-      id
-      fileId
-      file {
-        id
-        filename
-        mimeType
-        pdfFile {
-          pages
-        }
-      }
-      topicId
-      topic {
-        id
-        title
-        contentPreview
-        author {
-          id
-          ...ShortProfile
-        }
-      }
+      ...RoomItemAttachmentAsLink
     }
   }
 }

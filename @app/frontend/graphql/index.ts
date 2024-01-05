@@ -6785,6 +6785,13 @@ export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null };
 
+export type DeleteRoomItemAttachmentMutationVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type DeleteRoomItemAttachmentMutation = { __typename?: 'Mutation', deleteRoomItemAttachment: { __typename?: 'DeleteRoomItemAttachmentPayload', roomItem: { __typename?: 'RoomItem', id: string } | null } | null };
+
 export type DeleteRoomItemMutationVariables = Exact<{
   id: Scalars['UUID']['input'];
 }>;
@@ -6814,6 +6821,8 @@ export type FetchDetailedTopicsQueryVariables = Exact<{
 
 export type FetchDetailedTopicsQuery = { __typename?: 'Query', topics: { __typename?: 'TopicsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'Topic', slug: string, tags: Array<string | null>, id: string, title: string | null, license: string | null, content: any, author: { __typename?: 'User', id: string, username: string } | null }> } | null };
 
+export type RoomItemAttachmentAsLinkFragment = { __typename?: 'RoomItemAttachment', id: string, fileId: string | null, topicId: string | null, file: { __typename?: 'File', id: string, filename: string | null, mimeType: string | null, pdfFile: { __typename?: 'PdfFile', pages: number } | null } | null, topic: { __typename?: 'Topic', title: string | null, slug: string, contentPreview: any | null, author: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null };
+
 export type FetchRoomItemAttachmentsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6826,7 +6835,7 @@ export type FetchRoomItemAttachmentsQueryVariables = Exact<{
 }>;
 
 
-export type FetchRoomItemAttachmentsQuery = { __typename?: 'Query', roomItemAttachments: { __typename?: 'RoomItemAttachmentsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItemAttachment', id: string, fileId: string | null, topicId: string | null, file: { __typename?: 'File', id: string, filename: string | null, mimeType: string | null, pdfFile: { __typename?: 'PdfFile', pages: number } | null } | null, topic: { __typename?: 'Topic', id: string, title: string | null, contentPreview: any | null, author: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null }> } | null };
+export type FetchRoomItemAttachmentsQuery = { __typename?: 'Query', roomItemAttachments: { __typename?: 'RoomItemAttachmentsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItemAttachment', id: string, fileId: string | null, topicId: string | null, file: { __typename?: 'File', id: string, filename: string | null, mimeType: string | null, pdfFile: { __typename?: 'PdfFile', pages: number } | null } | null, topic: { __typename?: 'Topic', title: string | null, slug: string, contentPreview: any | null, author: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null }> } | null };
 
 export type FetchRoomItemsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6840,7 +6849,7 @@ export type FetchRoomItemsQueryVariables = Exact<{
 }>;
 
 
-export type FetchRoomItemsQuery = { __typename?: 'Query', roomItems: { __typename?: 'RoomItemsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, parentId: string | null, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, nthItemSinceLastVisit: any | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string, type: RoomItemType, createdAt: string, contributedAt: string | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null }> } | null };
+export type FetchRoomItemsQuery = { __typename?: 'Query', roomItems: { __typename?: 'RoomItemsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, parentId: string | null, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, nthItemSinceLastVisit: any | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string, type: RoomItemType, createdAt: string, contributedAt: string | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null, roomItemAttachments: { __typename?: 'RoomItemAttachmentsConnection', nodes: Array<{ __typename?: 'RoomItemAttachment', id: string, fileId: string | null, topicId: string | null, file: { __typename?: 'File', id: string, filename: string | null, mimeType: string | null, pdfFile: { __typename?: 'PdfFile', pages: number } | null } | null, topic: { __typename?: 'Topic', title: string | null, slug: string, contentPreview: any | null, author: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null }> } }> } | null };
 
 export type FetchRoomMessagesQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -6999,7 +7008,7 @@ export type ResetPasswordMutationVariables = Exact<{
 
 export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: { __typename?: 'ResetPasswordPayload', success: boolean | null } | null };
 
-export type RoomItemAsListItemFragment = { __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, parentId: string | null, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, nthItemSinceLastVisit: any | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string, type: RoomItemType, createdAt: string, contributedAt: string | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null };
+export type RoomItemAsListItemFragment = { __typename?: 'RoomItem', id: string, type: RoomItemType, order: number, parentId: string | null, messageBody: any | null, updatedAt: string, contributedAt: string | null, isVisibleFor: RoomRole | null, isVisibleSince: RoomHistoryVisibility | null, isVisibleSinceDate: string | null, nthItemSinceLastVisit: any | null, children: { __typename?: 'RoomItemsConnection', totalCount: number }, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, parent: { __typename?: 'RoomItem', id: string, type: RoomItemType, createdAt: string, contributedAt: string | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, room: { __typename?: 'Room', id: string, itemsAreVisibleFor: RoomRole, itemsAreVisibleSince: RoomHistoryVisibility, itemsAreVisibleSinceDate: string } | null, topic: { __typename?: 'Topic', id: string, title: string | null, slug: string, contentPreview: any | null } | null, roomItemAttachments: { __typename?: 'RoomItemAttachmentsConnection', nodes: Array<{ __typename?: 'RoomItemAttachment', id: string, fileId: string | null, topicId: string | null, file: { __typename?: 'File', id: string, filename: string | null, mimeType: string | null, pdfFile: { __typename?: 'PdfFile', pages: number } | null } | null, topic: { __typename?: 'Topic', title: string | null, slug: string, contentPreview: any | null, author: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null }> } };
 
 export type ShortProfileFragment = { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null };
 
@@ -7080,6 +7089,30 @@ export const ShortRoomSubscription = gql`
   updatedAt
 }
     ${ShortProfile}`;
+export const RoomItemAttachmentAsLink = gql`
+    fragment RoomItemAttachmentAsLink on RoomItemAttachment {
+  id
+  fileId
+  file {
+    id
+    filename
+    mimeType
+    pdfFile {
+      pages
+    }
+  }
+  topicId
+  topic {
+    title
+    slug
+    contentPreview
+    author {
+      id
+      ...ShortProfile
+    }
+  }
+}
+    ${ShortProfile}`;
 export const RoomItemAsListItem = gql`
     fragment RoomItemAsListItem on RoomItem {
   id
@@ -7115,6 +7148,12 @@ export const RoomItemAsListItem = gql`
     slug
     contentPreview
   }
+  roomItemAttachments(orderBy: [CREATED_AT_ASC]) {
+    nodes {
+      id
+      ...RoomItemAttachmentAsLink
+    }
+  }
   messageBody
   updatedAt
   contributedAt
@@ -7123,7 +7162,8 @@ export const RoomItemAsListItem = gql`
   isVisibleSinceDate
   nthItemSinceLastVisit
 }
-    ${ShortProfile}`;
+    ${ShortProfile}
+${RoomItemAttachmentAsLink}`;
 export const ChangePassword = gql`
     mutation ChangePassword($oldPassword: String!, $newPassword: String!) {
   changePassword(input: {oldPassword: $oldPassword, newPassword: $newPassword}) {
@@ -7232,6 +7272,15 @@ export const CurrentUser = gql`
   }
 }
     ${ShortProfile}`;
+export const DeleteRoomItemAttachment = gql`
+    mutation DeleteRoomItemAttachment($id: UUID!) {
+  deleteRoomItemAttachment(input: {id: $id}) {
+    roomItem {
+      id
+    }
+  }
+}
+    `;
 export const DeleteRoomItem = gql`
     mutation DeleteRoomItem($id: UUID!) {
   deleteRoomItem(input: {id: $id}) {
@@ -7285,30 +7334,11 @@ export const FetchRoomItemAttachments = gql`
       hasPreviousPage
     }
     nodes {
-      id
-      fileId
-      file {
-        id
-        filename
-        mimeType
-        pdfFile {
-          pages
-        }
-      }
-      topicId
-      topic {
-        id
-        title
-        contentPreview
-        author {
-          id
-          ...ShortProfile
-        }
-      }
+      ...RoomItemAttachmentAsLink
     }
   }
 }
-    ${ShortProfile}`;
+    ${RoomItemAttachmentAsLink}`;
 export const FetchRoomItems = gql`
     query FetchRoomItems($after: Cursor, $before: Cursor, $condition: RoomItemCondition, $filter: RoomItemFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomItemsOrderBy!]) {
   roomItems(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
@@ -7670,6 +7700,30 @@ export const ShortRoomSubscriptionFragmentDoc = gql`
   updatedAt
 }
     ${ShortProfileFragmentDoc}`;
+export const RoomItemAttachmentAsLinkFragmentDoc = gql`
+    fragment RoomItemAttachmentAsLink on RoomItemAttachment {
+  id
+  fileId
+  file {
+    id
+    filename
+    mimeType
+    pdfFile {
+      pages
+    }
+  }
+  topicId
+  topic {
+    title
+    slug
+    contentPreview
+    author {
+      id
+      ...ShortProfile
+    }
+  }
+}
+    ${ShortProfileFragmentDoc}`;
 export const RoomItemAsListItemFragmentDoc = gql`
     fragment RoomItemAsListItem on RoomItem {
   id
@@ -7705,6 +7759,12 @@ export const RoomItemAsListItemFragmentDoc = gql`
     slug
     contentPreview
   }
+  roomItemAttachments(orderBy: [CREATED_AT_ASC]) {
+    nodes {
+      id
+      ...RoomItemAttachmentAsLink
+    }
+  }
   messageBody
   updatedAt
   contributedAt
@@ -7713,7 +7773,8 @@ export const RoomItemAsListItemFragmentDoc = gql`
   isVisibleSinceDate
   nthItemSinceLastVisit
 }
-    ${ShortProfileFragmentDoc}`;
+    ${ShortProfileFragmentDoc}
+${RoomItemAttachmentAsLinkFragmentDoc}`;
 export const ChangePasswordDocument = gql`
     mutation ChangePassword($oldPassword: String!, $newPassword: String!) {
   changePassword(input: {oldPassword: $oldPassword, newPassword: $newPassword}) {
@@ -7854,6 +7915,19 @@ export const CurrentUserDocument = gql`
 export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, CurrentUserQueryVariables>, 'query'>) {
   return Urql.useQuery<CurrentUserQuery, CurrentUserQueryVariables>({ query: CurrentUserDocument, ...options });
 };
+export const DeleteRoomItemAttachmentDocument = gql`
+    mutation DeleteRoomItemAttachment($id: UUID!) {
+  deleteRoomItemAttachment(input: {id: $id}) {
+    roomItem {
+      id
+    }
+  }
+}
+    `;
+
+export function useDeleteRoomItemAttachmentMutation() {
+  return Urql.useMutation<DeleteRoomItemAttachmentMutation, DeleteRoomItemAttachmentMutationVariables>(DeleteRoomItemAttachmentDocument);
+};
 export const DeleteRoomItemDocument = gql`
     mutation DeleteRoomItem($id: UUID!) {
   deleteRoomItem(input: {id: $id}) {
@@ -7919,30 +7993,11 @@ export const FetchRoomItemAttachmentsDocument = gql`
       hasPreviousPage
     }
     nodes {
-      id
-      fileId
-      file {
-        id
-        filename
-        mimeType
-        pdfFile {
-          pages
-        }
-      }
-      topicId
-      topic {
-        id
-        title
-        contentPreview
-        author {
-          id
-          ...ShortProfile
-        }
-      }
+      ...RoomItemAttachmentAsLink
     }
   }
 }
-    ${ShortProfileFragmentDoc}`;
+    ${RoomItemAttachmentAsLinkFragmentDoc}`;
 
 export function useFetchRoomItemAttachmentsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomItemAttachmentsQueryVariables>, 'query'>) {
   return Urql.useQuery<FetchRoomItemAttachmentsQuery, FetchRoomItemAttachmentsQueryVariables>({ query: FetchRoomItemAttachmentsDocument, ...options });

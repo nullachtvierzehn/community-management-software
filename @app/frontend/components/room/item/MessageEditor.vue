@@ -64,15 +64,44 @@
       </Teleport>
 
       <div v-if="attachments.length">
-        <div v-for="attachment in attachments" :key="attachment.id">
-          <pre>{{ attachment }}</pre>
-        </div>
+        <template v-for="attachment in attachments" :key="attachment.id">
+          <div class="relative">
+            <button
+              class="bg-gray-700 text-white p-1 rounded-full absolute right-2 top-2"
+              @click="deleteAttachmentById(attachment.id)"
+            >
+              <i class="ri-close-line"></i>
+            </button>
+            <div
+              v-if="attachment.topic"
+              class="bg-green-300 p-2 overflow-hidden rounded-md shadow-md max-h-32"
+            >
+              <NuxtLink
+                :to="{
+                  name: 'topic/show',
+                  params: { slug: attachment.topic?.slug.split('/') },
+                }"
+              >
+                <tiptap-viewer
+                  v-if="attachment.topic.contentPreview"
+                  class="room-item__content room-item__topic"
+                  :content="attachment.topic.contentPreview"
+                />
+              </NuxtLink>
+            </div>
+          </div>
+        </template>
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-between mt-4 items-center">
-        <div class="block">
-          <button @click="showSearchModal = true">A</button>
+      <div class="flex justify-between mt-4 items-stretch">
+        <div class="flex items-center">
+          <button
+            class="bg-gray-300 text-black p-1 rounded-full shadow-md"
+            @click="showSearchModal = true"
+          >
+            <i class="ri-attachment-line"></i>
+          </button>
         </div>
         <div class="btn-bar justify-end">
           <button
@@ -111,11 +140,11 @@ import { z } from 'zod'
 
 import {
   type RoomItemAsListItemFragment,
-  type RoomItemAttachment,
   type RoomItemAttachmentInput,
   type RoomItemPatch,
   type TextsearchMatch,
   useCreateRoomItemAttachmentMutation,
+  useDeleteRoomItemAttachmentMutation,
   useDeleteRoomItemMutation,
   useFetchRoomItemAttachmentsQuery,
   useUpdateRoomItemMutation,
@@ -126,6 +155,12 @@ const props = defineProps<{
 }>()
 
 // fetch attachments
+const { executeMutation: createAttachmentMutation } =
+  useCreateRoomItemAttachmentMutation()
+
+const { executeMutation: deleteAttachmentMutation } =
+  useDeleteRoomItemAttachmentMutation()
+
 const showSearchModal = useState(() => false)
 
 const { data: attachmentData, executeQuery: refetchAttachments } =
@@ -140,7 +175,9 @@ const attachments = computed(
   () => attachmentData.value?.roomItemAttachments?.nodes ?? []
 )
 
-async function addAttachment(match: TextsearchMatch) {
+async function addAttachment(match?: TextsearchMatch) {
+  if (!match) throw new Error('undefined match')
+
   const input: RoomItemAttachmentInput = { roomItemId: props.modelValue.id }
 
   switch (match.type) {
@@ -156,6 +193,14 @@ async function addAttachment(match: TextsearchMatch) {
   if (error) throw error
   refetchAttachments({ requestPolicy: 'cache-and-network' })
   showSearchModal.value = false
+}
+
+async function deleteAttachmentById(id: string) {
+  if (window.confirm('Wollen Sie den Anhang löschen?')) {
+    const { error } = await deleteAttachmentMutation({ id })
+    if (error) throw error
+    refetchAttachments({ requestPolicy: 'cache-and-network' })
+  }
 }
 
 // define form to update message
@@ -222,8 +267,6 @@ syncRef(
 // Save updated messageBody to the modelValue.
 const { executeMutation: updateMutation } = useUpdateRoomItemMutation()
 const { executeMutation: deleteMutation } = useDeleteRoomItemMutation()
-const { executeMutation: createAttachmentMutation } =
-  useCreateRoomItemAttachmentMutation()
 
 async function deleteItem() {
   if (window.confirm('Die Nachricht wirklich löschen?')) {

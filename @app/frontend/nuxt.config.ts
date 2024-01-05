@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     '@fontsource/merriweather/400-italic.css',
     '@fontsource/merriweather/700.css',
     '@fontsource/merriweather/700-italic.css',
+    'remixicon/fonts/remixicon.css',
   ],
   dayjs: {
     locales: ['de'],

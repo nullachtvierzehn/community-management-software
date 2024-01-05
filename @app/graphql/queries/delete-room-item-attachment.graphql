@@ -1,0 +1,7 @@
+mutation DeleteRoomItemAttachment($id: UUID!) {
+  deleteRoomItemAttachment(input: { id: $id }) {
+    roomItem {
+      id
+    }
+  }
+}

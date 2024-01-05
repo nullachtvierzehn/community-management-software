@@ -32,6 +32,12 @@ fragment RoomItemAsListItem on RoomItem {
     slug
     contentPreview
   }
+  roomItemAttachments(orderBy: [CREATED_AT_ASC]) {
+    nodes {
+      id
+      ...RoomItemAttachmentAsLink
+    }
+  }
   messageBody
   updatedAt
   contributedAt
