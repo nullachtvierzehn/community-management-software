@@ -92,6 +92,27 @@ grant insert (type, room_id, parent_id, contributor_id, "order", contributed_at,
 grant update ("order", parent_id, contributed_at, is_visible_for, is_visible_since, is_visible_since_date, message_body, topic_id) on app_public.room_items to :DATABASE_VISITOR;
 grant delete on app_public.room_items to :DATABASE_VISITOR;
 
+create or replace function app_hidden.increment_last_visit_when_contributing_items()
+  returns trigger
+  language plpgsql
+  volatile
+  security definer
+  set search_path = pg_catalog, public, pg_temp
+as $$
+declare
+  item alias for new;
+begin
+  update app_public.room_subscriptions 
+    set last_visit_at = greatest(last_visit_at, item.contributed_at)
+  where 
+    subscriber_id = item.contributor_id
+    and room_id = item.room_id
+    and item.contributed_at is not null;
+    
+  return new;
+end;
+$$;
+
 create trigger _100_timestamps
   before insert or update on app_public.room_items
   for each row
@@ -103,6 +124,13 @@ create trigger _900_send_notifications
   for each row
   when (NEW.contributed_at is not null)
   execute procedure app_private.tg__add_job('room_items__send_notifications');
+
+create trigger _800_increment_last_visit_when_contributing_items
+  after insert or update of contributed_at
+  on app_public.room_items
+  for each row
+  when (NEW.contributed_at is not null)
+  execute procedure app_hidden.increment_last_visit_when_contributing_items();
 
 alter table app_public.room_items enable row level security;
 

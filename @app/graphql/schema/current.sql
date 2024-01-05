@@ -286,6 +286,29 @@ CREATE TYPE procrastinate.procrastinate_job_status AS ENUM (
 
 
 --
+-- Name: increment_last_visit_when_contributing_items(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.increment_last_visit_when_contributing_items() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+declare
+  item alias for new;
+begin
+  update app_public.room_subscriptions 
+    set last_visit_at = greatest(last_visit_at, item.contributed_at)
+  where 
+    subscriber_id = item.contributor_id
+    and room_id = item.room_id
+    and item.contributed_at is not null;
+    
+  return new;
+end;
+$$;
+
+
+--
 -- Name: tiptap_document_as_plain_text(jsonb); Type: FUNCTION; Schema: app_hidden; Owner: -
 --
 
@@ -4371,6 +4394,13 @@ CREATE TRIGGER _500_verify_account_on_verified AFTER INSERT OR UPDATE OF is_veri
 
 
 --
+-- Name: room_items _800_increment_last_visit_when_contributing_items; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _800_increment_last_visit_when_contributing_items AFTER INSERT OR UPDATE OF contributed_at ON app_public.room_items FOR EACH ROW WHEN ((new.contributed_at IS NOT NULL)) EXECUTE FUNCTION app_hidden.increment_last_visit_when_contributing_items();
+
+
+--
 -- Name: room_items _900_send_notifications; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -5222,6 +5252,14 @@ GRANT ALL ON TYPE app_public.textsearchable_entity TO null814_cms_app_users;
 --
 
 GRANT ALL ON TYPE app_public.textsearch_match TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION increment_last_visit_when_contributing_items(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.increment_last_visit_when_contributing_items() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.increment_last_visit_when_contributing_items() TO null814_cms_app_users;
 
 
 --
