@@ -1,0 +1,49 @@
+query FetchRoomItemAttachments(
+  $after: Cursor
+  $before: Cursor
+  $condition: RoomItemAttachmentCondition
+  $filter: RoomItemAttachmentFilter
+  $first: Int
+  $last: Int
+  $offset: Int
+  $orderBy: [RoomItemAttachmentsOrderBy!]
+) {
+  roomItemAttachments(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      id
+      fileId
+      file {
+        id
+        filename
+        mimeType
+        pdfFile {
+          pages
+        }
+      }
+      topicId
+      topic {
+        id
+        title
+        contentPreview
+        author {
+          id
+          ...ShortProfile
+        }
+      }
+    }
+  }
+}

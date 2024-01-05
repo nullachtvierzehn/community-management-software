@@ -54,29 +54,49 @@
         </div>
       </div>
 
+      <!-- Attachments -->
+      <Teleport v-if="showSearchModal" to="body">
+        <SearchModal
+          v-model:show="showSearchModal"
+          :entities="['TOPIC']"
+          @click-match="addAttachment($event)"
+        />
+      </Teleport>
+
+      <div v-if="attachments.length">
+        <div v-for="attachment in attachments" :key="attachment.id">
+          <pre>{{ attachment }}</pre>
+        </div>
+      </div>
+
       <!-- Actions -->
-      <div class="btn-bar mt-4 justify-end">
-        <button
-          type="button"
-          class="btn bg-gray-300 text-gray-700"
-          @click="deleteItem()"
-        >
-          löschen
-        </button>
-        <button
-          type="submit"
-          class="btn bg-gray-300 text-gray-700"
-          @click="action = 'draft'"
-        >
-          speichern
-        </button>
-        <button
-          type="submit"
-          class="btn btn_primary"
-          @click="action = 'submit'"
-        >
-          abschicken
-        </button>
+      <div class="flex justify-between mt-4 items-center">
+        <div class="block">
+          <button @click="showSearchModal = true">A</button>
+        </div>
+        <div class="btn-bar justify-end">
+          <button
+            type="button"
+            class="btn bg-gray-300 text-gray-700"
+            @click="deleteItem()"
+          >
+            löschen
+          </button>
+          <button
+            type="submit"
+            class="btn bg-gray-300 text-gray-700"
+            @click="action = 'draft'"
+          >
+            speichern
+          </button>
+          <button
+            type="submit"
+            class="btn btn_primary"
+            @click="action = 'submit'"
+          >
+            abschicken
+          </button>
+        </div>
       </div>
     </form>
   </div>
@@ -91,8 +111,13 @@ import { z } from 'zod'
 
 import {
   type RoomItemAsListItemFragment,
+  type RoomItemAttachment,
+  type RoomItemAttachmentInput,
   type RoomItemPatch,
+  type TextsearchMatch,
+  useCreateRoomItemAttachmentMutation,
   useDeleteRoomItemMutation,
+  useFetchRoomItemAttachmentsQuery,
   useUpdateRoomItemMutation,
 } from '~/graphql'
 
@@ -100,6 +125,40 @@ const props = defineProps<{
   modelValue: RoomItemAsListItemFragment
 }>()
 
+// fetch attachments
+const showSearchModal = useState(() => false)
+
+const { data: attachmentData, executeQuery: refetchAttachments } =
+  await useFetchRoomItemAttachmentsQuery({
+    variables: computed(() => ({
+      condition: { roomItemId: props.modelValue.id },
+      orderBy: ['CREATED_AT_ASC'],
+    })),
+  })
+
+const attachments = computed(
+  () => attachmentData.value?.roomItemAttachments?.nodes ?? []
+)
+
+async function addAttachment(match: TextsearchMatch) {
+  const input: RoomItemAttachmentInput = { roomItemId: props.modelValue.id }
+
+  switch (match.type) {
+    case 'TOPIC':
+      input.topicId = match.id
+      break
+  }
+
+  const { error } = await createAttachmentMutation({
+    input,
+  })
+
+  if (error) throw error
+  refetchAttachments({ requestPolicy: 'cache-and-network' })
+  showSearchModal.value = false
+}
+
+// define form to update message
 const {
   defineField,
   meta,
@@ -163,6 +222,8 @@ syncRef(
 // Save updated messageBody to the modelValue.
 const { executeMutation: updateMutation } = useUpdateRoomItemMutation()
 const { executeMutation: deleteMutation } = useDeleteRoomItemMutation()
+const { executeMutation: createAttachmentMutation } =
+  useCreateRoomItemAttachmentMutation()
 
 async function deleteItem() {
   if (window.confirm('Die Nachricht wirklich löschen?')) {

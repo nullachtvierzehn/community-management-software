@@ -6814,6 +6814,20 @@ export type FetchDetailedTopicsQueryVariables = Exact<{
 
 export type FetchDetailedTopicsQuery = { __typename?: 'Query', topics: { __typename?: 'TopicsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'Topic', slug: string, tags: Array<string | null>, id: string, title: string | null, license: string | null, content: any, author: { __typename?: 'User', id: string, username: string } | null }> } | null };
 
+export type FetchRoomItemAttachmentsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RoomItemAttachmentCondition>;
+  filter?: InputMaybe<RoomItemAttachmentFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RoomItemAttachmentsOrderBy> | RoomItemAttachmentsOrderBy>;
+}>;
+
+
+export type FetchRoomItemAttachmentsQuery = { __typename?: 'Query', roomItemAttachments: { __typename?: 'RoomItemAttachmentsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ __typename?: 'RoomItemAttachment', id: string, fileId: string | null, topicId: string | null, file: { __typename?: 'File', id: string, filename: string | null, mimeType: string | null, pdfFile: { __typename?: 'PdfFile', pages: number } | null } | null, topic: { __typename?: 'Topic', id: string, title: string | null, contentPreview: any | null, author: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null }> } | null };
+
 export type FetchRoomItemsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -7262,6 +7276,39 @@ export const FetchDetailedTopics = gql`
   }
 }
     `;
+export const FetchRoomItemAttachments = gql`
+    query FetchRoomItemAttachments($after: Cursor, $before: Cursor, $condition: RoomItemAttachmentCondition, $filter: RoomItemAttachmentFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomItemAttachmentsOrderBy!]) {
+  roomItemAttachments(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      id
+      fileId
+      file {
+        id
+        filename
+        mimeType
+        pdfFile {
+          pages
+        }
+      }
+      topicId
+      topic {
+        id
+        title
+        contentPreview
+        author {
+          id
+          ...ShortProfile
+        }
+      }
+    }
+  }
+}
+    ${ShortProfile}`;
 export const FetchRoomItems = gql`
     query FetchRoomItems($after: Cursor, $before: Cursor, $condition: RoomItemCondition, $filter: RoomItemFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomItemsOrderBy!]) {
   roomItems(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
@@ -7862,6 +7909,43 @@ export const FetchDetailedTopicsDocument = gql`
 
 export function useFetchDetailedTopicsQuery(options: Omit<Urql.UseQueryArgs<never, FetchDetailedTopicsQueryVariables>, 'query'>) {
   return Urql.useQuery<FetchDetailedTopicsQuery, FetchDetailedTopicsQueryVariables>({ query: FetchDetailedTopicsDocument, ...options });
+};
+export const FetchRoomItemAttachmentsDocument = gql`
+    query FetchRoomItemAttachments($after: Cursor, $before: Cursor, $condition: RoomItemAttachmentCondition, $filter: RoomItemAttachmentFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomItemAttachmentsOrderBy!]) {
+  roomItemAttachments(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+    nodes {
+      id
+      fileId
+      file {
+        id
+        filename
+        mimeType
+        pdfFile {
+          pages
+        }
+      }
+      topicId
+      topic {
+        id
+        title
+        contentPreview
+        author {
+          id
+          ...ShortProfile
+        }
+      }
+    }
+  }
+}
+    ${ShortProfileFragmentDoc}`;
+
+export function useFetchRoomItemAttachmentsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomItemAttachmentsQueryVariables>, 'query'>) {
+  return Urql.useQuery<FetchRoomItemAttachmentsQuery, FetchRoomItemAttachmentsQueryVariables>({ query: FetchRoomItemAttachmentsDocument, ...options });
 };
 export const FetchRoomItemsDocument = gql`
     query FetchRoomItems($after: Cursor, $before: Cursor, $condition: RoomItemCondition, $filter: RoomItemFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [RoomItemsOrderBy!]) {

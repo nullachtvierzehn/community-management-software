@@ -52,32 +52,62 @@
       <template v-for="item in items" :key="item.id">
         <div
           :id="`item-${item.id}`"
-          class="border-2 border-gray-300 p-4 rounded-lg w-[80%]"
-          :class="{ 'justify-self-end': isByCurrentUser(item) }"
+          class="grid gap-4"
+          :class="{
+            'grid-cols-[0.2fr_0.8fr]': isByCurrentUser(item),
+            'grid-cols-[0.8fr_0.2fr]': !isByCurrentUser(item),
+          }"
         >
-          <RoomItemMessageEditor
-            v-if="
-              item.type === 'MESSAGE' && isDraft(item) && isByCurrentUser(item)
-            "
-            :model-value="item"
-          />
-          <RoomItemMessageViewer
-            v-else-if="item.type === 'MESSAGE'"
-            :model-value="item"
-            @respond="addNewMessage(item)"
-            @go-to-parent="goToParent($event)"
-          />
-          <RoomItemTopicEditor
-            v-else-if="
-              item.type === 'TOPIC' && isDraft(item) && isByCurrentUser(item)
-            "
-            :model-value="item"
-          />
-          <RoomItemTopicViewer
-            v-else-if="item.type === 'TOPIC'"
-            :model-value="item"
-          />
-          <pre v-else>{{ item }}</pre>
+          <div
+            class="border-2 border-gray-300 p-4 rounded-lg"
+            :class="{
+              'order-2': isByCurrentUser(item),
+              'order-1': !isByCurrentUser(item),
+            }"
+          >
+            <RoomItemMessageEditor
+              v-if="
+                item.type === 'MESSAGE' &&
+                isDraft(item) &&
+                isByCurrentUser(item)
+              "
+              :model-value="item"
+            />
+            <RoomItemMessageViewer
+              v-else-if="item.type === 'MESSAGE'"
+              :model-value="item"
+              @respond="addNewMessage(item)"
+              @go-to-parent="goToParent($event)"
+            />
+            <RoomItemTopicEditor
+              v-else-if="
+                item.type === 'TOPIC' && isDraft(item) && isByCurrentUser(item)
+              "
+              :model-value="item"
+            />
+            <RoomItemTopicViewer
+              v-else-if="item.type === 'TOPIC'"
+              :model-value="item"
+            />
+            <pre v-else>{{ item }}</pre>
+          </div>
+          <nav
+            class="grid self-start"
+            :class="{
+              'order-1 justify-self-end': isByCurrentUser(item),
+              'order-2 justify-self-start': !isByCurrentUser(item),
+            }"
+          >
+            <button
+              v-if="!isByCurrentUser(item)"
+              class="mt-3 p-3 bg-gray-700 rounded-full"
+              @click="addNewMessage(item)"
+            >
+              <svg class="remix fill-white w-4 h-4">
+                <use :xlink:href="`${remixiconUrl}#ri-question-answer-line`" />
+              </svg>
+            </button>
+          </nav>
         </div>
         <div
           v-if="item.nthItemSinceLastVisit === '1' && subscription?.lastVisitAt"
@@ -95,6 +125,7 @@
 
 <script lang="ts" setup>
 import { useRouteQuery } from '@vueuse/router'
+import remixiconUrl from 'remixicon/fonts/remixicon.symbol.svg'
 import type { UnwrapRef } from 'vue'
 
 import { useCreateRoomItemMutation, useFetchRoomItemsQuery } from '~/graphql'
