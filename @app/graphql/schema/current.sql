@@ -191,7 +191,9 @@ CREATE TYPE app_public.room_visibility AS ENUM (
 CREATE TYPE app_public.textsearchable_entity AS ENUM (
     'user',
     'topic',
-    'room'
+    'room',
+    'document',
+    'file'
 );
 
 

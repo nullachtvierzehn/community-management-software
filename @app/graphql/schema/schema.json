@@ -24954,6 +24954,18 @@
           "interfaces": null,
           "enumValues": [
             {
+              "name": "DOCUMENT",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "FILE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "ROOM",
               "description": null,
               "isDeprecated": false,

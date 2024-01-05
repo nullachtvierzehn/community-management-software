@@ -4,7 +4,7 @@ drop type if exists
   app_public.textsearchable_entity, 
   app_public.textsearch_match cascade;
 
-create type app_public.textsearchable_entity as enum ('user', 'topic', 'room');
+create type app_public.textsearchable_entity as enum ('user', 'topic', 'room', 'document', 'file');
 
 create type app_public.textsearch_match as (
   id uuid,

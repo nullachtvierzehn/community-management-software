@@ -3665,6 +3665,8 @@ export type TextsearchMatchCondition = {
 };
 
 export type TextsearchableEntity =
+  | 'DOCUMENT'
+  | 'FILE'
   | 'ROOM'
   | 'TOPIC'
   | 'USER';

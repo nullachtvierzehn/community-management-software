@@ -6637,6 +6637,8 @@ enum TextsearchMatchesOrderBy {
 }
 
 enum TextsearchableEntity {
+  DOCUMENT
+  FILE
   ROOM
   TOPIC
   USER
