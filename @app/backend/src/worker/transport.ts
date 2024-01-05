@@ -1,9 +1,22 @@
 import { promises as fsp } from 'fs'
 import * as nodemailer from 'nodemailer'
+import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js'
 
 const { readFile, writeFile } = fsp
 
-const smtp = null // originally from @app/config
+const smtp: SMTPTransport.Options = {
+  from: `A-Friend-Team ${process.env.SMTP_USER}`,
+  sender: process.env.SMTP_USER,
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT ?? '587'),
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
+  tls: {
+    rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED_CERTS !== 'false',
+  },
+} // originally from @app/config
 const isTest = process.env.NODE_ENV === 'test'
 const isDev = process.env.NODE_ENV !== 'production'
 

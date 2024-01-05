@@ -18,7 +18,7 @@ declare module global {
 
 global.TEST_EMAILS = []
 
-const fromEmail = 'timo.stolz@nullachtvierzehn.de'
+const fromEmail = process.env.SMTP_USER
 const projectName = 'test'
 const legalText = 'sdfjksdfl'
 
@@ -64,6 +64,8 @@ const task: Task = async (inPayload) => {
         `Development email preview: \x1B[34m\x1B[4m${url}\x1B[24m\x1B[39m`
       )
     }
+  } else {
+    console.log(`Mail sent: ${JSON.stringify(info)}`)
   }
 }
 

@@ -131,6 +131,34 @@ const answers = await inquirer.prompt(
       message: 'This is where file uploads are stored.',
       default: (answers) => path.join(process.cwd(), 'uploads'),
     },
+    {
+      type: 'input',
+      name: 'SMTP_HOST',
+      message: 'Hostname for sending e-mails via SMTP:',
+    },
+    {
+      type: 'number',
+      name: 'SMTP_PORT',
+      message: 'SMTP port:',
+      default: 587,
+    },
+    {
+      type: 'input',
+      name: 'SMTP_USER',
+      message: 'SMTP username:',
+    },
+    {
+      type: 'password',
+      name: 'SMTP_PASSWORD',
+      message: 'SMTP password:',
+      mask: true,
+    },
+    {
+      type: 'confirm',
+      name: 'SMTP_REJECT_UNAUTHORIZED_CERTS',
+      message: 'Should I reject unauthorized TLS certs for SMTP?',
+      default: true,
+    },
   ],
   envValues
 )

@@ -55,7 +55,7 @@ export const task: Task = async (inPayload, { addJob, query }) => {
     await addJob('send_email', {
       options: {
         to: row.subscriber_email,
-        subject: `Es gibt Neuigkeiten von ${row.contributer_username} in Raum ${row.room_title}`,
+        subject: `Es gibt Neuigkeiten von ${row.contributor_username} in Raum ${row.room_title}`,
       },
       template: 'room_item_notification.mjml',
       variables: {
