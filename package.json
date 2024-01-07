@@ -13,6 +13,8 @@
     "build:frontend": "npm run --workspace @app/frontend build",
     "build:backend": "npm run --workspace @app/backend build",
     "build": "npm run --workspace @app/frontend --workspace @app/backend build",
+    "preview:frontend": "npm run --workspace @app/frontend preview",
+    "preview": "concurrently \"npm:preview:frontend\" \"npm:dev:backend\" \"npm:dev:python-worker\"",
     "lint": "npm run --workspace @app/frontend --workspace @app/backend --workspace @app/graphql lint",
     "lint:fix": "npm run --workspace @app/frontend --workspace @app/backend --workspace @app/graphql lint:fix",
     "preinstall": "npx npm-force-resolutions",
