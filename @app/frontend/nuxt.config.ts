@@ -9,10 +9,12 @@ if (configPath) loadConfig({ path: configPath })
 
 const backendUrl = new URL(
   '',
-  process.client ? window.location.href : process.env.ROOT_URL
+  process.client
+    ? window.location.href
+    : process.env.ROOT_URL ?? 'http://localhost:3000'
 )
-if (process.env.NUXT_BACKEND_PORT)
-  backendUrl.port = process.env.NUXT_BACKEND_PORT
+
+backendUrl.port = process.env.NUXT_BACKEND_PORT ?? '3000'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
