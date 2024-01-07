@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
-import { omit } from 'lodash'
+import { omit } from 'lodash-es'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
 
