@@ -3,6 +3,9 @@
   fromEmail,
   projectName,
 } from "@app/config";*/
+import fs from 'fs'
+import { fileURLToPath } from 'url'
+import path from 'path'
 import { Task } from 'graphile-worker'
 import { htmlToText } from 'html-to-text'
 import { template as lodashTemplate } from 'lodash-es'
@@ -17,6 +20,9 @@ declare module global {
 }
 
 global.TEST_EMAILS = []
+
+const __filename = fileURLToPath(import.meta.url) // get the resolved path to the file
+const __dirname = path.dirname(__filename) // get the name of the directory
 
 const fromEmail = process.env.SMTP_USER
 const projectName = 'test'
@@ -72,7 +78,12 @@ const task: Task = async (inPayload) => {
 export default task
 
 function loadTemplate(template: string, variables: Record<string, any>) {
-  const templateString = templates[template.replace('.mjml', '')]
+  //const templateString = templates[template.replace('.mjml', '')]
+  const templateString = fs.readFileSync(
+    path.resolve(__dirname, `../../assets/templates/${template}`),
+    { encoding: 'utf-8' }
+  )
+
   const templateFn = lodashTemplate(templateString, {
     escape: /\[\[([\s\S]+?)\]\]/g,
   })

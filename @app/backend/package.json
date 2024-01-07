@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon",
-    "build": "tsc",
+    "build": "tsc && cp src/assets/templates/*.mjml dist/assets/templates/",
+    "preview": "node dist/index.js",
     "lint": "eslint \"**/*.{ts,js,tsx}\"",
     "lint:fix": "eslint --fix \"**/*.{ts,js,tsx}\""
   },

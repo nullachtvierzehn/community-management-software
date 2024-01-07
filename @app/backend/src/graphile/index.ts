@@ -48,10 +48,15 @@ export const preset: GraphileConfig.Preset = {
   },
   schema: {
     retryOnInitFail: true,
-    exportSchemaSDLPath: '../../@app/graphql/schema/schema.graphql',
+    exportSchemaSDLPath:
+      process.env.NODE_ENV === 'production'
+        ? undefined
+        : '../../@app/graphql/schema/schema.graphql',
     exportSchemaIntrospectionResultPath:
-      '../../@app/graphql/schema/schema.json',
-    sortExport: true,
+      process.env.NODE_ENV === 'production'
+        ? undefined
+        : '../../@app/graphql/schema/schema.json',
+    sortExport: process.env.NODE_ENV !== 'production' ? undefined : true,
   },
   grafast: {
     explain: process.env.NODE_ENV === 'development', // @see https://postgraphile.org/postgraphile/next/debugging/#step-4-viewing-the-generated-sql
