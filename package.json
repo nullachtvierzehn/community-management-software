@@ -12,7 +12,8 @@
     "dev": "concurrently -k \"npm:dev:*\"",
     "build:frontend": "npm run --workspace @app/frontend build",
     "build:backend": "npm run --workspace @app/backend build",
-    "build": "npm run --workspace @app/frontend --workspace @app/backend build",
+    "build:python-worker": "cd @app/python-worker && poetry install",
+    "build": "yarn-or-npm run build:backend && yarn-or-npm run build:python-worker && yarn-or-npm run build:frontend",
     "preview:frontend": "npm run --workspace @app/frontend preview",
     "preview:backend": "npm run --workspace @app/backend preview",
     "preview:python-worker": "cd @app/python-worker && poetry run -- procrastinate --app=python_worker.app worker --concurrency=5",
@@ -62,7 +63,8 @@
     "prettier": "^3.1.0",
     "stylelint": "^15.11.0",
     "stylelint-prettier": "^4.1.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "yarn-or-npm": "^3.0.1"
   },
   "packageManager": "npm@10.2.0",
   "engines": {
