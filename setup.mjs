@@ -287,6 +287,7 @@ async function runDatabaseSetup() {
 }
 
 answers.NUXT_PORT = answers.FRONTEND_PORT
+answers.NITRO_PORT = answers.FRONTEND_PORT
 answers.NUXT_BACKEND_PORT = answers.BACKEND_PORT
 fs.writeFileSync('.env', stringify(answers), { encoding: 'utf-8' })
 execSync('PYTHONPATH=. poetry install', { cwd: '@app/python-worker' })
