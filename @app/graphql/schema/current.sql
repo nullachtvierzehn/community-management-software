@@ -1779,6 +1779,28 @@ COMMENT ON FUNCTION app_public.latest_item(room app_public.rooms) IS '@behavior 
 
 
 --
+-- Name: latest_item_contributed_at(app_public.rooms); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.latest_item_contributed_at(room app_public.rooms) RETURNS timestamp with time zone
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select max(contributed_at)
+  from app_public.room_items
+  where
+    room_id = room.id
+    and contributed_at is not null
+$$;
+
+
+--
+-- Name: FUNCTION latest_item_contributed_at(room app_public.rooms); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.latest_item_contributed_at(room app_public.rooms) IS '@behavior typeField +orderBy +filterBy';
+
+
+--
 -- Name: latest_message(app_public.rooms); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -3941,10 +3963,17 @@ CREATE INDEX room_item_attachments_on_topic_id ON app_public.room_item_attachmen
 
 
 --
+-- Name: room_items_on_contributed_at; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX room_items_on_contributed_at ON app_public.room_items USING btree (contributed_at);
+
+
+--
 -- Name: room_items_on_contributed_at_and_room_id; Type: INDEX; Schema: app_public; Owner: -
 --
 
-CREATE INDEX room_items_on_contributed_at_and_room_id ON app_public.room_items USING btree (contributed_at, room_id) WHERE (contributed_at IS NOT NULL);
+CREATE INDEX room_items_on_contributed_at_and_room_id ON app_public.room_items USING btree (room_id, contributed_at);
 
 
 --
@@ -5744,6 +5773,14 @@ GRANT INSERT(message_body),UPDATE(message_body) ON TABLE app_public.room_items T
 
 REVOKE ALL ON FUNCTION app_public.latest_item(room app_public.rooms) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.latest_item(room app_public.rooms) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION latest_item_contributed_at(room app_public.rooms); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.latest_item_contributed_at(room app_public.rooms) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.latest_item_contributed_at(room app_public.rooms) TO null814_cms_app_users;
 
 
 --

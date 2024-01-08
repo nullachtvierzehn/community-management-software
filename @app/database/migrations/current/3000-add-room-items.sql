@@ -85,7 +85,8 @@ create index room_items_on_parent_id on app_public.room_items (parent_id);
 create index room_items_on_contributor_id on app_public.room_items (contributor_id);
 create index room_items_on_created_at on app_public.room_items using brin (created_at);
 create index room_items_on_updated_at on app_public.room_items (updated_at);
-create index room_items_on_contributed_at_and_room_id on app_public.room_items (contributed_at, room_id) where (contributed_at is not null);
+create index room_items_on_contributed_at on app_public.room_items (contributed_at);
+create index room_items_on_contributed_at_and_room_id on app_public.room_items (room_id, contributed_at);
 
 grant select on app_public.room_items to :DATABASE_VISITOR;
 grant insert (type, room_id, parent_id, contributor_id, "order", contributed_at, is_visible_for, is_visible_since, is_visible_since_date, message_body, topic_id) on app_public.room_items to :DATABASE_VISITOR;
@@ -282,6 +283,23 @@ $$;
 
 grant execute on function app_public.latest_item(app_public.rooms) to :DATABASE_VISITOR;
 comment on function app_public.latest_item(app_public.rooms) is E'@behavior typeField';
+
+
+create function app_public.latest_item_contributed_at(room app_public.rooms)
+returns timestamptz
+language sql
+stable
+parallel safe
+as $$
+  select max(contributed_at)
+  from app_public.room_items
+  where
+    room_id = room.id
+    and contributed_at is not null
+$$;
+
+grant execute on function app_public.latest_item_contributed_at(app_public.rooms) to :DATABASE_VISITOR;
+comment on function app_public.latest_item_contributed_at(app_public.rooms) is E'@behavior typeField +orderBy +filterBy';
 
 
 create function app_public.nth_item_since_last_visit(item app_public.room_items)

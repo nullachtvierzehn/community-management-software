@@ -27,7 +27,7 @@
     >
       <div class="card cursor-pointer" @click="navigate()">
         <h2 v-if="room.title">
-          <NuxtLink :to="{ name: 'room/about', params: { id: room.id } }">{{
+          <NuxtLink :to="{ name: 'room/items', params: { id: room.id } }">{{
             room.title
           }}</NuxtLink>
         </h2>

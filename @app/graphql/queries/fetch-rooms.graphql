@@ -47,6 +47,9 @@ query FetchRooms(
       hasSubscriptions
       nItems
       nItemsSinceLastVisit
+      isVisibleFor
+      itemsAreVisibleFor
+      draftItemsAreVisibleFor
     }
   }
 }

@@ -1555,6 +1555,8 @@ export type RoomFilter = {
   itemsAreVisibleSinceDate?: InputMaybe<DatetimeFilter>;
   /** Some related `items` exist. */
   itemsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `latestItemContributedAt` field. */
+  latestItemContributedAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `messages` relation. */
   messages?: InputMaybe<RoomToManyRoomMessageFilter>;
   /** Some related `messages` exist. */
@@ -2504,6 +2506,8 @@ export type RoomCondition = {
   itemsAreVisibleSince?: InputMaybe<RoomHistoryVisibility>;
   /** Checks for equality with the object’s `itemsAreVisibleSinceDate` field. */
   itemsAreVisibleSinceDate?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `latestItemContributedAt` field. */
+  latestItemContributedAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `myFirstInteraction` field. */
   myFirstInteraction?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `mySubscriptionId` field. */
@@ -2544,6 +2548,8 @@ export type RoomsOrderBy =
   | 'ITEMS_ARE_VISIBLE_SINCE_DATE_ASC'
   | 'ITEMS_ARE_VISIBLE_SINCE_DATE_DESC'
   | 'ITEMS_ARE_VISIBLE_SINCE_DESC'
+  | 'LATEST_ITEM_CONTRIBUTED_AT_ASC'
+  | 'LATEST_ITEM_CONTRIBUTED_AT_DESC'
   | 'N_ITEMS_ASC'
   | 'N_ITEMS_DESC'
   | 'N_ITEMS_SINCE_LAST_VISIT_ASC'
@@ -2602,6 +2608,7 @@ export type Room = Node & {
   itemsAreVisibleSince: RoomHistoryVisibility;
   itemsAreVisibleSinceDate: Scalars['Datetime']['output'];
   latestItem: Maybe<RoomItem>;
+  latestItemContributedAt: Maybe<Scalars['Datetime']['output']>;
   latestMessage: Maybe<RoomMessage>;
   /** Reads and enables pagination through a set of `RoomMessage`. */
   messages: RoomMessagesConnection;
@@ -6893,7 +6900,7 @@ export type FetchRoomsQueryVariables = Exact<{
 }>;
 
 
-export type FetchRoomsQuery = { __typename?: 'Query', rooms: { __typename?: 'RoomsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: any | null, endCursor: any | null }, nodes: Array<{ __typename?: 'Room', id: string, title: string | null, abstract: string | null, createdAt: string, nSubscriptions: any | null, hasSubscriptions: boolean | null, nItems: any | null, nItemsSinceLastVisit: any | null, latestItem: { __typename?: 'RoomItem', id: string, contributedAt: string | null, nthItemSinceLastVisit: any | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, mySubscription: { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null } | null }> } | null };
+export type FetchRoomsQuery = { __typename?: 'Query', rooms: { __typename?: 'RoomsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: any | null, endCursor: any | null }, nodes: Array<{ __typename?: 'Room', id: string, title: string | null, abstract: string | null, createdAt: string, nSubscriptions: any | null, hasSubscriptions: boolean | null, nItems: any | null, nItemsSinceLastVisit: any | null, isVisibleFor: RoomVisibility, itemsAreVisibleFor: RoomRole, draftItemsAreVisibleFor: RoomRole | null, latestItem: { __typename?: 'RoomItem', id: string, contributedAt: string | null, nthItemSinceLastVisit: any | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, mySubscription: { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null } | null }> } | null };
 
 export type FetchTopicsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -7429,6 +7436,9 @@ export const FetchRooms = gql`
       hasSubscriptions
       nItems
       nItemsSinceLastVisit
+      isVisibleFor
+      itemsAreVisibleFor
+      draftItemsAreVisibleFor
     }
   }
 }
@@ -8104,6 +8114,9 @@ export const FetchRoomsDocument = gql`
       hasSubscriptions
       nItems
       nItemsSinceLastVisit
+      isVisibleFor
+      itemsAreVisibleFor
+      draftItemsAreVisibleFor
     }
   }
 }

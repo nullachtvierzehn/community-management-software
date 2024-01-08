@@ -1,7 +1,19 @@
 <template>
   <template v-if="user">
     <h1>Hallo {{ user.username }}</h1>
-    <p>Diese Seite im</p>
+    <p>Schön, dass Du vorbei schaust.</p>
+    <section>
+      <h2>Meine Räume</h2>
+      <div class="grid gap-4">
+        <RoomAsListItem
+          v-for="room in subscribedRooms"
+          :key="room.id"
+          class="cursor-pointer"
+          :model-value="room"
+          @click="router.push({ name: 'room/items', params: { id: room.id } })"
+        />
+      </div>
+    </section>
   </template>
   <template v-else>
     <h1>Hallo und herzlich willkommen!</h1>
@@ -44,10 +56,14 @@ definePageMeta({
   layout: 'page',
 })
 
-const user = useCurrentUser()
+const router = useRouter()
+const user = await useCurrentUser()
 
 const { data: dataOfSubscribedRooms } = await useFetchRoomsQuery({
-  variables: { filter: { mySubscriptionId: { isNull: false } } },
+  variables: {
+    filter: { mySubscriptionId: { isNull: false } },
+    orderBy: ['LATEST_ITEM_CONTRIBUTED_AT_DESC'],
+  },
 })
 
 const subscribedRooms = computed(

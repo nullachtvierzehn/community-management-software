@@ -3813,6 +3813,18 @@
               "deprecationReason": null
             },
             {
+              "name": "latestItemContributedAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "myFirstInteraction",
               "description": "\nDate of subscription or first sent message, whatever is earlier.\n",
               "args": [],
@@ -9095,6 +9107,16 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "latestItemContributedAt",
+              "description": "Filter by the object’s `latestItemContributedAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -14782,6 +14804,18 @@
               "deprecationReason": null
             },
             {
+              "name": "LATEST_ITEM_CONTRIBUTED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LATEST_ITEM_CONTRIBUTED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "N_ITEMS_ASC",
               "description": null,
               "isDeprecated": false,
@@ -15130,6 +15164,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "latestItemContributedAt",
+              "description": "Checks for equality with the object’s `latestItemContributedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
                 "ofType": null
               },
               "defaultValue": null

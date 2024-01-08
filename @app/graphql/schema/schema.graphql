@@ -966,6 +966,7 @@ type Room implements Node {
   """
   nodeId: ID!
   mySubscriptionId: UUID
+  latestItemContributedAt: Datetime
 
   "\nDate of subscription or first sent message, whatever is earlier.\n"
   myFirstInteraction: Datetime
@@ -2428,6 +2429,9 @@ input RoomFilter {
 
   """Filter by the object’s `mySubscriptionId` field."""
   mySubscriptionId: UUIDFilter
+
+  """Filter by the object’s `latestItemContributedAt` field."""
+  latestItemContributedAt: DatetimeFilter
 
   """Filter by the object’s `myFirstInteraction` field."""
   myFirstInteraction: DatetimeFilter
@@ -4121,6 +4125,8 @@ type RoomsEdge {
 """Methods to use when ordering `Room`."""
 enum RoomsOrderBy {
   NATURAL
+  LATEST_ITEM_CONTRIBUTED_AT_ASC
+  LATEST_ITEM_CONTRIBUTED_AT_DESC
   N_ITEMS_ASC
   N_ITEMS_DESC
   N_ITEMS_SINCE_LAST_VISIT_ASC
@@ -4208,6 +4214,9 @@ input RoomCondition {
 
   """Checks for equality with the object’s `mySubscriptionId` field."""
   mySubscriptionId: UUID
+
+  """Checks for equality with the object’s `latestItemContributedAt` field."""
+  latestItemContributedAt: Datetime
 
   """Checks for equality with the object’s `myFirstInteraction` field."""
   myFirstInteraction: Datetime
