@@ -9,9 +9,26 @@
       <NuxtPage />
     </template>
     <template v-else>
+      <!-- global header -->
+      <div class="bg-gray-200">
+        <div class="container mx-auto p-4 flex justify-between items-center">
+          <NuxtLink to="/"
+            ><img
+              src="/logo-schwarz.svg"
+              width="140"
+              alt="Logo mit Link zur Startseite"
+          /></NuxtLink>
+          <nav class="flex gap-4">
+            <NuxtLink to="/">Startseite</NuxtLink>
+            <NuxtLink to="/profile">Mein Account</NuxtLink>
+          </nav>
+        </div>
+      </div>
+
       <header
         class="border-b border-gray-300 bg-white shadow drop-shadow-lg p-4"
       >
+        <!-- room header -->
         <div class="container mx-auto p-0.5">
           <h1 class="mb-4 text-3xl font-bold">{{ room.title }}</h1>
 

@@ -1,6 +1,24 @@
 <template>
-  <article class="container mx-auto p-4">
-    <slot></slot>
+  <article>
+    <slot name="header">
+      <header class="bg-gray-200 mb-3">
+        <div class="container mx-auto p-4 flex justify-between items-center">
+          <NuxtLink to="/"
+            ><img
+              src="/logo-schwarz.svg"
+              width="140"
+              alt="Logo mit Link zur Startseite"
+          /></NuxtLink>
+          <nav class="flex gap-4">
+            <NuxtLink to="/">Startseite</NuxtLink>
+            <NuxtLink to="/profile">Mein Account</NuxtLink>
+          </nav>
+        </div>
+      </header>
+    </slot>
+    <main class="container mx-auto p-4">
+      <slot></slot>
+    </main>
   </article>
 </template>
 

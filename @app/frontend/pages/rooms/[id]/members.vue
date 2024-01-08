@@ -43,7 +43,7 @@
     <!-- Show memberships -->
     <div
       v-if="room.nSubscriptions > '0'"
-      class="grid grid-cols-[2fr_1fr_1fr] gap-1"
+      class="grid grid-cols-[2fr_1fr_1fr] gap-1 my-4"
     >
       <div class="grid grid-cols-subgrid col-span-3 rounded-md">
         <div class="bg-gray-300 p-4">Login-Name</div>
