@@ -51,7 +51,7 @@ definePageMeta({
 const { room, update } = await useRoomWithTools()
 const subscription = await useSubscription()
 
-const { defineField, meta, handleSubmit } = useForm({
+const { defineField, handleSubmit } = useForm({
   validationSchema: toTypedSchema(
     z.object({
       isVisibleFor: z

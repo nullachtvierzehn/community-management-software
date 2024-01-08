@@ -4,15 +4,14 @@
   projectName,
 } from "@app/config";*/
 import fs from 'fs'
-import { fileURLToPath } from 'url'
-import path from 'path'
 import { Task } from 'graphile-worker'
 import { htmlToText } from 'html-to-text'
 import { template as lodashTemplate } from 'lodash-es'
 import mjml2html from 'mjml'
 import * as nodemailer from 'nodemailer'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-import { templates } from '../../assets/templates/index.js'
 import getTransport from '../transport.js'
 
 declare module global {

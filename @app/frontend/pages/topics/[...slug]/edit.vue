@@ -105,7 +105,7 @@ const slugFromRoute = computed(() => {
   else return route.params.slug.join('/')
 })
 
-const { data, fetching } = await useFetchDetailedTopicsQuery({
+const { data } = await useFetchDetailedTopicsQuery({
   variables: computed(() => ({
     filter: {
       organizationExists: false,

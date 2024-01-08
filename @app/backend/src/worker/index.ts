@@ -3,13 +3,13 @@ import { run } from 'graphile-worker'
 import { ownerPool } from '../database/pool.js'
 import feed_invitations__send_invite from './tasks/feed_invitations__send_invite.js'
 import organization_invitations__send_invite from './tasks/organization_invitations__send_invite.js'
+import room_items__send_notifications from './tasks/room_items__send_notifications.js'
 import send_email from './tasks/send_email.js'
 import user__audit from './tasks/user__audit.js'
 import user__forgot_password from './tasks/user__forgot_password.js'
 import user__forgot_password_unregistered_email from './tasks/user__forgot_password_unregistered_email.js'
 import user__send_delete_account_email from './tasks/user__send_delete_account_email.js'
 import user_emails__send_verification from './tasks/user_emails__send_verification.js'
-import room_items__send_notifications from './tasks/room_items__send_notifications.js'
 
 // Run a worker to execute jobs:
 export const runner = await run({

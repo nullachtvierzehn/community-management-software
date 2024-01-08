@@ -216,13 +216,7 @@ async function deleteAttachmentById(id: string) {
 }
 
 // define form to update message
-const {
-  defineField,
-  meta,
-  handleSubmit,
-  handleReset,
-  errors: fieldErrors,
-} = useForm({
+const { defineField, handleSubmit, handleReset } = useForm({
   validationSchema: toTypedSchema(
     z.object({
       isVisibleFor: z
@@ -248,11 +242,9 @@ const {
 const [content, contentAttrs] = defineField('messageBody')
 const [isVisibleFor, isVisibleForAttrs] = defineField('isVisibleFor')
 const [action, _actionAttrs] = defineField('action')
-const [parentId, parentIdAttrs] = defineField('parentId')
+//const [parentId, parentIdAttrs] = defineField('parentId')
 
 // Create a deep copy of the messageBody in modelValue so we can modify it.
-const editableMessageBody = shallowRef<any>()
-
 syncRef(
   computed(() => props.modelValue.messageBody),
   content,
@@ -296,21 +288,4 @@ const onSubmit = handleSubmit(async (values) => {
     oldId: props.modelValue.id,
   })
 })
-
-async function save() {
-  await updateMutation({
-    patch: { messageBody: toValue(editableMessageBody) },
-    oldId: props.modelValue.id,
-  })
-}
-
-async function saveAndSubmit() {
-  await updateMutation({
-    patch: {
-      messageBody: toValue(editableMessageBody),
-      contributedAt: new Date().toISOString(),
-    },
-    oldId: props.modelValue.id,
-  })
-}
 </script>

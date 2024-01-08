@@ -4,8 +4,8 @@ import feedInvite from './feed_invite.mjml'
 import organizationInvite from './organization_invite.mjml'
 import passwordReset from './password_reset.mjml'
 import passwordResetUnregistered from './password_reset_unregistered.mjml'
-import verifyEmail from './verify_email.mjml'
 import roomItemNotification from './room_item_notification.mjml'
+import verifyEmail from './verify_email.mjml'
 
 export const templates = {
   account_activity: accountActivity,

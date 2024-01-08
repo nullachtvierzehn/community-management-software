@@ -39,28 +39,16 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 
-import { useCreateRoomMutation, useFetchRoomsQuery } from '~/graphql'
+import { useFetchRoomsQuery } from '~/graphql'
 
 definePageMeta({
   layout: 'page',
   alias: ['/raeume', '/r%C3%A4ume'],
 })
 
-// fetch rooms
-const { data, executeQuery: refetchRooms } = await useFetchRoomsQuery({})
+const { data } = await useFetchRoomsQuery({
+  requestPolicy: 'cache-and-network',
+})
+
 const rooms = computed(() => data.value?.rooms?.nodes ?? [])
-
-// create room
-const nameOfNewRoom = ref('')
-const { executeMutation: createRoomMutation } = useCreateRoomMutation()
-
-async function createRoom() {
-  const { data, error } = await createRoomMutation({
-    room: { title: toValue(nameOfNewRoom) },
-  })
-  if (data && !error) {
-    refetchRooms({ requestPolicy: 'cache-and-network' })
-    nameOfNewRoom.value = ''
-  }
-}
 </script>

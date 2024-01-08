@@ -157,7 +157,6 @@ const app = useNuxtApp()
 
 const {
   executeMutation,
-  data: registrationResultData,
   error,
   fetching: registrationInTransmission,
 } = useRegisterUserMutation()

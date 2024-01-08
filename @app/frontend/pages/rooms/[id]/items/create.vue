@@ -56,12 +56,7 @@ definePageMeta({
   renderAsTopLevelRoute: true,
 })
 
-const {
-  defineField,
-  meta,
-  handleSubmit,
-  errors: fieldErrors,
-} = useForm({
+const { defineField, meta, handleSubmit } = useForm({
   validationSchema: toTypedSchema(
     z.object({
       isVisibleFor: z.enum(['MEMBER', 'MODERATOR', 'ADMIN']).or(z.null()),

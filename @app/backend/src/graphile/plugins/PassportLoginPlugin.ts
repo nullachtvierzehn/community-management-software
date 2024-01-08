@@ -110,6 +110,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin((build) => {
       },
     },
   }
+  // eslint-disable-next-line import/no-deprecated
   const resolvers: Resolvers = {
     Mutation: {
       async register(_mutation, args, context: Grafast.Context) {

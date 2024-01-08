@@ -6,11 +6,13 @@ fragment RoomItemAttachmentAsLink on RoomItemAttachment {
     filename
     mimeType
     pdfFile {
+      id
       pages
     }
   }
   topicId
   topic {
+    id
     title
     slug
     contentPreview
