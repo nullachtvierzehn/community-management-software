@@ -2,7 +2,7 @@
   <template v-if="user">
     <h1>Hallo {{ user.username }}</h1>
     <p>Schön, dass Du vorbei schaust.</p>
-    <section>
+    <section v-if="subscribedRooms.length">
       <h2>Meine Räume</h2>
       <div class="grid gap-4">
         <RoomAsListItem
@@ -13,6 +13,10 @@
           @click="router.push({ name: 'room/items', params: { id: room.id } })"
         />
       </div>
+    </section>
+    <section v-else>
+      <h2>Noch keine Räume eingerichtet</h2>
+      <p>Wir melden uns, sobald wir Räume eingerichtet haben.</p>
     </section>
   </template>
   <template v-else>
