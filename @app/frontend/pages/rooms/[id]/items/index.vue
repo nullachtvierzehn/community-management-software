@@ -157,8 +157,16 @@ const { data: dataOfItems, executeQuery: refetch } =
       orderBy: ['CONTRIBUTED_AT_DESC'],
       first: toValue(nItems),
     })),
+    requestPolicy: 'cache-and-network',
     pause: logicNot(roomId),
   })
+
+// poll for new messages
+const { isActive: _isPollingForNewMessages } = useIntervalFn(
+  () => refetch({ requestPolicy: 'cache-and-network' }),
+  30 * 1000 /* ms */,
+  { immediate: false }
+)
 
 const items = computed(() => dataOfItems.value?.roomItems?.nodes ?? [])
 

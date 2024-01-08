@@ -39,6 +39,7 @@ export function useRoom(options?: UseRoomOptions): RoomRef {
   // Get the room from GraphQL
   const response = useGetRoomQuery({
     variables: computed(() => ({ id: toValue(options.id) })),
+    requestPolicy: 'cache-and-network',
   })
 
   const room = computed(() => response.data.value?.room) as RoomRef

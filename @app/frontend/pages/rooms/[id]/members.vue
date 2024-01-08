@@ -86,6 +86,7 @@ const { data: dataOfSubscriptions, executeQuery: refetchSubscriptions } =
       condition: { roomId: route.params.id as string },
       orderBy: ['SUBSCRIBERS_USERNAME_ASC'],
     })),
+    requestPolicy: 'cache-and-network',
   })
 
 const subscriptions = computed(
