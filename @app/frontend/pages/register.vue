@@ -105,8 +105,21 @@
     </form>
 
     <div class="grid grid-cols-[1fr_2fr] gap-2 my-4">
-      <p>Schon Angemeldet?</p>
-      <NuxtLink to="/login" class="btn btn_secondary">Einloggen</NuxtLink>
+      <template v-if="user">
+        <p>Sind Sie {{ user.username }}?</p>
+        <NuxtLink to="/" class="btn btn_secondary">Zu meinen Räumen</NuxtLink>
+        <button
+          type="button"
+          class="btn btn_secondary col-start-2"
+          @click="logout()"
+        >
+          Ausloggen
+        </button>
+      </template>
+      <template v-else>
+        <p>Schon Angemeldet?</p>
+        <NuxtLink to="/login" class="btn btn_secondary">Einloggen</NuxtLink>
+      </template>
     </div>
   </section>
   <section v-if="error">
@@ -129,6 +142,7 @@ import { z } from 'zod'
 import {
   GetUserByUsername,
   type GetUserByUsernameQuery,
+  useLogoutMutation,
   useRegisterUserMutation,
 } from '~/graphql'
 
@@ -136,6 +150,7 @@ definePageMeta({
   layout: 'page',
 })
 
+const user = await useCurrentUser()
 const router = useRouter()
 const next = useRouteQuery<string | null>('next')
 const app = useNuxtApp()
@@ -231,7 +246,14 @@ const onSubmit = handleSubmit(async (values) => {
     form: omit(values, 'confirmPassword'),
   })
   if (!error && data?.register?.user) {
-    router.push(next.value ?? '/profile')
+    router.push(next.value ?? '/')
   }
 })
+
+const { executeMutation: logoutMutation } = useLogoutMutation()
+
+async function logout() {
+  await logoutMutation({})
+  if (process.client) window.location.reload()
+}
 </script>

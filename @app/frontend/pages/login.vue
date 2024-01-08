@@ -65,12 +65,23 @@
   </form>
 
   <div class="grid grid-cols-[1fr_2fr] gap-2 my-4">
-    <p>Passwort vergessen?</p>
-    <NuxtLink to="/forgot-password" class="btn btn_secondary"
-      >Passwort zurücksetzen</NuxtLink
-    >
-    <p>Neu hier?</p>
-    <NuxtLink to="/register" class="btn btn_secondary">Zur Anmeldung</NuxtLink>
+    <template v-if="user">
+      <p>Sind Sie {{ user.username }}?</p>
+      <NuxtLink to="/" class="btn btn_secondary">Zu meinen Räumen</NuxtLink>
+      <button class="btn btn_secondary col-start-2" @click="logout()">
+        Ausloggen
+      </button>
+    </template>
+    <template v-else>
+      <p>Passwort vergessen?</p>
+      <NuxtLink to="/forgot-password" class="btn btn_secondary"
+        >Passwort zurücksetzen</NuxtLink
+      >
+      <p>Neu hier?</p>
+      <NuxtLink to="/register" class="btn btn_secondary"
+        >Zur Anmeldung</NuxtLink
+      >
+    </template>
   </div>
 
   <p v-if="data?.login?.user">
@@ -84,7 +95,7 @@ import { useRouteQuery } from '@vueuse/router'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
 
-import { useLoginMutation } from '~/graphql'
+import { useLoginMutation, useLogoutMutation } from '~/graphql'
 
 definePageMeta({
   layout: 'page',
@@ -92,7 +103,9 @@ definePageMeta({
 
 const router = useRouter()
 const next = useRouteQuery<string | null>('next')
+const user = await useCurrentUser()
 const { data, executeMutation, error } = useLoginMutation()
+const { executeMutation: logoutMutation } = useLogoutMutation()
 
 const invalidCredentials = computed(
   () => error.value?.graphQLErrors.some((e) => e.extensions.code === 'CREDS')
@@ -133,8 +146,13 @@ async function login() {
     password: toValue(password)!,
   })
   if (!error && data?.login?.user) {
-    router.push(next.value ?? '/profile')
+    router.push(next.value ?? '/')
   }
+}
+
+async function logout() {
+  await logoutMutation({})
+  if (process.client) window.location.reload()
 }
 
 const onSubmit = handleSubmit(login)
