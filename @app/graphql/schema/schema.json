@@ -3813,6 +3813,18 @@
               "deprecationReason": null
             },
             {
+              "name": "latestActivityAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "latestItemContributedAt",
               "description": null,
               "args": [],
@@ -9107,6 +9119,16 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "latestActivityAt",
+              "description": "Filter by the object’s `latestActivityAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -14804,6 +14826,18 @@
               "deprecationReason": null
             },
             {
+              "name": "LATEST_ACTIVITY_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LATEST_ACTIVITY_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "LATEST_ITEM_CONTRIBUTED_AT_ASC",
               "description": null,
               "isDeprecated": false,
@@ -15164,6 +15198,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "latestActivityAt",
+              "description": "Checks for equality with the object’s `latestActivityAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
                 "ofType": null
               },
               "defaultValue": null

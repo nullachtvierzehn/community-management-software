@@ -1680,6 +1680,28 @@ $$;
 
 
 --
+-- Name: latest_activity_at(app_public.rooms); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.latest_activity_at(room app_public.rooms) RETURNS timestamp with time zone
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select greatest(
+    room.created_at,
+    room.updated_at,
+    (select greatest(max(ri.contributed_at), max(ri.updated_at)) from app_public.room_items as ri where ri.room_id = room.id) 
+  )
+$$;
+
+
+--
+-- Name: FUNCTION latest_activity_at(room app_public.rooms); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.latest_activity_at(room app_public.rooms) IS '@behavior typeField +orderBy +filterBy';
+
+
+--
 -- Name: room_items; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -5681,6 +5703,14 @@ GRANT ALL ON FUNCTION app_public.has_subscriptions(room app_public.rooms, min_ro
 
 REVOKE ALL ON FUNCTION app_public.invite_to_organization(organization_id uuid, username public.citext, email public.citext) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.invite_to_organization(organization_id uuid, username public.citext, email public.citext) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION latest_activity_at(room app_public.rooms); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.latest_activity_at(room app_public.rooms) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.latest_activity_at(room app_public.rooms) TO null814_cms_app_users;
 
 
 --

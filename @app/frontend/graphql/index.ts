@@ -1555,6 +1555,8 @@ export type RoomFilter = {
   itemsAreVisibleSinceDate?: InputMaybe<DatetimeFilter>;
   /** Some related `items` exist. */
   itemsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `latestActivityAt` field. */
+  latestActivityAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `latestItemContributedAt` field. */
   latestItemContributedAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `messages` relation. */
@@ -2506,6 +2508,8 @@ export type RoomCondition = {
   itemsAreVisibleSince?: InputMaybe<RoomHistoryVisibility>;
   /** Checks for equality with the object’s `itemsAreVisibleSinceDate` field. */
   itemsAreVisibleSinceDate?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `latestActivityAt` field. */
+  latestActivityAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `latestItemContributedAt` field. */
   latestItemContributedAt?: InputMaybe<Scalars['Datetime']['input']>;
   /** Checks for equality with the object’s `myFirstInteraction` field. */
@@ -2548,6 +2552,8 @@ export type RoomsOrderBy =
   | 'ITEMS_ARE_VISIBLE_SINCE_DATE_ASC'
   | 'ITEMS_ARE_VISIBLE_SINCE_DATE_DESC'
   | 'ITEMS_ARE_VISIBLE_SINCE_DESC'
+  | 'LATEST_ACTIVITY_AT_ASC'
+  | 'LATEST_ACTIVITY_AT_DESC'
   | 'LATEST_ITEM_CONTRIBUTED_AT_ASC'
   | 'LATEST_ITEM_CONTRIBUTED_AT_DESC'
   | 'N_ITEMS_ASC'
@@ -2607,6 +2613,7 @@ export type Room = Node & {
   /** Sometimes you want to hide items of the room from users who join later. `since_subscription` allows subscribers to see items that were added *after* their subscription. Similarly, `since_invitation` allows subscribers to see items that were added *after* they had been invited to the room. `since_specified_date` allows all subscribers to see items after `items_are_visible_since_date`. Finally, `always` means that all items are visible for the room's audience. */
   itemsAreVisibleSince: RoomHistoryVisibility;
   itemsAreVisibleSinceDate: Scalars['Datetime']['output'];
+  latestActivityAt: Maybe<Scalars['Datetime']['output']>;
   latestItem: Maybe<RoomItem>;
   latestItemContributedAt: Maybe<Scalars['Datetime']['output']>;
   latestMessage: Maybe<RoomMessage>;

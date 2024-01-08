@@ -10,7 +10,7 @@
     "
     class="container mx-auto"
   >
-    <h1 class="text-2xl mb-4">Einstellungen</h1>
+    <h1 class="text-2xl mb-4">Raum-Einstellungen</h1>
     <form class="form-grid" @submit="onSubmit">
       <div class="form-input">
         <label>Sichtbar für</label>

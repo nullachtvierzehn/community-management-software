@@ -302,6 +302,23 @@ grant execute on function app_public.latest_item_contributed_at(app_public.rooms
 comment on function app_public.latest_item_contributed_at(app_public.rooms) is E'@behavior typeField +orderBy +filterBy';
 
 
+create function app_public.latest_activity_at(room app_public.rooms)
+returns timestamptz
+language sql
+stable
+parallel safe
+as $$
+  select greatest(
+    room.created_at,
+    room.updated_at,
+    (select greatest(max(ri.contributed_at), max(ri.updated_at)) from app_public.room_items as ri where ri.room_id = room.id) 
+  )
+$$;
+
+grant execute on function app_public.latest_activity_at(app_public.rooms) to :DATABASE_VISITOR;
+comment on function app_public.latest_activity_at(app_public.rooms) is E'@behavior typeField +orderBy +filterBy';
+
+
 create function app_public.nth_item_since_last_visit(item app_public.room_items)
 returns bigint
 language sql
