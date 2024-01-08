@@ -18,7 +18,7 @@ module.exports = {
    * SHADOW_DATABASE_URL and ROOT_DATABASE_URL environmental variables.
    */
   connectionString: `postgres://${process.env.DATABASE_OWNER}:${process.env.DATABASE_OWNER_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`,
-  shadowConnectionString: `postgres://${process.env.DATABASE_OWNER}:${process.env.DATABASE_OWNER_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`,
+  shadowConnectionString: `postgres://${process.env.DATABASE_OWNER}:${process.env.DATABASE_OWNER_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}_shadow`,
   rootConnectionString: process.env.ROOT_DATABASE_URL,
 
   /*
