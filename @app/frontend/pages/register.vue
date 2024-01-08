@@ -103,12 +103,25 @@
         abschicken
       </button>
     </form>
+
+    <div class="grid grid-cols-[1fr_2fr] gap-2 my-4">
+      <p>Schon Angemeldet?</p>
+      <NuxtLink to="/login" class="btn btn_secondary">Einloggen</NuxtLink>
+    </div>
   </section>
-  <pre>{{ error }}</pre>
+  <section v-if="error">
+    <p>
+      Bei der Registrierung ist leider etwas schief gelaufen. Schreiben Sie
+      bitte an <a href="mailto:mail@a-friend.org">mail@a-friend.org</a>, damit
+      wir Ihnen helfen können.
+    </p>
+    <pre>{{ error }}</pre>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
+import { useRouteQuery } from '@vueuse/router'
 import { omit } from 'lodash-es'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
@@ -123,6 +136,8 @@ definePageMeta({
   layout: 'page',
 })
 
+const router = useRouter()
+const next = useRouteQuery<string | null>('next')
 const app = useNuxtApp()
 
 const {
@@ -211,9 +226,12 @@ const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', {
   validateOnModelUpdate: false,
 })
 
-const onSubmit = handleSubmit(async (data) => {
-  executeMutation({
-    form: omit(data, 'confirmPassword'),
+const onSubmit = handleSubmit(async (values) => {
+  const { data, error } = await executeMutation({
+    form: omit(values, 'confirmPassword'),
   })
+  if (!error && data?.register?.user) {
+    router.push(next.value ?? '/profile')
+  }
 })
 </script>

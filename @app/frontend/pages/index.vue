@@ -12,7 +12,7 @@
     <div class="grid grid-cols-[1fr_2fr] gap-2">
       <p>Neu hier?</p>
       <NuxtLink to="/register" class="btn btn_primary">Zur Anmeldung</NuxtLink>
-      <p>Angemeldet?</p>
+      <p>Schon Angemeldet?</p>
       <NuxtLink to="/login" class="btn btn_primary">Einloggen</NuxtLink>
     </div>
     <hr class="border-gray-700 my-4" />

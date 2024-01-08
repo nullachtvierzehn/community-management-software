@@ -64,6 +64,15 @@
     </div>
   </form>
 
+  <div class="grid grid-cols-[1fr_2fr] gap-2 my-4">
+    <p>Passwort vergessen?</p>
+    <NuxtLink to="/forgot-password" class="btn btn_secondary"
+      >Passwort zurücksetzen</NuxtLink
+    >
+    <p>Neu hier?</p>
+    <NuxtLink to="/register" class="btn btn_secondary">Zur Anmeldung</NuxtLink>
+  </div>
+
   <p v-if="data?.login?.user">
     Du hast Dich eingeloggt. Vielen Dank, dass Du wieder bei uns zu Besuch bist.
   </p>

@@ -13,6 +13,10 @@
     &.btn_primary {
       @apply bg-gray-700 text-white;
     }
+
+    &.btn_secondary {
+      @apply bg-gray-300 text-black;
+    }
   }
 
   .card {
