@@ -63,6 +63,7 @@ const { data: dataOfSubscribedRooms } = await useFetchRoomsQuery({
   variables: {
     orderBy: ['LATEST_ACTIVITY_AT_DESC'],
   },
+  requestPolicy: 'cache-and-network',
 })
 
 const subscribedRooms = computed(

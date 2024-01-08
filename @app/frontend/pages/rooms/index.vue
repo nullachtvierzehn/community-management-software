@@ -47,6 +47,9 @@ definePageMeta({
 })
 
 const { data } = await useFetchRoomsQuery({
+  variables: {
+    orderBy: ['LATEST_ACTIVITY_AT_DESC'],
+  },
   requestPolicy: 'cache-and-network',
 })
 
