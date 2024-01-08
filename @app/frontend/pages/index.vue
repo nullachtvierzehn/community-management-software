@@ -61,7 +61,6 @@ const user = await useCurrentUser()
 
 const { data: dataOfSubscribedRooms } = await useFetchRoomsQuery({
   variables: {
-    filter: { mySubscriptionId: { isNull: false } },
     orderBy: ['LATEST_ITEM_CONTRIBUTED_AT_DESC'],
   },
 })

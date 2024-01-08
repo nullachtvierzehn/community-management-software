@@ -42,7 +42,13 @@
         <span v-else>(noch im Entwurf)</span>
       </div>
 
-      <div class="form-grid">
+      <div
+        v-if="
+          room?.mySubscription &&
+          orderOfRole(room.mySubscription.role) >= orderOfRole('MODERATOR')
+        "
+        class="form-grid"
+      >
         <div class="form-input">
           <label class="form-input__label">Sichtbar</label>
           <select v-model="isVisibleFor" v-bind="isVisibleForAttrs">
@@ -97,6 +103,10 @@
       <div class="flex justify-between mt-4 items-stretch">
         <div class="flex items-center">
           <button
+            v-if="
+              room?.mySubscription &&
+              orderOfRole(room.mySubscription.role) >= orderOfRole('MODERATOR')
+            "
             class="bg-gray-300 text-black p-1 rounded-full shadow-md"
             @click="showSearchModal = true"
           >
@@ -153,6 +163,8 @@ import {
 const props = defineProps<{
   modelValue: RoomItemAsListItemFragment
 }>()
+
+const room = await useRoom()
 
 // fetch attachments
 const { executeMutation: createAttachmentMutation } =

@@ -5,7 +5,7 @@
   <section v-else class="container mx-auto" @keyup.esc="showUserModal = false">
     <h1 class="sr-only">Mitglieder</h1>
 
-    <div v-if="subscription?.role === 'ADMIN'" class="flex justify-end my-4">
+    <div v-if="subscription?.role === 'ADMIN'" class="flex justify-end">
       <button class="btn btn_primary" @click="showUserModal = true">
         Mitglied hinzufügen
       </button>
@@ -29,7 +29,7 @@
 
     <!-- -->
     <div v-if="room.hasSubscriptions && !subscription">
-      <div class="container mx-auto mt-4">
+      <div class="container mx-auto">
         <p>
           Sie müssen Mitglied im Raum sein, um andere Mitglieder sehen zu
           können.
@@ -43,7 +43,7 @@
     <!-- Show memberships -->
     <div
       v-if="room.nSubscriptions > '0'"
-      class="grid grid-cols-[2fr_1fr_1fr] gap-1 mt-4"
+      class="grid grid-cols-[2fr_1fr_1fr] gap-1"
     >
       <div class="grid grid-cols-subgrid col-span-3 rounded-md">
         <div class="bg-gray-300 p-4">Login-Name</div>

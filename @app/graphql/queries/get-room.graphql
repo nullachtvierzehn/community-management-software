@@ -7,6 +7,10 @@ query GetRoom($id: UUID!) {
     nSubscriptions
     isVisibleFor
     itemsAreVisibleFor
+    mySubscription {
+      id
+      ...ShortRoomSubscription
+    }
     latestItem {
       id
       contributedAt

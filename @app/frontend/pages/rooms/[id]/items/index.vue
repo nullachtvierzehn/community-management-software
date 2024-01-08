@@ -19,11 +19,11 @@
       </p>
     </template>
     <template v-else>
-      <div class="container mx-auto mt-4">
+      <div class="container mx-auto">
         <p>
           Sie müssen Mitglied im Raum sein, um die Nachrichten sehen zu können.
         </p>
-        <button class="btn btn_primary mt-4" @click="subscribe()">
+        <button class="btn btn_primary" @click="subscribe()">
           Mitglied werden
         </button>
       </div>
@@ -32,10 +32,10 @@
 
   <!-- Items are accessible. -->
   <template v-else>
-    <div class="container mx-auto flex justify-end">
+    <div class="container mx-auto flex justify-end mb-4">
       <button
         v-if="subscription"
-        class="btn btn_primary my-4"
+        class="btn btn_primary"
         @click="addNewMessage()"
       >
         neue Nachricht

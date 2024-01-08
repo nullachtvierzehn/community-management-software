@@ -9,19 +9,28 @@
       <NuxtPage />
     </template>
     <template v-else>
-      <header class="border-b border-gray-300 bg-white shadow drop-shadow-lg">
+      <header
+        class="border-b border-gray-300 bg-white shadow drop-shadow-lg p-4"
+      >
         <div class="container mx-auto p-0.5">
-          <h1 class="my-4 text-3xl font-bold">{{ room.title }}</h1>
+          <h1 class="mb-4 text-3xl font-bold">{{ room.title }}</h1>
 
           <!-- Navigation -->
-          <nav class="flex gap-4 flex-wrap my-4">
-            <NuxtLink :to="{ name: 'room/items', params: { id: roomId } }">
+          <nav class="flex gap-4 flex-wrap">
+            <NuxtLink
+              :to="{ name: 'room/items', params: { id: roomId } }"
+              replace
+            >
               Verlauf
             </NuxtLink>
-            <NuxtLink :to="{ name: 'room/members', params: { id: roomId } }">
+            <NuxtLink
+              :to="{ name: 'room/members', params: { id: roomId } }"
+              replace
+            >
               Beteiligte
             </NuxtLink>
             <NuxtLink
+              replace
               class=""
               :to="{ name: 'room/about', params: { id: roomId } }"
             >
@@ -32,7 +41,7 @@
       </header>
 
       <!-- Tab -->
-      <main>
+      <main class="p-4">
         <NuxtPage />
       </main>
     </template>

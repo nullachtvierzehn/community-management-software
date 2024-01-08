@@ -6943,7 +6943,7 @@ export type GetRoomQueryVariables = Exact<{
 }>;
 
 
-export type GetRoomQuery = { __typename?: 'Query', room: { __typename?: 'Room', id: string, title: string | null, abstract: string | null, hasSubscriptions: boolean | null, nSubscriptions: any | null, isVisibleFor: RoomVisibility, itemsAreVisibleFor: RoomRole, latestItem: { __typename?: 'RoomItem', id: string, contributedAt: string | null, nthItemSinceLastVisit: any | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null } | null };
+export type GetRoomQuery = { __typename?: 'Query', room: { __typename?: 'Room', id: string, title: string | null, abstract: string | null, hasSubscriptions: boolean | null, nSubscriptions: any | null, isVisibleFor: RoomVisibility, itemsAreVisibleFor: RoomRole, mySubscription: { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null } | null, latestItem: { __typename?: 'RoomItem', id: string, contributedAt: string | null, nthItemSinceLastVisit: any | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null } | null };
 
 export type GetTopicBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -7515,6 +7515,10 @@ export const GetRoom = gql`
     nSubscriptions
     isVisibleFor
     itemsAreVisibleFor
+    mySubscription {
+      id
+      ...ShortRoomSubscription
+    }
     latestItem {
       id
       contributedAt
@@ -7526,7 +7530,8 @@ export const GetRoom = gql`
     }
   }
 }
-    ${ShortProfile}`;
+    ${ShortRoomSubscription}
+${ShortProfile}`;
 export const GetTopicBySlug = gql`
     query GetTopicBySlug($slug: String!, $organizationId: UUID!) {
   topicBySlugAndOrganizationId(organizationId: $organizationId, slug: $slug) {
@@ -8213,6 +8218,10 @@ export const GetRoomDocument = gql`
     nSubscriptions
     isVisibleFor
     itemsAreVisibleFor
+    mySubscription {
+      id
+      ...ShortRoomSubscription
+    }
     latestItem {
       id
       contributedAt
@@ -8224,7 +8233,8 @@ export const GetRoomDocument = gql`
     }
   }
 }
-    ${ShortProfileFragmentDoc}`;
+    ${ShortRoomSubscriptionFragmentDoc}
+${ShortProfileFragmentDoc}`;
 
 export function useGetRoomQuery(options: Omit<Urql.UseQueryArgs<never, GetRoomQueryVariables>, 'query'>) {
   return Urql.useQuery<GetRoomQuery, GetRoomQueryVariables>({ query: GetRoomDocument, ...options });

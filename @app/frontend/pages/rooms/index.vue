@@ -18,32 +18,21 @@
     -->
   <section>
     <h1>Liste</h1>
-    <NuxtLink
-      v-for="room in rooms"
-      :key="room.id"
-      v-slot="{ navigate }"
-      :to="{ name: 'room/about', params: { id: room.id } }"
-      custom
-    >
-      <div class="card cursor-pointer" @click="navigate()">
-        <h2 v-if="room.title">
-          <NuxtLink :to="{ name: 'room/items', params: { id: room.id } }">{{
-            room.title
-          }}</NuxtLink>
-        </h2>
-        <h2 v-else>Raum {{ room.id.substring(0, 5) }}...</h2>
-        <p v-if="room.abstract">
-          {{ room.abstract }}
-        </p>
-        <ul>
-          <li>{{ room.nSubscriptions }} Mitglieder</li>
-          <li>{{ room.nItems }} Nachrichten</li>
-          <li v-if="room.mySubscription && room.nItemsSinceLastVisit">
-            {{ room.nItemsSinceLastVisit }} Nachrichten seit dem letzten Besuch.
-          </li>
-        </ul>
-      </div>
-    </NuxtLink>
+    <div class="grid gap-4">
+      <NuxtLink
+        v-for="room in rooms"
+        :key="room.id"
+        v-slot="{ navigate }"
+        :to="{ name: 'room/items', params: { id: room.id } }"
+        custom
+      >
+        <RoomAsListItem
+          class="cursor-pointer"
+          :model-value="room"
+          @click="navigate()"
+        />
+      </NuxtLink>
+    </div>
   </section>
 </template>
 
