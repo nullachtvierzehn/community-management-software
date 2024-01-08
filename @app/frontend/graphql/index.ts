@@ -6893,7 +6893,7 @@ export type FetchRoomsQueryVariables = Exact<{
 }>;
 
 
-export type FetchRoomsQuery = { __typename?: 'Query', rooms: { __typename?: 'RoomsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: any | null, endCursor: any | null }, nodes: Array<{ __typename?: 'Room', id: string, title: string | null, abstract: string | null, createdAt: string, nSubscriptions: any | null, nItems: any | null, nItemsSinceLastVisit: any | null, latestItem: { __typename?: 'RoomItem', id: string, contributedAt: string | null, nthItemSinceLastVisit: any | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, mySubscription: { __typename?: 'RoomSubscription', id: string, lastVisitAt: string | null, isStarred: boolean, role: RoomRole } | null }> } | null };
+export type FetchRoomsQuery = { __typename?: 'Query', rooms: { __typename?: 'RoomsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: any | null, endCursor: any | null }, nodes: Array<{ __typename?: 'Room', id: string, title: string | null, abstract: string | null, createdAt: string, nSubscriptions: any | null, hasSubscriptions: boolean | null, nItems: any | null, nItemsSinceLastVisit: any | null, latestItem: { __typename?: 'RoomItem', id: string, contributedAt: string | null, nthItemSinceLastVisit: any | null, contributor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, mySubscription: { __typename?: 'RoomSubscription', id: string, subscriberId: string, roomId: string, lastVisitAt: string | null, notifications: NotificationSetting, role: RoomRole, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, room: { __typename?: 'Room', id: string, title: string | null } | null } | null }> } | null };
 
 export type FetchTopicsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -7423,17 +7423,17 @@ export const FetchRooms = gql`
       }
       mySubscription {
         id
-        lastVisitAt
-        isStarred
-        role
+        ...ShortRoomSubscription
       }
       nSubscriptions
+      hasSubscriptions
       nItems
       nItemsSinceLastVisit
     }
   }
 }
-    ${ShortProfile}`;
+    ${ShortProfile}
+${ShortRoomSubscription}`;
 export const FetchTopics = gql`
     query FetchTopics($after: Cursor, $before: Cursor, $condition: TopicCondition, $filter: TopicFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [TopicsOrderBy!]) {
   topics(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
@@ -8098,17 +8098,17 @@ export const FetchRoomsDocument = gql`
       }
       mySubscription {
         id
-        lastVisitAt
-        isStarred
-        role
+        ...ShortRoomSubscription
       }
       nSubscriptions
+      hasSubscriptions
       nItems
       nItemsSinceLastVisit
     }
   }
 }
-    ${ShortProfileFragmentDoc}`;
+    ${ShortProfileFragmentDoc}
+${ShortRoomSubscriptionFragmentDoc}`;
 
 export function useFetchRoomsQuery(options: Omit<Urql.UseQueryArgs<never, FetchRoomsQueryVariables>, 'query'>) {
   return Urql.useQuery<FetchRoomsQuery, FetchRoomsQueryVariables>({ query: FetchRoomsDocument, ...options });
