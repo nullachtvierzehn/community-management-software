@@ -53,7 +53,7 @@ export const task: Task = async (inPayload, { addJob, withPgClient }) => {
   const sendEmailPayload: SendEmailPayload = {
     options: {
       to: email,
-      subject: 'Please verify your email address',
+      subject: 'E-Mail-Adresse bestätigen',
     },
     template: 'verify_email.mjml',
     variables: {

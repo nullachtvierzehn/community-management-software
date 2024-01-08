@@ -41,7 +41,7 @@ export const task: Task = async (inPayload, { addJob, withPgClient }) => {
   const sendEmailPayload: SendEmailPayload = {
     options: {
       to: email,
-      subject: 'Password reset',
+      subject: 'Passwort zurücksetzen',
     },
     template: 'password_reset.mjml',
     variables: {

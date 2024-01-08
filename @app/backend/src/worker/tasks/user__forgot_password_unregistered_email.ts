@@ -15,7 +15,7 @@ export const task: Task = async (inPayload, { addJob }) => {
   const sendEmailPayload: SendEmailPayload = {
     options: {
       to: email,
-      subject: `Password reset request failed: you don't have a ${projectName} account`,
+      subject: `Passwort zurücksetzen fehlgeschlagen`,
     },
     template: 'password_reset_unregistered.mjml',
     variables: {
