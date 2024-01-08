@@ -1,5 +1,5 @@
 <template>
-  <section v-if="room?.abstract" class="container mx-auto">
+  <section v-if="room?.abstract" class="container mx-auto my-4">
     <h1 class="text-2xl mb-4">Über</h1>
     <p>{{ room.abstract }}</p>
   </section>
@@ -8,7 +8,7 @@
     v-if="
       subscription && orderOfRole(subscription.role) >= orderOfRole('MODERATOR')
     "
-    class="container mx-auto"
+    class="container mx-auto my-4"
   >
     <h1 class="text-2xl mb-4">Raum-Einstellungen</h1>
     <form class="form-grid" @submit="onSubmit">
