@@ -1,3 +1,8 @@
+const { config } = require('dotenv')
+const { parsed: env } = config()
+
+if (!env) throw new Error('no parsed env')
+
 /**
  * @type {import('pm2').StartOptions}
  */
@@ -6,24 +11,25 @@ module.exports = {
     {
       name: 'frontend',
       script: 'server/index.mjs',
-      //watch: true
+      watch: ['server/chunks', 'server/*.mjs', 'public'],
       interpreter: 'node',
       cwd: '@app/frontend/.output',
+      env,
     },
     {
       name: 'backend',
       script: 'index.js', // Replace with the path to your second Node.js app
-      //watch: true,
+      watch: ['.'],
       interpreter: 'node',
       cwd: '@app/backend/dist',
+      env,
     },
     {
       name: 'python-worker',
-      script: 'poetry',
-      args: 'run -- procrastinate --app=python_worker.app worker --concurrency=5', // Replace 'my_script.py' with your Python script
-      //watch: true,
-      interpreter: '/bin/bash',
-      cwd: '@app/python-worker',
+      script: 'run.sh',
+      watch: ['python_worker'],
+      cwd: './@app/python-worker',
+      env,
     },
   ],
 }
