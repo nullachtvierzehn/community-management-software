@@ -38,7 +38,7 @@
   <p v-if="data">
     Wenn wir die Adresse kennen, schicken wir Dir in den nächsten Minuten eine
     E-Mail. Schau bitte nach. Falls in fünf Minuten nichts ankommt, schreibe
-    bitte an <a href="mailto:hilfe@psychisch.fit">hilfe@psychisch.fit</a>, damit
+    bitte an <a href="mailto:mail@a-friend.org">mail@a-friend.org</a>, damit
     wir Dir helfen können.
   </p>
 </template>

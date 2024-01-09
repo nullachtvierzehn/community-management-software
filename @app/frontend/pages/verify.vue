@@ -59,7 +59,7 @@
           <p>
             Leider gab es einen technischen Fehler. Versuche es bitte noch
             einmal und schreibe sonst an
-            <a href="mailto:hilfe@psychisch.fit">hilfe@psychisch.fit</a>, damit
+            <a href="mailto:mail@a-friend.org">mail@a-friend.org</a>, damit
             wir Dir helfen können.
           </p>
         </div>
