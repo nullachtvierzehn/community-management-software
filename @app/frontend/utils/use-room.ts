@@ -71,6 +71,7 @@ export function useRoom(options?: UseRoomOptions): RoomRef {
 
 export function useRoomWithTools(options?: UseRoomOptions): ActsAsPromiseLike<{
   room: ComputedRef<Room>
+  mySubscription: ComputedRef<NonNullable<Room>['mySubscription'] | undefined>
   update: (patch: RoomPatch) => Promise<void>
   subscribe: (role?: RoomRole) => Promise<void>
   unsubscribe: () => Promise<void>
@@ -82,6 +83,8 @@ export function useRoomWithTools(options?: UseRoomOptions): ActsAsPromiseLike<{
     useCreateRoomSubscriptionMutation()
   const { executeMutation: unsubscribeMutation } =
     useDeleteRoomSubscriptionByRoomAndUserMutation()
+
+  const mySubscription = computed(() => room.value?.mySubscription)
 
   async function update(patch: RoomPatch) {
     const thisRoom = toValue(room)
@@ -116,6 +119,7 @@ export function useRoomWithTools(options?: UseRoomOptions): ActsAsPromiseLike<{
   return {
     room,
     update,
+    mySubscription,
     subscribe,
     unsubscribe,
     then(onResolve, onReject) {
@@ -124,6 +128,7 @@ export function useRoomWithTools(options?: UseRoomOptions): ActsAsPromiseLike<{
           (resolvedRef) => ({
             room: resolvedRef,
             update,
+            mySubscription: computed(() => resolvedRef.value?.mySubscription),
             subscribe,
             unsubscribe,
           }),

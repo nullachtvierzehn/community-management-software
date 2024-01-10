@@ -2,7 +2,22 @@
   <section v-if="!room">
     <h1>Fehler: Raum konnte nicht vollständig geladen werden.</h1>
   </section>
-  <section v-else class="container mx-auto" @keyup.esc="showUserModal = false">
+  <!-- -->
+  <div v-if="room && room.hasSubscriptions && !subscription">
+    <div class="bg-gray-200 -mx-4 -mt-4 mb-4">
+      <div class="container mx-auto p-4 flex justify-between items-center">
+        <div>
+          Sie müssen Mitglied im Raum sein, um Mitglieder sehen zu können.
+        </div>
+        <button class="btn btn_primary" @click="subscribe()">Eintreten</button>
+      </div>
+    </div>
+  </div>
+  <section
+    v-if="room"
+    class="container mx-auto"
+    @keyup.esc="showUserModal = false"
+  >
     <h1 class="sr-only">Mitglieder</h1>
 
     <div v-if="subscription?.role === 'ADMIN'" class="flex justify-end">
@@ -25,19 +40,6 @@
     <div v-if="!room.hasSubscriptions">
       <p>Der Raum hat keine Mitglieder.</p>
       <button @click="becomeAdmin()">Ich möchte sein Admin werden.</button>
-    </div>
-
-    <!-- -->
-    <div v-if="room.hasSubscriptions && !subscription">
-      <div class="container mx-auto">
-        <p>
-          Sie müssen Mitglied im Raum sein, um andere Mitglieder sehen zu
-          können.
-        </p>
-        <button class="btn btn_primary mt-4" @click="subscribe()">
-          Mitglied werden
-        </button>
-      </div>
     </div>
 
     <!-- Show memberships -->
@@ -63,6 +65,7 @@
 
 <script lang="ts" setup>
 import {
+  type RoomRole,
   useCreateRoomSubscriptionMutation,
   useFetchRoomSubscriptionsQuery,
 } from '~/graphql'
@@ -73,7 +76,7 @@ definePageMeta({
 
 const route = useRoute()
 const showUserModal = ref(false)
-const { room, subscribe } = await useRoomWithTools()
+const { room, subscribe: subscribeRoom } = await useRoomWithTools()
 const subscription = await useSubscription()
 
 const { executeMutation: createSubscription } =
@@ -100,9 +103,13 @@ const memberIds = computed(
     ) ?? []
 )
 
+async function subscribe(role?: RoomRole) {
+  await subscribeRoom(role)
+  refetchSubscriptions({ requestPolicy: 'cache-and-network' })
+}
+
 async function becomeAdmin() {
   await subscribe('ADMIN')
-  refetchSubscriptions({ requestPolicy: 'cache-and-network' })
 }
 
 async function addUserById(id: string) {
@@ -123,7 +130,7 @@ async function addUserById(id: string) {
   @apply p-4;
 }
 
-:deep(.subscription__role) {
+:deep(select.subscription__role) {
   @apply border border-gray-700;
 }
 

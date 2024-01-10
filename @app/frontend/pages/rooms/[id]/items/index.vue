@@ -32,14 +32,18 @@
 
   <!-- Items are accessible. -->
   <template v-else>
-    <div class="container mx-auto flex justify-end mb-4">
-      <button
-        v-if="subscription"
-        class="btn btn_primary"
-        @click="addNewMessage()"
-      >
+    <div v-if="subscription" class="container mx-auto flex justify-end mb-4">
+      <button class="btn btn_primary" @click="addNewMessage()">
         neue Nachricht
       </button>
+    </div>
+    <div v-else class="bg-gray-200 -mx-4 -mt-4 mb-4">
+      <div class="container mx-auto p-4 flex justify-between items-center">
+        <div>
+          Sie müssen Mitglied im Raum sein, um Nachrichten schreiben zu können.
+        </div>
+        <button class="btn btn_primary" @click="subscribe()">Eintreten</button>
+      </div>
     </div>
 
     <Teleport v-if="showSearchModal" to="body">
