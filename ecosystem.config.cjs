@@ -11,15 +11,13 @@ module.exports = {
     {
       name: 'frontend',
       script: 'server/index.mjs',
-      watch: ['server/chunks', 'server/*.mjs', 'public'],
       interpreter: 'node',
       cwd: '@app/frontend/.output',
       env,
     },
     {
       name: 'backend',
-      script: 'index.js', // Replace with the path to your second Node.js app
-      watch: ['.'],
+      script: 'index.js',
       interpreter: 'node',
       cwd: '@app/backend/dist',
       env,
@@ -27,7 +25,6 @@ module.exports = {
     {
       name: 'python-worker',
       script: 'run.sh',
-      watch: ['python_worker'],
       cwd: './@app/python-worker',
       env,
     },
