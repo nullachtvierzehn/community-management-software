@@ -6,8 +6,6 @@ interface UserForgotPasswordUnregisteredEmailPayload {
   email: string
 }
 
-const projectName = 'test'
-
 export const task: Task = async (inPayload, { addJob }) => {
   const payload: UserForgotPasswordUnregisteredEmailPayload = inPayload as any
   const { email } = payload

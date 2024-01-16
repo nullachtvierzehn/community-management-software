@@ -28,5 +28,12 @@ module.exports = {
       cwd: './@app/python-worker',
       env,
     },
+    {
+      name: 'graphile-worker',
+      script: 'index.js',
+      interpreter: 'node',
+      cwd: '@app/graphile-worker/dist',
+      env,
+    },
   ],
 }

@@ -79,7 +79,7 @@ export default task
 function loadTemplate(template: string, variables: Record<string, any>) {
   //const templateString = templates[template.replace('.mjml', '')]
   const templateString = fs.readFileSync(
-    path.resolve(__dirname, `../../assets/templates/${template}`),
+    path.resolve(__dirname, `../assets/templates/${template}`),
     { encoding: 'utf-8' }
   )
 

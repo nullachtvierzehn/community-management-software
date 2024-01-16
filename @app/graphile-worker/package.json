@@ -1,0 +1,25 @@
+{
+  "name": "@app/graphile-worker",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "graphile worker for this project",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon",
+    "preview": "node dist/index.js",
+    "build": "tsc && cp -r src/assets dist/ && cp -r src/crontab dist/"
+  },
+  "author": "Timo Stolz <timo.stolz@nullachtvierzehn.de>",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "find-config": "^1.0.0",
+    "graphile-worker": "^0.16.1",
+    "html-to-text": "^9.0.5",
+    "lodash-es": "^4.17.21",
+    "mjml": "^4.14.1",
+    "nodemailer": "^6.9.8"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}
