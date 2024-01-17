@@ -98,6 +98,7 @@ import { z } from 'zod'
 import { useLoginMutation, useLogoutMutation } from '~/graphql'
 
 definePageMeta({
+  name: 'login',
   layout: 'page',
 })
 
