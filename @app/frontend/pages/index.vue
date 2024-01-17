@@ -27,7 +27,9 @@
     </p>
     <div class="grid grid-cols-[1fr_2fr] gap-2">
       <p>Neu hier?</p>
-      <NuxtLink to="/register" class="btn btn_primary">Zur Anmeldung</NuxtLink>
+      <NuxtLink to="/register" class="btn btn_secondary"
+        >Zur Anmeldung</NuxtLink
+      >
       <p>Schon Angemeldet?</p>
       <NuxtLink to="/login" class="btn btn_primary">Einloggen</NuxtLink>
     </div>

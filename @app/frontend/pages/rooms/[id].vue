@@ -1,6 +1,27 @@
 <template>
   <template v-if="!room">
-    <p>Raum nicht gefunden.</p>
+    <NuxtLayout name="page">
+      <h1>Kein Raum zu sehen</h1>
+      <template v-if="!user">
+        <p>
+          Möglicherweise ist er nur für Mitglieder sichtbar. Logge Dich bitte
+          ein.
+        </p>
+        <NuxtLink
+          :to="{ name: 'login', query: { next: route.fullPath } }"
+          class="btn btn_primary"
+          >Einloggen</NuxtLink
+        >
+      </template>
+      <template v-else>
+        <p>
+          Vielleicht gibt es ihn nicht. Möglicherweise ist er aber auch privat
+          und nur auf Einladung sichtbar. Schreibe bitte an
+          <a href="mailto:mail@a-friend.org">mail@a-friend.org</a>, damit wir
+          helfen können.
+        </p>
+      </template>
+    </NuxtLayout>
   </template>
   <template v-else>
     <template
@@ -73,6 +94,7 @@ definePageMeta({
 })
 
 const route = useRoute()
+const user = await useCurrentUser()
 
 const roomId = ref(route.params.id as string)
 whenever(
