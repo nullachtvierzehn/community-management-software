@@ -4951,7 +4951,7 @@ CREATE POLICY manage_as_moderator ON app_public.room_subscriptions USING ((room_
 -- Name: room_items manage_by_admins; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY manage_by_admins ON app_public.room_items USING ((room_id IN ( SELECT app_public.my_subscribed_room_ids('admin'::app_public.room_role) AS my_subscribed_room_ids)));
+CREATE POLICY manage_by_admins ON app_public.room_items USING (((room_id IN ( SELECT app_public.my_subscribed_room_ids('admin'::app_public.room_role) AS my_subscribed_room_ids)) AND (contributed_at IS NOT NULL)));
 
 
 --
