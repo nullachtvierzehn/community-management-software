@@ -69,16 +69,8 @@
               'order-1': !isByCurrentUser(item),
             }"
           >
-            <RoomItemMessageEditor
-              v-if="
-                item.type === 'MESSAGE' &&
-                isDraft(item) &&
-                isByCurrentUser(item)
-              "
-              :model-value="item"
-            />
-            <RoomItemMessageViewer
-              v-else-if="item.type === 'MESSAGE'"
+            <RoomItemMessage
+              v-if="item.type === 'MESSAGE'"
               :model-value="item"
               @respond="addNewMessage(item)"
               @go-to-parent="goToParent($event)"
@@ -214,7 +206,10 @@ async function addNewMessage(parent?: Item) {
       messageBody: {
         type: 'doc',
         content: parent?.messageBody
-          ? [{ type: 'blockquote', content: parent.messageBody.content }]
+          ? [
+              { type: 'paragraph' },
+              { type: 'blockquote', content: parent.messageBody.content },
+            ]
           : [],
       },
     },

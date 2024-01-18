@@ -24,7 +24,7 @@ export type RoomRef = ActsAsPromiseLike<ComputedRef<Room>>
 export const roomInjectionKey = Symbol('currentRoom') as InjectionKey<RoomRef>
 
 export function useRoom(options?: UseRoomOptions): RoomRef {
-  const injectedRoomRef = inject(roomInjectionKey)
+  const injectedRoomRef = inject(roomInjectionKey, undefined)
 
   if (!options?.id) {
     if (injectedRoomRef) return injectedRoomRef
