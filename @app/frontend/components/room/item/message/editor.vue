@@ -3,7 +3,13 @@
   <div>
     <div class="flex justify-between mb-4">
       <user-name class="font-bold" :profile="modelValue.contributor" />
-      <div class="italic">Entwurf</div>
+      <div class="flex gap-2">
+        <div v-if="modelValue.contributedAt" class="italic">
+          {{ $dayjs(modelValue.contributedAt).fromNow() }}
+        </div>
+        <div v-else class="italic">Entwurf</div>
+        <slot name="contextMenuButton"></slot>
+      </div>
     </div>
 
     <!-- Input for Message -->
@@ -122,6 +128,7 @@
             löschen
           </button>
           <button
+            v-if="!modelValue.contributedAt"
             type="submit"
             class="btn bg-gray-300 text-gray-700"
             @click="action = 'draft'"
@@ -133,7 +140,8 @@
             class="btn btn_primary"
             @click="action = 'submit'"
           >
-            abschicken
+            <span v-if="modelValue.contributedAt">ändern</span>
+            <span v-else>abschicken</span>
           </button>
         </div>
       </div>
@@ -162,6 +170,10 @@ import {
 
 const props = defineProps<{
   modelValue: RoomItemAsListItemFragment
+}>()
+
+const emit = defineEmits<{
+  (e: 'saved'): void
 }>()
 
 const room = await useRoom()
@@ -281,11 +293,14 @@ async function deleteItem() {
 const onSubmit = handleSubmit(async (values) => {
   const { action, ...patch } = values
   if (action === 'submit') {
-    ;(patch as RoomItemPatch).contributedAt ??= new Date().toISOString()
+    ;(patch as RoomItemPatch).contributedAt ??=
+      props.modelValue.contributedAt ?? new Date().toISOString()
   }
-  await updateMutation({
+  const { error } = await updateMutation({
     patch,
     oldId: props.modelValue.id,
   })
+  if (error) throw error
+  emit('saved')
 })
 </script>

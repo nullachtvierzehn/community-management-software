@@ -74,7 +74,41 @@
               :model-value="item"
               @respond="addNewMessage(item)"
               @go-to-parent="goToParent($event)"
-            />
+            >
+              <template
+                #floatingMenuContents="{
+                  isByCurrentUser: isByMe,
+                  showEditor,
+                  toggleEdit,
+                  toggleFloatingMenu,
+                }"
+              >
+                <ul class="bg-gray-200 shadow-md rounded-md overflow-hidden">
+                  <li
+                    v-if="!isByMe"
+                    class="p-2 hover:bg-gray-700 hover:text-white"
+                    @click="toggleFloatingMenu()"
+                  >
+                    <i class="ri-question-answer-line"></i> antworten
+                  </li>
+                  <template v-if="isByMe">
+                    <li
+                      v-if="!showEditor"
+                      class="p-2 hover:bg-gray-700 hover:text-white"
+                      @click="toggleEdit(); toggleFloatingMenu()"
+                    >
+                      <i class="ri-edit-line"></i> bearbeiten
+                    </li>
+                    <li
+                      class="p-2 hover:bg-gray-700 hover:text-white"
+                      @click="toggleFloatingMenu()"
+                    >
+                      <i class="ri-chat-delete-line"></i> löschen
+                    </li>
+                  </template>
+                </ul>
+              </template>
+            </RoomItemMessage>
             <RoomItemTopicEditor
               v-else-if="
                 item.type === 'TOPIC' && isDraft(item) && isByCurrentUser(item)

@@ -5,10 +5,13 @@
       <UserName :profile="modelValue.contributor" class="font-bold" />
 
       <!-- contribution date -->
-      <div v-if="modelValue.contributedAt" class="italic">
-        {{ $dayjs(modelValue.contributedAt).fromNow() }}
+      <div class="flex gap-2">
+        <div v-if="modelValue.contributedAt" class="italic">
+          {{ $dayjs(modelValue.contributedAt).fromNow() }}
+        </div>
+        <div v-else class="italic">Entwurf</div>
+        <slot name="contextMenuButton"></slot>
       </div>
-      <div v-else class="italic">Entwurf</div>
     </div>
 
     <!-- message body -->
