@@ -123,9 +123,8 @@
 
 <script lang="ts" setup>
 import { useRouteQuery } from '@vueuse/router'
-import type { UnwrapRef } from 'vue'
 
-import { useCreateRoomItemMutation, useFetchRoomItemsQuery } from '~/graphql'
+import { useCreateRoomItemMutation } from '~/graphql'
 
 definePageMeta({
   name: 'room/items',
@@ -133,57 +132,53 @@ definePageMeta({
 })
 
 const currentUser = await useCurrentUser()
-const { room, mySubscription, updateMySubscription, subscribe, hasRole } =
-  await useRoomWithTools()
+const {
+  room,
+  mySubscription,
+  updateMySubscription,
+  subscribe,
+  hasRole,
+  fetchItems,
+} = await useRoomWithTools()
 
 const route = useRoute()
 const router = useRouter()
 const showSearchModal = useState(() => false)
-const roomId = ref(route.params.id as string)
 const nItems = useRouteQuery<number>('n', 100, {
   transform: Number,
   mode: 'replace',
 })
 
-// fetch items
-const { data: dataOfItems, executeQuery: refetch } =
-  await useFetchRoomItemsQuery({
-    variables: computed(() => ({
-      condition: { roomId: toValue(roomId) },
-      orderBy: ['CONTRIBUTED_AT_DESC'],
-      first: toValue(nItems),
-    })),
-    requestPolicy: 'cache-and-network',
-    pause: logicNot(roomId),
-  })
+const { items, refetch } = fetchItems({
+  variables: computed(() => ({
+    orderBy: ['CONTRIBUTED_AT_DESC'],
+    first: toValue(nItems),
+  })),
+  requestPolicy: 'cache-and-network',
+})
 
-// poll for new messages
-const { isActive: _isPollingForNewMessages } = useIntervalFn(
+useIntervalFn(
   () => refetch({ requestPolicy: 'cache-and-network' }),
-  30 * 1000 /* ms */,
+  30 * 1000, // ms
   { immediate: false }
 )
 
-const items = computed(() => dataOfItems.value?.roomItems?.nodes ?? [])
-
-type Item = UnwrapRef<typeof items>[0]
-
-function isByCurrentUser(item: Item) {
+function isByCurrentUser(item: RoomItemFromFetchQuery) {
   const user = toValue(currentUser)
   if (!user) return null
   else if (item.contributor?.id === user.id) return true
   else return false
 }
 
-function isDraft(item: Item) {
+function isDraft(item: RoomItemFromFetchQuery) {
   return item.contributedAt === null
 }
 
-function canEdit(item: Item) {
+function canEdit(item: RoomItemFromFetchQuery) {
   return isByCurrentUser(item) || hasRole('ADMIN', { orHigher: true })
 }
 
-function canDelete(item: Item) {
+function canDelete(item: RoomItemFromFetchQuery) {
   return isByCurrentUser(item) || hasRole('ADMIN', { orHigher: true })
 }
 
@@ -201,7 +196,7 @@ whenever(
 // add new items
 const { executeMutation: addMutation } = useCreateRoomItemMutation()
 
-async function addNewMessage(parent?: Item) {
+async function addNewMessage(parent?: RoomItemFromFetchQuery) {
   await addMutation({
     item: {
       roomId: route.params.id as string,

@@ -1,3 +1,4 @@
+import { type UseQueryArgs, type UseQueryResponse } from '@urql/vue'
 import {
   computed,
   type ComputedRef,
@@ -7,12 +8,18 @@ import {
 } from 'vue'
 
 import {
+  type FetchRoomItemsQuery,
+  type FetchRoomItemsQueryVariables,
   type GetRoomQuery,
+  type InputMaybe,
+  type RoomItemCondition,
+  type RoomItemFilter,
   type RoomPatch,
   type RoomRole,
   type RoomSubscriptionPatch,
   useCreateRoomSubscriptionMutation,
   useDeleteRoomSubscriptionByRoomAndUserMutation,
+  useFetchRoomItemsQuery,
   useGetRoomQuery,
   useUpdateRoomMutation,
   useUpdateRoomSubscriptionMutation,
@@ -25,6 +32,17 @@ export interface UseRoomOptions {
   id: MaybeRef<string>
 }
 
+interface FetchRoomItemsQueryVariablesWithoutRoomId
+  extends Omit<FetchRoomItemsQueryVariables, 'condition' | 'filter'> {
+  condition?: InputMaybe<Omit<RoomItemCondition, 'roomId'>>
+  filter?: InputMaybe<Omit<RoomItemFilter, 'roomId'>>
+}
+
+type FetchRoomItemsOptions = Omit<
+  UseQueryArgs<never, FetchRoomItemsQueryVariablesWithoutRoomId>,
+  'query'
+>
+
 export interface UseRoomWithRoolsReturn {
   room: ComputedRef<Room>
   mySubscription: ComputedRef<NonNullable<Room>['mySubscription'] | undefined>
@@ -34,6 +52,19 @@ export interface UseRoomWithRoolsReturn {
   unsubscribe: () => Promise<void>
   hasRole: (role: RoomRole, options: { orHigher?: boolean }) => boolean
   fetching: Readonly<Ref<boolean>>
+  fetchItems(options: FetchRoomItemsOptions): FetchItemsReturn
+}
+
+export type RoomItemFromFetchQuery = NonNullable<
+  FetchRoomItemsQuery['roomItems']
+>['nodes'][0]
+
+export interface FetchItemsReturn {
+  items: ComputedRef<RoomItemFromFetchQuery[]>
+  refetch: UseQueryResponse<
+    FetchRoomItemsQuery,
+    FetchRoomItemsQueryVariablesWithoutRoomId
+  >['executeQuery']
 }
 
 export const roomWithToolsInjectionKey = Symbol(
@@ -121,11 +152,39 @@ export function useRoomWithTools(
     if (error) throw error
   }
 
+  // Utility to check one's role in a room.
   function hasRole(role: RoomRole, { orHigher = true }) {
     if (!mySubscription.value) return false
     if (orHigher)
       return orderOfRole(mySubscription.value.role) >= orderOfRole(role)
     else return mySubscription.value.role === role
+  }
+
+  // Utility to fetch items
+  function fetchItems(options: FetchRoomItemsOptions): FetchItemsReturn {
+    const response = useFetchRoomItemsQuery({
+      ...options,
+      pause: logicNot(room),
+      variables: computed(() => {
+        const r = toValue(room)
+        const v = toValue(options.variables)
+        if (!r) throw new Error('undefined room in fetchItems(...)')
+        if (!v) return { condition: { roomId: r.id } }
+
+        const { condition, filter, ...other } = v
+        return {
+          condition: { ...condition, roomId: r.id } satisfies RoomItemCondition,
+          filter: {
+            ...filter,
+            roomId: { equalTo: r.id },
+          } satisfies RoomItemFilter,
+          ...other,
+        }
+      }),
+    })
+    const items = computed(() => response.data.value?.roomItems?.nodes ?? [])
+    const out = { items, refetch: response.executeQuery.bind(response) }
+    return out
   }
 
   const out: ActsAsPromiseLike<UseRoomWithRoolsReturn> = {
@@ -137,6 +196,7 @@ export function useRoomWithTools(
     unsubscribe,
     hasRole,
     fetching: response.fetching,
+    fetchItems,
     then(onResolve, onReject) {
       return response
         .then(

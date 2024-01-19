@@ -176,7 +176,7 @@ const emit = defineEmits<{
   (e: 'saved'): void
 }>()
 
-const room = await useRoom()
+const { room } = await useRoomWithTools()
 
 // fetch attachments
 const { executeMutation: createAttachmentMutation } =
