@@ -133,7 +133,8 @@
             class="btn bg-gray-300 text-gray-700"
             @click="action = 'draft'"
           >
-            speichern
+            <span v-if="meta.dirty">speichern* {{ isThisEqual }}</span>
+            <span v-else>speichern {{ isThisEqual }}</span>
           </button>
           <button
             type="submit"
@@ -152,7 +153,7 @@
 <script lang="ts" setup>
 import type { JSONContent } from '@tiptap/core'
 import { toTypedSchema } from '@vee-validate/zod'
-import { cloneDeep } from 'lodash-es'
+import { cloneDeep, isEqual } from 'lodash-es'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
 
@@ -176,7 +177,7 @@ const emit = defineEmits<{
   (e: 'saved'): void
 }>()
 
-const { room } = await useRoomWithTools()
+const { room } = await useRoom()
 
 // fetch attachments
 const { executeMutation: createAttachmentMutation } =
@@ -228,7 +229,15 @@ async function deleteAttachmentById(id: string) {
 }
 
 // define form to update message
-const { defineField, handleSubmit, handleReset } = useForm({
+const initialValues = {
+  isVisibleFor: props.modelValue.isVisibleFor ?? null,
+  parentId: props.modelValue.parentId ?? null,
+  messageBody:
+    cloneDeep(props.modelValue.messageBody) ??
+    ({ type: 'doc', content: [] } as JSONContent),
+}
+
+const { defineField, handleSubmit, handleReset, meta } = useForm({
   validationSchema: toTypedSchema(
     z.object({
       isVisibleFor: z
@@ -242,13 +251,7 @@ const { defineField, handleSubmit, handleReset } = useForm({
       action: z.enum(['delete', 'draft', 'submit']).or(z.undefined()),
     })
   ),
-  initialValues: {
-    isVisibleFor: props.modelValue.isVisibleFor ?? null,
-    parentId: props.modelValue.parentId ?? null,
-    messageBody:
-      cloneDeep(props.modelValue.messageBody) ??
-      ({ type: 'doc', content: [] } as JSONContent),
-  },
+  initialValues,
 })
 
 const [content, contentAttrs] = defineField('messageBody')
@@ -256,6 +259,9 @@ const [isVisibleFor, isVisibleForAttrs] = defineField('isVisibleFor')
 const [action, _actionAttrs] = defineField('action')
 //const [parentId, parentIdAttrs] = defineField('parentId')
 
+const isThisEqual = computed(() =>
+  isEqual(initialValues.messageBody, content.value)
+)
 // Create a deep copy of the messageBody in modelValue so we can modify it.
 syncRef(
   computed(() => props.modelValue.messageBody),

@@ -29,13 +29,16 @@ export function useCurrentUser(): ActsAsPromiseLike<ComputedRef<CurrentUser>> {
       ) as ActsAsPromiseLike<ComputedRef<CurrentUser>>
 
       // add promise interface
+      const promise = response.then(
+        () => {
+          return computed(() => response.data.value?.currentUser)
+        },
+        (reason) => {
+          throw reason
+        }
+      )
+
       currentUser.then = function (onResolve, onReject) {
-        const promise = response.then(
-          (value) => computed(() => value.data.value?.currentUser),
-          (reason) => {
-            throw reason
-          }
-        )
         return promise.then(onResolve, onReject)
       }
 

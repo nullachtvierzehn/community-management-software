@@ -140,7 +140,7 @@ const {
   hasRole,
   fetchItems,
   addItem,
-} = await useRoomWithTools()
+} = await useRoom()
 
 const route = useRoute()
 const router = useRouter()

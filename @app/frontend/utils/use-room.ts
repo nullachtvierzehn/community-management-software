@@ -92,7 +92,7 @@ export const roomWithToolsInjectionKey = Symbol(
   'currentRoomWithTools'
 ) as InjectionKey<ActsAsPromiseLike<UseRoomWithRoolsReturn>>
 
-export function useRoomWithTools(
+export function useRoom(
   options?: UseRoomOptions
 ): ActsAsPromiseLike<UseRoomWithRoolsReturn> {
   const injected = inject(roomWithToolsInjectionKey, undefined)
@@ -217,6 +217,18 @@ export function useRoomWithTools(
     else return data?.createRoomItem?.roomItem
   }
 
+  const promise = response.then(
+    () => {
+      // We have to remove `then`,
+      // otherwise we would return something `PromiseLike` and get stuck in an infinite loop of resolutions.
+      const { then, ...withoutPromiseInterface } = out
+      return withoutPromiseInterface
+    },
+    (reason) => {
+      throw reason
+    }
+  )
+
   const out: ActsAsPromiseLike<UseRoomWithRoolsReturn> = {
     room,
     update,
@@ -229,19 +241,7 @@ export function useRoomWithTools(
     fetchItems,
     addItem,
     then(onResolve, onReject) {
-      return response
-        .then(
-          () => {
-            // We have to remove `then`,
-            // otherwise we would return something `PromiseLike` and get stuck in an infinite loop of resolutions.
-            const { then, ...withoutPromiseInterface } = out
-            return withoutPromiseInterface
-          },
-          (reason) => {
-            throw reason
-          }
-        )
-        .then(onResolve, onReject)
+      return promise.then(onResolve, onReject)
     },
   }
 

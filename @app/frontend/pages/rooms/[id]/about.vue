@@ -46,7 +46,7 @@ definePageMeta({
   name: 'room/about',
 })
 
-const { room, update, hasRole } = await useRoomWithTools()
+const { room, update, hasRole } = await useRoom()
 
 const { defineField, handleSubmit } = useForm({
   validationSchema: toTypedSchema(

@@ -62,7 +62,7 @@ const props = defineProps<{
 
 const role = ref(props.value.role)
 const roleSelect = ref<HTMLSelectElement>()
-const { mySubscription, unsubscribe } = useRoomWithTools({
+const { mySubscription, unsubscribe } = useRoom({
   id: computed(() => props.value.roomId),
 })
 

@@ -80,7 +80,7 @@ const {
   room,
   subscribe: subscribeRoom,
   mySubscription: subscription,
-} = await useRoomWithTools()
+} = await useRoom()
 
 const { executeMutation: createSubscription } =
   useCreateRoomSubscriptionMutation()
