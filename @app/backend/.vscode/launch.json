@@ -9,9 +9,9 @@
       "runtimeExecutable": "${workspaceFolder:Root}/node_modules/nodemon/bin/nodemon.js",
       "cwd": "${workspaceFolder:Backend}",
       //"program": "${workspaceFolder:Backend}/src/index.ts",
-      "restart": { "delay": 500 }
-      //"console": "integratedTerminal",
-      //"internalConsoleOptions": "neverOpen"
+      "restart": { "delay": 500 },
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }
