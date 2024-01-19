@@ -10,10 +10,12 @@ import {
   type GetRoomQuery,
   type RoomPatch,
   type RoomRole,
+  type RoomSubscriptionPatch,
   useCreateRoomSubscriptionMutation,
   useDeleteRoomSubscriptionByRoomAndUserMutation,
   useGetRoomQuery,
   useUpdateRoomMutation,
+  useUpdateRoomSubscriptionMutation,
 } from '~/graphql'
 import { type ActsAsPromiseLike } from '~/utils/types'
 
@@ -44,15 +46,6 @@ export function useRoom(options?: UseRoomOptions): RoomRef {
 
   const room = computed(() => response.data.value?.room) as RoomRef
 
-  // Prepare update
-  /*
-  async function update(patch: RoomPatch) {
-    const currentRoom = toValue(room)
-    if (!currentRoom) throw new Error('no current room')
-    await updateMutation({ oldId: currentRoom.id, patch })
-  }
-  */
-
   // Add `then` for a promise-like interface
   room.then = function (onResolve, onReject) {
     return response
@@ -73,16 +66,21 @@ export function useRoomWithTools(options?: UseRoomOptions): ActsAsPromiseLike<{
   room: ComputedRef<Room>
   mySubscription: ComputedRef<NonNullable<Room>['mySubscription'] | undefined>
   update: (patch: RoomPatch) => Promise<void>
+  updateMySubscription: (patch: RoomSubscriptionPatch) => Promise<void>
   subscribe: (role?: RoomRole) => Promise<void>
   unsubscribe: () => Promise<void>
+  hasRole: (role: RoomRole, options: { orHigher?: boolean }) => boolean
 }> {
   const room = useRoom(options)
   const user = useCurrentUser()
+
   const { executeMutation: updateMutation } = useUpdateRoomMutation()
   const { executeMutation: subscribeMutation } =
     useCreateRoomSubscriptionMutation()
   const { executeMutation: unsubscribeMutation } =
     useDeleteRoomSubscriptionByRoomAndUserMutation()
+  const { executeMutation: updateSubscriptionMutation } =
+    useUpdateRoomSubscriptionMutation()
 
   const mySubscription = computed(() => room.value?.mySubscription)
 
@@ -90,6 +88,16 @@ export function useRoomWithTools(options?: UseRoomOptions): ActsAsPromiseLike<{
     const thisRoom = toValue(room)
     if (!thisRoom) throw Error('room is unavailable')
     const { error } = await updateMutation({ oldId: thisRoom.id, patch })
+    if (error) throw error
+  }
+
+  async function updateMySubscription(patch: RoomSubscriptionPatch) {
+    const thisSubscription = toValue(mySubscription)
+    if (!thisSubscription) throw Error('subscription is unavailable')
+    const { error } = await updateSubscriptionMutation({
+      oldId: thisSubscription.id,
+      patch,
+    })
     if (error) throw error
   }
 
@@ -116,21 +124,32 @@ export function useRoomWithTools(options?: UseRoomOptions): ActsAsPromiseLike<{
     if (error) throw error
   }
 
+  function hasRole(role: RoomRole, { orHigher = true }) {
+    if (!mySubscription.value) return false
+    if (orHigher)
+      return orderOfRole(mySubscription.value.role) >= orderOfRole(role)
+    else return mySubscription.value.role === role
+  }
+
   return {
     room,
     update,
+    updateMySubscription,
     mySubscription,
     subscribe,
     unsubscribe,
+    hasRole,
     then(onResolve, onReject) {
       return room
         .then(
           (resolvedRef) => ({
             room: resolvedRef,
             update,
+            updateMySubscription: updateMySubscription,
             mySubscription: computed(() => resolvedRef.value?.mySubscription),
             subscribe,
             unsubscribe,
+            hasRole,
           }),
           (reason) => {
             throw reason

@@ -8,14 +8,14 @@
   <template
     v-else-if="
       orderOfRole(room.itemsAreVisibleFor) >
-      orderOfRole(subscription?.role ?? 'PUBLIC')
+      orderOfRole(mySubscription?.role ?? 'PUBLIC')
     "
   >
-    <template v-if="subscription">
+    <template v-if="mySubscription">
       <p>
         Inhalte sind nur sichtbar, wenn Sie mindestens die Rolle
         {{ room.itemsAreVisibleFor }} haben. Sie haben die Rolle
-        {{ subscription.role }}.
+        {{ mySubscription.role }}.
       </p>
     </template>
     <template v-else>
@@ -32,7 +32,7 @@
 
   <!-- Items are accessible. -->
   <template v-else>
-    <div v-if="subscription" class="container mx-auto flex justify-end mb-4">
+    <div v-if="mySubscription" class="container mx-auto flex justify-end mb-4">
       <button class="btn btn_primary" @click="addNewMessage()">
         neue Nachricht
       </button>
@@ -55,97 +55,65 @@
       <h1 class="sr-only">Inhalte</h1>
       <template v-for="item in items" :key="item.id">
         <div
-          :id="`item-${item.id}`"
-          class="grid gap-4"
-          :class="{
-            'grid-cols-[0.2fr_0.8fr]': isByCurrentUser(item),
-            'grid-cols-[0.8fr_0.2fr]': !isByCurrentUser(item),
-          }"
+          class="border-2 border-gray-300 p-4 rounded-lg w-[80%]"
+          :class="{ 'justify-self-end': isByCurrentUser(item) }"
         >
-          <div
-            class="border-2 border-gray-300 p-4 rounded-lg"
-            :class="{
-              'order-2': isByCurrentUser(item),
-              'order-1': !isByCurrentUser(item),
-            }"
+          <RoomItemMessage
+            v-if="item.type === 'MESSAGE'"
+            :model-value="item"
+            @respond="addNewMessage(item)"
+            @go-to-parent="goToParent($event)"
           >
-            <RoomItemMessage
-              v-if="item.type === 'MESSAGE'"
-              :model-value="item"
-              @respond="addNewMessage(item)"
-              @go-to-parent="goToParent($event)"
+            <template
+              #floatingMenu="{
+                isByCurrentUser: isByMe,
+                showEditor,
+                toggleEdit,
+                toggleFloatingMenu,
+              }"
             >
-              <template
-                #floatingMenuContents="{
-                  isByCurrentUser: isByMe,
-                  showEditor,
-                  toggleEdit,
-                  toggleFloatingMenu,
-                }"
-              >
-                <ul class="bg-gray-200 shadow-md rounded-md overflow-hidden">
-                  <li
-                    v-if="!isByMe"
-                    class="p-2 hover:bg-gray-700 hover:text-white"
-                    @click="toggleFloatingMenu()"
-                  >
-                    <i class="ri-question-answer-line"></i> antworten
-                  </li>
-                  <template v-if="isByMe">
-                    <li
-                      v-if="!showEditor"
-                      class="p-2 hover:bg-gray-700 hover:text-white"
-                      @click="toggleEdit(); toggleFloatingMenu()"
-                    >
-                      <i class="ri-edit-line"></i> bearbeiten
-                    </li>
-                    <li
-                      class="p-2 hover:bg-gray-700 hover:text-white"
-                      @click="toggleFloatingMenu()"
-                    >
-                      <i class="ri-chat-delete-line"></i> löschen
-                    </li>
-                  </template>
-                </ul>
-              </template>
-            </RoomItemMessage>
-            <RoomItemTopicEditor
-              v-else-if="
-                item.type === 'TOPIC' && isDraft(item) && isByCurrentUser(item)
-              "
-              :model-value="item"
-            />
-            <RoomItemTopicViewer
-              v-else-if="item.type === 'TOPIC'"
-              :model-value="item"
-            />
-            <pre v-else>{{ item }}</pre>
-          </div>
-          <nav
-            class="grid self-start"
-            :class="{
-              'order-1 justify-self-end': isByCurrentUser(item),
-              'order-2 justify-self-start': !isByCurrentUser(item),
-            }"
-          >
-            <button
-              v-if="!isByCurrentUser(item)"
-              class="mt-3 p-3 bg-gray-700 rounded-full"
-              @click="addNewMessage(item)"
-            >
-              <svg class="remix fill-white w-4 h-4">
-                <use :xlink:href="`${remixiconUrl}#ri-question-answer-line`" />
-              </svg>
-            </button>
-          </nav>
+              <div class="context-menu" @click="toggleFloatingMenu()">
+                <button
+                  v-if="!isByMe"
+                  class="context-menu__item"
+                  @click="addNewMessage(item)"
+                >
+                  <i class="ri-question-answer-line"></i> antworten
+                </button>
+                <button
+                  v-if="canEdit(item) && !showEditor"
+                  class="context-menu__item"
+                  @click="toggleEdit()"
+                >
+                  <i class="ri-edit-line"></i> bearbeiten
+                </button>
+                <button v-if="canDelete(item)" class="context-menu__item">
+                  <i class="ri-chat-delete-line"></i> löschen
+                </button>
+              </div>
+            </template>
+          </RoomItemMessage>
+          <RoomItemTopicEditor
+            v-else-if="
+              item.type === 'TOPIC' && isDraft(item) && isByCurrentUser(item)
+            "
+            :model-value="item"
+          />
+          <RoomItemTopicViewer
+            v-else-if="item.type === 'TOPIC'"
+            :model-value="item"
+          />
+          <pre v-else>{{ item }}</pre>
         </div>
         <div
-          v-if="item.nthItemSinceLastVisit === '1' && subscription?.lastVisitAt"
+          v-if="
+            item.nthItemSinceLastVisit === '1' && mySubscription?.lastVisitAt
+          "
           class="text-red-600 border-t border-red-600 text-center cursor-pointer"
           @click="visitToNow()"
         >
           Zuletzt warst Du
-          {{ formatDateFromNow(subscription.lastVisitAt) }} hier. Zu den neuen
+          {{ formatDateFromNow(mySubscription.lastVisitAt) }} hier. Zu den neuen
           Nachrichten.
         </div>
       </template>
@@ -155,7 +123,6 @@
 
 <script lang="ts" setup>
 import { useRouteQuery } from '@vueuse/router'
-import remixiconUrl from 'remixicon/fonts/remixicon.symbol.svg'
 import type { UnwrapRef } from 'vue'
 
 import { useCreateRoomItemMutation, useFetchRoomItemsQuery } from '~/graphql'
@@ -166,9 +133,8 @@ definePageMeta({
 })
 
 const currentUser = await useCurrentUser()
-const { room, subscribe } = await useRoomWithTools()
-const { subscription, update: updateSubscription } =
-  await useSubscriptionWithTools()
+const { room, mySubscription, updateMySubscription, subscribe, hasRole } =
+  await useRoomWithTools()
 
 const route = useRoute()
 const router = useRouter()
@@ -213,17 +179,22 @@ function isDraft(item: Item) {
   return item.contributedAt === null
 }
 
-async function visitToNow() {
-  await updateSubscription({ lastVisitAt: new Date().toISOString() })
+function canEdit(item: Item) {
+  return isByCurrentUser(item) || hasRole('ADMIN', { orHigher: true })
 }
 
-// set lastVisitAt, if not yet done
-watch(
-  subscription,
-  (subscription) => {
-    if (subscription && !subscription.lastVisitAt)
-      updateSubscription({ lastVisitAt: new Date().toISOString() })
-  },
+function canDelete(item: Item) {
+  return isByCurrentUser(item) || hasRole('ADMIN', { orHigher: true })
+}
+
+async function visitToNow() {
+  await updateMySubscription({ lastVisitAt: new Date().toISOString() })
+}
+
+// set lastVisitAt, if null
+whenever(
+  () => mySubscription.value && !mySubscription.value.lastVisitAt,
+  () => updateMySubscription({ lastVisitAt: new Date().toISOString() }),
   { immediate: true }
 )
 
@@ -257,6 +228,14 @@ async function goToParent(parent: { id: string }) {
 </script>
 
 <style lang="postcss" scoped>
+.context-menu {
+  @apply bg-gray-200 shadow-md rounded-lg overflow-hidden grid justify-items-stretch;
+}
+
+.context-menu__item {
+  @apply p-2 hover:bg-gray-700 hover:text-white text-left;
+}
+
 :deep(.tiptap-editor) {
   @apply border-gray-300;
 }

@@ -5,7 +5,7 @@
     :model-value="modelValue"
     @saved="internalEdit = false"
   >
-    <template v-if="$slots.floatingMenuContents" #contextMenuButton>
+    <template v-if="$slots.floatingMenu" #contextMenuButton>
       <slot name="contextMenuButton" v-bind="slotProperties">
         <button ref="anchor1" @click="showFloatingMenu = !showFloatingMenu">
           <i class="ri-more-2-line select-none"></i>
@@ -19,7 +19,7 @@
     @respond="emit('respond', $event)"
     @go-to-parent="emit('goToParent', $event)"
   >
-    <template v-if="$slots.floatingMenuContents" #contextMenuButton>
+    <template v-if="$slots.floatingMenu" #contextMenuButton>
       <slot name="contextMenuButton" v-bind="slotProperties">
         <button ref="anchor2" @click="showFloatingMenu = !showFloatingMenu">
           <i class="ri-more-2-line select-none"></i>
@@ -27,14 +27,14 @@
       </slot>
     </template>
   </RoomItemMessageViewer>
-  <slot name="contextMenu">
+  <slot name="floatingMenuWrapper">
     <div
       v-if="showFloatingMenu"
       ref="floatingMenu"
       :style="floatingMenuStyles"
       v-bind="slotProperties"
     >
-      <slot name="floatingMenuContents" v-bind="slotProperties"></slot>
+      <slot name="floatingMenu" v-bind="slotProperties"></slot>
     </div>
   </slot>
 </template>
