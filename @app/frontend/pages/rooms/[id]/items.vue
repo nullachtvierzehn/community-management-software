@@ -139,6 +139,7 @@ const {
   subscribe,
   hasRole,
   fetchItems,
+  addItem,
 } = await useRoomWithTools()
 
 const route = useRoute()
@@ -194,24 +195,20 @@ whenever(
 )
 
 // add new items
-const { executeMutation: addMutation } = useCreateRoomItemMutation()
-
 async function addNewMessage(parent?: RoomItemFromFetchQuery) {
-  await addMutation({
-    item: {
-      roomId: route.params.id as string,
-      type: 'MESSAGE',
-      parentId: parent?.id ?? null,
-      contributorId: currentUser.value?.id,
-      messageBody: {
-        type: 'doc',
-        content: parent?.messageBody
-          ? [
-              { type: 'paragraph' },
-              { type: 'blockquote', content: parent.messageBody.content },
-            ]
-          : [],
-      },
+  await addItem({
+    roomId: route.params.id as string,
+    type: 'MESSAGE',
+    parentId: parent?.id ?? null,
+    contributorId: currentUser.value?.id,
+    messageBody: {
+      type: 'doc',
+      content: parent?.messageBody
+        ? [
+            { type: 'paragraph' },
+            { type: 'blockquote', content: parent.messageBody.content },
+          ]
+        : [],
     },
   })
   await refetch()

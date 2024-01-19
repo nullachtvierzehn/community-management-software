@@ -1,4 +1,8 @@
-import { type UseQueryArgs, type UseQueryResponse } from '@urql/vue'
+import {
+  type OperationResult,
+  type UseQueryArgs,
+  type UseQueryResponse,
+} from '@urql/vue'
 import {
   computed,
   type ComputedRef,
@@ -8,15 +12,19 @@ import {
 } from 'vue'
 
 import {
+  type CreateRoomItemMutation,
+  type CreateRoomItemMutationVariables,
   type FetchRoomItemsQuery,
   type FetchRoomItemsQueryVariables,
   type GetRoomQuery,
   type InputMaybe,
   type RoomItemCondition,
   type RoomItemFilter,
+  type RoomItemInput,
   type RoomPatch,
   type RoomRole,
   type RoomSubscriptionPatch,
+  useCreateRoomItemMutation,
   useCreateRoomSubscriptionMutation,
   useDeleteRoomSubscriptionByRoomAndUserMutation,
   useFetchRoomItemsQuery,
@@ -43,6 +51,14 @@ type FetchRoomItemsOptions = Omit<
   'query'
 >
 
+export interface FetchItemsReturn {
+  items: ComputedRef<RoomItemFromFetchQuery[]>
+  refetch: UseQueryResponse<
+    FetchRoomItemsQuery,
+    FetchRoomItemsQueryVariablesWithoutRoomId
+  >['executeQuery']
+}
+
 export interface UseRoomWithRoolsReturn {
   room: ComputedRef<Room>
   mySubscription: ComputedRef<NonNullable<Room>['mySubscription'] | undefined>
@@ -53,19 +69,24 @@ export interface UseRoomWithRoolsReturn {
   hasRole: (role: RoomRole, options: { orHigher?: boolean }) => boolean
   fetching: Readonly<Ref<boolean>>
   fetchItems(options: FetchRoomItemsOptions): FetchItemsReturn
+  addItem(
+    item: RoomItemInput
+  ): Promise<
+    | NonNullable<
+        NonNullable<
+          OperationResult<
+            CreateRoomItemMutation,
+            CreateRoomItemMutationVariables
+          >['data']
+        >['createRoomItem']
+      >['roomItem']
+    | undefined
+  >
 }
 
 export type RoomItemFromFetchQuery = NonNullable<
   FetchRoomItemsQuery['roomItems']
 >['nodes'][0]
-
-export interface FetchItemsReturn {
-  items: ComputedRef<RoomItemFromFetchQuery[]>
-  refetch: UseQueryResponse<
-    FetchRoomItemsQuery,
-    FetchRoomItemsQueryVariablesWithoutRoomId
-  >['executeQuery']
-}
 
 export const roomWithToolsInjectionKey = Symbol(
   'currentRoomWithTools'
@@ -187,6 +208,15 @@ export function useRoomWithTools(
     return out
   }
 
+  // Utility to add items
+  const { executeMutation: addMutation } = useCreateRoomItemMutation()
+
+  async function addItem(item: RoomItemInput) {
+    const { data, error } = await addMutation({ item })
+    if (error) throw error
+    else return data?.createRoomItem?.roomItem
+  }
+
   const out: ActsAsPromiseLike<UseRoomWithRoolsReturn> = {
     room,
     update,
@@ -197,6 +227,7 @@ export function useRoomWithTools(
     hasRole,
     fetching: response.fetching,
     fetchItems,
+    addItem,
     then(onResolve, onReject) {
       return response
         .then(
