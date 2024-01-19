@@ -5,9 +5,7 @@
   </section>
 
   <section
-    v-if="
-      subscription && orderOfRole(subscription.role) >= orderOfRole('MODERATOR')
-    "
+    v-if="hasRole('MODERATOR', { orHigher: true })"
     class="container mx-auto my-4"
   >
     <h1 class="text-2xl mb-4">Raum-Einstellungen</h1>
@@ -48,8 +46,7 @@ definePageMeta({
   name: 'room/about',
 })
 
-const { room, update } = await useRoomWithTools()
-const subscription = await useSubscription()
+const { room, update, hasRole } = await useRoomWithTools()
 
 const { defineField, handleSubmit } = useForm({
   validationSchema: toTypedSchema(

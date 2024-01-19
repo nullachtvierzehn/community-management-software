@@ -76,8 +76,11 @@ definePageMeta({
 
 const route = useRoute()
 const showUserModal = ref(false)
-const { room, subscribe: subscribeRoom } = await useRoomWithTools()
-const subscription = await useSubscription()
+const {
+  room,
+  subscribe: subscribeRoom,
+  mySubscription: subscription,
+} = await useRoomWithTools()
 
 const { executeMutation: createSubscription } =
   useCreateRoomSubscriptionMutation()
