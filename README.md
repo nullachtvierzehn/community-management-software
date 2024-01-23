@@ -1,15 +1,9 @@
-# chatty
+# Community Management System
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
+You will need NodeJS 18+, Python 3.11+ and PostgreSQL 15+ to set up and run this project on your computer.
 
 ```bash
-bun run index.ts
+npm install
+npm run our:setup
+npm run dev
 ```
-
-This project was created using `bun init` in bun v1.0.7. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
