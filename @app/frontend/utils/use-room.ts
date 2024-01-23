@@ -3,6 +3,7 @@ import {
   type UseQueryArgs,
   type UseQueryResponse,
 } from '@urql/vue'
+import { omit } from 'lodash-es'
 import {
   computed,
   type ComputedRef,
@@ -51,13 +52,31 @@ type FetchRoomItemsOptions = Omit<
   'query'
 >
 
-export interface FetchItemsReturn {
+export interface FetchItemsReturn
+  extends Omit<
+    UseQueryResponse<
+      FetchRoomItemsQuery,
+      FetchRoomItemsQueryVariablesWithoutRoomId
+    >,
+    'executeQuery' | 'then'
+  > {
   items: ComputedRef<RoomItemFromFetchQuery[]>
   refetch: UseQueryResponse<
     FetchRoomItemsQuery,
     FetchRoomItemsQueryVariablesWithoutRoomId
   >['executeQuery']
 }
+
+export type AddRoomItemReturn =
+  | NonNullable<
+      NonNullable<
+        OperationResult<
+          CreateRoomItemMutation,
+          CreateRoomItemMutationVariables
+        >['data']
+      >['createRoomItem']
+    >['roomItem']
+  | undefined
 
 export interface UseRoomWithRoolsReturn {
   room: ComputedRef<Room>
@@ -69,19 +88,7 @@ export interface UseRoomWithRoolsReturn {
   hasRole: (role: RoomRole, options: { orHigher?: boolean }) => boolean
   fetching: Readonly<Ref<boolean>>
   fetchItems(options: FetchRoomItemsOptions): FetchItemsReturn
-  addItem(
-    item: RoomItemInput
-  ): Promise<
-    | NonNullable<
-        NonNullable<
-          OperationResult<
-            CreateRoomItemMutation,
-            CreateRoomItemMutationVariables
-          >['data']
-        >['createRoomItem']
-      >['roomItem']
-    | undefined
-  >
+  addItem(item: RoomItemInput): Promise<AddRoomItemReturn>
 }
 
 export type RoomItemFromFetchQuery = NonNullable<
@@ -181,8 +188,12 @@ export function useRoom(
     else return mySubscription.value.role === role
   }
 
+  const addedItem = createEventHook<AddRoomItemReturn>()
+
   // Utility to fetch items
-  function fetchItems(options: FetchRoomItemsOptions): FetchItemsReturn {
+  function fetchItems(
+    options: FetchRoomItemsOptions
+  ): ActsAsPromiseLike<FetchItemsReturn> {
     const response = useFetchRoomItemsQuery({
       ...options,
       pause: logicNot(room),
@@ -203,31 +214,44 @@ export function useRoom(
         }
       }),
     })
+
+    addedItem.on(
+      async () =>
+        await response.executeQuery({ requestPolicy: 'cache-and-network' })
+    )
+
     const items = computed(() => response.data.value?.roomItems?.nodes ?? [])
-    const out = { items, refetch: response.executeQuery.bind(response) }
+    const out: ActsAsPromiseLike<FetchItemsReturn> = {
+      ...omit(response, ['executeQuery', 'then']),
+      items,
+      refetch: response.executeQuery.bind(response),
+      then(onResolve, onReject) {
+        return responseLoaded.then(onResolve, onReject)
+      },
+    }
+
+    const responseLoaded = response.then(
+      () => {
+        const { then, ...outWithoutThen } = out
+        return outWithoutThen
+      },
+      (reason) => {
+        throw reason
+      }
+    )
+
     return out
   }
 
   // Utility to add items
   const { executeMutation: addMutation } = useCreateRoomItemMutation()
 
-  async function addItem(item: RoomItemInput) {
+  async function addItem(item: RoomItemInput): Promise<AddRoomItemReturn> {
     const { data, error } = await addMutation({ item })
     if (error) throw error
-    else return data?.createRoomItem?.roomItem
+    await addedItem.trigger(data?.createRoomItem?.roomItem)
+    return data?.createRoomItem?.roomItem
   }
-
-  const promise = response.then(
-    () => {
-      // We have to remove `then`,
-      // otherwise we would return something `PromiseLike` and get stuck in an infinite loop of resolutions.
-      const { then, ...withoutPromiseInterface } = out
-      return withoutPromiseInterface
-    },
-    (reason) => {
-      throw reason
-    }
-  )
 
   const out: ActsAsPromiseLike<UseRoomWithRoolsReturn> = {
     room,
@@ -244,6 +268,22 @@ export function useRoom(
       return promise.then(onResolve, onReject)
     },
   }
+
+  // Each call to response.then(...) will deliver a new Promise.
+  // See https://github.com/urql-graphql/urql/blob/bc2adbdb7468c5b67488dd49fbaa07204322b445/packages/vue-urql/src/useQuery.ts#L387
+  // for implementation.
+  // We call this to generate exactly one promise, that we will use to cache the resolved value.
+  const promise = response.then(
+    () => {
+      // We have to remove `then`,
+      // otherwise we would return something `PromiseLike` and get stuck in an infinite loop of resolutions.
+      const { then, ...withoutPromiseInterface } = out
+      return withoutPromiseInterface
+    },
+    (reason) => {
+      throw reason
+    }
+  )
 
   provide(roomWithToolsInjectionKey, out)
   return out

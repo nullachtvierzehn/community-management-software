@@ -124,8 +124,6 @@
 <script lang="ts" setup>
 import { useRouteQuery } from '@vueuse/router'
 
-import { useCreateRoomItemMutation } from '~/graphql'
-
 definePageMeta({
   name: 'room/items',
   alias: ['/raeume/:id/items', '/r%C3%A4ume/:id/inhalte'],
@@ -150,7 +148,7 @@ const nItems = useRouteQuery<number>('n', 100, {
   mode: 'replace',
 })
 
-const { items, refetch } = fetchItems({
+const { items, refetch: refetchItems } = await fetchItems({
   variables: computed(() => ({
     orderBy: ['CONTRIBUTED_AT_DESC'],
     first: toValue(nItems),
@@ -159,7 +157,7 @@ const { items, refetch } = fetchItems({
 })
 
 useIntervalFn(
-  () => refetch({ requestPolicy: 'cache-and-network' }),
+  () => refetchItems({ requestPolicy: 'cache-and-network' }),
   30 * 1000, // ms
   { immediate: false }
 )
@@ -211,7 +209,6 @@ async function addNewMessage(parent?: RoomItemFromFetchQuery) {
         : [],
     },
   })
-  await refetch()
 }
 
 async function goToParent(parent: { id: string }) {
