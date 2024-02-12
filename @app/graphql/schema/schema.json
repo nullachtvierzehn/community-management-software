@@ -169,6 +169,33 @@
               "deprecationReason": null
             },
             {
+              "name": "space",
+              "description": "Get a single `Space`.",
+              "args": [
+                {
+                  "name": "id",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "UUID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Space",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "organizationMembership",
               "description": "Get a single `OrganizationMembership`.",
               "args": [
@@ -502,6 +529,74 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "File",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "spaceFiling",
+              "description": "Get a single `SpaceFiling`.",
+              "args": [
+                {
+                  "name": "id",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "UUID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SpaceFiling",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "spaceFilingBySpaceIdAndSlug",
+              "description": "Get a single `SpaceFiling`.",
+              "args": [
+                {
+                  "name": "spaceId",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "UUID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "slug",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SpaceFiling",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -1359,6 +1454,33 @@
               "deprecationReason": null
             },
             {
+              "name": "spaceByNodeId",
+              "description": "Reads a single `Space` using its globally unique `ID`.",
+              "args": [
+                {
+                  "name": "nodeId",
+                  "description": "The globally unique `ID` to be used in selecting a single `Space`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Space",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "organizationMembershipByNodeId",
               "description": "Reads a single `OrganizationMembership` using its globally unique `ID`.",
               "args": [
@@ -1548,6 +1670,33 @@
               "deprecationReason": null
             },
             {
+              "name": "spaceFilingByNodeId",
+              "description": "Reads a single `SpaceFiling` using its globally unique `ID`.",
+              "args": [
+                {
+                  "name": "nodeId",
+                  "description": "The globally unique `ID` to be used in selecting a single `SpaceFiling`.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SpaceFiling",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "userByNodeId",
               "description": "Reads a single `User` using its globally unique `ID`.",
               "args": [
@@ -1677,6 +1826,107 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "Room",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "spaceItemEntities",
+              "description": null,
+              "args": [
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `SpaceItemEntity`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "SpaceItemEntitiesOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceItemEntityCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceItemEntityFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SpaceItemEntitiesConnection",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -1879,6 +2129,107 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "RoomItemAttachmentsConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "spaces",
+              "description": "Reads and enables pagination through a set of `Space`.",
+              "args": [
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `Space`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "SpacesOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SpacesConnection",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -2592,6 +2943,107 @@
               "deprecationReason": null
             },
             {
+              "name": "spaceFilings",
+              "description": "Reads and enables pagination through a set of `SpaceFiling`.",
+              "args": [
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `SpaceFiling`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "SpaceFilingsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SpaceFilingsConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "users",
               "description": "Reads and enables pagination through a set of `User`.",
               "args": [
@@ -3207,6 +3659,16 @@
             {
               "kind": "OBJECT",
               "name": "PdfFile",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "SpaceFiling",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Space",
               "ofType": null
             }
           ]
@@ -5965,6 +6427,111 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "spaceFilingsBySubmitterId",
+              "description": "Reads and enables pagination through a set of `SpaceFiling`.",
+              "args": [
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `SpaceFiling`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "SpaceFilingsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SpaceFilingsConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
             }
           ],
           "inputFields": null,
@@ -7776,6 +8343,26 @@
             {
               "name": "filesByContributorIdExist",
               "description": "Some related `filesByContributorId` exist.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceFilingsBySubmitterId",
+              "description": "Filter by the object’s `spaceFilingsBySubmitterId` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserToManySpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceFilingsBySubmitterIdExist",
+              "description": "Some related `spaceFilingsBySubmitterId` exist.",
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
@@ -10821,8 +11408,8 @@
               "defaultValue": null
             },
             {
-              "name": "title",
-              "description": "Filter by the object’s `title` field.",
+              "name": "name",
+              "description": "Filter by the object’s `name` field.",
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "StringFilter",
@@ -10963,6 +11550,26 @@
             {
               "name": "roomItemAttachmentsExist",
               "description": "Some related `roomItemAttachments` exist.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceFilings",
+              "description": "Filter by the object’s `spaceFilings` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "TopicToManySpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceFilingsExist",
+              "description": "Some related `spaceFilings` exist.",
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
@@ -12444,8 +13051,8 @@
               "defaultValue": null
             },
             {
-              "name": "filename",
-              "description": "Filter by the object’s `filename` field.",
+              "name": "name",
+              "description": "Filter by the object’s `name` field.",
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "StringFilter",
@@ -12556,6 +13163,26 @@
             {
               "name": "roomItemAttachmentsExist",
               "description": "Some related `roomItemAttachments` exist.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceFilings",
+              "description": "Filter by the object’s `spaceFilings` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "FileToManySpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceFilingsExist",
+              "description": "Some related `spaceFilings` exist.",
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
@@ -13022,6 +13649,522 @@
         },
         {
           "kind": "INPUT_OBJECT",
+          "name": "FileToManySpaceFilingFilter",
+          "description": "A filter to be used against many `SpaceFiling` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "every",
+              "description": "Every related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "some",
+              "description": "Some related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "none",
+              "description": "No related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "SpaceFilingFilter",
+          "description": "A filter to be used against `SpaceFiling` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "Filter by the object’s `id` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceId",
+              "description": "Filter by the object’s `spaceId` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "submitterId",
+              "description": "Filter by the object’s `submitterId` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "linkedSpaceId",
+              "description": "Filter by the object’s `linkedSpaceId` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "topicId",
+              "description": "Filter by the object’s `topicId` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "fileId",
+              "description": "Filter by the object’s `fileId` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "sortOrder",
+              "description": "Filter by the object’s `sortOrder` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "FloatFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "slug",
+              "description": "Filter by the object’s `slug` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "StringFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "createdAt",
+              "description": "Filter by the object’s `createdAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Filter by the object’s `updatedAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemCreatedAt",
+              "description": "Filter by the object’s `itemCreatedAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemUpdatedAt",
+              "description": "Filter by the object’s `itemUpdatedAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemName",
+              "description": "Filter by the object’s `itemName` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "StringFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "file",
+              "description": "Filter by the object’s `file` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "FileFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "fileExists",
+              "description": "A related `file` exists.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "linkedSpace",
+              "description": "Filter by the object’s `linkedSpace` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "linkedSpaceExists",
+              "description": "A related `linkedSpace` exists.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "space",
+              "description": "Filter by the object’s `space` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceExists",
+              "description": "A related `space` exists.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "submitter",
+              "description": "Filter by the object’s `submitter` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "submitterExists",
+              "description": "A related `submitter` exists.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "topic",
+              "description": "Filter by the object’s `topic` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "TopicFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "topicExists",
+              "description": "A related `topic` exists.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "and",
+              "description": "Checks for all expressions in this list.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingFilter",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "or",
+              "description": "Checks for any expressions in this list.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingFilter",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "not",
+              "description": "Negates the expression.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "SpaceFilter",
+          "description": "A filter to be used against `Space` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "Filter by the object’s `id` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "name",
+              "description": "Filter by the object’s `name` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "StringFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isPublic",
+              "description": "Filter by the object’s `isPublic` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BooleanFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "createdAt",
+              "description": "Filter by the object’s `createdAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Filter by the object’s `updatedAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceFilingsByLinkedSpaceId",
+              "description": "Filter by the object’s `spaceFilingsByLinkedSpaceId` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceToManySpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceFilingsByLinkedSpaceIdExist",
+              "description": "Some related `spaceFilingsByLinkedSpaceId` exist.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "filings",
+              "description": "Filter by the object’s `filings` relation.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceToManySpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "filingsExist",
+              "description": "Some related `filings` exist.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "and",
+              "description": "Checks for all expressions in this list.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilter",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "or",
+              "description": "Checks for any expressions in this list.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilter",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "not",
+              "description": "Negates the expression.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "SpaceToManySpaceFilingFilter",
+          "description": "A filter to be used against many `SpaceFiling` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "every",
+              "description": "Every related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "some",
+              "description": "Some related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "none",
+              "description": "No related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
           "name": "TopicToManyRoomItemAttachmentFilter",
           "description": "A filter to be used against many `RoomItemAttachment` object types. All fields are combined with a logical ‘and.’",
           "fields": null,
@@ -13052,6 +14195,47 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "RoomItemAttachmentFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "TopicToManySpaceFilingFilter",
+          "description": "A filter to be used against many `SpaceFiling` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "every",
+              "description": "Every related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "some",
+              "description": "Some related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "none",
+              "description": "No related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -13339,6 +14523,47 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "FileFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "UserToManySpaceFilingFilter",
+          "description": "A filter to be used against many `SpaceFiling` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "every",
+              "description": "Every related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "some",
+              "description": "Some related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "none",
+              "description": "No related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceFilingFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -15371,7 +16596,7 @@
         {
           "kind": "OBJECT",
           "name": "Topic",
-          "description": "A topic is a short text about something. Most topics should have the scope of a micro learning unit.",
+          "description": "  A topic is a short text about something. Most topics should have the scope of a micro learning unit.\n  ",
           "fields": [
             {
               "name": "nodeId",
@@ -15481,7 +16706,7 @@
               "deprecationReason": null
             },
             {
-              "name": "title",
+              "name": "name",
               "description": "Each topic has an optional title. In case of an article, this would be the headline.",
               "args": [],
               "type": {
@@ -15926,6 +17151,111 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "spaceFilings",
+              "description": "Reads and enables pagination through a set of `SpaceFiling`.",
+              "args": [
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `SpaceFiling`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "SpaceFilingsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SpaceFilingsConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
             }
           ],
           "inputFields": null,
@@ -15934,10 +17264,78 @@
               "kind": "INTERFACE",
               "name": "Node",
               "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "SpaceItemEntity",
+              "ofType": null
             }
           ],
           "enumValues": null,
           "possibleTypes": null
+        },
+        {
+          "kind": "INTERFACE",
+          "name": "SpaceItemEntity",
+          "description": null,
+          "fields": [
+            {
+              "name": "id",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": [
+            {
+              "kind": "OBJECT",
+              "name": "Topic",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "File",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "Space",
+              "ofType": null
+            }
+          ]
         },
         {
           "kind": "OBJECT",
@@ -17388,7 +18786,7 @@
         {
           "kind": "OBJECT",
           "name": "File",
-          "description": null,
+          "description": "  A file stored on the system.\n  ",
           "fields": [
             {
               "name": "nodeId",
@@ -17459,7 +18857,7 @@
               "deprecationReason": null
             },
             {
-              "name": "filename",
+              "name": "name",
               "description": null,
               "args": [],
               "type": {
@@ -17771,6 +19169,111 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "spaceFilings",
+              "description": "Reads and enables pagination through a set of `SpaceFiling`.",
+              "args": [
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `SpaceFiling`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "SpaceFilingsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SpaceFilingsConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
             }
           ],
           "inputFields": null,
@@ -17778,6 +19281,11 @@
             {
               "kind": "INTERFACE",
               "name": "Node",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "SpaceItemEntity",
               "ofType": null
             }
           ],
@@ -18451,6 +19959,1023 @@
         },
         {
           "kind": "OBJECT",
+          "name": "SpaceFilingsConnection",
+          "description": "A connection to a list of `SpaceFiling` values.",
+          "fields": [
+            {
+              "name": "nodes",
+              "description": "A list of `SpaceFiling` objects.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "SpaceFiling",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges which contains the `SpaceFiling` and cursor to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "SpaceFilingsEdge",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "totalCount",
+              "description": "The count of *all* `SpaceFiling` you could get from the connection.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SpaceFiling",
+          "description": null,
+          "fields": [
+            {
+              "name": "nodeId",
+              "description": "A globally unique identifier. Can be used in various places throughout the system to identify this single value.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "id",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "spaceId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "submitterId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "linkedSpaceId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "topicId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "fileId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "sortOrder",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "slug",
+              "description": "\n  A URL path segment. We allow unreserved URI characters according to RFC 3986 (ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\")\n  ",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Datetime",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Datetime",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "file",
+              "description": "Reads a single `File` that is related to this `SpaceFiling`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "File",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "linkedSpace",
+              "description": "Reads a single `Space` that is related to this `SpaceFiling`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Space",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "space",
+              "description": "Reads a single `Space` that is related to this `SpaceFiling`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Space",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "submitter",
+              "description": "Reads a single `User` that is related to this `SpaceFiling`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "topic",
+              "description": "Reads a single `Topic` that is related to this `SpaceFiling`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Topic",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "item",
+              "description": "Reads a single `SpaceItemEntity` that is related to this `SpaceFiling`.",
+              "args": [],
+              "type": {
+                "kind": "INTERFACE",
+                "name": "SpaceItemEntity",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
+              "ofType": null
+            }
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "Space",
+          "description": "  A space is a place where users meet and interact with items.\n  ",
+          "fields": [
+            {
+              "name": "nodeId",
+              "description": "A globally unique identifier. Can be used in various places throughout the system to identify this single value.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "id",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "name",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "isPublic",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Datetime",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Datetime",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "spaceFilingsByLinkedSpaceId",
+              "description": "Reads and enables pagination through a set of `SpaceFiling`.",
+              "args": [
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `SpaceFiling`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "SpaceFilingsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SpaceFilingsConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "filings",
+              "description": "Reads and enables pagination through a set of `SpaceFiling`.",
+              "args": [
+                {
+                  "name": "first",
+                  "description": "Only read the first `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Only read the last `n` values of the set.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "offset",
+                  "description": "Skip the first `n` values from our `after` cursor, an alternative to cursor\nbased pagination. May not be used with `last`.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Read all values in the set before (above) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Read all values in the set after (below) this cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Cursor",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": "The method to use when ordering `SpaceFiling`.",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "SpaceFilingsOrderBy",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": "[PRIMARY_KEY_ASC]"
+                },
+                {
+                  "name": "condition",
+                  "description": "A condition to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingCondition",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filter",
+                  "description": "A filter to be used in determining which values should be returned by the collection.",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceFilingFilter",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SpaceFilingsConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "SpaceItemEntity",
+              "ofType": null
+            }
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "SpaceFilingsOrderBy",
+          "description": "Methods to use when ordering `SpaceFiling`.",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "NATURAL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEM_CREATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEM_CREATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEM_UPDATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEM_UPDATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEM_NAME_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ITEM_NAME_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PRIMARY_KEY_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PRIMARY_KEY_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SPACE_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SPACE_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SUBMITTER_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SUBMITTER_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LINKED_SPACE_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LINKED_SPACE_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "TOPIC_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "TOPIC_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "FILE_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "FILE_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SORT_ORDER_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SORT_ORDER_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SLUG_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SLUG_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "SpaceFilingCondition",
+          "description": "A condition to be used against `SpaceFiling` object types. All fields are tested\nfor equality and combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "Checks for equality with the object’s `id` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceId",
+              "description": "Checks for equality with the object’s `spaceId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "submitterId",
+              "description": "Checks for equality with the object’s `submitterId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "linkedSpaceId",
+              "description": "Checks for equality with the object’s `linkedSpaceId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "topicId",
+              "description": "Checks for equality with the object’s `topicId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "fileId",
+              "description": "Checks for equality with the object’s `fileId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "sortOrder",
+              "description": "Checks for equality with the object’s `sortOrder` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "slug",
+              "description": "Checks for equality with the object’s `slug` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "createdAt",
+              "description": "Checks for equality with the object’s `createdAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Checks for equality with the object’s `updatedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemCreatedAt",
+              "description": "Checks for equality with the object’s `itemCreatedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemUpdatedAt",
+              "description": "Checks for equality with the object’s `itemUpdatedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "itemName",
+              "description": "Checks for equality with the object’s `itemName` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SpaceFilingsEdge",
+          "description": "A `SpaceFiling` edge in the connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Cursor",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The `SpaceFiling` at the end of the edge.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SpaceFiling",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "RoomItemAttachmentsEdge",
           "description": "A `RoomItemAttachment` edge in the connection.",
           "fields": [
@@ -18641,13 +21166,13 @@
               "deprecationReason": null
             },
             {
-              "name": "TITLE_ASC",
+              "name": "NAME_ASC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "TITLE_DESC",
+              "name": "NAME_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -18762,8 +21287,8 @@
               "defaultValue": null
             },
             {
-              "name": "title",
-              "description": "Checks for equality with the object’s `title` field.",
+              "name": "name",
+              "description": "Checks for equality with the object’s `name` field.",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -19874,13 +22399,13 @@
               "deprecationReason": null
             },
             {
-              "name": "FILENAME_ASC",
+              "name": "NAME_ASC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "FILENAME_DESC",
+              "name": "NAME_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -19995,8 +22520,8 @@
               "defaultValue": null
             },
             {
-              "name": "filename",
-              "description": "Checks for equality with the object’s `filename` field.",
+              "name": "name",
+              "description": "Checks for equality with the object’s `name` field.",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -21295,6 +23820,626 @@
               "type": {
                 "kind": "ENUM",
                 "name": "TextsearchableEntity",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SpaceItemEntitiesConnection",
+          "description": "A connection to a list of `SpaceItemEntity` values.",
+          "fields": [
+            {
+              "name": "nodes",
+              "description": "A list of `SpaceItemEntity` objects.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INTERFACE",
+                      "name": "SpaceItemEntity",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges which contains the `SpaceItemEntity` and cursor to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "SpaceItemEntitiesEdge",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "totalCount",
+              "description": "The count of *all* `SpaceItemEntity` you could get from the connection.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SpaceItemEntitiesEdge",
+          "description": "A `SpaceItemEntity` edge in the connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Cursor",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The `SpaceItemEntity` at the end of the edge.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INTERFACE",
+                  "name": "SpaceItemEntity",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "SpaceItemEntitiesOrderBy",
+          "description": "Methods to use when ordering `SpaceItemEntity`.",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "NATURAL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "SpaceItemEntityCondition",
+          "description": "A condition to be used against `SpaceItemEntity` object types. All fields are\ntested for equality and combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "Checks for equality with the object’s `id` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "createdAt",
+              "description": "Checks for equality with the object’s `createdAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Checks for equality with the object’s `updatedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "SpaceItemEntityType",
+          "description": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "Space",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "File",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "Topic",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "SpaceItemEntityFilter",
+          "description": "A filter to be used against `SpaceItemEntity` object types. All fields are combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "Filter by the object’s `id` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UUIDFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "createdAt",
+              "description": "Filter by the object’s `createdAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Filter by the object’s `updatedAt` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "and",
+              "description": "Checks for all expressions in this list.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceItemEntityFilter",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "or",
+              "description": "Checks for any expressions in this list.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "SpaceItemEntityFilter",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "not",
+              "description": "Negates the expression.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "SpaceItemEntityFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SpacesConnection",
+          "description": "A connection to a list of `Space` values.",
+          "fields": [
+            {
+              "name": "nodes",
+              "description": "A list of `Space` objects.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "Space",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges which contains the `Space` and cursor to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "SpacesEdge",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "totalCount",
+              "description": "The count of *all* `Space` you could get from the connection.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SpacesEdge",
+          "description": "A `Space` edge in the connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Cursor",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The `Space` at the end of the edge.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Space",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "SpacesOrderBy",
+          "description": "Methods to use when ordering `Space`.",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "NATURAL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PRIMARY_KEY_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PRIMARY_KEY_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NAME_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NAME_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_PUBLIC_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_PUBLIC_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "SpaceCondition",
+          "description": "A condition to be used against `Space` object types. All fields are tested for equality and combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "Checks for equality with the object’s `id` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "name",
+              "description": "Checks for equality with the object’s `name` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isPublic",
+              "description": "Checks for equality with the object’s `isPublic` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "createdAt",
+              "description": "Checks for equality with the object’s `createdAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Checks for equality with the object’s `updatedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
                 "ofType": null
               },
               "defaultValue": null
@@ -26780,7 +29925,7 @@
               "defaultValue": null
             },
             {
-              "name": "filename",
+              "name": "name",
               "description": null,
               "type": {
                 "kind": "SCALAR",
@@ -27630,7 +30775,7 @@
               "defaultValue": null
             },
             {
-              "name": "title",
+              "name": "name",
               "description": "Each topic has an optional title. In case of an article, this would be the headline.",
               "type": {
                 "kind": "SCALAR",
@@ -28874,7 +32019,7 @@
               "defaultValue": null
             },
             {
-              "name": "filename",
+              "name": "name",
               "description": null,
               "type": {
                 "kind": "SCALAR",
@@ -30056,7 +33201,7 @@
               "defaultValue": null
             },
             {
-              "name": "title",
+              "name": "name",
               "description": "Each topic has an optional title. In case of an article, this would be the headline.",
               "type": {
                 "kind": "SCALAR",

@@ -26,6 +26,9 @@ type Query implements Node {
   """Get a single `RoomItemAttachment`."""
   roomItemAttachment(id: UUID!): RoomItemAttachment
 
+  """Get a single `Space`."""
+  space(id: UUID!): Space
+
   """Get a single `OrganizationMembership`."""
   organizationMembership(id: UUID!): OrganizationMembership
 
@@ -58,6 +61,12 @@ type Query implements Node {
 
   """Get a single `File`."""
   file(id: UUID!): File
+
+  """Get a single `SpaceFiling`."""
+  spaceFiling(id: UUID!): SpaceFiling
+
+  """Get a single `SpaceFiling`."""
+  spaceFilingBySpaceIdAndSlug(spaceId: UUID!, slug: String!): SpaceFiling
 
   """Get a single `User`."""
   user(id: UUID!): User
@@ -258,6 +267,12 @@ type Query implements Node {
     nodeId: ID!
   ): RoomItemAttachment
 
+  """Reads a single `Space` using its globally unique `ID`."""
+  spaceByNodeId(
+    """The globally unique `ID` to be used in selecting a single `Space`."""
+    nodeId: ID!
+  ): Space
+
   """
   Reads a single `OrganizationMembership` using its globally unique `ID`.
   """
@@ -310,6 +325,14 @@ type Query implements Node {
     nodeId: ID!
   ): File
 
+  """Reads a single `SpaceFiling` using its globally unique `ID`."""
+  spaceFilingByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `SpaceFiling`.
+    """
+    nodeId: ID!
+  ): SpaceFiling
+
   """Reads a single `User` using its globally unique `ID`."""
   userByNodeId(
     """The globally unique `ID` to be used in selecting a single `User`."""
@@ -341,6 +364,41 @@ type Query implements Node {
     """The globally unique `ID` to be used in selecting a single `Room`."""
     nodeId: ID!
   ): Room
+  spaceItemEntities(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceItemEntity`."""
+    orderBy: [SpaceItemEntitiesOrderBy!]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceItemEntityCondition
+
+    """Filter results to only those of the given types"""
+    only: [SpaceItemEntityType!] @deprecated(reason: "EXPERIMENTAL")
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceItemEntityFilter
+  ): SpaceItemEntitiesConnection
 
   """Reads and enables pagination through a set of `RoomMessageAttachment`."""
   roomMessageAttachments(
@@ -409,6 +467,40 @@ type Query implements Node {
     """
     filter: RoomItemAttachmentFilter
   ): RoomItemAttachmentsConnection
+
+  """Reads and enables pagination through a set of `Space`."""
+  spaces(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `Space`."""
+    orderBy: [SpacesOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilter
+  ): SpacesConnection
 
   """
   Reads and enables pagination through a set of `OrganizationMembership`.
@@ -649,6 +741,40 @@ type Query implements Node {
     """
     filter: FileFilter
   ): FilesConnection
+
+  """Reads and enables pagination through a set of `SpaceFiling`."""
+  spaceFilings(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceFiling`."""
+    orderBy: [SpaceFilingsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceFilingCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilingFilter
+  ): SpaceFilingsConnection
 
   """Reads and enables pagination through a set of `User`."""
   users(
@@ -1499,6 +1625,40 @@ type User implements Node {
     """
     filter: FileFilter
   ): FilesConnection!
+
+  """Reads and enables pagination through a set of `SpaceFiling`."""
+  spaceFilingsBySubmitterId(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceFiling`."""
+    orderBy: [SpaceFilingsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceFilingCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilingFilter
+  ): SpaceFilingsConnection!
 }
 
 """
@@ -2002,6 +2162,12 @@ input UserFilter {
 
   """Some related `filesByContributorId` exist."""
   filesByContributorIdExist: Boolean
+
+  """Filter by the object’s `spaceFilingsBySubmitterId` relation."""
+  spaceFilingsBySubmitterId: UserToManySpaceFilingFilter
+
+  """Some related `spaceFilingsBySubmitterId` exist."""
+  spaceFilingsBySubmitterIdExist: Boolean
 
   """Checks for all expressions in this list."""
   and: [UserFilter!]
@@ -2956,8 +3122,8 @@ input TopicFilter {
   """Filter by the object’s `slug` field."""
   slug: StringFilter
 
-  """Filter by the object’s `title` field."""
-  title: StringFilter
+  """Filter by the object’s `name` field."""
+  name: StringFilter
 
   """Filter by the object’s `license` field."""
   license: StringFilter
@@ -3000,6 +3166,12 @@ input TopicFilter {
 
   """Some related `roomItemAttachments` exist."""
   roomItemAttachmentsExist: Boolean
+
+  """Filter by the object’s `spaceFilings` relation."""
+  spaceFilings: TopicToManySpaceFilingFilter
+
+  """Some related `spaceFilings` exist."""
+  spaceFilingsExist: Boolean
 
   """Filter by the object’s `author` relation."""
   author: UserFilter
@@ -3455,8 +3627,8 @@ input FileFilter {
   """Filter by the object’s `totalBytes` field."""
   totalBytes: IntFilter
 
-  """Filter by the object’s `filename` field."""
-  filename: StringFilter
+  """Filter by the object’s `name` field."""
+  name: StringFilter
 
   """Filter by the object’s `pathOnStorage` field."""
   pathOnStorage: StringFilter
@@ -3490,6 +3662,12 @@ input FileFilter {
 
   """Some related `roomItemAttachments` exist."""
   roomItemAttachmentsExist: Boolean
+
+  """Filter by the object’s `spaceFilings` relation."""
+  spaceFilings: FileToManySpaceFilingFilter
+
+  """Some related `spaceFilings` exist."""
+  spaceFilingsExist: Boolean
 
   """Filter by the object’s `contributor` relation."""
   contributor: UserFilter
@@ -3637,6 +3815,170 @@ input FileToManyRoomItemAttachmentFilter {
 }
 
 """
+A filter to be used against many `SpaceFiling` object types. All fields are combined with a logical ‘and.’
+"""
+input FileToManySpaceFilingFilter {
+  """
+  Every related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceFilingFilter
+
+  """
+  Some related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceFilingFilter
+
+  """
+  No related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceFilingFilter
+}
+
+"""
+A filter to be used against `SpaceFiling` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceFilingFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `spaceId` field."""
+  spaceId: UUIDFilter
+
+  """Filter by the object’s `submitterId` field."""
+  submitterId: UUIDFilter
+
+  """Filter by the object’s `linkedSpaceId` field."""
+  linkedSpaceId: UUIDFilter
+
+  """Filter by the object’s `topicId` field."""
+  topicId: UUIDFilter
+
+  """Filter by the object’s `fileId` field."""
+  fileId: UUIDFilter
+
+  """Filter by the object’s `sortOrder` field."""
+  sortOrder: FloatFilter
+
+  """Filter by the object’s `slug` field."""
+  slug: StringFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `itemCreatedAt` field."""
+  itemCreatedAt: DatetimeFilter
+
+  """Filter by the object’s `itemUpdatedAt` field."""
+  itemUpdatedAt: DatetimeFilter
+
+  """Filter by the object’s `itemName` field."""
+  itemName: StringFilter
+
+  """Filter by the object’s `file` relation."""
+  file: FileFilter
+
+  """A related `file` exists."""
+  fileExists: Boolean
+
+  """Filter by the object’s `linkedSpace` relation."""
+  linkedSpace: SpaceFilter
+
+  """A related `linkedSpace` exists."""
+  linkedSpaceExists: Boolean
+
+  """Filter by the object’s `space` relation."""
+  space: SpaceFilter
+
+  """A related `space` exists."""
+  spaceExists: Boolean
+
+  """Filter by the object’s `submitter` relation."""
+  submitter: UserFilter
+
+  """A related `submitter` exists."""
+  submitterExists: Boolean
+
+  """Filter by the object’s `topic` relation."""
+  topic: TopicFilter
+
+  """A related `topic` exists."""
+  topicExists: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [SpaceFilingFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [SpaceFilingFilter!]
+
+  """Negates the expression."""
+  not: SpaceFilingFilter
+}
+
+"""
+A filter to be used against `Space` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `isPublic` field."""
+  isPublic: BooleanFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `spaceFilingsByLinkedSpaceId` relation."""
+  spaceFilingsByLinkedSpaceId: SpaceToManySpaceFilingFilter
+
+  """Some related `spaceFilingsByLinkedSpaceId` exist."""
+  spaceFilingsByLinkedSpaceIdExist: Boolean
+
+  """Filter by the object’s `filings` relation."""
+  filings: SpaceToManySpaceFilingFilter
+
+  """Some related `filings` exist."""
+  filingsExist: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [SpaceFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [SpaceFilter!]
+
+  """Negates the expression."""
+  not: SpaceFilter
+}
+
+"""
+A filter to be used against many `SpaceFiling` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceToManySpaceFilingFilter {
+  """
+  Every related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceFilingFilter
+
+  """
+  Some related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceFilingFilter
+
+  """
+  No related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceFilingFilter
+}
+
+"""
 A filter to be used against many `RoomItemAttachment` object types. All fields are combined with a logical ‘and.’
 """
 input TopicToManyRoomItemAttachmentFilter {
@@ -3654,6 +3996,26 @@ input TopicToManyRoomItemAttachmentFilter {
   No related `RoomItemAttachment` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   none: RoomItemAttachmentFilter
+}
+
+"""
+A filter to be used against many `SpaceFiling` object types. All fields are combined with a logical ‘and.’
+"""
+input TopicToManySpaceFilingFilter {
+  """
+  Every related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceFilingFilter
+
+  """
+  Some related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceFilingFilter
+
+  """
+  No related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceFilingFilter
 }
 
 """
@@ -3794,6 +4156,26 @@ input UserToManyFileFilter {
   No related `File` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   none: FileFilter
+}
+
+"""
+A filter to be used against many `SpaceFiling` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManySpaceFilingFilter {
+  """
+  Every related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceFilingFilter
+
+  """
+  Some related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceFilingFilter
+
+  """
+  No related `SpaceFiling` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceFilingFilter
 }
 
 """A connection to a list of `UserAuthentication` values."""
@@ -4260,10 +4642,8 @@ type TopicsConnection {
   totalCount: Int!
 }
 
-"""
-A topic is a short text about something. Most topics should have the scope of a micro learning unit.
-"""
-type Topic implements Node {
+"  A topic is a short text about something. Most topics should have the scope of a micro learning unit.\n  "
+type Topic implements Node & SpaceItemEntity {
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
@@ -4282,7 +4662,7 @@ type Topic implements Node {
   """
   Each topic has an optional title. In case of an article, this would be the headline.
   """
-  title: String
+  name: String
 
   """Each topic can optionally be licensed. Hyperlinks are allowed."""
   license: String
@@ -4411,6 +4791,46 @@ type Topic implements Node {
     """
     filter: RoomItemAttachmentFilter
   ): RoomItemAttachmentsConnection!
+
+  """Reads and enables pagination through a set of `SpaceFiling`."""
+  spaceFilings(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceFiling`."""
+    orderBy: [SpaceFilingsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceFilingCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilingFilter
+  ): SpaceFilingsConnection!
+}
+
+interface SpaceItemEntity {
+  id: UUID
+  createdAt: Datetime
+  updatedAt: Datetime
 }
 
 """A connection to a list of `RoomMessageAttachment` values."""
@@ -4746,7 +5166,8 @@ type RoomItemAttachment implements Node {
   topic: Topic
 }
 
-type File implements Node {
+"  A file stored on the system.\n  "
+type File implements Node & SpaceItemEntity {
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
@@ -4755,7 +5176,7 @@ type File implements Node {
   contributorId: UUID
   uploadedBytes: Int
   totalBytes: Int
-  filename: String
+  name: String
   pathOnStorage: String
   mimeType: String
   sha256: String
@@ -4835,6 +5256,40 @@ type File implements Node {
     """
     filter: RoomItemAttachmentFilter
   ): RoomItemAttachmentsConnection!
+
+  """Reads and enables pagination through a set of `SpaceFiling`."""
+  spaceFilings(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceFiling`."""
+    orderBy: [SpaceFilingsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceFilingCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilingFilter
+  ): SpaceFilingsConnection!
 }
 
 type PdfFile implements Node {
@@ -4974,6 +5429,230 @@ input RoomItemAttachmentCondition {
   createdAt: Datetime
 }
 
+"""A connection to a list of `SpaceFiling` values."""
+type SpaceFilingsConnection {
+  """A list of `SpaceFiling` objects."""
+  nodes: [SpaceFiling!]!
+
+  """
+  A list of edges which contains the `SpaceFiling` and cursor to aid in pagination.
+  """
+  edges: [SpaceFilingsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `SpaceFiling` you could get from the connection."""
+  totalCount: Int!
+}
+
+type SpaceFiling implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  spaceId: UUID
+  submitterId: UUID
+  linkedSpaceId: UUID
+  topicId: UUID
+  fileId: UUID
+  sortOrder: Float
+
+  "\n  A URL path segment. We allow unreserved URI characters according to RFC 3986 (ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\")\n  "
+  slug: String
+  createdAt: Datetime!
+  updatedAt: Datetime!
+
+  """Reads a single `File` that is related to this `SpaceFiling`."""
+  file: File
+
+  """Reads a single `Space` that is related to this `SpaceFiling`."""
+  linkedSpace: Space
+
+  """Reads a single `Space` that is related to this `SpaceFiling`."""
+  space: Space
+
+  """Reads a single `User` that is related to this `SpaceFiling`."""
+  submitter: User
+
+  """Reads a single `Topic` that is related to this `SpaceFiling`."""
+  topic: Topic
+
+  """
+  Reads a single `SpaceItemEntity` that is related to this `SpaceFiling`.
+  """
+  item: SpaceItemEntity
+}
+
+"  A space is a place where users meet and interact with items.\n  "
+type Space implements Node & SpaceItemEntity {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  name: String
+  isPublic: Boolean!
+  createdAt: Datetime!
+  updatedAt: Datetime!
+
+  """Reads and enables pagination through a set of `SpaceFiling`."""
+  spaceFilingsByLinkedSpaceId(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceFiling`."""
+    orderBy: [SpaceFilingsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceFilingCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilingFilter
+  ): SpaceFilingsConnection!
+
+  """Reads and enables pagination through a set of `SpaceFiling`."""
+  filings(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceFiling`."""
+    orderBy: [SpaceFilingsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceFilingCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilingFilter
+  ): SpaceFilingsConnection!
+}
+
+"""Methods to use when ordering `SpaceFiling`."""
+enum SpaceFilingsOrderBy {
+  NATURAL
+  ITEM_CREATED_AT_ASC
+  ITEM_CREATED_AT_DESC
+  ITEM_UPDATED_AT_ASC
+  ITEM_UPDATED_AT_DESC
+  ITEM_NAME_ASC
+  ITEM_NAME_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  SPACE_ID_ASC
+  SPACE_ID_DESC
+  SUBMITTER_ID_ASC
+  SUBMITTER_ID_DESC
+  LINKED_SPACE_ID_ASC
+  LINKED_SPACE_ID_DESC
+  TOPIC_ID_ASC
+  TOPIC_ID_DESC
+  FILE_ID_ASC
+  FILE_ID_DESC
+  SORT_ORDER_ASC
+  SORT_ORDER_DESC
+  SLUG_ASC
+  SLUG_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+A condition to be used against `SpaceFiling` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input SpaceFilingCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `spaceId` field."""
+  spaceId: UUID
+
+  """Checks for equality with the object’s `submitterId` field."""
+  submitterId: UUID
+
+  """Checks for equality with the object’s `linkedSpaceId` field."""
+  linkedSpaceId: UUID
+
+  """Checks for equality with the object’s `topicId` field."""
+  topicId: UUID
+
+  """Checks for equality with the object’s `fileId` field."""
+  fileId: UUID
+
+  """Checks for equality with the object’s `sortOrder` field."""
+  sortOrder: Float
+
+  """Checks for equality with the object’s `slug` field."""
+  slug: String
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `itemCreatedAt` field."""
+  itemCreatedAt: Datetime
+
+  """Checks for equality with the object’s `itemUpdatedAt` field."""
+  itemUpdatedAt: Datetime
+
+  """Checks for equality with the object’s `itemName` field."""
+  itemName: String
+}
+
+"""A `SpaceFiling` edge in the connection."""
+type SpaceFilingsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `SpaceFiling` at the end of the edge."""
+  node: SpaceFiling!
+}
+
 """A `RoomItemAttachment` edge in the connection."""
 type RoomItemAttachmentsEdge {
   """A cursor for use in pagination."""
@@ -5014,8 +5693,8 @@ enum TopicsOrderBy {
   ORGANIZATION_ID_DESC
   SLUG_ASC
   SLUG_DESC
-  TITLE_ASC
-  TITLE_DESC
+  NAME_ASC
+  NAME_DESC
   LICENSE_ASC
   LICENSE_DESC
   IS_VISIBLE_FOR_ASC
@@ -5044,8 +5723,8 @@ input TopicCondition {
   """Checks for equality with the object’s `slug` field."""
   slug: String
 
-  """Checks for equality with the object’s `title` field."""
-  title: String
+  """Checks for equality with the object’s `name` field."""
+  name: String
 
   """Checks for equality with the object’s `license` field."""
   license: String
@@ -5297,8 +5976,8 @@ enum FilesOrderBy {
   UPLOADED_BYTES_DESC
   TOTAL_BYTES_ASC
   TOTAL_BYTES_DESC
-  FILENAME_ASC
-  FILENAME_DESC
+  NAME_ASC
+  NAME_DESC
   PATH_ON_STORAGE_ASC
   PATH_ON_STORAGE_DESC
   MIME_TYPE_ASC
@@ -5327,8 +6006,8 @@ input FileCondition {
   """Checks for equality with the object’s `totalBytes` field."""
   totalBytes: Int
 
-  """Checks for equality with the object’s `filename` field."""
-  filename: String
+  """Checks for equality with the object’s `name` field."""
+  name: String
 
   """Checks for equality with the object’s `pathOnStorage` field."""
   pathOnStorage: String
@@ -5636,6 +6315,152 @@ input TextsearchableEntityFilter {
 
   """Greater than or equal to the specified value."""
   greaterThanOrEqualTo: TextsearchableEntity
+}
+
+"""A connection to a list of `SpaceItemEntity` values."""
+type SpaceItemEntitiesConnection {
+  """A list of `SpaceItemEntity` objects."""
+  nodes: [SpaceItemEntity!]!
+
+  """
+  A list of edges which contains the `SpaceItemEntity` and cursor to aid in pagination.
+  """
+  edges: [SpaceItemEntitiesEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `SpaceItemEntity` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `SpaceItemEntity` edge in the connection."""
+type SpaceItemEntitiesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `SpaceItemEntity` at the end of the edge."""
+  node: SpaceItemEntity!
+}
+
+"""Methods to use when ordering `SpaceItemEntity`."""
+enum SpaceItemEntitiesOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+A condition to be used against `SpaceItemEntity` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input SpaceItemEntityCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+enum SpaceItemEntityType {
+  Space
+  File
+  Topic
+}
+
+"""
+A filter to be used against `SpaceItemEntity` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceItemEntityFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Checks for all expressions in this list."""
+  and: [SpaceItemEntityFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [SpaceItemEntityFilter!]
+
+  """Negates the expression."""
+  not: SpaceItemEntityFilter
+}
+
+"""A connection to a list of `Space` values."""
+type SpacesConnection {
+  """A list of `Space` objects."""
+  nodes: [Space!]!
+
+  """
+  A list of edges which contains the `Space` and cursor to aid in pagination.
+  """
+  edges: [SpacesEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Space` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Space` edge in the connection."""
+type SpacesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Space` at the end of the edge."""
+  node: Space!
+}
+
+"""Methods to use when ordering `Space`."""
+enum SpacesOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  NAME_ASC
+  NAME_DESC
+  IS_PUBLIC_ASC
+  IS_PUBLIC_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+A condition to be used against `Space` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input SpaceCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `isPublic` field."""
+  isPublic: Boolean
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
 }
 
 """A connection to a list of `Organization` values."""
@@ -7159,7 +7984,7 @@ input FileInput {
   contributorId: UUID
   uploadedBytes: Int
   totalBytes: Int
-  filename: String
+  name: String
   mimeType: String
 }
 
@@ -7402,7 +8227,7 @@ input TopicInput {
   """
   Each topic has an optional title. In case of an article, this would be the headline.
   """
-  title: String
+  name: String
 
   """Each topic can optionally be licensed. Hyperlinks are allowed."""
   license: String
@@ -7761,7 +8586,7 @@ input FilePatch {
   id: UUID
   uploadedBytes: Int
   totalBytes: Int
-  filename: String
+  name: String
   mimeType: String
 }
 
@@ -8134,7 +8959,7 @@ input TopicPatch {
   """
   Each topic has an optional title. In case of an article, this would be the headline.
   """
-  title: String
+  name: String
 
   """Each topic can optionally be licensed. Hyperlinks are allowed."""
   license: String
