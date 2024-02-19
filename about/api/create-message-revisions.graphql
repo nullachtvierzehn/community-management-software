@@ -1,0 +1,81 @@
+mutation CreateMessage {
+  createMessageRevision(
+    input: { messageRevision: { subject: "test", body: "hello world" } }
+  ) {
+    messageRevision {
+      revisionId
+      editorId
+      body
+      createdAt
+    }
+  }
+}
+
+mutation UpdateMessage {
+  updateCurrentMessageRevision(
+    input: {
+      id: "1083459a-cf45-11ee-adca-d76f5f83fc40"
+      patch: { body: "hello florin" }
+    }
+  ) {
+    currentMessageRevision {
+      id
+      revisionId
+      parentRevisionId
+      editorId
+      body
+      createdAt
+    }
+  }
+}
+
+mutation UpdateMessageRevision {
+  updateMessageRevision(
+    input: {
+      id: "1083459a-cf45-11ee-adca-d76f5f83fc40"
+      revisionId: "540b5a90-ce2e-11ee-a44a-8ff4ec6a3bc3"
+      patch: { body: "hello leon" }
+    }
+  ) {
+    messageRevision {
+      id
+      revisionId
+      parentRevisionId
+      editorId
+      body
+      createdAt
+    }
+  }
+}
+
+query GetRevisions {
+  messageRevisions(
+    condition: { id: "1083459a-cf45-11ee-adca-d76f5f83fc40" }
+    orderBy: [CREATED_AT_ASC]
+  ) {
+    nodes {
+      body
+      editor {
+        username
+      }
+      createdAt
+      isLeaf
+      isPosted
+    }
+  }
+}
+
+query GetCurrentRevisions {
+  currentMessageRevisions(
+    condition: { id: "1083459a-cf45-11ee-adca-d76f5f83fc40" }
+    orderBy: [CREATED_AT_ASC]
+  ) {
+    nodes {
+      body
+      editor {
+        name
+      }
+      createdAt
+    }
+  }
+}

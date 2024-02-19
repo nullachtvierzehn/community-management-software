@@ -1,10 +1,9 @@
-drop function app_public.space_filings_item_created_at(filing app_public.space_filings);
-drop function app_public.space_filings_item_updated_at(filing app_public.space_filings);
-drop function app_public.space_filings_item_name(filing app_public.space_filings);
 drop type if exists app_public.space_item;
-drop table if exists app_public.space_items;
-drop table if exists app_public.space_inputs;
-drop table if exists app_public.space_postings;
-drop table if exists app_public.space_filings;
-drop table if exists app_public.spaces;
+drop table if exists app_public.messages cascade;
+drop table if exists app_public.message_revisions cascade;
+drop table if exists app_public.topic_revisions cascade;
+drop table if exists app_public.space_postings cascade;
+drop table if exists app_public.space_subscriptions cascade;
+drop table if exists app_public.spaces cascade;
+drop type if exists app_public.space_role cascade;
 drop type if exists app_public.itc_stamp;

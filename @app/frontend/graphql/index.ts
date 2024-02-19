@@ -139,20 +139,6 @@ export type Query = Node & {
   roomSubscriptionBySubscriberIdAndRoomId: Maybe<RoomSubscription>;
   /** Reads and enables pagination through a set of `RoomSubscription`. */
   roomSubscriptions: Maybe<RoomSubscriptionsConnection>;
-  /** Get a single `Space`. */
-  space: Maybe<Space>;
-  /** Reads a single `Space` using its globally unique `ID`. */
-  spaceByNodeId: Maybe<Space>;
-  /** Get a single `SpaceItem`. */
-  spaceItem: Maybe<SpaceItem>;
-  /** Reads a single `SpaceItem` using its globally unique `ID`. */
-  spaceItemByNodeId: Maybe<SpaceItem>;
-  /** Get a single `SpaceItem`. */
-  spaceItemBySpaceIdAndKey: Maybe<SpaceItem>;
-  /** Reads and enables pagination through a set of `SpaceItem`. */
-  spaceItems: Maybe<SpaceItemsConnection>;
-  /** Reads and enables pagination through a set of `Space`. */
-  spaces: Maybe<SpacesConnection>;
   /** Get a single `Topic`. */
   topic: Maybe<Topic>;
   /** Reads a single `Topic` using its globally unique `ID`. */
@@ -546,63 +532,6 @@ export type QueryRoomSubscriptionsArgs = {
 
 
 /** The root query type which gives access points into the data universe. */
-export type QuerySpaceArgs = {
-  id: Scalars['UUID']['input'];
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QuerySpaceByNodeIdArgs = {
-  nodeId: Scalars['ID']['input'];
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QuerySpaceItemArgs = {
-  id: Scalars['UUID']['input'];
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QuerySpaceItemByNodeIdArgs = {
-  nodeId: Scalars['ID']['input'];
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QuerySpaceItemBySpaceIdAndKeyArgs = {
-  key: Scalars['String']['input'];
-  spaceId: Scalars['UUID']['input'];
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QuerySpaceItemsArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<SpaceItemCondition>;
-  filter?: InputMaybe<SpaceItemFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
-};
-
-
-/** The root query type which gives access points into the data universe. */
-export type QuerySpacesArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<SpaceCondition>;
-  filter?: InputMaybe<SpaceFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<SpacesOrderBy>>;
-};
-
-
-/** The root query type which gives access points into the data universe. */
 export type QueryTopicArgs = {
   id: Scalars['UUID']['input'];
 };
@@ -962,10 +891,6 @@ export type TopicFilter = {
   roomMessageAttachmentsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `slug` field. */
   slug?: InputMaybe<StringFilter>;
-  /** Filter by the object’s `spaceItems` relation. */
-  spaceItems?: InputMaybe<TopicToManySpaceItemFilter>;
-  /** Some related `spaceItems` exist. */
-  spaceItemsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `tags` field. */
   tags?: InputMaybe<StringListFilter>;
   /** Filter by the object’s `title` field. */
@@ -1232,10 +1157,6 @@ export type FileFilter = {
   roomItemAttachmentsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `sha256` field. */
   sha256?: InputMaybe<StringFilter>;
-  /** Filter by the object’s `spaceItems` relation. */
-  spaceItems?: InputMaybe<FileToManySpaceItemFilter>;
-  /** Some related `spaceItems` exist. */
-  spaceItemsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `totalBytes` field. */
   totalBytes?: InputMaybe<IntFilter>;
   /** Filter by the object’s `updatedAt` field. */
@@ -2058,98 +1979,6 @@ export type RoomItemType =
   | 'MESSAGE'
   | 'TOPIC';
 
-/** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
-export type FileToManySpaceItemFilter = {
-  /** Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SpaceItemFilter>;
-  /** No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SpaceItemFilter>;
-  /** Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SpaceItemFilter>;
-};
-
-/** A filter to be used against `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
-export type SpaceItemFilter = {
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<SpaceItemFilter>>;
-  /** Filter by the object’s `createdAt` field. */
-  createdAt?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `file` relation. */
-  file?: InputMaybe<FileFilter>;
-  /** A related `file` exists. */
-  fileExists?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `fileId` field. */
-  fileId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `id` field. */
-  id?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `key` field. */
-  key?: InputMaybe<StringFilter>;
-  /** Filter by the object’s `linkedSpace` relation. */
-  linkedSpace?: InputMaybe<SpaceFilter>;
-  /** A related `linkedSpace` exists. */
-  linkedSpaceExists?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `linkedSpaceId` field. */
-  linkedSpaceId?: InputMaybe<UuidFilter>;
-  /** Negates the expression. */
-  not?: InputMaybe<SpaceItemFilter>;
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<SpaceItemFilter>>;
-  /** Filter by the object’s `order` field. */
-  order?: InputMaybe<FloatFilter>;
-  /** Filter by the object’s `space` relation. */
-  space?: InputMaybe<SpaceFilter>;
-  /** A related `space` exists. */
-  spaceExists?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `spaceId` field. */
-  spaceId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `topic` relation. */
-  topic?: InputMaybe<TopicFilter>;
-  /** A related `topic` exists. */
-  topicExists?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `topicId` field. */
-  topicId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `updatedAt` field. */
-  updatedAt?: InputMaybe<DatetimeFilter>;
-};
-
-/** A filter to be used against `Space` object types. All fields are combined with a logical ‘and.’ */
-export type SpaceFilter = {
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<SpaceFilter>>;
-  /** Filter by the object’s `createdAt` field. */
-  createdAt?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `id` field. */
-  id?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `isPublic` field. */
-  isPublic?: InputMaybe<BooleanFilter>;
-  /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>;
-  /** Negates the expression. */
-  not?: InputMaybe<SpaceFilter>;
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<SpaceFilter>>;
-  /** Filter by the object’s `spaceItems` relation. */
-  spaceItems?: InputMaybe<SpaceToManySpaceItemFilter>;
-  /** Filter by the object’s `spaceItemsByLinkedSpaceId` relation. */
-  spaceItemsByLinkedSpaceId?: InputMaybe<SpaceToManySpaceItemFilter>;
-  /** Some related `spaceItemsByLinkedSpaceId` exist. */
-  spaceItemsByLinkedSpaceIdExist?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Some related `spaceItems` exist. */
-  spaceItemsExist?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `updatedAt` field. */
-  updatedAt?: InputMaybe<DatetimeFilter>;
-};
-
-/** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
-export type SpaceToManySpaceItemFilter = {
-  /** Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SpaceItemFilter>;
-  /** No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SpaceItemFilter>;
-  /** Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SpaceItemFilter>;
-};
-
 /** A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
 export type UserToManyOrganizationMembershipFilter = {
   /** Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -2344,16 +2173,6 @@ export type TopicToManyRoomMessageAttachmentFilter = {
   some?: InputMaybe<RoomMessageAttachmentFilter>;
 };
 
-/** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
-export type TopicToManySpaceItemFilter = {
-  /** Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SpaceItemFilter>;
-  /** No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SpaceItemFilter>;
-  /** Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SpaceItemFilter>;
-};
-
 /** A filter to be used against String List fields. All fields are combined with a logical ‘and.’ */
 export type StringListFilter = {
   /** Any array item is equal to the specified value. */
@@ -2471,8 +2290,6 @@ export type Topic = Node & {
   roomMessageAttachments: RoomMessageAttachmentsConnection;
   /** Each topic has a slug (a name made up of lowercase letters, digits, and hypens) to be addressed with. */
   slug: Scalars['String']['output'];
-  /** Reads and enables pagination through a set of `SpaceItem`. */
-  spaceItems: SpaceItemsConnection;
   /** Each topic can be categorized using tags. */
   tags: Array<Maybe<Scalars['String']['output']>>;
   /** Each topic has an optional title. In case of an article, this would be the headline. */
@@ -2523,19 +2340,6 @@ export type TopicRoomMessageAttachmentsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<RoomMessageAttachmentsOrderBy>>;
-};
-
-
-/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
-export type TopicSpaceItemsArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<SpaceItemCondition>;
-  filter?: InputMaybe<SpaceItemFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
 };
 
 export type Organization = Node & {
@@ -3176,8 +2980,6 @@ export type File = Node & {
   /** Reads and enables pagination through a set of `RoomItemAttachment`. */
   roomItemAttachments: RoomItemAttachmentsConnection;
   sha256: Maybe<Scalars['String']['output']>;
-  /** Reads and enables pagination through a set of `SpaceItem`. */
-  spaceItems: SpaceItemsConnection;
   totalBytes: Maybe<Scalars['Int']['output']>;
   updatedAt: Scalars['Datetime']['output'];
   uploadedBytes: Maybe<Scalars['Int']['output']>;
@@ -3205,18 +3007,6 @@ export type FileRoomItemAttachmentsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<RoomItemAttachmentsOrderBy>>;
-};
-
-
-export type FileSpaceItemsArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<SpaceItemCondition>;
-  filter?: InputMaybe<SpaceItemFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
 };
 
 export type PdfFile = Node & {
@@ -3299,139 +3089,6 @@ export type PdfFilesEdge = {
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `PdfFile` at the end of the edge. */
   node: PdfFile;
-};
-
-/**
- * A condition to be used against `SpaceItem` object types. All fields are tested
- * for equality and combined with a logical ‘and.’
- */
-export type SpaceItemCondition = {
-  /** Checks for equality with the object’s `createdAt` field. */
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Checks for equality with the object’s `fileId` field. */
-  fileId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `id` field. */
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `key` field. */
-  key?: InputMaybe<Scalars['String']['input']>;
-  /** Checks for equality with the object’s `linkedSpaceId` field. */
-  linkedSpaceId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `order` field. */
-  order?: InputMaybe<Scalars['Float']['input']>;
-  /** Checks for equality with the object’s `spaceId` field. */
-  spaceId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `topicId` field. */
-  topicId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `updatedAt` field. */
-  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-};
-
-/** Methods to use when ordering `SpaceItem`. */
-export type SpaceItemsOrderBy =
-  | 'CREATED_AT_ASC'
-  | 'CREATED_AT_DESC'
-  | 'FILE_ID_ASC'
-  | 'FILE_ID_DESC'
-  | 'ID_ASC'
-  | 'ID_DESC'
-  | 'KEY_ASC'
-  | 'KEY_DESC'
-  | 'LINKED_SPACE_ID_ASC'
-  | 'LINKED_SPACE_ID_DESC'
-  | 'NATURAL'
-  | 'ORDER_ASC'
-  | 'ORDER_DESC'
-  | 'PRIMARY_KEY_ASC'
-  | 'PRIMARY_KEY_DESC'
-  | 'SPACE_ID_ASC'
-  | 'SPACE_ID_DESC'
-  | 'TOPIC_ID_ASC'
-  | 'TOPIC_ID_DESC'
-  | 'UPDATED_AT_ASC'
-  | 'UPDATED_AT_DESC';
-
-/** A connection to a list of `SpaceItem` values. */
-export type SpaceItemsConnection = {
-  __typename?: 'SpaceItemsConnection';
-  /** A list of edges which contains the `SpaceItem` and cursor to aid in pagination. */
-  edges: Array<SpaceItemsEdge>;
-  /** A list of `SpaceItem` objects. */
-  nodes: Array<SpaceItem>;
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo;
-  /** The count of *all* `SpaceItem` you could get from the connection. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** A `SpaceItem` edge in the connection. */
-export type SpaceItemsEdge = {
-  __typename?: 'SpaceItemsEdge';
-  /** A cursor for use in pagination. */
-  cursor: Maybe<Scalars['Cursor']['output']>;
-  /** The `SpaceItem` at the end of the edge. */
-  node: SpaceItem;
-};
-
-export type SpaceItem = Node & {
-  __typename?: 'SpaceItem';
-  createdAt: Scalars['Datetime']['output'];
-  /** Reads a single `File` that is related to this `SpaceItem`. */
-  file: Maybe<File>;
-  fileId: Maybe<Scalars['UUID']['output']>;
-  id: Scalars['UUID']['output'];
-  key: Maybe<Scalars['String']['output']>;
-  /** Reads a single `Space` that is related to this `SpaceItem`. */
-  linkedSpace: Maybe<Space>;
-  linkedSpaceId: Maybe<Scalars['UUID']['output']>;
-  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
-  nodeId: Scalars['ID']['output'];
-  order: Maybe<Scalars['Float']['output']>;
-  /** Reads a single `Space` that is related to this `SpaceItem`. */
-  space: Maybe<Space>;
-  spaceId: Maybe<Scalars['UUID']['output']>;
-  /** Reads a single `Topic` that is related to this `SpaceItem`. */
-  topic: Maybe<Topic>;
-  topicId: Maybe<Scalars['UUID']['output']>;
-  updatedAt: Scalars['Datetime']['output'];
-};
-
-export type Space = Node & {
-  __typename?: 'Space';
-  createdAt: Scalars['Datetime']['output'];
-  id: Scalars['UUID']['output'];
-  isPublic: Scalars['Boolean']['output'];
-  name: Maybe<Scalars['String']['output']>;
-  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
-  nodeId: Scalars['ID']['output'];
-  /** Reads and enables pagination through a set of `SpaceItem`. */
-  spaceItems: SpaceItemsConnection;
-  /** Reads and enables pagination through a set of `SpaceItem`. */
-  spaceItemsByLinkedSpaceId: SpaceItemsConnection;
-  updatedAt: Scalars['Datetime']['output'];
-};
-
-
-export type SpaceSpaceItemsArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<SpaceItemCondition>;
-  filter?: InputMaybe<SpaceItemFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
-};
-
-
-export type SpaceSpaceItemsByLinkedSpaceIdArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<SpaceItemCondition>;
-  filter?: InputMaybe<SpaceItemFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
 };
 
 export type RoomMessage = Node & {
@@ -4215,58 +3872,6 @@ export type OrganizationsEdge = {
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `Organization` at the end of the edge. */
   node: Organization;
-};
-
-/** A condition to be used against `Space` object types. All fields are tested for equality and combined with a logical ‘and.’ */
-export type SpaceCondition = {
-  /** Checks for equality with the object’s `createdAt` field. */
-  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
-  /** Checks for equality with the object’s `id` field. */
-  id?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `isPublic` field. */
-  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Checks for equality with the object’s `name` field. */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /** Checks for equality with the object’s `updatedAt` field. */
-  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
-};
-
-/** Methods to use when ordering `Space`. */
-export type SpacesOrderBy =
-  | 'CREATED_AT_ASC'
-  | 'CREATED_AT_DESC'
-  | 'ID_ASC'
-  | 'ID_DESC'
-  | 'IS_PUBLIC_ASC'
-  | 'IS_PUBLIC_DESC'
-  | 'NAME_ASC'
-  | 'NAME_DESC'
-  | 'NATURAL'
-  | 'PRIMARY_KEY_ASC'
-  | 'PRIMARY_KEY_DESC'
-  | 'UPDATED_AT_ASC'
-  | 'UPDATED_AT_DESC';
-
-/** A connection to a list of `Space` values. */
-export type SpacesConnection = {
-  __typename?: 'SpacesConnection';
-  /** A list of edges which contains the `Space` and cursor to aid in pagination. */
-  edges: Array<SpacesEdge>;
-  /** A list of `Space` objects. */
-  nodes: Array<Space>;
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo;
-  /** The count of *all* `Space` you could get from the connection. */
-  totalCount: Scalars['Int']['output'];
-};
-
-/** A `Space` edge in the connection. */
-export type SpacesEdge = {
-  __typename?: 'SpacesEdge';
-  /** A cursor for use in pagination. */
-  cursor: Maybe<Scalars['Cursor']['output']>;
-  /** The `Space` at the end of the edge. */
-  node: Space;
 };
 
 /** A condition to be used against `User` object types. All fields are tested for equality and combined with a logical ‘and.’ */

@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "our:setup": "node setup.mjs",
-    "data:dump": "env $(cat .env | xargs) sh -c 'pg_dump \"$SUPERUSER_DATABASE_URL\" --data-only --schema app_public --schema app_hidden --schema app_private --on-conflict-do-nothing --column-inserts --no-comments'",
-    "schema:dump": "env $(cat .env | xargs) sh -c 'pg_dump \"$SUPERUSER_DATABASE_URL\" --no-sync --schema-only --no-owner --exclude-schema=graphile_migrate --exclude-schema=graphile_worker'",
+    "dump:data": "env $(cat .env | xargs) sh -c 'pg_dump \"$SUPERUSER_DATABASE_URL\" --data-only --schema app_public --schema app_hidden --schema app_private --on-conflict-do-nothing --column-inserts --no-comments'",
+    "dump:schema": "env $(cat .env | xargs) sh -c 'pg_dump \"$SUPERUSER_DATABASE_URL\" --no-sync --schema-only --no-owner --exclude-schema=graphile_migrate --exclude-schema=graphile_worker'",
+    "dump:database": "env $(cat .env | xargs) sh -c 'pg_dump \"$SUPERUSER_DATABASE_URL\" --no-sync'",
     "schema:migrate": "npm run --workspace @app/database migrate",
     "dev:frontend": "npm run --workspace @app/frontend dev",
     "dev:backend": "npm run --workspace @app/backend dev",

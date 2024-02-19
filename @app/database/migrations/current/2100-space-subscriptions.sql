@@ -1,7 +1,7 @@
 create type app_public.space_role as enum (
-  'guest',
-  'member',
-  'staff',
+  'viewer',
+  'contributor',
+  'moderator',
   'admin'
 );
 
@@ -16,7 +16,7 @@ create table app_public.space_subscriptions (
     constraint subscriber
       references app_public.users (id)
       on update cascade on delete cascade,
-  "role" app_public.space_role not null default 'member',
+  "role" app_public.space_role not null default 'contributor',
   notifications app_public.notification_setting not null default 'default',
   last_visit_at timestamptz,
   last_notification_at timestamptz,
@@ -30,7 +30,7 @@ comment on constraint "space" on app_public.space_subscriptions
 
 
 
-create or replace function app_public.my_subscribed_space_ids(minimum_role app_public.space_role default 'member') 
+create or replace function app_public.my_subscribed_space_ids(minimum_role app_public.space_role default 'viewer') 
   returns setof uuid
   language sql 
   stable 
@@ -41,6 +41,6 @@ create or replace function app_public.my_subscribed_space_ids(minimum_role app_p
     select space_id from app_public.space_subscriptions where subscriber_id = app_public.current_user_id() and "role" >= minimum_role;
   $$;
 
-create or replace function app_public.my_space_subscriptions(minimum_role app_public.space_role default 'member') returns setof app_public.space_subscriptions as $$
+create or replace function app_public.my_space_subscriptions(minimum_role app_public.space_role default 'viewer') returns setof app_public.space_subscriptions as $$
   select * from app_public.space_subscriptions where subscriber_id = app_public.current_user_id() and "role" >= minimum_role;
 $$ language sql stable parallel safe security definer set search_path = pg_catalog, public, pg_temp;

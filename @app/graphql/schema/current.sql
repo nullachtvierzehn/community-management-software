@@ -210,9 +210,9 @@ COMMENT ON TYPE app_public.space_item IS '
 --
 
 CREATE TYPE app_public.space_role AS ENUM (
-    'guest',
-    'member',
-    'staff',
+    'viewer',
+    'contributor',
+    'moderator',
     'admin'
 );
 
@@ -344,6 +344,24 @@ $$;
 
 
 --
+-- Name: rebase_message_revisions_before_deletion(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.rebase_message_revisions_before_deletion() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+begin
+  update app_public.message_revisions
+    set parent_revision_id = old.parent_revision_id
+    where 
+      id = old.id 
+      and parent_revision_id = old.revision_id;
+  return old;
+end
+$$;
+
+
+--
 -- Name: tiptap_document_as_plain_text(jsonb); Type: FUNCTION; Schema: app_hidden; Owner: -
 --
 
@@ -356,6 +374,57 @@ CREATE FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) RETURNS
     'strict $.** ? (@.type == "text" && @.text.type() == "string").text'
   ) as elem
 $_$;
+
+
+--
+-- Name: update_active_message_revision(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.update_active_message_revision() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+declare
+  new_revision app_public.message_revisions;
+  old_revision app_public.message_revisions;
+  can_I_update boolean;
+begin
+  if not (old.subject, old.body) is distinct from (new.subject, new.body) then
+    return old;
+  end if;
+
+  select * into strict old_revision 
+    from app_public.message_revisions 
+    where id = old.id and revision_id = old.revision_id
+    for update;
+
+  can_I_update := (
+    old_revision.editor_id = app_public.current_user_id()
+    and app_public.message_revisions_is_leaf(old_revision)
+    and not app_public.message_revisions_is_posted(old_revision)
+    or true
+  );
+
+  if can_I_update then
+    update app_public.message_revisions as r
+    set 
+      "subject" = new."subject",
+      body = new.body
+    where 
+      r.id = old.id
+      and r.revision_id = old.revision_id
+    returning * into strict new;
+  else
+    insert into app_public.message_revisions 
+      (id, parent_revision_id, "subject", body)
+      values (old.id, old.revision_id, new.subject, new.body)
+      returning * into strict new_revision;
+    new.revision_id := new_revision.revision_id;
+    new.created_at := new_revision.created_at;
+  end if;
+  
+  return new;
+end
+$$;
 
 
 --
@@ -1968,6 +2037,70 @@ COMMENT ON FUNCTION app_public.make_email_primary(email_id uuid) IS 'Your primar
 
 
 --
+-- Name: message_revisions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.message_revisions (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    revision_id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    parent_revision_id uuid,
+    editor_id uuid DEFAULT app_public.current_user_id(),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    subject text,
+    body jsonb
+);
+
+
+--
+-- Name: message_revisions_is_leaf(app_public.message_revisions); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.message_revisions_is_leaf(revision app_public.message_revisions) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER PARALLEL SAFE
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+  select not exists (
+    select from app_public.message_revisions
+    where (id, parent_revision_id) = (revision.id, revision.revision_id)
+  )
+$$;
+
+
+--
+-- Name: FUNCTION message_revisions_is_leaf(revision app_public.message_revisions); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.message_revisions_is_leaf(revision app_public.message_revisions) IS '
+  @behavior +typeField +filterBy
+  ';
+
+
+--
+-- Name: message_revisions_is_posted(app_public.message_revisions); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.message_revisions_is_posted(revision app_public.message_revisions) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER PARALLEL SAFE
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+  select exists (
+    select from app_public.space_postings
+    where (message_id, revision_id) = (revision.id, revision.revision_id)
+  )
+$$;
+
+
+--
+-- Name: FUNCTION message_revisions_is_posted(revision app_public.message_revisions); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.message_revisions_is_posted(revision app_public.message_revisions) IS '
+  @behavior +typeField +filterBy
+  ';
+
+
+--
 -- Name: my_first_interaction(app_public.rooms); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -2093,6 +2226,36 @@ $$;
 
 
 --
+-- Name: space_subscriptions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.space_subscriptions (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    space_id uuid,
+    subscriber_id uuid,
+    role app_public.space_role DEFAULT 'contributor'::app_public.space_role NOT NULL,
+    notifications app_public.notification_setting DEFAULT 'default'::app_public.notification_setting NOT NULL,
+    last_visit_at timestamp with time zone,
+    last_notification_at timestamp with time zone,
+    is_starred boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: my_space_subscriptions(app_public.space_role); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.my_space_subscriptions(minimum_role app_public.space_role DEFAULT 'viewer'::app_public.space_role) RETURNS SETOF app_public.space_subscriptions
+    LANGUAGE sql STABLE SECURITY DEFINER PARALLEL SAFE
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+  select * from app_public.space_subscriptions where subscriber_id = app_public.current_user_id() and "role" >= minimum_role;
+$$;
+
+
+--
 -- Name: my_subscribed_room_ids(app_public.room_role); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -2102,6 +2265,18 @@ CREATE FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.room_r
     AS $$
   select room_id from app_public.room_subscriptions where subscriber_id = app_public.current_user_id() and "role" >= minimum_role;
 $$;
+
+
+--
+-- Name: my_subscribed_space_ids(app_public.space_role); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.my_subscribed_space_ids(minimum_role app_public.space_role DEFAULT 'viewer'::app_public.space_role) RETURNS SETOF uuid
+    LANGUAGE sql STABLE SECURITY DEFINER PARALLEL SAFE
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+    select space_id from app_public.space_subscriptions where subscriber_id = app_public.current_user_id() and "role" >= minimum_role;
+  $$;
 
 
 --
@@ -2517,30 +2692,31 @@ $$;
 
 
 --
--- Name: space_filings; Type: TABLE; Schema: app_public; Owner: -
+-- Name: space_postings; Type: TABLE; Schema: app_public; Owner: -
 --
 
-CREATE TABLE app_public.space_filings (
+CREATE TABLE app_public.space_postings (
     id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
     space_id uuid,
-    submitter_id uuid,
+    poster_id uuid,
     linked_space_id uuid,
     topic_id uuid,
-    file_id uuid,
+    message_id uuid,
+    revision_id uuid,
     sort_order double precision,
     slug text,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT links_exactly_one_entity CHECK ((1 = num_nonnulls(linked_space_id, topic_id, file_id))),
+    CONSTRAINT links_exactly_one_entity CHECK ((1 = num_nonnulls(linked_space_id, topic_id, message_id))),
     CONSTRAINT valid_slug CHECK ((slug ~ '^[a-zA-Z0-9.-_~]+$'::text))
 );
 
 
 --
--- Name: TABLE space_filings; Type: COMMENT; Schema: app_public; Owner: -
+-- Name: TABLE space_postings; Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON TABLE app_public.space_filings IS '
+COMMENT ON TABLE app_public.space_postings IS '
   @ref item to:SpaceItemEntity singular
   @refVia item via:topics
   @refVia item via:files
@@ -2548,85 +2724,85 @@ COMMENT ON TABLE app_public.space_filings IS '
 
 
 --
--- Name: COLUMN space_filings.slug; Type: COMMENT; Schema: app_public; Owner: -
+-- Name: COLUMN space_postings.slug; Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON COLUMN app_public.space_filings.slug IS '
+COMMENT ON COLUMN app_public.space_postings.slug IS '
   A URL path segment. We allow unreserved URI characters according to RFC 3986 (ALPHA / DIGIT / "-" / "." / "_" / "~")
   ';
 
 
 --
--- Name: space_filings_item_created_at(app_public.space_filings); Type: FUNCTION; Schema: app_public; Owner: -
+-- Name: space_postings_item_created_at(app_public.space_postings); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
-CREATE FUNCTION app_public.space_filings_item_created_at(filing app_public.space_filings) RETURNS timestamp with time zone
+CREATE FUNCTION app_public.space_postings_item_created_at(p app_public.space_postings) RETURNS timestamp with time zone
     LANGUAGE sql STABLE PARALLEL SAFE
     AS $$
-  select created_at from app_public.spaces where id = filing.linked_space_id
+  select created_at from app_public.spaces where id = p.linked_space_id
   union all
-  select created_at from app_public.topics where id = filing.topic_id
+  select created_at from app_public.topic_revisions where (id, revision_id) = (p.topic_id, p.revision_id)
   union all
-  select created_at from app_public.files where id = filing.file_id
+  select created_at from app_public.message_revisions where (id, revision_id) = (p.message_id, p.revision_id)
   limit 1
 $$;
 
 
 --
--- Name: FUNCTION space_filings_item_created_at(filing app_public.space_filings); Type: COMMENT; Schema: app_public; Owner: -
+-- Name: FUNCTION space_postings_item_created_at(p app_public.space_postings); Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON FUNCTION app_public.space_filings_item_created_at(filing app_public.space_filings) IS '
+COMMENT ON FUNCTION app_public.space_postings_item_created_at(p app_public.space_postings) IS '
   @behavior -typeField +orderBy
   ';
 
 
 --
--- Name: space_filings_item_name(app_public.space_filings); Type: FUNCTION; Schema: app_public; Owner: -
+-- Name: space_postings_item_name(app_public.space_postings); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
-CREATE FUNCTION app_public.space_filings_item_name(filing app_public.space_filings) RETURNS text
+CREATE FUNCTION app_public.space_postings_item_name(p app_public.space_postings) RETURNS text
     LANGUAGE sql STABLE PARALLEL SAFE
     AS $$
-  select "name" from app_public.spaces where id = filing.linked_space_id
+  select "name" from app_public.spaces where id = p.linked_space_id
   union all
-  select "name" from app_public.topics where id = filing.topic_id
+  select title from app_public.topic_revisions where (id, revision_id) = (p.topic_id, p.revision_id)
   union all
-  select "name" from app_public.files where id = filing.file_id
+  select "subject" from app_public.message_revisions where (id, revision_id) = (p.message_id, p.revision_id)
   limit 1
 $$;
 
 
 --
--- Name: FUNCTION space_filings_item_name(filing app_public.space_filings); Type: COMMENT; Schema: app_public; Owner: -
+-- Name: FUNCTION space_postings_item_name(p app_public.space_postings); Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON FUNCTION app_public.space_filings_item_name(filing app_public.space_filings) IS '
+COMMENT ON FUNCTION app_public.space_postings_item_name(p app_public.space_postings) IS '
   @behavior -typeField +orderBy
   ';
 
 
 --
--- Name: space_filings_item_updated_at(app_public.space_filings); Type: FUNCTION; Schema: app_public; Owner: -
+-- Name: space_postings_item_updated_at(app_public.space_postings); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
-CREATE FUNCTION app_public.space_filings_item_updated_at(filing app_public.space_filings) RETURNS timestamp with time zone
+CREATE FUNCTION app_public.space_postings_item_updated_at(p app_public.space_postings) RETURNS timestamp with time zone
     LANGUAGE sql STABLE PARALLEL SAFE
     AS $$
-  select updated_at from app_public.spaces where id = filing.linked_space_id
+  select updated_at from app_public.spaces where id = p.linked_space_id
   union all
-  select updated_at from app_public.topics where id = filing.topic_id
+  select updated_at from app_public.topic_revisions where (id, revision_id) = (p.topic_id, p.revision_id)
   union all
-  select updated_at from app_public.files where id = filing.file_id
+  select updated_at from app_public.message_revisions where (id, revision_id) = (p.message_id, p.revision_id)
   limit 1
 $$;
 
 
 --
--- Name: FUNCTION space_filings_item_updated_at(filing app_public.space_filings); Type: COMMENT; Schema: app_public; Owner: -
+-- Name: FUNCTION space_postings_item_updated_at(p app_public.space_postings); Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON FUNCTION app_public.space_filings_item_updated_at(filing app_public.space_filings) IS '
+COMMENT ON FUNCTION app_public.space_postings_item_updated_at(p app_public.space_postings) IS '
   @behavior -typeField +orderBy
   ';
 
@@ -3556,6 +3732,67 @@ COMMENT ON TABLE app_private.user_secrets IS 'The contents of this table should 
 
 
 --
+-- Name: active_message_revisions; Type: VIEW; Schema: app_public; Owner: -
+--
+
+CREATE VIEW app_public.active_message_revisions WITH (security_invoker='true', security_barrier='true') AS
+ SELECT id,
+    revision_id,
+    parent_revision_id,
+    editor_id,
+    created_at,
+    updated_at,
+    subject,
+    body
+   FROM app_public.message_revisions tip
+  WHERE (NOT (EXISTS ( SELECT
+           FROM app_public.message_revisions child
+          WHERE ((tip.id = child.id) AND (tip.revision_id = child.parent_revision_id)))))
+  WITH CASCADED CHECK OPTION;
+
+
+--
+-- Name: VIEW active_message_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON VIEW app_public.active_message_revisions IS '
+  @primaryKey id,revision_id
+  @foreignKey (editor_id) references app_public.users (id)
+  ';
+
+
+--
+-- Name: current_message_revisions; Type: VIEW; Schema: app_public; Owner: -
+--
+
+CREATE VIEW app_public.current_message_revisions WITH (security_invoker='true', security_barrier='true') AS
+ SELECT id,
+    revision_id,
+    parent_revision_id,
+    editor_id,
+    created_at,
+    updated_at,
+    subject,
+    body
+   FROM app_public.active_message_revisions tip
+  WHERE ((created_at, revision_id) >= ALL ( SELECT others.created_at,
+            others.revision_id
+           FROM app_public.active_message_revisions others
+          WHERE (tip.id = others.id)))
+  WITH CASCADED CHECK OPTION;
+
+
+--
+-- Name: VIEW current_message_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON VIEW app_public.current_message_revisions IS '
+  @primaryKey id
+  @foreignKey (editor_id) references app_public.users (id)
+  ';
+
+
+--
 -- Name: files; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -3656,24 +3893,6 @@ CREATE TABLE app_public.room_message_attachments (
 
 
 --
--- Name: space_subscriptions; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.space_subscriptions (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    space_id uuid,
-    subscriber_id uuid,
-    role app_public.space_role DEFAULT 'member'::app_public.space_role NOT NULL,
-    notifications app_public.notification_setting DEFAULT 'default'::app_public.notification_setting NOT NULL,
-    last_visit_at timestamp with time zone,
-    last_notification_at timestamp with time zone,
-    is_starred boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
-
---
 -- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -3694,6 +3913,59 @@ COMMENT ON TABLE app_public.spaces IS '
   @implements SpaceItemEntity
   A space is a place where users meet and interact with items.
   ';
+
+
+--
+-- Name: topic_revisions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.topic_revisions (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    revision_id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    parent_revision_id uuid,
+    editor_id uuid DEFAULT app_public.current_user_id(),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    title text,
+    license text,
+    tags text[] DEFAULT '{}'::text[] NOT NULL,
+    content jsonb NOT NULL
+);
+
+
+--
+-- Name: TABLE topic_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.topic_revisions IS 'A topic is a short text about something. Most topics should have the scope of a micro learning unit.';
+
+
+--
+-- Name: COLUMN topic_revisions.title; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topic_revisions.title IS 'Each topic has an optional title. In case of an article, this would be the headline.';
+
+
+--
+-- Name: COLUMN topic_revisions.license; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topic_revisions.license IS 'Each topic can optionally be licensed. Hyperlinks are allowed.';
+
+
+--
+-- Name: COLUMN topic_revisions.tags; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topic_revisions.tags IS 'Each topic can be categorized using tags.';
+
+
+--
+-- Name: COLUMN topic_revisions.content; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.topic_revisions.content IS 'The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html';
 
 
 --
@@ -3900,6 +4172,14 @@ ALTER TABLE ONLY app_public.files
 
 
 --
+-- Name: message_revisions message_revisions_pk; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.message_revisions
+    ADD CONSTRAINT message_revisions_pk PRIMARY KEY (id, revision_id);
+
+
+--
 -- Name: room_subscriptions one_subscription_per_user_and_room; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4020,11 +4300,11 @@ ALTER TABLE ONLY app_public.rooms
 
 
 --
--- Name: space_filings space_filings_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+-- Name: space_postings space_postings_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
-ALTER TABLE ONLY app_public.space_filings
-    ADD CONSTRAINT space_filings_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY app_public.space_postings
+    ADD CONSTRAINT space_postings_pkey PRIMARY KEY (id);
 
 
 --
@@ -4041,6 +4321,14 @@ ALTER TABLE ONLY app_public.space_subscriptions
 
 ALTER TABLE ONLY app_public.spaces
     ADD CONSTRAINT spaces_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: topic_revisions topic_revisions_pk; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.topic_revisions
+    ADD CONSTRAINT topic_revisions_pk PRIMARY KEY (id, revision_id);
 
 
 --
@@ -4076,10 +4364,10 @@ ALTER TABLE ONLY app_public.topics
 
 
 --
--- Name: space_filings unique_slug_per_space; Type: CONSTRAINT; Schema: app_public; Owner: -
+-- Name: space_postings unique_slug_per_space; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
-ALTER TABLE ONLY app_public.space_filings
+ALTER TABLE ONLY app_public.space_postings
     ADD CONSTRAINT unique_slug_per_space UNIQUE (space_id, slug);
 
 
@@ -4174,6 +4462,20 @@ CREATE INDEX idx_user_emails_primary ON app_public.user_emails USING btree (is_p
 --
 
 CREATE INDEX idx_user_emails_user ON app_public.user_emails USING btree (user_id);
+
+
+--
+-- Name: message_revisions_on_created_at_within_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX message_revisions_on_created_at_within_id ON app_public.message_revisions USING btree (id, created_at DESC, revision_id DESC);
+
+
+--
+-- Name: message_revisions_on_id_and_parent_revision_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX message_revisions_on_id_and_parent_revision_id ON app_public.message_revisions USING btree (id, parent_revision_id);
 
 
 --
@@ -4401,6 +4703,41 @@ CREATE INDEX rooms_on_updated_at ON app_public.rooms USING btree (updated_at);
 
 
 --
+-- Name: topic_revisions_on_content; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX topic_revisions_on_content ON app_public.topic_revisions USING gin (content jsonb_path_ops);
+
+
+--
+-- Name: topic_revisions_on_created_at; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX topic_revisions_on_created_at ON app_public.topic_revisions USING brin (created_at);
+
+
+--
+-- Name: topic_revisions_on_editor_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX topic_revisions_on_editor_id ON app_public.topic_revisions USING btree (editor_id);
+
+
+--
+-- Name: topic_revisions_on_tags; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX topic_revisions_on_tags ON app_public.topic_revisions USING gin (tags);
+
+
+--
+-- Name: topic_revisions_on_title; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX topic_revisions_on_title ON app_public.topic_revisions USING btree (title);
+
+
+--
 -- Name: topics_have_an_unique_slug; Type: INDEX; Schema: app_public; Owner: -
 --
 
@@ -4541,6 +4878,13 @@ CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.files FOR E
 
 
 --
+-- Name: message_revisions _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.message_revisions FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
+
+
+--
 -- Name: pdf_files _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -4576,6 +4920,13 @@ CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.rooms FOR E
 
 
 --
+-- Name: topic_revisions _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.topic_revisions FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
+
+
+--
 -- Name: topics _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -4608,6 +4959,13 @@ CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.users FOR E
 --
 
 CREATE TRIGGER _200_forbid_existing_email BEFORE INSERT ON app_public.user_emails FOR EACH ROW EXECUTE FUNCTION app_public.tg_user_emails__forbid_if_verified();
+
+
+--
+-- Name: message_revisions _200_rebase_message_revisions_before_deletion; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _200_rebase_message_revisions_before_deletion BEFORE DELETE ON app_public.message_revisions FOR EACH ROW EXECUTE FUNCTION app_hidden.rebase_message_revisions_before_deletion();
 
 
 --
@@ -4671,6 +5029,13 @@ CREATE TRIGGER _500_prevent_delete_last AFTER DELETE ON app_public.user_emails R
 --
 
 CREATE TRIGGER _500_send_email AFTER INSERT ON app_public.organization_invitations FOR EACH ROW EXECUTE FUNCTION app_private.tg__add_job('organization_invitations__send_invite');
+
+
+--
+-- Name: active_message_revisions _500_update_active_message_revision; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _500_update_active_message_revision INSTEAD OF UPDATE ON app_public.active_message_revisions FOR EACH ROW EXECUTE FUNCTION app_hidden.update_active_message_revision();
 
 
 --
@@ -4830,6 +5195,29 @@ ALTER TABLE ONLY app_public.files
 
 
 --
+-- Name: message_revisions editor; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.message_revisions
+    ADD CONSTRAINT editor FOREIGN KEY (editor_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: topic_revisions editor; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.topic_revisions
+    ADD CONSTRAINT editor FOREIGN KEY (editor_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: CONSTRAINT editor ON topic_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT editor ON app_public.topic_revisions IS 'Each topic has an editor. The field might be null when the editor has unregistered from the application.';
+
+
+--
 -- Name: pdf_files file; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4846,19 +5234,19 @@ ALTER TABLE ONLY app_public.room_item_attachments
 
 
 --
--- Name: space_filings file; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+-- Name: space_postings linked_space; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
-ALTER TABLE ONLY app_public.space_filings
-    ADD CONSTRAINT file FOREIGN KEY (file_id) REFERENCES app_public.files(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: space_filings linked_space; Type: FK CONSTRAINT; Schema: app_public; Owner: -
---
-
-ALTER TABLE ONLY app_public.space_filings
+ALTER TABLE ONLY app_public.space_postings
     ADD CONSTRAINT linked_space FOREIGN KEY (linked_space_id) REFERENCES app_public.spaces(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: space_postings message_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_postings
+    ADD CONSTRAINT message_revision FOREIGN KEY (message_id, revision_id) REFERENCES app_public.message_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -4930,6 +5318,30 @@ ALTER TABLE ONLY app_public.room_items
 
 COMMENT ON CONSTRAINT parent ON app_public.room_items IS '@foreignFieldName children
 Room items can be related in trees.';
+
+
+--
+-- Name: message_revisions parent_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.message_revisions
+    ADD CONSTRAINT parent_revision FOREIGN KEY (id, parent_revision_id) REFERENCES app_public.message_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: topic_revisions parent_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.topic_revisions
+    ADD CONSTRAINT parent_revision FOREIGN KEY (parent_revision_id, id) REFERENCES app_public.topic_revisions(revision_id, id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE;
+
+
+--
+-- Name: space_postings poster; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_postings
+    ADD CONSTRAINT poster FOREIGN KEY (poster_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5033,26 +5445,18 @@ COMMENT ON CONSTRAINT space ON app_public.space_subscriptions IS '@foreignFieldN
 
 
 --
--- Name: space_filings space; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+-- Name: space_postings space; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
-ALTER TABLE ONLY app_public.space_filings
+ALTER TABLE ONLY app_public.space_postings
     ADD CONSTRAINT space FOREIGN KEY (space_id) REFERENCES app_public.spaces(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: CONSTRAINT space ON space_filings; Type: COMMENT; Schema: app_public; Owner: -
+-- Name: CONSTRAINT space ON space_postings; Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON CONSTRAINT space ON app_public.space_filings IS '@foreignFieldName filings';
-
-
---
--- Name: space_filings submitter; Type: FK CONSTRAINT; Schema: app_public; Owner: -
---
-
-ALTER TABLE ONLY app_public.space_filings
-    ADD CONSTRAINT submitter FOREIGN KEY (submitter_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+COMMENT ON CONSTRAINT space ON app_public.space_postings IS '@foreignFieldName postings';
 
 
 --
@@ -5096,11 +5500,11 @@ ALTER TABLE ONLY app_public.room_item_attachments
 
 
 --
--- Name: space_filings topic; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+-- Name: space_postings topic_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
-ALTER TABLE ONLY app_public.space_filings
-    ADD CONSTRAINT topic FOREIGN KEY (topic_id) REFERENCES app_public.topics(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY app_public.space_postings
+    ADD CONSTRAINT topic_revision FOREIGN KEY (topic_id, revision_id) REFERENCES app_public.topic_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5190,6 +5594,13 @@ CREATE POLICY authors_can_manage ON app_public.topics USING ((author_id = app_pu
 
 
 --
+-- Name: message_revisions can_update; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_update ON app_public.message_revisions FOR UPDATE USING ((app_public.message_revisions_is_leaf(message_revisions.*) AND (NOT app_public.message_revisions_is_posted(message_revisions.*))));
+
+
+--
 -- Name: room_message_attachments delete_attachments; Type: POLICY; Schema: app_public; Owner: -
 --
 
@@ -5226,7 +5637,7 @@ CREATE POLICY insert_as_admin ON app_public.room_subscriptions FOR INSERT WITH C
 --
 
 CREATE POLICY insert_as_admin ON app_public.rooms FOR INSERT WITH CHECK ((EXISTS ( SELECT
-   FROM app_public."current_user"() "current_user"(id, username, name, avatar_url, is_admin, is_verified, created_at, updated_at)
+   FROM app_public."current_user"() "current_user"(id, username, name, avatar_url, is_admin, is_verified, created_at, updated_at, default_handling_of_notifications, sending_time_for_deferred_notifications)
   WHERE "current_user".is_admin)));
 
 
@@ -5276,7 +5687,7 @@ CREATE POLICY manage_own ON app_public.room_subscriptions USING ((subscriber_id 
 -- Name: room_messages only_authors_should_access_their_message_drafts; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY only_authors_should_access_their_message_drafts ON app_public.room_messages AS RESTRICTIVE TO null18_cms_app_users USING (((sent_at IS NOT NULL) OR (sender_id = app_public.current_user_id())));
+CREATE POLICY only_authors_should_access_their_message_drafts ON app_public.room_messages AS RESTRICTIVE TO null814_cms_app_users USING (((sent_at IS NOT NULL) OR (sender_id = app_public.current_user_id())));
 
 
 --
@@ -5301,7 +5712,7 @@ ALTER TABLE app_public.organizations ENABLE ROW LEVEL SECURITY;
 -- Name: room_messages require_messages_from_current_user; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY require_messages_from_current_user ON app_public.room_messages AS RESTRICTIVE FOR INSERT TO null18_cms_app_users WITH CHECK ((sender_id = app_public.current_user_id()));
+CREATE POLICY require_messages_from_current_user ON app_public.room_messages AS RESTRICTIVE FOR INSERT TO null814_cms_app_users WITH CHECK ((sender_id = app_public.current_user_id()));
 
 
 --
@@ -5572,14 +5983,14 @@ ALTER TABLE app_public.users ENABLE ROW LEVEL SECURITY;
 -- Name: SCHEMA app_hidden; Type: ACL; Schema: -; Owner: -
 --
 
-GRANT USAGE ON SCHEMA app_hidden TO null18_cms_app_users;
+GRANT USAGE ON SCHEMA app_hidden TO null814_cms_app_users;
 
 
 --
 -- Name: SCHEMA app_public; Type: ACL; Schema: -; Owner: -
 --
 
-GRANT USAGE ON SCHEMA app_public TO null18_cms_app_users;
+GRANT USAGE ON SCHEMA app_public TO null814_cms_app_users;
 
 
 --
@@ -5587,35 +5998,35 @@ GRANT USAGE ON SCHEMA app_public TO null18_cms_app_users;
 --
 
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
-GRANT USAGE ON SCHEMA public TO null18_cms_app_users;
+GRANT USAGE ON SCHEMA public TO null814_cms_app_users;
 
 
 --
 -- Name: TYPE room_item_attachment_type; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT ALL ON TYPE app_public.room_item_attachment_type TO null18_cms_app_users;
+GRANT ALL ON TYPE app_public.room_item_attachment_type TO null814_cms_app_users;
 
 
 --
 -- Name: TYPE space_item; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT ALL ON TYPE app_public.space_item TO null18_cms_app_users;
+GRANT ALL ON TYPE app_public.space_item TO null814_cms_app_users;
 
 
 --
 -- Name: TYPE textsearchable_entity; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT ALL ON TYPE app_public.textsearchable_entity TO null18_cms_app_users;
+GRANT ALL ON TYPE app_public.textsearchable_entity TO null814_cms_app_users;
 
 
 --
 -- Name: TYPE textsearch_match; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT ALL ON TYPE app_public.textsearch_match TO null18_cms_app_users;
+GRANT ALL ON TYPE app_public.textsearch_match TO null814_cms_app_users;
 
 
 --
@@ -5623,7 +6034,15 @@ GRANT ALL ON TYPE app_public.textsearch_match TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_hidden.increment_last_visit_when_contributing_items() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_hidden.increment_last_visit_when_contributing_items() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_hidden.increment_last_visit_when_contributing_items() TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION rebase_message_revisions_before_deletion(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.rebase_message_revisions_before_deletion() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.rebase_message_revisions_before_deletion() TO null814_cms_app_users;
 
 
 --
@@ -5631,7 +6050,15 @@ GRANT ALL ON FUNCTION app_hidden.increment_last_visit_when_contributing_items() 
 --
 
 REVOKE ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION update_active_message_revision(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.update_active_message_revision() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.update_active_message_revision() TO null814_cms_app_users;
 
 
 --
@@ -5639,7 +6066,7 @@ GRANT ALL ON FUNCTION app_hidden.tiptap_document_as_plain_text(document jsonb) T
 --
 
 REVOKE ALL ON FUNCTION app_hidden.verify_role_updates_on_room_subscriptions() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_hidden.verify_role_updates_on_room_subscriptions() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_hidden.verify_role_updates_on_room_subscriptions() TO null814_cms_app_users;
 
 
 --
@@ -5653,42 +6080,42 @@ REVOKE ALL ON FUNCTION app_private.assert_valid_password(new_password text) FROM
 -- Name: TABLE users; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.users TO null18_cms_app_users;
+GRANT SELECT ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.username; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(username) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT UPDATE(username) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.name; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(name) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT UPDATE(name) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.avatar_url; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(avatar_url) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT UPDATE(avatar_url) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.default_handling_of_notifications; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(default_handling_of_notifications),UPDATE(default_handling_of_notifications) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT INSERT(default_handling_of_notifications),UPDATE(default_handling_of_notifications) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN users.sending_time_for_deferred_notifications; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(sending_time_for_deferred_notifications),UPDATE(sending_time_for_deferred_notifications) ON TABLE app_public.users TO null18_cms_app_users;
+GRANT INSERT(sending_time_for_deferred_notifications),UPDATE(sending_time_for_deferred_notifications) ON TABLE app_public.users TO null814_cms_app_users;
 
 
 --
@@ -5766,7 +6193,7 @@ REVOKE ALL ON FUNCTION app_private.tg_user_secrets__insert_with_user() FROM PUBL
 --
 
 REVOKE ALL ON FUNCTION app_public.accept_invitation_to_organization(invitation_id uuid, code text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.accept_invitation_to_organization(invitation_id uuid, code text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.accept_invitation_to_organization(invitation_id uuid, code text) TO null814_cms_app_users;
 
 
 --
@@ -5774,7 +6201,7 @@ GRANT ALL ON FUNCTION app_public.accept_invitation_to_organization(invitation_id
 --
 
 REVOKE ALL ON FUNCTION app_public.change_password(old_password text, new_password text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.change_password(old_password text, new_password text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.change_password(old_password text, new_password text) TO null814_cms_app_users;
 
 
 --
@@ -5782,28 +6209,28 @@ GRANT ALL ON FUNCTION app_public.change_password(old_password text, new_password
 --
 
 REVOKE ALL ON FUNCTION app_public.confirm_account_deletion(token text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.confirm_account_deletion(token text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.confirm_account_deletion(token text) TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE organizations; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.organizations TO null18_cms_app_users;
+GRANT SELECT ON TABLE app_public.organizations TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN organizations.slug; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(slug) ON TABLE app_public.organizations TO null18_cms_app_users;
+GRANT UPDATE(slug) ON TABLE app_public.organizations TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN organizations.name; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(name) ON TABLE app_public.organizations TO null18_cms_app_users;
+GRANT UPDATE(name) ON TABLE app_public.organizations TO null814_cms_app_users;
 
 
 --
@@ -5811,7 +6238,7 @@ GRANT UPDATE(name) ON TABLE app_public.organizations TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public.create_organization(slug public.citext, name text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.create_organization(slug public.citext, name text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.create_organization(slug public.citext, name text) TO null814_cms_app_users;
 
 
 --
@@ -5819,7 +6246,7 @@ GRANT ALL ON FUNCTION app_public.create_organization(slug public.citext, name te
 --
 
 REVOKE ALL ON FUNCTION app_public.current_session_id() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_session_id() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_session_id() TO null814_cms_app_users;
 
 
 --
@@ -5827,7 +6254,7 @@ GRANT ALL ON FUNCTION app_public.current_session_id() TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public."current_user"() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public."current_user"() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public."current_user"() TO null814_cms_app_users;
 
 
 --
@@ -5835,7 +6262,7 @@ GRANT ALL ON FUNCTION app_public."current_user"() TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public.current_user_first_owned_organization_id() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_user_first_owned_organization_id() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_user_first_owned_organization_id() TO null814_cms_app_users;
 
 
 --
@@ -5843,7 +6270,7 @@ GRANT ALL ON FUNCTION app_public.current_user_first_owned_organization_id() TO n
 --
 
 REVOKE ALL ON FUNCTION app_public.current_user_id() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_user_id() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_user_id() TO null814_cms_app_users;
 
 
 --
@@ -5851,7 +6278,7 @@ GRANT ALL ON FUNCTION app_public.current_user_id() TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public.current_user_invited_organization_ids() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_user_invited_organization_ids() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_user_invited_organization_ids() TO null814_cms_app_users;
 
 
 --
@@ -5859,7 +6286,7 @@ GRANT ALL ON FUNCTION app_public.current_user_invited_organization_ids() TO null
 --
 
 REVOKE ALL ON FUNCTION app_public.current_user_member_organization_ids() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.current_user_member_organization_ids() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.current_user_member_organization_ids() TO null814_cms_app_users;
 
 
 --
@@ -5867,56 +6294,56 @@ GRANT ALL ON FUNCTION app_public.current_user_member_organization_ids() TO null1
 --
 
 REVOKE ALL ON FUNCTION app_public.delete_organization(organization_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.delete_organization(organization_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.delete_organization(organization_id uuid) TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE room_messages; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.room_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(room_id) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(room_id) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.sender_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(sender_id) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(sender_id) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.answered_message_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(answered_message_id),UPDATE(answered_message_id) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(answered_message_id),UPDATE(answered_message_id) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.body; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(body),UPDATE(body) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(body),UPDATE(body) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.language; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(language),UPDATE(language) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(language),UPDATE(language) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_messages.sent_at; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(sent_at),UPDATE(sent_at) ON TABLE app_public.room_messages TO null18_cms_app_users;
+GRANT INSERT(sent_at),UPDATE(sent_at) ON TABLE app_public.room_messages TO null814_cms_app_users;
 
 
 --
@@ -5924,7 +6351,7 @@ GRANT INSERT(sent_at),UPDATE(sent_at) ON TABLE app_public.room_messages TO null1
 --
 
 REVOKE ALL ON FUNCTION app_public.fetch_draft_in_room(room_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.fetch_draft_in_room(room_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.fetch_draft_in_room(room_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -5932,7 +6359,7 @@ GRANT ALL ON FUNCTION app_public.fetch_draft_in_room(room_id uuid) TO null18_cms
 --
 
 REVOKE ALL ON FUNCTION app_public.forgot_password(email public.citext) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.forgot_password(email public.citext) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.forgot_password(email public.citext) TO null814_cms_app_users;
 
 
 --
@@ -5940,7 +6367,7 @@ GRANT ALL ON FUNCTION app_public.forgot_password(email public.citext) TO null18_
 --
 
 REVOKE ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) TO null814_cms_app_users;
 
 
 --
@@ -5948,56 +6375,56 @@ GRANT ALL ON FUNCTION app_public.fulltext(message app_public.room_messages) TO n
 --
 
 REVOKE ALL ON FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[]) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[]) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.global_search(term text, entities app_public.textsearchable_entity[]) TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE rooms; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.title; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(title),UPDATE(title) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(title),UPDATE(title) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.abstract; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(abstract),UPDATE(abstract) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(abstract),UPDATE(abstract) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.is_visible_for; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.items_are_visible_for; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(items_are_visible_for),UPDATE(items_are_visible_for) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(items_are_visible_for),UPDATE(items_are_visible_for) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.items_are_visible_since; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(items_are_visible_since),UPDATE(items_are_visible_since) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(items_are_visible_since),UPDATE(items_are_visible_since) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN rooms.is_anonymous_posting_allowed; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_anonymous_posting_allowed),UPDATE(is_anonymous_posting_allowed) ON TABLE app_public.rooms TO null18_cms_app_users;
+GRANT INSERT(is_anonymous_posting_allowed),UPDATE(is_anonymous_posting_allowed) ON TABLE app_public.rooms TO null814_cms_app_users;
 
 
 --
@@ -6005,7 +6432,7 @@ GRANT INSERT(is_anonymous_posting_allowed),UPDATE(is_anonymous_posting_allowed) 
 --
 
 REVOKE ALL ON FUNCTION app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.has_subscriptions(room app_public.rooms, min_role app_public.room_role) TO null814_cms_app_users;
 
 
 --
@@ -6013,7 +6440,7 @@ GRANT ALL ON FUNCTION app_public.has_subscriptions(room app_public.rooms, min_ro
 --
 
 REVOKE ALL ON FUNCTION app_public.invite_to_organization(organization_id uuid, username public.citext, email public.citext) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.invite_to_organization(organization_id uuid, username public.citext, email public.citext) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.invite_to_organization(organization_id uuid, username public.citext, email public.citext) TO null814_cms_app_users;
 
 
 --
@@ -6021,91 +6448,91 @@ GRANT ALL ON FUNCTION app_public.invite_to_organization(organization_id uuid, us
 --
 
 REVOKE ALL ON FUNCTION app_public.latest_activity_at(room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.latest_activity_at(room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.latest_activity_at(room app_public.rooms) TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE room_items; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.type; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(type) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(type) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.room_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(room_id) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(room_id) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.parent_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(parent_id),UPDATE(parent_id) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(parent_id),UPDATE(parent_id) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.contributor_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(contributor_id) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(contributor_id) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items."order"; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT("order"),UPDATE("order") ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT("order"),UPDATE("order") ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.contributed_at; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(contributed_at),UPDATE(contributed_at) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(contributed_at),UPDATE(contributed_at) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.is_visible_for; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.is_visible_since; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_since),UPDATE(is_visible_since) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(is_visible_since),UPDATE(is_visible_since) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.is_visible_since_date; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_since_date),UPDATE(is_visible_since_date) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(is_visible_since_date),UPDATE(is_visible_since_date) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.topic_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(topic_id),UPDATE(topic_id) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(topic_id),UPDATE(topic_id) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_items.message_body; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(message_body),UPDATE(message_body) ON TABLE app_public.room_items TO null18_cms_app_users;
+GRANT INSERT(message_body),UPDATE(message_body) ON TABLE app_public.room_items TO null814_cms_app_users;
 
 
 --
@@ -6113,7 +6540,7 @@ GRANT INSERT(message_body),UPDATE(message_body) ON TABLE app_public.room_items T
 --
 
 REVOKE ALL ON FUNCTION app_public.latest_item(room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.latest_item(room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.latest_item(room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -6121,7 +6548,7 @@ GRANT ALL ON FUNCTION app_public.latest_item(room app_public.rooms) TO null18_cm
 --
 
 REVOKE ALL ON FUNCTION app_public.latest_item_contributed_at(room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.latest_item_contributed_at(room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.latest_item_contributed_at(room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -6129,7 +6556,7 @@ GRANT ALL ON FUNCTION app_public.latest_item_contributed_at(room app_public.room
 --
 
 REVOKE ALL ON FUNCTION app_public.latest_message(room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.latest_message(room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.latest_message(room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -6137,21 +6564,21 @@ GRANT ALL ON FUNCTION app_public.latest_message(room app_public.rooms) TO null18
 --
 
 REVOKE ALL ON FUNCTION app_public.logout() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.logout() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.logout() TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE user_emails; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.user_emails TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.user_emails TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN user_emails.email; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(email) ON TABLE app_public.user_emails TO null18_cms_app_users;
+GRANT INSERT(email) ON TABLE app_public.user_emails TO null814_cms_app_users;
 
 
 --
@@ -6159,7 +6586,65 @@ GRANT INSERT(email) ON TABLE app_public.user_emails TO null18_cms_app_users;
 --
 
 REVOKE ALL ON FUNCTION app_public.make_email_primary(email_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.make_email_primary(email_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.make_email_primary(email_id uuid) TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE message_revisions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.parent_revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(parent_revision_id) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.editor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(editor_id) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.subject; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(subject),UPDATE(subject) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.body; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(body),UPDATE(body) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION message_revisions_is_leaf(revision app_public.message_revisions); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.message_revisions_is_leaf(revision app_public.message_revisions) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.message_revisions_is_leaf(revision app_public.message_revisions) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION message_revisions_is_posted(revision app_public.message_revisions); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.message_revisions_is_posted(revision app_public.message_revisions) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.message_revisions_is_posted(revision app_public.message_revisions) TO null814_cms_app_users;
 
 
 --
@@ -6167,49 +6652,49 @@ GRANT ALL ON FUNCTION app_public.make_email_primary(email_id uuid) TO null18_cms
 --
 
 REVOKE ALL ON FUNCTION app_public.my_first_interaction(room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_first_interaction(room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_first_interaction(room app_public.rooms) TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE room_subscriptions; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_subscriptions.room_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(room_id) ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT INSERT(room_id) ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_subscriptions.subscriber_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(subscriber_id) ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT INSERT(subscriber_id) ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_subscriptions.role; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(role),UPDATE(role) ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT INSERT(role),UPDATE(role) ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_subscriptions.notifications; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(notifications),UPDATE(notifications) ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT INSERT(notifications),UPDATE(notifications) ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_subscriptions.last_visit_at; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(last_visit_at),UPDATE(last_visit_at) ON TABLE app_public.room_subscriptions TO null18_cms_app_users;
+GRANT INSERT(last_visit_at),UPDATE(last_visit_at) ON TABLE app_public.room_subscriptions TO null814_cms_app_users;
 
 
 --
@@ -6217,7 +6702,7 @@ GRANT INSERT(last_visit_at),UPDATE(last_visit_at) ON TABLE app_public.room_subsc
 --
 
 REVOKE ALL ON FUNCTION app_public.my_room_subscription(in_room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_room_subscription(in_room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_room_subscription(in_room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -6225,7 +6710,7 @@ GRANT ALL ON FUNCTION app_public.my_room_subscription(in_room app_public.rooms) 
 --
 
 REVOKE ALL ON FUNCTION app_public.my_room_subscription_id(in_room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_room_subscription_id(in_room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_room_subscription_id(in_room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -6233,7 +6718,15 @@ GRANT ALL ON FUNCTION app_public.my_room_subscription_id(in_room app_public.room
 --
 
 REVOKE ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.room_role) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.room_role) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.room_role) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION my_space_subscriptions(minimum_role app_public.space_role); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.my_space_subscriptions(minimum_role app_public.space_role) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.my_space_subscriptions(minimum_role app_public.space_role) TO null814_cms_app_users;
 
 
 --
@@ -6241,7 +6734,15 @@ GRANT ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.r
 --
 
 REVOKE ALL ON FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.room_role) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.room_role) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.room_role) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION my_subscribed_space_ids(minimum_role app_public.space_role); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.my_subscribed_space_ids(minimum_role app_public.space_role) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.my_subscribed_space_ids(minimum_role app_public.space_role) TO null814_cms_app_users;
 
 
 --
@@ -6249,7 +6750,7 @@ GRANT ALL ON FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.
 --
 
 REVOKE ALL ON FUNCTION app_public.n_items(room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.n_items(room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.n_items(room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -6257,7 +6758,7 @@ GRANT ALL ON FUNCTION app_public.n_items(room app_public.rooms) TO null18_cms_ap
 --
 
 REVOKE ALL ON FUNCTION app_public.n_items_since(room app_public.rooms, "interval" interval) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.n_items_since(room app_public.rooms, "interval" interval) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.n_items_since(room app_public.rooms, "interval" interval) TO null814_cms_app_users;
 
 
 --
@@ -6265,7 +6766,7 @@ GRANT ALL ON FUNCTION app_public.n_items_since(room app_public.rooms, "interval"
 --
 
 REVOKE ALL ON FUNCTION app_public.n_items_since_date(room app_public.rooms, date timestamp with time zone) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.n_items_since_date(room app_public.rooms, date timestamp with time zone) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.n_items_since_date(room app_public.rooms, date timestamp with time zone) TO null814_cms_app_users;
 
 
 --
@@ -6273,7 +6774,7 @@ GRANT ALL ON FUNCTION app_public.n_items_since_date(room app_public.rooms, date 
 --
 
 REVOKE ALL ON FUNCTION app_public.n_items_since_last_visit(room app_public.rooms) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.n_items_since_last_visit(room app_public.rooms) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.n_items_since_last_visit(room app_public.rooms) TO null814_cms_app_users;
 
 
 --
@@ -6281,7 +6782,7 @@ GRANT ALL ON FUNCTION app_public.n_items_since_last_visit(room app_public.rooms)
 --
 
 REVOKE ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min_role app_public.room_role) TO null814_cms_app_users;
 
 
 --
@@ -6289,7 +6790,7 @@ GRANT ALL ON FUNCTION app_public.n_room_subscriptions(room app_public.rooms, min
 --
 
 REVOKE ALL ON FUNCTION app_public.nth_item_since_last_visit(item app_public.room_items) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.nth_item_since_last_visit(item app_public.room_items) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.nth_item_since_last_visit(item app_public.room_items) TO null814_cms_app_users;
 
 
 --
@@ -6297,7 +6798,7 @@ GRANT ALL ON FUNCTION app_public.nth_item_since_last_visit(item app_public.room_
 --
 
 REVOKE ALL ON FUNCTION app_public.organization_for_invitation(invitation_id uuid, code text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.organization_for_invitation(invitation_id uuid, code text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.organization_for_invitation(invitation_id uuid, code text) TO null814_cms_app_users;
 
 
 --
@@ -6305,7 +6806,7 @@ GRANT ALL ON FUNCTION app_public.organization_for_invitation(invitation_id uuid,
 --
 
 REVOKE ALL ON FUNCTION app_public.organizations_current_user_is_billing_contact(org app_public.organizations) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.organizations_current_user_is_billing_contact(org app_public.organizations) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.organizations_current_user_is_billing_contact(org app_public.organizations) TO null814_cms_app_users;
 
 
 --
@@ -6313,7 +6814,7 @@ GRANT ALL ON FUNCTION app_public.organizations_current_user_is_billing_contact(o
 --
 
 REVOKE ALL ON FUNCTION app_public.organizations_current_user_is_owner(org app_public.organizations) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.organizations_current_user_is_owner(org app_public.organizations) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.organizations_current_user_is_owner(org app_public.organizations) TO null814_cms_app_users;
 
 
 --
@@ -6321,7 +6822,7 @@ GRANT ALL ON FUNCTION app_public.organizations_current_user_is_owner(org app_pub
 --
 
 REVOKE ALL ON FUNCTION app_public.remove_from_organization(organization_id uuid, user_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.remove_from_organization(organization_id uuid, user_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.remove_from_organization(organization_id uuid, user_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -6329,7 +6830,7 @@ GRANT ALL ON FUNCTION app_public.remove_from_organization(organization_id uuid, 
 --
 
 REVOKE ALL ON FUNCTION app_public.request_account_deletion() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.request_account_deletion() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.request_account_deletion() TO null814_cms_app_users;
 
 
 --
@@ -6337,7 +6838,7 @@ GRANT ALL ON FUNCTION app_public.request_account_deletion() TO null18_cms_app_us
 --
 
 REVOKE ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -6345,38 +6846,38 @@ GRANT ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) T
 --
 
 REVOKE ALL ON FUNCTION app_public.send_room_message(draft_id uuid, OUT room_message app_public.room_messages) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.send_room_message(draft_id uuid, OUT room_message app_public.room_messages) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.send_room_message(draft_id uuid, OUT room_message app_public.room_messages) TO null814_cms_app_users;
 
 
 --
--- Name: TABLE space_filings; Type: ACL; Schema: app_public; Owner: -
+-- Name: TABLE space_postings; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.space_filings TO null18_cms_app_users;
-
-
---
--- Name: FUNCTION space_filings_item_created_at(filing app_public.space_filings); Type: ACL; Schema: app_public; Owner: -
---
-
-REVOKE ALL ON FUNCTION app_public.space_filings_item_created_at(filing app_public.space_filings) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.space_filings_item_created_at(filing app_public.space_filings) TO null18_cms_app_users;
+GRANT SELECT ON TABLE app_public.space_postings TO null814_cms_app_users;
 
 
 --
--- Name: FUNCTION space_filings_item_name(filing app_public.space_filings); Type: ACL; Schema: app_public; Owner: -
+-- Name: FUNCTION space_postings_item_created_at(p app_public.space_postings); Type: ACL; Schema: app_public; Owner: -
 --
 
-REVOKE ALL ON FUNCTION app_public.space_filings_item_name(filing app_public.space_filings) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.space_filings_item_name(filing app_public.space_filings) TO null18_cms_app_users;
+REVOKE ALL ON FUNCTION app_public.space_postings_item_created_at(p app_public.space_postings) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.space_postings_item_created_at(p app_public.space_postings) TO null814_cms_app_users;
 
 
 --
--- Name: FUNCTION space_filings_item_updated_at(filing app_public.space_filings); Type: ACL; Schema: app_public; Owner: -
+-- Name: FUNCTION space_postings_item_name(p app_public.space_postings); Type: ACL; Schema: app_public; Owner: -
 --
 
-REVOKE ALL ON FUNCTION app_public.space_filings_item_updated_at(filing app_public.space_filings) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.space_filings_item_updated_at(filing app_public.space_filings) TO null18_cms_app_users;
+REVOKE ALL ON FUNCTION app_public.space_postings_item_name(p app_public.space_postings) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.space_postings_item_name(p app_public.space_postings) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION space_postings_item_updated_at(p app_public.space_postings); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.space_postings_item_updated_at(p app_public.space_postings) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.space_postings_item_updated_at(p app_public.space_postings) TO null814_cms_app_users;
 
 
 --
@@ -6384,7 +6885,7 @@ GRANT ALL ON FUNCTION app_public.space_filings_item_updated_at(filing app_public
 --
 
 REVOKE ALL ON FUNCTION app_public.tg__graphql_subscription() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg__graphql_subscription() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg__graphql_subscription() TO null814_cms_app_users;
 
 
 --
@@ -6392,7 +6893,7 @@ GRANT ALL ON FUNCTION app_public.tg__graphql_subscription() TO null18_cms_app_us
 --
 
 REVOKE ALL ON FUNCTION app_public.tg_user_emails__forbid_if_verified() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg_user_emails__forbid_if_verified() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg_user_emails__forbid_if_verified() TO null814_cms_app_users;
 
 
 --
@@ -6400,7 +6901,7 @@ GRANT ALL ON FUNCTION app_public.tg_user_emails__forbid_if_verified() TO null18_
 --
 
 REVOKE ALL ON FUNCTION app_public.tg_user_emails__prevent_delete_last_email() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg_user_emails__prevent_delete_last_email() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg_user_emails__prevent_delete_last_email() TO null814_cms_app_users;
 
 
 --
@@ -6408,7 +6909,7 @@ GRANT ALL ON FUNCTION app_public.tg_user_emails__prevent_delete_last_email() TO 
 --
 
 REVOKE ALL ON FUNCTION app_public.tg_user_emails__verify_account_on_verified() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg_user_emails__verify_account_on_verified() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg_user_emails__verify_account_on_verified() TO null814_cms_app_users;
 
 
 --
@@ -6416,70 +6917,70 @@ GRANT ALL ON FUNCTION app_public.tg_user_emails__verify_account_on_verified() TO
 --
 
 REVOKE ALL ON FUNCTION app_public.tg_users__deletion_organization_checks_and_actions() FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.tg_users__deletion_organization_checks_and_actions() TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.tg_users__deletion_organization_checks_and_actions() TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE topics; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.author_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(author_id),UPDATE(author_id) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(author_id),UPDATE(author_id) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.organization_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.slug; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.name; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(name),UPDATE(name) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(name),UPDATE(name) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.license; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(license),UPDATE(license) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(license),UPDATE(license) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.tags; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(tags),UPDATE(tags) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(tags),UPDATE(tags) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.is_visible_for; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(is_visible_for),UPDATE(is_visible_for) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN topics.content; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(content),UPDATE(content) ON TABLE app_public.topics TO null18_cms_app_users;
+GRANT INSERT(content),UPDATE(content) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
@@ -6487,7 +6988,7 @@ GRANT INSERT(content),UPDATE(content) ON TABLE app_public.topics TO null18_cms_a
 --
 
 REVOKE ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.topics) TO null814_cms_app_users;
 
 
 --
@@ -6495,7 +6996,7 @@ GRANT ALL ON FUNCTION app_public.topics_content_as_plain_text(topic app_public.t
 --
 
 REVOKE ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics, n_first_items integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics, n_first_items integer) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics, n_first_items integer) TO null814_cms_app_users;
 
 
 --
@@ -6503,7 +7004,7 @@ GRANT ALL ON FUNCTION app_public.topics_content_preview(topic app_public.topics,
 --
 
 REVOKE ALL ON FUNCTION app_public.transfer_organization_billing_contact(organization_id uuid, user_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.transfer_organization_billing_contact(organization_id uuid, user_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.transfer_organization_billing_contact(organization_id uuid, user_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -6511,7 +7012,7 @@ GRANT ALL ON FUNCTION app_public.transfer_organization_billing_contact(organizat
 --
 
 REVOKE ALL ON FUNCTION app_public.transfer_organization_ownership(organization_id uuid, user_id uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.transfer_organization_ownership(organization_id uuid, user_id uuid) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.transfer_organization_ownership(organization_id uuid, user_id uuid) TO null814_cms_app_users;
 
 
 --
@@ -6519,7 +7020,7 @@ GRANT ALL ON FUNCTION app_public.transfer_organization_ownership(organization_id
 --
 
 REVOKE ALL ON FUNCTION app_public.users_has_password(u app_public.users) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.users_has_password(u app_public.users) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.users_has_password(u app_public.users) TO null814_cms_app_users;
 
 
 --
@@ -6527,7 +7028,7 @@ GRANT ALL ON FUNCTION app_public.users_has_password(u app_public.users) TO null1
 --
 
 REVOKE ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) TO null18_cms_app_users;
+GRANT ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) TO null814_cms_app_users;
 
 
 --
@@ -6622,234 +7123,374 @@ REVOKE ALL ON FUNCTION procrastinate.procrastinate_unlink_periodic_defers() FROM
 
 
 --
+-- Name: TABLE active_message_revisions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.parent_revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(parent_revision_id) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.editor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.subject; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(subject),UPDATE(subject) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.body; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(body),UPDATE(body) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE current_message_revisions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.parent_revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(parent_revision_id) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.editor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.subject; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(subject),UPDATE(subject) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.body; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(body),UPDATE(body) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
 -- Name: TABLE files; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.files TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN files.id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(id),UPDATE(id) ON TABLE app_public.files TO null18_cms_app_users;
+GRANT INSERT(id),UPDATE(id) ON TABLE app_public.files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN files.contributor_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(contributor_id) ON TABLE app_public.files TO null18_cms_app_users;
+GRANT INSERT(contributor_id) ON TABLE app_public.files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN files.uploaded_bytes; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(uploaded_bytes),UPDATE(uploaded_bytes) ON TABLE app_public.files TO null18_cms_app_users;
+GRANT INSERT(uploaded_bytes),UPDATE(uploaded_bytes) ON TABLE app_public.files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN files.total_bytes; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(total_bytes),UPDATE(total_bytes) ON TABLE app_public.files TO null18_cms_app_users;
+GRANT INSERT(total_bytes),UPDATE(total_bytes) ON TABLE app_public.files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN files.name; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(name),UPDATE(name) ON TABLE app_public.files TO null18_cms_app_users;
+GRANT INSERT(name),UPDATE(name) ON TABLE app_public.files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN files.mime_type; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(mime_type),UPDATE(mime_type) ON TABLE app_public.files TO null18_cms_app_users;
+GRANT INSERT(mime_type),UPDATE(mime_type) ON TABLE app_public.files TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE organization_memberships; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.organization_memberships TO null18_cms_app_users;
+GRANT SELECT ON TABLE app_public.organization_memberships TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE pdf_files; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.pdf_files TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.pdf_files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN pdf_files.id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(id),UPDATE(id) ON TABLE app_public.pdf_files TO null18_cms_app_users;
+GRANT INSERT(id),UPDATE(id) ON TABLE app_public.pdf_files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN pdf_files.title; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(title),UPDATE(title) ON TABLE app_public.pdf_files TO null18_cms_app_users;
+GRANT INSERT(title),UPDATE(title) ON TABLE app_public.pdf_files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN pdf_files.pages; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(pages),UPDATE(pages) ON TABLE app_public.pdf_files TO null18_cms_app_users;
+GRANT INSERT(pages),UPDATE(pages) ON TABLE app_public.pdf_files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN pdf_files.metadata; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(metadata),UPDATE(metadata) ON TABLE app_public.pdf_files TO null18_cms_app_users;
+GRANT INSERT(metadata),UPDATE(metadata) ON TABLE app_public.pdf_files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN pdf_files.content_as_plain_text; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(content_as_plain_text),UPDATE(content_as_plain_text) ON TABLE app_public.pdf_files TO null18_cms_app_users;
+GRANT INSERT(content_as_plain_text),UPDATE(content_as_plain_text) ON TABLE app_public.pdf_files TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN pdf_files.thumbnail_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(thumbnail_id),UPDATE(thumbnail_id) ON TABLE app_public.pdf_files TO null18_cms_app_users;
+GRANT INSERT(thumbnail_id),UPDATE(thumbnail_id) ON TABLE app_public.pdf_files TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE room_item_attachments; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.room_item_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_item_attachments.id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(id) ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
+GRANT INSERT(id) ON TABLE app_public.room_item_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_item_attachments.room_item_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(room_item_id) ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
+GRANT INSERT(room_item_id) ON TABLE app_public.room_item_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_item_attachments.topic_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(topic_id) ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
+GRANT INSERT(topic_id) ON TABLE app_public.room_item_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_item_attachments.file_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(file_id) ON TABLE app_public.room_item_attachments TO null18_cms_app_users;
+GRANT INSERT(file_id) ON TABLE app_public.room_item_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE room_message_attachments; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.room_message_attachments TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_message_attachments.id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(id) ON TABLE app_public.room_message_attachments TO null18_cms_app_users;
+GRANT INSERT(id) ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_message_attachments.room_message_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(room_message_id) ON TABLE app_public.room_message_attachments TO null18_cms_app_users;
+GRANT INSERT(room_message_id) ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: COLUMN room_message_attachments.topic_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(topic_id) ON TABLE app_public.room_message_attachments TO null18_cms_app_users;
+GRANT INSERT(topic_id) ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE spaces; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.spaces TO null18_cms_app_users;
+GRANT SELECT ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE topic_revisions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.topic_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topic_revisions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.topic_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topic_revisions.parent_revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(parent_revision_id) ON TABLE app_public.topic_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topic_revisions.editor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(editor_id) ON TABLE app_public.topic_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topic_revisions.title; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(title) ON TABLE app_public.topic_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topic_revisions.license; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(license) ON TABLE app_public.topic_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topic_revisions.tags; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(tags) ON TABLE app_public.topic_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN topic_revisions.content; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(content) ON TABLE app_public.topic_revisions TO null814_cms_app_users;
 
 
 --
 -- Name: TABLE user_authentications; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO null18_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: app_hidden; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA app_hidden GRANT SELECT,USAGE ON SEQUENCES TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA app_hidden GRANT SELECT,USAGE ON SEQUENCES TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: app_hidden; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA app_hidden GRANT ALL ON FUNCTIONS TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA app_hidden GRANT ALL ON FUNCTIONS TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: app_public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA app_public GRANT SELECT,USAGE ON SEQUENCES TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA app_public GRANT SELECT,USAGE ON SEQUENCES TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: app_public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA app_public GRANT ALL ON FUNCTIONS TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA app_public GRANT ALL ON FUNCTIONS TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA public GRANT SELECT,USAGE ON SEQUENCES TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA public GRANT SELECT,USAGE ON SEQUENCES TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner IN SCHEMA public GRANT ALL ON FUNCTIONS TO null18_cms_app_users;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner IN SCHEMA public GRANT ALL ON FUNCTIONS TO null814_cms_app_users;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: -; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE null18_cms_owner REVOKE ALL ON FUNCTIONS FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE null814_cms_owner REVOKE ALL ON FUNCTIONS FROM PUBLIC;
 
 
 --
