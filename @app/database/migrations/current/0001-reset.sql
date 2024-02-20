@@ -9,4 +9,5 @@ drop table if exists app_public.space_submissions cascade;
 drop table if exists app_public.space_subscriptions cascade;
 drop table if exists app_public.spaces cascade;
 drop type if exists app_public.space_role cascade;
+drop type if exists app_public.space_capability cascade;
 drop type if exists app_public.itc_stamp;

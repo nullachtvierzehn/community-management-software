@@ -104,6 +104,9 @@ type Query implements Node {
   """Get a single `Topic`."""
   topicBySlugAndOrganizationId(slug: String!, organizationId: UUID!): Topic
 
+  """Get a single `SpaceSubscription`."""
+  spaceSubscription(id: UUID!): SpaceSubscription
+
   """Get a single `Room`."""
   room(id: UUID!): Room
 
@@ -471,6 +474,14 @@ type Query implements Node {
     """The globally unique `ID` to be used in selecting a single `Topic`."""
     nodeId: ID!
   ): Topic
+
+  """Reads a single `SpaceSubscription` using its globally unique `ID`."""
+  spaceSubscriptionByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `SpaceSubscription`.
+    """
+    nodeId: ID!
+  ): SpaceSubscription
 
   """Reads a single `Room` using its globally unique `ID`."""
   roomByNodeId(
@@ -1196,6 +1207,40 @@ type Query implements Node {
     """
     filter: TopicFilter
   ): TopicsConnection
+
+  """Reads and enables pagination through a set of `SpaceSubscription`."""
+  spaceSubscriptions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubscription`."""
+    orderBy: [SpaceSubscriptionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubscriptionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubscriptionFilter
+  ): SpaceSubscriptionsConnection
 
   """Reads and enables pagination through a set of `Room`."""
   rooms(
@@ -1979,6 +2024,40 @@ type User implements Node {
     filter: TopicRevisionFilter
   ): TopicRevisionsConnection!
 
+  """Reads and enables pagination through a set of `SpaceSubscription`."""
+  spaceSubscriptionsBySubscriberId(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubscription`."""
+    orderBy: [SpaceSubscriptionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubscriptionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubscriptionFilter
+  ): SpaceSubscriptionsConnection!
+
   """Reads and enables pagination through a set of `SpacePosting`."""
   spacePostingsByPosterId(
     """Only read the first `n` values of the set."""
@@ -2631,6 +2710,12 @@ input UserFilter {
 
   """Some related `editedTopicRevisions` exist."""
   editedTopicRevisionsExist: Boolean
+
+  """Filter by the object’s `spaceSubscriptionsBySubscriberId` relation."""
+  spaceSubscriptionsBySubscriberId: UserToManySpaceSubscriptionFilter
+
+  """Some related `spaceSubscriptionsBySubscriberId` exist."""
+  spaceSubscriptionsBySubscriberIdExist: Boolean
 
   """Filter by the object’s `spacePostingsByPosterId` relation."""
   spacePostingsByPosterId: UserToManySpacePostingFilter
@@ -4815,6 +4900,12 @@ input SpaceFilter {
   """Some related `messageRevisionsByEditContextId` exist."""
   messageRevisionsByEditContextIdExist: Boolean
 
+  """Filter by the object’s `subscriptions` relation."""
+  subscriptions: SpaceToManySpaceSubscriptionFilter
+
+  """Some related `subscriptions` exist."""
+  subscriptionsExist: Boolean
+
   """Filter by the object’s `usingPosts` relation."""
   usingPosts: SpaceToManySpacePostingFilter
 
@@ -4867,6 +4958,208 @@ input SpaceToManyMessageRevisionFilter {
   No related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   none: MessageRevisionFilter
+}
+
+"""
+A filter to be used against many `SpaceSubscription` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceToManySpaceSubscriptionFilter {
+  """
+  Every related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceSubscriptionFilter
+
+  """
+  Some related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceSubscriptionFilter
+
+  """
+  No related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceSubscriptionFilter
+}
+
+"""
+A filter to be used against `SpaceSubscription` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceSubscriptionFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `spaceId` field."""
+  spaceId: UUIDFilter
+
+  """Filter by the object’s `subscriberId` field."""
+  subscriberId: UUIDFilter
+
+  """Filter by the object’s `role` field."""
+  role: SpaceRoleFilter
+
+  """Filter by the object’s `capabilities` field."""
+  capabilities: SpaceCapabilityListFilter
+
+  """Filter by the object’s `notifications` field."""
+  notifications: NotificationSettingFilter
+
+  """Filter by the object’s `lastVisitAt` field."""
+  lastVisitAt: DatetimeFilter
+
+  """Filter by the object’s `lastNotificationAt` field."""
+  lastNotificationAt: DatetimeFilter
+
+  """Filter by the object’s `isStarred` field."""
+  isStarred: BooleanFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `space` relation."""
+  space: SpaceFilter
+
+  """A related `space` exists."""
+  spaceExists: Boolean
+
+  """Filter by the object’s `subscriber` relation."""
+  subscriber: UserFilter
+
+  """A related `subscriber` exists."""
+  subscriberExists: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [SpaceSubscriptionFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [SpaceSubscriptionFilter!]
+
+  """Negates the expression."""
+  not: SpaceSubscriptionFilter
+}
+
+"""
+A filter to be used against SpaceRole fields. All fields are combined with a logical ‘and.’
+"""
+input SpaceRoleFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: SpaceRole
+
+  """Not equal to the specified value."""
+  notEqualTo: SpaceRole
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: SpaceRole
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: SpaceRole
+
+  """Included in the specified list."""
+  in: [SpaceRole!]
+
+  """Not included in the specified list."""
+  notIn: [SpaceRole!]
+
+  """Less than the specified value."""
+  lessThan: SpaceRole
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: SpaceRole
+
+  """Greater than the specified value."""
+  greaterThan: SpaceRole
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: SpaceRole
+}
+
+enum SpaceRole {
+  VIEWER
+  CONTRIBUTOR
+  MODERATOR
+  ADMIN
+}
+
+"""
+A filter to be used against SpaceCapability List fields. All fields are combined with a logical ‘and.’
+"""
+input SpaceCapabilityListFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: [SpaceCapability]
+
+  """Not equal to the specified value."""
+  notEqualTo: [SpaceCapability]
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: [SpaceCapability]
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: [SpaceCapability]
+
+  """Less than the specified value."""
+  lessThan: [SpaceCapability]
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: [SpaceCapability]
+
+  """Greater than the specified value."""
+  greaterThan: [SpaceCapability]
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: [SpaceCapability]
+
+  """Contains the specified list of values."""
+  contains: [SpaceCapability]
+
+  """Contained by the specified list of values."""
+  containedBy: [SpaceCapability]
+
+  """Overlaps the specified list of values."""
+  overlaps: [SpaceCapability]
+
+  """Any array item is equal to the specified value."""
+  anyEqualTo: SpaceCapability
+
+  """Any array item is not equal to the specified value."""
+  anyNotEqualTo: SpaceCapability
+
+  """Any array item is less than the specified value."""
+  anyLessThan: SpaceCapability
+
+  """Any array item is less than or equal to the specified value."""
+  anyLessThanOrEqualTo: SpaceCapability
+
+  """Any array item is greater than the specified value."""
+  anyGreaterThan: SpaceCapability
+
+  """Any array item is greater than or equal to the specified value."""
+  anyGreaterThanOrEqualTo: SpaceCapability
+}
+
+enum SpaceCapability {
+  SUBMISSIONS_CREATE
+  SUBMISSIONS_ACCEPT
+  POSTS_VIEW
+  POSTS_CREATE
+  POSTS_REVISE_OWN
+  POSTS_REVISE_ALL
+  CONTENTS_EDIT_OWN
+  CONTENTS_EDIT_ALL
 }
 
 """
@@ -5081,6 +5374,26 @@ input UserToManyTopicRevisionFilter {
   No related `TopicRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   none: TopicRevisionFilter
+}
+
+"""
+A filter to be used against many `SpaceSubscription` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManySpaceSubscriptionFilter {
+  """
+  Every related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceSubscriptionFilter
+
+  """
+  Some related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceSubscriptionFilter
+
+  """
+  No related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceSubscriptionFilter
 }
 
 """
@@ -7008,6 +7321,40 @@ type Space implements Node & SubmittableEntity {
     filter: MessageRevisionFilter
   ): MessageRevisionsConnection!
 
+  """Reads and enables pagination through a set of `SpaceSubscription`."""
+  subscriptions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubscription`."""
+    orderBy: [SpaceSubscriptionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubscriptionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubscriptionFilter
+  ): SpaceSubscriptionsConnection!
+
   """Reads and enables pagination through a set of `SpacePosting`."""
   usingPosts(
     """Only read the first `n` values of the set."""
@@ -7207,6 +7554,124 @@ input MessageRevisionCondition {
 
   """Checks for equality with the object’s `isPosted` field."""
   isPosted: Boolean
+}
+
+"""A connection to a list of `SpaceSubscription` values."""
+type SpaceSubscriptionsConnection {
+  """A list of `SpaceSubscription` objects."""
+  nodes: [SpaceSubscription!]!
+
+  """
+  A list of edges which contains the `SpaceSubscription` and cursor to aid in pagination.
+  """
+  edges: [SpaceSubscriptionsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `SpaceSubscription` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+type SpaceSubscription implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  spaceId: UUID
+  subscriberId: UUID
+  role: SpaceRole!
+  capabilities: [SpaceCapability]!
+  notifications: NotificationSetting!
+  lastVisitAt: Datetime
+  lastNotificationAt: Datetime
+  isStarred: Boolean!
+  createdAt: Datetime!
+  updatedAt: Datetime!
+
+  """Reads a single `Space` that is related to this `SpaceSubscription`."""
+  space: Space
+
+  """Reads a single `User` that is related to this `SpaceSubscription`."""
+  subscriber: User
+}
+
+"""A `SpaceSubscription` edge in the connection."""
+type SpaceSubscriptionsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `SpaceSubscription` at the end of the edge."""
+  node: SpaceSubscription!
+}
+
+"""Methods to use when ordering `SpaceSubscription`."""
+enum SpaceSubscriptionsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  SPACE_ID_ASC
+  SPACE_ID_DESC
+  SUBSCRIBER_ID_ASC
+  SUBSCRIBER_ID_DESC
+  ROLE_ASC
+  ROLE_DESC
+  NOTIFICATIONS_ASC
+  NOTIFICATIONS_DESC
+  LAST_VISIT_AT_ASC
+  LAST_VISIT_AT_DESC
+  LAST_NOTIFICATION_AT_ASC
+  LAST_NOTIFICATION_AT_DESC
+  IS_STARRED_ASC
+  IS_STARRED_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+A condition to be used against `SpaceSubscription` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input SpaceSubscriptionCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `spaceId` field."""
+  spaceId: UUID
+
+  """Checks for equality with the object’s `subscriberId` field."""
+  subscriberId: UUID
+
+  """Checks for equality with the object’s `role` field."""
+  role: SpaceRole
+
+  """Checks for equality with the object’s `capabilities` field."""
+  capabilities: [SpaceCapability]
+
+  """Checks for equality with the object’s `notifications` field."""
+  notifications: NotificationSetting
+
+  """Checks for equality with the object’s `lastVisitAt` field."""
+  lastVisitAt: Datetime
+
+  """Checks for equality with the object’s `lastNotificationAt` field."""
+  lastNotificationAt: Datetime
+
+  """Checks for equality with the object’s `isStarred` field."""
+  isStarred: Boolean
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
 }
 
 """A connection to a list of `SpacePosting` values."""
@@ -8121,13 +8586,6 @@ type MySubscribedSpaceIdsEdge {
   node: UUID
 }
 
-enum SpaceRole {
-  VIEWER
-  CONTRIBUTOR
-  MODERATOR
-  ADMIN
-}
-
 """A connection to a list of `TextsearchMatch` values."""
 type TextsearchMatchesConnection {
   """A list of `TextsearchMatch` objects."""
@@ -8313,151 +8771,6 @@ input TextsearchableEntityFilter {
 
   """Greater than or equal to the specified value."""
   greaterThanOrEqualTo: TextsearchableEntity
-}
-
-"""A connection to a list of `SpaceSubscription` values."""
-type SpaceSubscriptionsConnection {
-  """A list of `SpaceSubscription` objects."""
-  nodes: [SpaceSubscription!]!
-
-  """
-  A list of edges which contains the `SpaceSubscription` and cursor to aid in pagination.
-  """
-  edges: [SpaceSubscriptionsEdge!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """
-  The count of *all* `SpaceSubscription` you could get from the connection.
-  """
-  totalCount: Int!
-}
-
-type SpaceSubscription {
-  id: UUID!
-  spaceId: UUID
-  subscriberId: UUID
-  role: SpaceRole!
-  notifications: NotificationSetting!
-  lastVisitAt: Datetime
-  lastNotificationAt: Datetime
-  isStarred: Boolean!
-  createdAt: Datetime!
-  updatedAt: Datetime!
-
-  """Reads a single `Space` that is related to this `SpaceSubscription`."""
-  space: Space
-
-  """Reads a single `User` that is related to this `SpaceSubscription`."""
-  subscriber: User
-}
-
-"""A `SpaceSubscription` edge in the connection."""
-type SpaceSubscriptionsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `SpaceSubscription` at the end of the edge."""
-  node: SpaceSubscription!
-}
-
-"""
-A filter to be used against `SpaceSubscription` object types. All fields are combined with a logical ‘and.’
-"""
-input SpaceSubscriptionFilter {
-  """Filter by the object’s `id` field."""
-  id: UUIDFilter
-
-  """Filter by the object’s `spaceId` field."""
-  spaceId: UUIDFilter
-
-  """Filter by the object’s `subscriberId` field."""
-  subscriberId: UUIDFilter
-
-  """Filter by the object’s `role` field."""
-  role: SpaceRoleFilter
-
-  """Filter by the object’s `notifications` field."""
-  notifications: NotificationSettingFilter
-
-  """Filter by the object’s `lastVisitAt` field."""
-  lastVisitAt: DatetimeFilter
-
-  """Filter by the object’s `lastNotificationAt` field."""
-  lastNotificationAt: DatetimeFilter
-
-  """Filter by the object’s `isStarred` field."""
-  isStarred: BooleanFilter
-
-  """Filter by the object’s `createdAt` field."""
-  createdAt: DatetimeFilter
-
-  """Filter by the object’s `updatedAt` field."""
-  updatedAt: DatetimeFilter
-
-  """Filter by the object’s `space` relation."""
-  space: SpaceFilter
-
-  """A related `space` exists."""
-  spaceExists: Boolean
-
-  """Filter by the object’s `subscriber` relation."""
-  subscriber: UserFilter
-
-  """A related `subscriber` exists."""
-  subscriberExists: Boolean
-
-  """Checks for all expressions in this list."""
-  and: [SpaceSubscriptionFilter!]
-
-  """Checks for any expressions in this list."""
-  or: [SpaceSubscriptionFilter!]
-
-  """Negates the expression."""
-  not: SpaceSubscriptionFilter
-}
-
-"""
-A filter to be used against SpaceRole fields. All fields are combined with a logical ‘and.’
-"""
-input SpaceRoleFilter {
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Equal to the specified value."""
-  equalTo: SpaceRole
-
-  """Not equal to the specified value."""
-  notEqualTo: SpaceRole
-
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: SpaceRole
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: SpaceRole
-
-  """Included in the specified list."""
-  in: [SpaceRole!]
-
-  """Not included in the specified list."""
-  notIn: [SpaceRole!]
-
-  """Less than the specified value."""
-  lessThan: SpaceRole
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: SpaceRole
-
-  """Greater than the specified value."""
-  greaterThan: SpaceRole
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: SpaceRole
 }
 
 """A connection to a list of `SubmittableEntity` values."""

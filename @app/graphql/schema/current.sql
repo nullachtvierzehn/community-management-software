@@ -185,6 +185,22 @@ CREATE TYPE app_public.room_visibility AS ENUM (
 
 
 --
+-- Name: space_capability; Type: TYPE; Schema: app_public; Owner: -
+--
+
+CREATE TYPE app_public.space_capability AS ENUM (
+    'submissions__create',
+    'submissions__accept',
+    'posts__view',
+    'posts__create',
+    'posts__revise_own',
+    'posts__revise_all',
+    'contents__edit_own',
+    'contents__edit_all'
+);
+
+
+--
 -- Name: space_role; Type: TYPE; Schema: app_public; Owner: -
 --
 
@@ -2215,6 +2231,7 @@ CREATE TABLE app_public.space_subscriptions (
     space_id uuid,
     subscriber_id uuid,
     role app_public.space_role DEFAULT 'contributor'::app_public.space_role NOT NULL,
+    capabilities app_public.space_capability[] DEFAULT '{posts__view}'::app_public.space_capability[] NOT NULL,
     notifications app_public.notification_setting DEFAULT 'default'::app_public.notification_setting NOT NULL,
     last_visit_at timestamp with time zone,
     last_notification_at timestamp with time zone,
@@ -6255,6 +6272,13 @@ GRANT ALL ON FUNCTION app_public.my_room_subscription_id(in_room app_public.room
 
 REVOKE ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.room_role) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.my_room_subscriptions(minimum_role app_public.room_role) TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE space_subscriptions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
 
 
 --

@@ -5,6 +5,17 @@ create type app_public.space_role as enum (
   'admin'
 );
 
+create type app_public.space_capability as enum (
+  'submissions__create',
+  'submissions__accept',
+  'posts__view',
+  'posts__create',
+  'posts__revise_own',
+  'posts__revise_all',
+  'contents__edit_own',
+  'contents__edit_all'
+);
+
 
 create table app_public.space_subscriptions (
   id uuid primary key default uuid_generate_v1mc(),
@@ -17,6 +28,7 @@ create table app_public.space_subscriptions (
       references app_public.users (id)
       on update cascade on delete cascade,
   "role" app_public.space_role not null default 'contributor',
+  capabilities app_public.space_capability[] not null default '{posts__view}',
   notifications app_public.notification_setting not null default 'default',
   last_visit_at timestamptz,
   last_notification_at timestamptz,
@@ -25,9 +37,12 @@ create table app_public.space_subscriptions (
   updated_at timestamptz not null default current_timestamp
 );
 
+
 comment on constraint "space" on app_public.space_subscriptions 
   is E'@foreignFieldName subscriptions';
 
+
+grant select on app_public.space_subscriptions to :DATABASE_VISITOR;
 
 
 create or replace function app_public.my_subscribed_space_ids(minimum_role app_public.space_role default 'viewer') 
