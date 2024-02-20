@@ -185,27 +185,6 @@ CREATE TYPE app_public.room_visibility AS ENUM (
 
 
 --
--- Name: space_item; Type: TYPE; Schema: app_public; Owner: -
---
-
-CREATE TYPE app_public.space_item AS (
-	id uuid,
-	created_at timestamp with time zone,
-	updated_at timestamp with time zone
-);
-
-
---
--- Name: TYPE space_item; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON TYPE app_public.space_item IS '
-  @interface mode:union
-  @name SpaceItemEntity
-  ';
-
-
---
 -- Name: space_role; Type: TYPE; Schema: app_public; Owner: -
 --
 
@@ -215,6 +194,27 @@ CREATE TYPE app_public.space_role AS ENUM (
     'moderator',
     'admin'
 );
+
+
+--
+-- Name: submittable_entity; Type: TYPE; Schema: app_public; Owner: -
+--
+
+CREATE TYPE app_public.submittable_entity AS (
+	id uuid,
+	created_at timestamp with time zone,
+	updated_at timestamp with time zone
+);
+
+
+--
+-- Name: TYPE submittable_entity; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TYPE app_public.submittable_entity IS '
+  @interface mode:union
+  @name SubmittableEntity
+  ';
 
 
 --
@@ -290,33 +290,6 @@ CREATE TYPE app_public.topic_visibility AS ENUM (
     'organization_members',
     'signed_in_users',
     'public'
-);
-
-
---
--- Name: procrastinate_job_event_type; Type: TYPE; Schema: procrastinate; Owner: -
---
-
-CREATE TYPE procrastinate.procrastinate_job_event_type AS ENUM (
-    'deferred',
-    'started',
-    'deferred_for_retry',
-    'failed',
-    'succeeded',
-    'cancelled',
-    'scheduled'
-);
-
-
---
--- Name: procrastinate_job_status; Type: TYPE; Schema: procrastinate; Owner: -
---
-
-CREATE TYPE procrastinate.procrastinate_job_status AS ENUM (
-    'todo',
-    'doing',
-    'succeeded',
-    'failed'
 );
 
 
@@ -410,8 +383,8 @@ begin
       "subject" = new."subject",
       body = new.body
     where 
-      r.id = old.id
-      and r.revision_id = old.revision_id
+      r.id = old_revision.id
+      and r.revision_id = old_revision.revision_id
     returning * into strict new;
   else
     insert into app_public.message_revisions 
@@ -2045,11 +2018,19 @@ CREATE TABLE app_public.message_revisions (
     revision_id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
     parent_revision_id uuid,
     editor_id uuid DEFAULT app_public.current_user_id(),
+    edit_context_id uuid,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     subject text,
     body jsonb
 );
+
+
+--
+-- Name: TABLE message_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.message_revisions IS '@implements SubmittableEntity';
 
 
 --
@@ -2717,9 +2698,9 @@ CREATE TABLE app_public.space_postings (
 --
 
 COMMENT ON TABLE app_public.space_postings IS '
-  @ref item to:SpaceItemEntity singular
-  @refVia item via:topics
-  @refVia item via:files
+  @ref item to:SubmittableEntity singular
+  @refVia item via:topic_revisions
+  @refVia item via:message_revisions
   ';
 
 
@@ -2997,14 +2978,14 @@ CREATE TABLE app_public.topics (
     author_id uuid DEFAULT app_public.current_user_id(),
     organization_id uuid DEFAULT app_public.current_user_first_owned_organization_id(),
     slug text NOT NULL,
-    name text,
+    title text,
     license text,
     tags text[] DEFAULT '{}'::text[] NOT NULL,
     is_visible_for app_public.topic_visibility DEFAULT 'public'::app_public.topic_visibility NOT NULL,
     content jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    fulltext_index_column tsvector GENERATED ALWAYS AS ((((setweight(to_tsvector('german'::regconfig, COALESCE(name, ''::text)), 'A'::"char") || setweight(to_tsvector('german'::regconfig, COALESCE(slug, ''::text)), 'A'::"char")) || setweight(to_tsvector('german'::regconfig, COALESCE(public.text_array_to_string(tags, ' '::text), ''::text)), 'A'::"char")) || setweight(to_tsvector('german'::regconfig, COALESCE(app_hidden.tiptap_document_as_plain_text(content), ''::text)), 'B'::"char"))) STORED,
+    fulltext_index_column tsvector GENERATED ALWAYS AS ((((setweight(to_tsvector('german'::regconfig, COALESCE(title, ''::text)), 'A'::"char") || setweight(to_tsvector('german'::regconfig, COALESCE(slug, ''::text)), 'A'::"char")) || setweight(to_tsvector('german'::regconfig, COALESCE(public.text_array_to_string(tags, ' '::text), ''::text)), 'A'::"char")) || setweight(to_tsvector('german'::regconfig, COALESCE(app_hidden.tiptap_document_as_plain_text(content), ''::text)), 'B'::"char"))) STORED,
     CONSTRAINT valid_slug CHECK ((slug ~ '^[\w\d-]+(/[\w\d-]+)*$'::text))
 );
 
@@ -3014,7 +2995,7 @@ CREATE TABLE app_public.topics (
 --
 
 COMMENT ON TABLE app_public.topics IS '
-  @implements SpaceItemEntity
+  @implements SubmittableEntity
   A topic is a short text about something. Most topics should have the scope of a micro learning unit.
   ';
 
@@ -3027,10 +3008,10 @@ COMMENT ON COLUMN app_public.topics.slug IS 'Each topic has a slug (a name made 
 
 
 --
--- Name: COLUMN topics.name; Type: COMMENT; Schema: app_public; Owner: -
+-- Name: COLUMN topics.title; Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON COLUMN app_public.topics.name IS 'Each topic has an optional title. In case of an article, this would be the headline.';
+COMMENT ON COLUMN app_public.topics.title IS 'Each topic has an optional title. In case of an article, this would be the headline.';
 
 
 --
@@ -3254,379 +3235,6 @@ $$;
 
 
 --
--- Name: procrastinate_defer_job(character varying, character varying, text, text, jsonb, timestamp with time zone); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_defer_job(queue_name character varying, task_name character varying, lock text, queueing_lock text, args jsonb, scheduled_at timestamp with time zone) RETURNS bigint
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	job_id bigint;
-BEGIN
-    INSERT INTO procrastinate_jobs (queue_name, task_name, lock, queueing_lock, args, scheduled_at)
-    VALUES (queue_name, task_name, lock, queueing_lock, args, scheduled_at)
-    RETURNING id INTO job_id;
-
-    RETURN job_id;
-END;
-$$;
-
-
---
--- Name: procrastinate_defer_periodic_job(character varying, character varying, character varying, character varying, bigint); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _defer_timestamp bigint) RETURNS bigint
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	_job_id bigint;
-	_defer_id bigint;
-BEGIN
-
-    INSERT
-        INTO procrastinate_periodic_defers (task_name, queue_name, defer_timestamp)
-        VALUES (_task_name, _queue_name, _defer_timestamp)
-        ON CONFLICT DO NOTHING
-        RETURNING id into _defer_id;
-
-    IF _defer_id IS NULL THEN
-        RETURN NULL;
-    END IF;
-
-    UPDATE procrastinate_periodic_defers
-        SET job_id = procrastinate_defer_job(
-                _queue_name,
-                _task_name,
-                _lock,
-                _queueing_lock,
-                ('{"timestamp": ' || _defer_timestamp || '}')::jsonb,
-                NULL
-            )
-        WHERE id = _defer_id
-        RETURNING job_id INTO _job_id;
-
-    DELETE
-        FROM procrastinate_periodic_defers
-        USING (
-            SELECT id
-            FROM procrastinate_periodic_defers
-            WHERE procrastinate_periodic_defers.task_name = _task_name
-            AND procrastinate_periodic_defers.queue_name = _queue_name
-            AND procrastinate_periodic_defers.defer_timestamp < _defer_timestamp
-            ORDER BY id
-            FOR UPDATE
-        ) to_delete
-        WHERE procrastinate_periodic_defers.id = to_delete.id;
-
-    RETURN _job_id;
-END;
-$$;
-
-
---
--- Name: procrastinate_defer_periodic_job(character varying, character varying, character varying, character varying, character varying, bigint, jsonb); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _periodic_id character varying, _defer_timestamp bigint, _args jsonb) RETURNS bigint
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	_job_id bigint;
-	_defer_id bigint;
-BEGIN
-
-    INSERT
-        INTO procrastinate_periodic_defers (task_name, periodic_id, defer_timestamp)
-        VALUES (_task_name, _periodic_id, _defer_timestamp)
-        ON CONFLICT DO NOTHING
-        RETURNING id into _defer_id;
-
-    IF _defer_id IS NULL THEN
-        RETURN NULL;
-    END IF;
-
-    UPDATE procrastinate_periodic_defers
-        SET job_id = procrastinate_defer_job(
-                _queue_name,
-                _task_name,
-                _lock,
-                _queueing_lock,
-                _args,
-                NULL
-            )
-        WHERE id = _defer_id
-        RETURNING job_id INTO _job_id;
-
-    DELETE
-        FROM procrastinate_periodic_defers
-        USING (
-            SELECT id
-            FROM procrastinate_periodic_defers
-            WHERE procrastinate_periodic_defers.task_name = _task_name
-            AND procrastinate_periodic_defers.periodic_id = _periodic_id
-            AND procrastinate_periodic_defers.defer_timestamp < _defer_timestamp
-            ORDER BY id
-            FOR UPDATE
-        ) to_delete
-        WHERE procrastinate_periodic_defers.id = to_delete.id;
-
-    RETURN _job_id;
-END;
-$$;
-
-
---
--- Name: procrastinate_jobs; Type: TABLE; Schema: procrastinate; Owner: -
---
-
-CREATE TABLE procrastinate.procrastinate_jobs (
-    id bigint NOT NULL,
-    queue_name character varying(128) NOT NULL,
-    task_name character varying(128) NOT NULL,
-    lock text,
-    queueing_lock text,
-    args jsonb DEFAULT '{}'::jsonb NOT NULL,
-    status procrastinate.procrastinate_job_status DEFAULT 'todo'::procrastinate.procrastinate_job_status NOT NULL,
-    scheduled_at timestamp with time zone,
-    attempts integer DEFAULT 0 NOT NULL
-);
-
-
---
--- Name: procrastinate_fetch_job(character varying[]); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_fetch_job(target_queue_names character varying[]) RETURNS procrastinate.procrastinate_jobs
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	found_jobs procrastinate_jobs;
-BEGIN
-    WITH candidate AS (
-        SELECT jobs.*
-            FROM procrastinate_jobs AS jobs
-            WHERE
-                -- reject the job if its lock has earlier jobs
-                NOT EXISTS (
-                    SELECT 1
-                        FROM procrastinate_jobs AS earlier_jobs
-                        WHERE
-                            jobs.lock IS NOT NULL
-                            AND earlier_jobs.lock = jobs.lock
-                            AND earlier_jobs.status IN ('todo', 'doing')
-                            AND earlier_jobs.id < jobs.id)
-                AND jobs.status = 'todo'
-                AND (target_queue_names IS NULL OR jobs.queue_name = ANY( target_queue_names ))
-                AND (jobs.scheduled_at IS NULL OR jobs.scheduled_at <= now())
-            ORDER BY jobs.id ASC LIMIT 1
-            FOR UPDATE OF jobs SKIP LOCKED
-    )
-    UPDATE procrastinate_jobs
-        SET status = 'doing'
-        FROM candidate
-        WHERE procrastinate_jobs.id = candidate.id
-        RETURNING procrastinate_jobs.* INTO found_jobs;
-
-	RETURN found_jobs;
-END;
-$$;
-
-
---
--- Name: procrastinate_finish_job(integer, procrastinate.procrastinate_job_status); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    UPDATE procrastinate_jobs
-    SET status = end_status,
-        attempts = attempts + 1
-    WHERE id = job_id;
-END;
-$$;
-
-
---
--- Name: procrastinate_finish_job(integer, procrastinate.procrastinate_job_status, timestamp with time zone); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    UPDATE procrastinate_jobs
-    SET status = end_status,
-        attempts = attempts + 1,
-        scheduled_at = COALESCE(next_scheduled_at, scheduled_at)
-    WHERE id = job_id;
-END;
-$$;
-
-
---
--- Name: procrastinate_finish_job(integer, procrastinate.procrastinate_job_status, timestamp with time zone, boolean); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone, delete_job boolean) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    _job_id bigint;
-BEGIN
-    IF end_status NOT IN ('succeeded', 'failed') THEN
-        RAISE 'End status should be either "succeeded" or "failed" (job id: %)', job_id;
-    END IF;
-    IF delete_job THEN
-        DELETE FROM procrastinate_jobs
-        WHERE id = job_id AND status IN ('todo', 'doing')
-        RETURNING id INTO _job_id;
-    ELSE
-        UPDATE procrastinate_jobs
-        SET status = end_status,
-            attempts =
-                CASE
-                    WHEN status = 'doing' THEN attempts + 1
-                    ELSE attempts
-                END
-        WHERE id = job_id AND status IN ('todo', 'doing')
-        RETURNING id INTO _job_id;
-    END IF;
-    IF _job_id IS NULL THEN
-        RAISE 'Job was not found or not in "doing" or "todo" status (job id: %)', job_id;
-    END IF;
-END;
-$$;
-
-
---
--- Name: procrastinate_notify_queue(); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_notify_queue() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-	PERFORM pg_notify('procrastinate_queue#' || NEW.queue_name, NEW.task_name);
-	PERFORM pg_notify('procrastinate_any_queue', NEW.task_name);
-	RETURN NEW;
-END;
-$$;
-
-
---
--- Name: procrastinate_retry_job(integer, timestamp with time zone); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_retry_job(job_id integer, retry_at timestamp with time zone) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    _job_id bigint;
-BEGIN
-    UPDATE procrastinate_jobs
-    SET status = 'todo',
-        attempts = attempts + 1,
-        scheduled_at = retry_at
-    WHERE id = job_id AND status = 'doing'
-    RETURNING id INTO _job_id;
-    IF _job_id IS NULL THEN
-        RAISE 'Job was not found or not in "doing" status (job id: %)', job_id;
-    END IF;
-END;
-$$;
-
-
---
--- Name: procrastinate_trigger_scheduled_events_procedure(); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_trigger_scheduled_events_procedure() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    INSERT INTO procrastinate_events(job_id, type, at)
-        VALUES (NEW.id, 'scheduled'::procrastinate_job_event_type, NEW.scheduled_at);
-
-	RETURN NEW;
-END;
-$$;
-
-
---
--- Name: procrastinate_trigger_status_events_procedure_insert(); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_insert() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    INSERT INTO procrastinate_events(job_id, type)
-        VALUES (NEW.id, 'deferred'::procrastinate_job_event_type);
-	RETURN NEW;
-END;
-$$;
-
-
---
--- Name: procrastinate_trigger_status_events_procedure_update(); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    WITH t AS (
-        SELECT CASE
-            WHEN OLD.status = 'todo'::procrastinate_job_status
-                AND NEW.status = 'doing'::procrastinate_job_status
-                THEN 'started'::procrastinate_job_event_type
-            WHEN OLD.status = 'doing'::procrastinate_job_status
-                AND NEW.status = 'todo'::procrastinate_job_status
-                THEN 'deferred_for_retry'::procrastinate_job_event_type
-            WHEN OLD.status = 'doing'::procrastinate_job_status
-                AND NEW.status = 'failed'::procrastinate_job_status
-                THEN 'failed'::procrastinate_job_event_type
-            WHEN OLD.status = 'doing'::procrastinate_job_status
-                AND NEW.status = 'succeeded'::procrastinate_job_status
-                THEN 'succeeded'::procrastinate_job_event_type
-            WHEN OLD.status = 'todo'::procrastinate_job_status
-                AND (
-                    NEW.status = 'failed'::procrastinate_job_status
-                    OR NEW.status = 'succeeded'::procrastinate_job_status
-                )
-                THEN 'cancelled'::procrastinate_job_event_type
-            ELSE NULL
-        END as event_type
-    )
-    INSERT INTO procrastinate_events(job_id, type)
-        SELECT NEW.id, t.event_type
-        FROM t
-        WHERE t.event_type IS NOT NULL;
-	RETURN NEW;
-END;
-$$;
-
-
---
--- Name: procrastinate_unlink_periodic_defers(); Type: FUNCTION; Schema: procrastinate; Owner: -
---
-
-CREATE FUNCTION procrastinate.procrastinate_unlink_periodic_defers() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    UPDATE procrastinate_periodic_defers
-    SET job_id = NULL
-    WHERE job_id = OLD.id;
-    RETURN OLD;
-END;
-$$;
-
-
---
 -- Name: connect_pg_simple_sessions; Type: TABLE; Schema: app_private; Owner: -
 --
 
@@ -3740,6 +3348,7 @@ CREATE VIEW app_public.active_message_revisions WITH (security_invoker='true', s
     revision_id,
     parent_revision_id,
     editor_id,
+    edit_context_id,
     created_at,
     updated_at,
     subject,
@@ -3770,6 +3379,7 @@ CREATE VIEW app_public.current_message_revisions WITH (security_invoker='true', 
     revision_id,
     parent_revision_id,
     editor_id,
+    edit_context_id,
     created_at,
     updated_at,
     subject,
@@ -3801,7 +3411,7 @@ CREATE TABLE app_public.files (
     contributor_id uuid DEFAULT app_public.current_user_id(),
     uploaded_bytes integer,
     total_bytes integer,
-    name text,
+    filename text,
     path_on_storage text,
     mime_type text,
     sha256 text,
@@ -3815,7 +3425,7 @@ CREATE TABLE app_public.files (
 --
 
 COMMENT ON TABLE app_public.files IS '
-  @implements SpaceItemEntity
+  @implements SubmittableEntity
   A file stored on the system.
   ';
 
@@ -3893,6 +3503,28 @@ CREATE TABLE app_public.room_message_attachments (
 
 
 --
+-- Name: space_submissions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.space_submissions (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    space_id uuid,
+    submitter_id uuid,
+    post_to_be_updated_id uuid,
+    linked_space_id uuid,
+    topic_id uuid,
+    message_id uuid,
+    revision_id uuid,
+    sort_order double precision,
+    slug text,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT links_exactly_one_entity CHECK ((1 = num_nonnulls(linked_space_id, topic_id, message_id))),
+    CONSTRAINT valid_slug CHECK ((slug ~ '^[a-zA-Z0-9.-_~]+$'::text))
+);
+
+
+--
 -- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -3910,7 +3542,7 @@ CREATE TABLE app_public.spaces (
 --
 
 COMMENT ON TABLE app_public.spaces IS '
-  @implements SpaceItemEntity
+  @implements SubmittableEntity
   A space is a place where users meet and interact with items.
   ';
 
@@ -4009,110 +3641,6 @@ COMMENT ON COLUMN app_public.user_authentications.identifier IS 'A unique identi
 --
 
 COMMENT ON COLUMN app_public.user_authentications.details IS 'Additional profile details extracted from this login method';
-
-
---
--- Name: procrastinate_events; Type: TABLE; Schema: procrastinate; Owner: -
---
-
-CREATE TABLE procrastinate.procrastinate_events (
-    id bigint NOT NULL,
-    job_id integer NOT NULL,
-    type procrastinate.procrastinate_job_event_type,
-    at timestamp with time zone DEFAULT now()
-);
-
-
---
--- Name: procrastinate_events_id_seq; Type: SEQUENCE; Schema: procrastinate; Owner: -
---
-
-CREATE SEQUENCE procrastinate.procrastinate_events_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: procrastinate_events_id_seq; Type: SEQUENCE OWNED BY; Schema: procrastinate; Owner: -
---
-
-ALTER SEQUENCE procrastinate.procrastinate_events_id_seq OWNED BY procrastinate.procrastinate_events.id;
-
-
---
--- Name: procrastinate_jobs_id_seq; Type: SEQUENCE; Schema: procrastinate; Owner: -
---
-
-CREATE SEQUENCE procrastinate.procrastinate_jobs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: procrastinate_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: procrastinate; Owner: -
---
-
-ALTER SEQUENCE procrastinate.procrastinate_jobs_id_seq OWNED BY procrastinate.procrastinate_jobs.id;
-
-
---
--- Name: procrastinate_periodic_defers; Type: TABLE; Schema: procrastinate; Owner: -
---
-
-CREATE TABLE procrastinate.procrastinate_periodic_defers (
-    id bigint NOT NULL,
-    task_name character varying(128) NOT NULL,
-    defer_timestamp bigint,
-    job_id bigint,
-    queue_name character varying(128),
-    periodic_id character varying(128) DEFAULT ''::character varying NOT NULL
-);
-
-
---
--- Name: procrastinate_periodic_defers_id_seq; Type: SEQUENCE; Schema: procrastinate; Owner: -
---
-
-CREATE SEQUENCE procrastinate.procrastinate_periodic_defers_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: procrastinate_periodic_defers_id_seq; Type: SEQUENCE OWNED BY; Schema: procrastinate; Owner: -
---
-
-ALTER SEQUENCE procrastinate.procrastinate_periodic_defers_id_seq OWNED BY procrastinate.procrastinate_periodic_defers.id;
-
-
---
--- Name: procrastinate_events id; Type: DEFAULT; Schema: procrastinate; Owner: -
---
-
-ALTER TABLE ONLY procrastinate.procrastinate_events ALTER COLUMN id SET DEFAULT nextval('procrastinate.procrastinate_events_id_seq'::regclass);
-
-
---
--- Name: procrastinate_jobs id; Type: DEFAULT; Schema: procrastinate; Owner: -
---
-
-ALTER TABLE ONLY procrastinate.procrastinate_jobs ALTER COLUMN id SET DEFAULT nextval('procrastinate.procrastinate_jobs_id_seq'::regclass);
-
-
---
--- Name: procrastinate_periodic_defers id; Type: DEFAULT; Schema: procrastinate; Owner: -
---
-
-ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers ALTER COLUMN id SET DEFAULT nextval('procrastinate.procrastinate_periodic_defers_id_seq'::regclass);
 
 
 --
@@ -4308,6 +3836,14 @@ ALTER TABLE ONLY app_public.space_postings
 
 
 --
+-- Name: space_submissions space_submissions_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submissions
+    ADD CONSTRAINT space_submissions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: space_subscriptions space_subscriptions_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4409,38 +3945,6 @@ ALTER TABLE ONLY app_public.users
 
 ALTER TABLE ONLY app_public.users
     ADD CONSTRAINT users_username_key UNIQUE (username);
-
-
---
--- Name: procrastinate_events procrastinate_events_pkey; Type: CONSTRAINT; Schema: procrastinate; Owner: -
---
-
-ALTER TABLE ONLY procrastinate.procrastinate_events
-    ADD CONSTRAINT procrastinate_events_pkey PRIMARY KEY (id);
-
-
---
--- Name: procrastinate_jobs procrastinate_jobs_pkey; Type: CONSTRAINT; Schema: procrastinate; Owner: -
---
-
-ALTER TABLE ONLY procrastinate.procrastinate_jobs
-    ADD CONSTRAINT procrastinate_jobs_pkey PRIMARY KEY (id);
-
-
---
--- Name: procrastinate_periodic_defers procrastinate_periodic_defers_pkey; Type: CONSTRAINT; Schema: procrastinate; Owner: -
---
-
-ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers
-    ADD CONSTRAINT procrastinate_periodic_defers_pkey PRIMARY KEY (id);
-
-
---
--- Name: procrastinate_periodic_defers procrastinate_periodic_defers_unique; Type: CONSTRAINT; Schema: procrastinate; Owner: -
---
-
-ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers
-    ADD CONSTRAINT procrastinate_periodic_defers_unique UNIQUE (task_name, periodic_id, defer_timestamp);
 
 
 --
@@ -4790,7 +4294,7 @@ CREATE INDEX topics_on_tags ON app_public.topics USING gin (tags);
 -- Name: topics_on_title; Type: INDEX; Schema: app_public; Owner: -
 --
 
-CREATE INDEX topics_on_title ON app_public.topics USING btree (name);
+CREATE INDEX topics_on_title ON app_public.topics USING btree (title);
 
 
 --
@@ -4826,48 +4330,6 @@ CREATE INDEX user_authentications_user_id_idx ON app_public.user_authentications
 --
 
 CREATE INDEX users_on_fuzzy_username ON app_public.users USING gist (username public.gist_trgm_ops (siglen='12'));
-
-
---
--- Name: procrastinate_events_job_id_fkey; Type: INDEX; Schema: procrastinate; Owner: -
---
-
-CREATE INDEX procrastinate_events_job_id_fkey ON procrastinate.procrastinate_events USING btree (job_id);
-
-
---
--- Name: procrastinate_jobs_id_lock_idx; Type: INDEX; Schema: procrastinate; Owner: -
---
-
-CREATE INDEX procrastinate_jobs_id_lock_idx ON procrastinate.procrastinate_jobs USING btree (id, lock) WHERE (status = ANY (ARRAY['todo'::procrastinate.procrastinate_job_status, 'doing'::procrastinate.procrastinate_job_status]));
-
-
---
--- Name: procrastinate_jobs_lock_idx; Type: INDEX; Schema: procrastinate; Owner: -
---
-
-CREATE UNIQUE INDEX procrastinate_jobs_lock_idx ON procrastinate.procrastinate_jobs USING btree (lock) WHERE (status = 'doing'::procrastinate.procrastinate_job_status);
-
-
---
--- Name: procrastinate_jobs_queue_name_idx; Type: INDEX; Schema: procrastinate; Owner: -
---
-
-CREATE INDEX procrastinate_jobs_queue_name_idx ON procrastinate.procrastinate_jobs USING btree (queue_name);
-
-
---
--- Name: procrastinate_jobs_queueing_lock_idx; Type: INDEX; Schema: procrastinate; Owner: -
---
-
-CREATE UNIQUE INDEX procrastinate_jobs_queueing_lock_idx ON procrastinate.procrastinate_jobs USING btree (queueing_lock) WHERE (status = 'todo'::procrastinate.procrastinate_job_status);
-
-
---
--- Name: procrastinate_periodic_defers_job_id_fkey; Type: INDEX; Schema: procrastinate; Owner: -
---
-
-CREATE INDEX procrastinate_periodic_defers_job_id_fkey ON procrastinate.procrastinate_periodic_defers USING btree (job_id);
 
 
 --
@@ -5074,41 +4536,6 @@ CREATE CONSTRAINT TRIGGER t900_verify_role_updates_on_room_subscriptions AFTER U
 
 
 --
--- Name: procrastinate_jobs procrastinate_jobs_notify_queue; Type: TRIGGER; Schema: procrastinate; Owner: -
---
-
-CREATE TRIGGER procrastinate_jobs_notify_queue AFTER INSERT ON procrastinate.procrastinate_jobs FOR EACH ROW WHEN ((new.status = 'todo'::procrastinate.procrastinate_job_status)) EXECUTE FUNCTION procrastinate.procrastinate_notify_queue();
-
-
---
--- Name: procrastinate_jobs procrastinate_trigger_delete_jobs; Type: TRIGGER; Schema: procrastinate; Owner: -
---
-
-CREATE TRIGGER procrastinate_trigger_delete_jobs BEFORE DELETE ON procrastinate.procrastinate_jobs FOR EACH ROW EXECUTE FUNCTION procrastinate.procrastinate_unlink_periodic_defers();
-
-
---
--- Name: procrastinate_jobs procrastinate_trigger_scheduled_events; Type: TRIGGER; Schema: procrastinate; Owner: -
---
-
-CREATE TRIGGER procrastinate_trigger_scheduled_events AFTER INSERT OR UPDATE ON procrastinate.procrastinate_jobs FOR EACH ROW WHEN (((new.scheduled_at IS NOT NULL) AND (new.status = 'todo'::procrastinate.procrastinate_job_status))) EXECUTE FUNCTION procrastinate.procrastinate_trigger_scheduled_events_procedure();
-
-
---
--- Name: procrastinate_jobs procrastinate_trigger_status_events_insert; Type: TRIGGER; Schema: procrastinate; Owner: -
---
-
-CREATE TRIGGER procrastinate_trigger_status_events_insert AFTER INSERT ON procrastinate.procrastinate_jobs FOR EACH ROW WHEN ((new.status = 'todo'::procrastinate.procrastinate_job_status)) EXECUTE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_insert();
-
-
---
--- Name: procrastinate_jobs procrastinate_trigger_status_events_update; Type: TRIGGER; Schema: procrastinate; Owner: -
---
-
-CREATE TRIGGER procrastinate_trigger_status_events_update AFTER UPDATE OF status ON procrastinate.procrastinate_jobs FOR EACH ROW EXECUTE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update();
-
-
---
 -- Name: sessions sessions_user_id_fkey; Type: FK CONSTRAINT; Schema: app_private; Owner: -
 --
 
@@ -5195,6 +4622,14 @@ ALTER TABLE ONLY app_public.files
 
 
 --
+-- Name: message_revisions edit_context; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.message_revisions
+    ADD CONSTRAINT edit_context FOREIGN KEY (edit_context_id) REFERENCES app_public.spaces(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: message_revisions editor; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -5242,11 +4677,55 @@ ALTER TABLE ONLY app_public.space_postings
 
 
 --
+-- Name: CONSTRAINT linked_space ON space_postings; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT linked_space ON app_public.space_postings IS '@foreignFieldName usingPosts';
+
+
+--
+-- Name: space_submissions linked_space; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submissions
+    ADD CONSTRAINT linked_space FOREIGN KEY (linked_space_id) REFERENCES app_public.spaces(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: CONSTRAINT linked_space ON space_submissions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT linked_space ON app_public.space_submissions IS '@foreignFieldName usingSubmissions';
+
+
+--
 -- Name: space_postings message_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
 ALTER TABLE ONLY app_public.space_postings
     ADD CONSTRAINT message_revision FOREIGN KEY (message_id, revision_id) REFERENCES app_public.message_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: CONSTRAINT message_revision ON space_postings; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT message_revision ON app_public.space_postings IS '@foreignFieldName usingPosts';
+
+
+--
+-- Name: space_submissions message_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submissions
+    ADD CONSTRAINT message_revision FOREIGN KEY (message_id, revision_id) REFERENCES app_public.message_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: CONSTRAINT message_revision ON space_submissions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT message_revision ON app_public.space_submissions IS '@foreignFieldName usingSubmissions';
 
 
 --
@@ -5329,11 +4808,39 @@ ALTER TABLE ONLY app_public.message_revisions
 
 
 --
+-- Name: CONSTRAINT parent_revision ON message_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT parent_revision ON app_public.message_revisions IS '
+  @fieldName parentRevision
+  @foreignFieldName childRevisions
+  ';
+
+
+--
 -- Name: topic_revisions parent_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
 ALTER TABLE ONLY app_public.topic_revisions
     ADD CONSTRAINT parent_revision FOREIGN KEY (parent_revision_id, id) REFERENCES app_public.topic_revisions(revision_id, id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE;
+
+
+--
+-- Name: CONSTRAINT parent_revision ON topic_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT parent_revision ON app_public.topic_revisions IS '
+  @fieldName parentRevision
+  @foreignFieldName childRevisions
+  ';
+
+
+--
+-- Name: space_submissions post_to_be_updated; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submissions
+    ADD CONSTRAINT post_to_be_updated FOREIGN KEY (post_to_be_updated_id) REFERENCES app_public.space_postings(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5456,7 +4963,30 @@ ALTER TABLE ONLY app_public.space_postings
 -- Name: CONSTRAINT space ON space_postings; Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON CONSTRAINT space ON app_public.space_postings IS '@foreignFieldName postings';
+COMMENT ON CONSTRAINT space ON app_public.space_postings IS '@foreignFieldName posts';
+
+
+--
+-- Name: space_submissions space; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submissions
+    ADD CONSTRAINT space FOREIGN KEY (space_id) REFERENCES app_public.spaces(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: CONSTRAINT space ON space_submissions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT space ON app_public.space_submissions IS '@foreignFieldName submissions';
+
+
+--
+-- Name: space_submissions submitter; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submissions
+    ADD CONSTRAINT submitter FOREIGN KEY (submitter_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5508,6 +5038,28 @@ ALTER TABLE ONLY app_public.space_postings
 
 
 --
+-- Name: CONSTRAINT topic_revision ON space_postings; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT topic_revision ON app_public.space_postings IS '@foreignFieldName usingPosts';
+
+
+--
+-- Name: space_submissions topic_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submissions
+    ADD CONSTRAINT topic_revision FOREIGN KEY (topic_id, revision_id) REFERENCES app_public.topic_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: CONSTRAINT topic_revision ON space_submissions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT topic_revision ON app_public.space_submissions IS '@foreignFieldName usingSubmissions';
+
+
+--
 -- Name: user_authentications user_authentications_user_id_fkey; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -5521,22 +5073,6 @@ ALTER TABLE ONLY app_public.user_authentications
 
 ALTER TABLE ONLY app_public.user_emails
     ADD CONSTRAINT user_emails_user_id_fkey FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON DELETE CASCADE;
-
-
---
--- Name: procrastinate_events procrastinate_events_job_id_fkey; Type: FK CONSTRAINT; Schema: procrastinate; Owner: -
---
-
-ALTER TABLE ONLY procrastinate.procrastinate_events
-    ADD CONSTRAINT procrastinate_events_job_id_fkey FOREIGN KEY (job_id) REFERENCES procrastinate.procrastinate_jobs(id) ON DELETE CASCADE;
-
-
---
--- Name: procrastinate_periodic_defers procrastinate_periodic_defers_job_id_fkey; Type: FK CONSTRAINT; Schema: procrastinate; Owner: -
---
-
-ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers
-    ADD CONSTRAINT procrastinate_periodic_defers_job_id_fkey FOREIGN KEY (job_id) REFERENCES procrastinate.procrastinate_jobs(id);
 
 
 --
@@ -5597,7 +5133,7 @@ CREATE POLICY authors_can_manage ON app_public.topics USING ((author_id = app_pu
 -- Name: message_revisions can_update; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY can_update ON app_public.message_revisions FOR UPDATE USING ((app_public.message_revisions_is_leaf(message_revisions.*) AND (NOT app_public.message_revisions_is_posted(message_revisions.*))));
+CREATE POLICY can_update ON app_public.message_revisions FOR UPDATE USING (((editor_id = app_public.current_user_id()) AND app_public.message_revisions_is_leaf(message_revisions.*) AND (NOT app_public.message_revisions_is_posted(message_revisions.*))));
 
 
 --
@@ -5637,7 +5173,7 @@ CREATE POLICY insert_as_admin ON app_public.room_subscriptions FOR INSERT WITH C
 --
 
 CREATE POLICY insert_as_admin ON app_public.rooms FOR INSERT WITH CHECK ((EXISTS ( SELECT
-   FROM app_public."current_user"() "current_user"(id, username, name, avatar_url, is_admin, is_verified, created_at, updated_at, default_handling_of_notifications, sending_time_for_deferred_notifications)
+   FROM app_public."current_user"() "current_user"(id, username, name, avatar_url, is_admin, is_verified, created_at, updated_at)
   WHERE "current_user".is_admin)));
 
 
@@ -6009,10 +5545,10 @@ GRANT ALL ON TYPE app_public.room_item_attachment_type TO null814_cms_app_users;
 
 
 --
--- Name: TYPE space_item; Type: ACL; Schema: app_public; Owner: -
+-- Name: TYPE submittable_entity; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT ALL ON TYPE app_public.space_item TO null814_cms_app_users;
+GRANT ALL ON TYPE app_public.submittable_entity TO null814_cms_app_users;
 
 
 --
@@ -6949,10 +6485,10 @@ GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.topics TO null814_cms_app_us
 
 
 --
--- Name: COLUMN topics.name; Type: ACL; Schema: app_public; Owner: -
+-- Name: COLUMN topics.title; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(name),UPDATE(name) ON TABLE app_public.topics TO null814_cms_app_users;
+GRANT INSERT(title),UPDATE(title) ON TABLE app_public.topics TO null814_cms_app_users;
 
 
 --
@@ -7029,97 +6565,6 @@ GRANT ALL ON FUNCTION app_public.users_has_password(u app_public.users) TO null8
 
 REVOKE ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) TO null814_cms_app_users;
-
-
---
--- Name: FUNCTION procrastinate_defer_job(queue_name character varying, task_name character varying, lock text, queueing_lock text, args jsonb, scheduled_at timestamp with time zone); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_defer_job(queue_name character varying, task_name character varying, lock text, queueing_lock text, args jsonb, scheduled_at timestamp with time zone) FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _defer_timestamp bigint); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _defer_timestamp bigint) FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _periodic_id character varying, _defer_timestamp bigint, _args jsonb); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _periodic_id character varying, _defer_timestamp bigint, _args jsonb) FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_fetch_job(target_queue_names character varying[]); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_fetch_job(target_queue_names character varying[]) FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status) FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone) FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone, delete_job boolean); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone, delete_job boolean) FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_notify_queue(); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_notify_queue() FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_retry_job(job_id integer, retry_at timestamp with time zone); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_retry_job(job_id integer, retry_at timestamp with time zone) FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_trigger_scheduled_events_procedure(); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_scheduled_events_procedure() FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_trigger_status_events_procedure_insert(); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_insert() FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_trigger_status_events_procedure_update(); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update() FROM PUBLIC;
-
-
---
--- Name: FUNCTION procrastinate_unlink_periodic_defers(); Type: ACL; Schema: procrastinate; Owner: -
---
-
-REVOKE ALL ON FUNCTION procrastinate.procrastinate_unlink_periodic_defers() FROM PUBLIC;
 
 
 --
@@ -7242,10 +6687,10 @@ GRANT INSERT(total_bytes),UPDATE(total_bytes) ON TABLE app_public.files TO null8
 
 
 --
--- Name: COLUMN files.name; Type: ACL; Schema: app_public; Owner: -
+-- Name: COLUMN files.filename; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(name),UPDATE(name) ON TABLE app_public.files TO null814_cms_app_users;
+GRANT INSERT(filename),UPDATE(filename) ON TABLE app_public.files TO null814_cms_app_users;
 
 
 --
@@ -7372,6 +6817,13 @@ GRANT INSERT(room_message_id) ON TABLE app_public.room_message_attachments TO nu
 --
 
 GRANT INSERT(topic_id) ON TABLE app_public.room_message_attachments TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE space_submissions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT ON TABLE app_public.space_submissions TO null814_cms_app_users;
 
 
 --

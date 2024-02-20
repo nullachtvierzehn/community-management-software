@@ -41,6 +41,28 @@ create table app_public.space_postings (
     unique (space_id, slug)
 );
 
+comment on table app_public.space_postings is $$
+  @ref item to:SubmittableEntity singular
+  @refVia item via:topic_revisions
+  @refVia item via:message_revisions
+  $$;
+
+comment on column app_public.space_postings.slug is $$
+  A URL path segment. We allow unreserved URI characters according to RFC 3986 (ALPHA / DIGIT / "-" / "." / "_" / "~")
+  $$;
+
+comment on constraint "space" on app_public.space_postings 
+  is E'@foreignFieldName posts';
+comment on constraint message_revision on app_public.space_postings 
+  is E'@foreignFieldName usingPosts';
+comment on constraint topic_revision on app_public.space_postings 
+  is E'@foreignFieldName usingPosts';
+comment on constraint linked_space on app_public.space_postings 
+  is E'@foreignFieldName usingPosts';
+
+
+grant select on app_public.space_postings to :DATABASE_VISITOR;
+
 
 create or replace function app_public.space_postings_item_created_at(p app_public.space_postings)
   returns timestamptz
@@ -98,21 +120,3 @@ comment on function app_public.space_postings_item_name(filing app_public.space_
   @behavior -typeField +orderBy
   $$;
 
-
-
-comment on column app_public.space_postings.slug is $$
-  A URL path segment. We allow unreserved URI characters according to RFC 3986 (ALPHA / DIGIT / "-" / "." / "_" / "~")
-  $$;
-
-
-comment on constraint "space" on app_public.space_postings 
-  is E'@foreignFieldName postings';
-
-grant select on app_public.space_postings to :DATABASE_VISITOR;
-
-
-comment on table app_public.space_postings is $$
-  @ref item to:SpaceItemEntity singular
-  @refVia item via:topics
-  @refVia item via:files
-  $$;

@@ -20,6 +20,10 @@ create table app_public.message_revisions (
     constraint editor
       references app_public.users (id)
       on update cascade on delete set null,
+  edit_context_id uuid
+    constraint edit_context
+      references app_public.spaces (id)
+      on update cascade on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
 
@@ -27,6 +31,14 @@ create table app_public.message_revisions (
   "subject" text,
   body jsonb
 );
+
+comment on table app_public.message_revisions is 
+  E'@implements SubmittableEntity';
+
+comment on constraint parent_revision on app_public.message_revisions is $$
+  @fieldName parentRevision
+  @foreignFieldName childRevisions
+  $$;
 
 create index message_revisions_on_created_at_within_id
   on app_public.message_revisions (id asc, created_at desc, revision_id desc);
@@ -85,23 +97,3 @@ comment on view app_public.active_message_revisions is $$
   @foreignKey (editor_id) references app_public.users (id)
   $$;
 
-
-create or replace view app_public.current_message_revisions
-  with (security_invoker=true, security_barrier=true, check_option=cascaded) as 
-  select tip.*
-  from app_public.active_message_revisions as tip
-  where (tip.created_at, tip.revision_id) >= all (
-    select created_at, revision_id
-    from app_public.active_message_revisions as others
-    where tip.id = others.id
-  );
-
-comment on view app_public.current_message_revisions is $$
-  @primaryKey id
-  @foreignKey (editor_id) references app_public.users (id)
-  $$;
-
-grant select on app_public.current_message_revisions to :DATABASE_VISITOR;
-grant insert (id, parent_revision_id, editor_id, "subject", body) on app_public.current_message_revisions to :DATABASE_VISITOR;
-grant update (editor_id, "subject", body) on app_public.current_message_revisions to :DATABASE_VISITOR;
-grant delete on app_public.current_message_revisions to :DATABASE_VISITOR;

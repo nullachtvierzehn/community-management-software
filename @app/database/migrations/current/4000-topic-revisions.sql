@@ -31,6 +31,14 @@ create table app_public.topic_revisions (
   content jsonb not null
 );
 
+comment on table app_public.topic_revisions is 
+  E'@implements SubmittableEntity';
+
+comment on constraint parent_revision on app_public.topic_revisions is $$
+  @fieldName parentRevision
+  @foreignFieldName childRevisions
+  $$;
+
 grant select on app_public.topic_revisions to :DATABASE_VISITOR;
 grant insert (id, parent_revision_id, editor_id, title, license, tags, content) on app_public.topic_revisions to :DATABASE_VISITOR;
 grant delete on app_public.topic_revisions to :DATABASE_VISITOR;

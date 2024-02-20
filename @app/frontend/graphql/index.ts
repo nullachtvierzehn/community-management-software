@@ -18,8 +18,6 @@ export type Scalars = {
   Float: { input: number; output: number; }
   /** A universally unique identifier as defined by [RFC 4122](https://tools.ietf.org/html/rfc4122). */
   UUID: { input: string; output: string; }
-  /** A location in a connection that can be used for resuming pagination. */
-  Cursor: { input: any; output: any; }
   /** Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: { input: any; output: any; }
   /**
@@ -30,6 +28,8 @@ export type Scalars = {
    * to unexpected results.
    */
   Datetime: { input: string; output: string; }
+  /** A location in a connection that can be used for resuming pagination. */
+  Cursor: { input: any; output: any; }
   /**
    * A signed eight-byte integer. The upper big integer values are greater than the
    * max value for a JavaScript number. Therefore all big integers will be output as
@@ -43,6 +43,18 @@ export type Scalars = {
 /** The root query type which gives access points into the data universe. */
 export type Query = Node & {
   __typename?: 'Query';
+  /** Get a single `ActiveMessageRevision`. */
+  activeMessageRevision: Maybe<ActiveMessageRevision>;
+  /** Reads a single `ActiveMessageRevision` using its globally unique `ID`. */
+  activeMessageRevisionByNodeId: Maybe<ActiveMessageRevision>;
+  /** Reads and enables pagination through a set of `ActiveMessageRevision`. */
+  activeMessageRevisions: Maybe<ActiveMessageRevisionsConnection>;
+  /** Get a single `CurrentMessageRevision`. */
+  currentMessageRevision: Maybe<CurrentMessageRevision>;
+  /** Reads a single `CurrentMessageRevision` using its globally unique `ID`. */
+  currentMessageRevisionByNodeId: Maybe<CurrentMessageRevision>;
+  /** Reads and enables pagination through a set of `CurrentMessageRevision`. */
+  currentMessageRevisions: Maybe<CurrentMessageRevisionsConnection>;
   /** Handy method to get the current session ID. */
   currentSessionId: Maybe<Scalars['UUID']['output']>;
   /** The currently logged in user (or null if not logged in). */
@@ -63,10 +75,20 @@ export type Query = Node & {
   files: Maybe<FilesConnection>;
   /** Reads and enables pagination through a set of `TextsearchMatch`. */
   globalSearch: Maybe<TextsearchMatchesConnection>;
+  /** Get a single `MessageRevision`. */
+  messageRevision: Maybe<MessageRevision>;
+  /** Reads a single `MessageRevision` using its globally unique `ID`. */
+  messageRevisionByNodeId: Maybe<MessageRevision>;
+  /** Reads and enables pagination through a set of `MessageRevision`. */
+  messageRevisions: Maybe<MessageRevisionsConnection>;
   /** Reads and enables pagination through a set of `RoomSubscription`. */
   myRoomSubscriptions: Maybe<RoomSubscriptionsConnection>;
+  /** Reads and enables pagination through a set of `SpaceSubscription`. */
+  mySpaceSubscriptions: Maybe<SpaceSubscriptionsConnection>;
   /** Reads and enables pagination through a set of `Uuid`. */
   mySubscribedRoomIds: Maybe<MySubscribedRoomIdsConnection>;
+  /** Reads and enables pagination through a set of `Uuid`. */
+  mySubscribedSpaceIds: Maybe<MySubscribedSpaceIdsConnection>;
   /** Fetches an object given its globally unique `ID`. */
   node: Maybe<Node>;
   /** The root query type must be a `Node` to work well with Relay 1 mutations. This just resolves to `query`. */
@@ -99,6 +121,7 @@ export type Query = Node & {
    * which can only query top level fields if they are in a particular form.
    */
   query: Query;
+  revisionedSubmittableEntities: Maybe<RevisionedSubmittableEntitiesConnection>;
   /** Get a single `Room`. */
   room: Maybe<Room>;
   /** Reads a single `Room` using its globally unique `ID`. */
@@ -139,12 +162,33 @@ export type Query = Node & {
   roomSubscriptionBySubscriberIdAndRoomId: Maybe<RoomSubscription>;
   /** Reads and enables pagination through a set of `RoomSubscription`. */
   roomSubscriptions: Maybe<RoomSubscriptionsConnection>;
+  /** Get a single `Space`. */
+  space: Maybe<Space>;
+  /** Reads a single `Space` using its globally unique `ID`. */
+  spaceByNodeId: Maybe<Space>;
+  /** Get a single `SpacePosting`. */
+  spacePosting: Maybe<SpacePosting>;
+  /** Reads a single `SpacePosting` using its globally unique `ID`. */
+  spacePostingByNodeId: Maybe<SpacePosting>;
+  /** Get a single `SpacePosting`. */
+  spacePostingBySpaceIdAndSlug: Maybe<SpacePosting>;
+  /** Reads and enables pagination through a set of `SpacePosting`. */
+  spacePostings: Maybe<SpacePostingsConnection>;
+  /** Reads and enables pagination through a set of `Space`. */
+  spaces: Maybe<SpacesConnection>;
+  submittableEntities: Maybe<SubmittableEntitiesConnection>;
   /** Get a single `Topic`. */
   topic: Maybe<Topic>;
   /** Reads a single `Topic` using its globally unique `ID`. */
   topicByNodeId: Maybe<Topic>;
   /** Get a single `Topic`. */
   topicBySlugAndOrganizationId: Maybe<Topic>;
+  /** Get a single `TopicRevision`. */
+  topicRevision: Maybe<TopicRevision>;
+  /** Reads a single `TopicRevision` using its globally unique `ID`. */
+  topicRevisionByNodeId: Maybe<TopicRevision>;
+  /** Reads and enables pagination through a set of `TopicRevision`. */
+  topicRevisions: Maybe<TopicRevisionsConnection>;
   /** Reads and enables pagination through a set of `Topic`. */
   topics: Maybe<TopicsConnection>;
   /** Get a single `User`. */
@@ -171,6 +215,57 @@ export type Query = Node & {
   userEmails: Maybe<UserEmailsConnection>;
   /** Reads and enables pagination through a set of `User`. */
   users: Maybe<UsersConnection>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryActiveMessageRevisionArgs = {
+  id: Scalars['UUID']['input'];
+  revisionId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryActiveMessageRevisionByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryActiveMessageRevisionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<ActiveMessageRevisionCondition>;
+  filter?: InputMaybe<ActiveMessageRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<ActiveMessageRevisionsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryCurrentMessageRevisionArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryCurrentMessageRevisionByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryCurrentMessageRevisionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<CurrentMessageRevisionCondition>;
+  filter?: InputMaybe<CurrentMessageRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<CurrentMessageRevisionsOrderBy>>;
 };
 
 
@@ -243,6 +338,32 @@ export type QueryGlobalSearchArgs = {
 
 
 /** The root query type which gives access points into the data universe. */
+export type QueryMessageRevisionArgs = {
+  id: Scalars['UUID']['input'];
+  revisionId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryMessageRevisionByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryMessageRevisionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<MessageRevisionCondition>;
+  filter?: InputMaybe<MessageRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<MessageRevisionsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
 export type QueryMyRoomSubscriptionsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -255,6 +376,18 @@ export type QueryMyRoomSubscriptionsArgs = {
 
 
 /** The root query type which gives access points into the data universe. */
+export type QueryMySpaceSubscriptionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  filter?: InputMaybe<SpaceSubscriptionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minimumRole?: InputMaybe<SpaceRole>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
 export type QueryMySubscribedRoomIdsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -262,6 +395,18 @@ export type QueryMySubscribedRoomIdsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   minimumRole?: InputMaybe<RoomRole>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryMySubscribedSpaceIdsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  filter?: InputMaybe<UuidFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  minimumRole?: InputMaybe<SpaceRole>;
   offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -364,6 +509,19 @@ export type QueryPdfFilesArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<PdfFilesOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryRevisionedSubmittableEntitiesArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<RevisionedSubmittableEntityCondition>;
+  filter?: InputMaybe<RevisionedSubmittableEntityFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<RevisionedSubmittableEntitiesOrderBy>>;
 };
 
 
@@ -532,6 +690,77 @@ export type QueryRoomSubscriptionsArgs = {
 
 
 /** The root query type which gives access points into the data universe. */
+export type QuerySpaceArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpaceByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpacePostingArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpacePostingByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpacePostingBySpaceIdAndSlugArgs = {
+  slug: Scalars['String']['input'];
+  spaceId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpacePostingsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpacePostingCondition>;
+  filter?: InputMaybe<SpacePostingFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpacePostingsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpacesArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceCondition>;
+  filter?: InputMaybe<SpaceFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpacesOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySubmittableEntitiesArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SubmittableEntityCondition>;
+  filter?: InputMaybe<SubmittableEntityFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  only?: InputMaybe<Array<SubmittableEntityType>>;
+  orderBy?: InputMaybe<Array<SubmittableEntitiesOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
 export type QueryTopicArgs = {
   id: Scalars['UUID']['input'];
 };
@@ -547,6 +776,32 @@ export type QueryTopicByNodeIdArgs = {
 export type QueryTopicBySlugAndOrganizationIdArgs = {
   organizationId: Scalars['UUID']['input'];
   slug: Scalars['String']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryTopicRevisionArgs = {
+  id: Scalars['UUID']['input'];
+  revisionId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryTopicRevisionByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryTopicRevisionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<TopicRevisionCondition>;
+  filter?: InputMaybe<TopicRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<TopicRevisionsOrderBy>>;
 };
 
 
@@ -663,6 +918,23 @@ export type Node = {
   nodeId: Scalars['ID']['output'];
 };
 
+export type ActiveMessageRevision = Node & {
+  __typename?: 'ActiveMessageRevision';
+  body: Maybe<Scalars['JSON']['output']>;
+  createdAt: Maybe<Scalars['Datetime']['output']>;
+  editContextId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `User` that is related to this `ActiveMessageRevision`. */
+  editor: Maybe<User>;
+  editorId: Maybe<Scalars['UUID']['output']>;
+  id: Scalars['UUID']['output'];
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  parentRevisionId: Maybe<Scalars['UUID']['output']>;
+  revisionId: Scalars['UUID']['output'];
+  subject: Maybe<Scalars['String']['output']>;
+  updatedAt: Maybe<Scalars['Datetime']['output']>;
+};
+
 /** A user who can log in to the application. */
 export type User = Node & {
   __typename?: 'User';
@@ -673,6 +945,14 @@ export type User = Node & {
   createdAt: Scalars['Datetime']['output'];
   /** Users can be notified about activities in the rooms they have subscribed to. This is the default setting. You can change it for each room. */
   defaultHandlingOfNotifications: NotificationSetting;
+  /** Reads and enables pagination through a set of `ActiveMessageRevision`. */
+  editedActiveMessageRevisions: ActiveMessageRevisionsConnection;
+  /** Reads and enables pagination through a set of `CurrentMessageRevision`. */
+  editedCurrentMessageRevisions: CurrentMessageRevisionsConnection;
+  /** Reads and enables pagination through a set of `MessageRevision`. */
+  editedMessageRevisions: MessageRevisionsConnection;
+  /** Reads and enables pagination through a set of `TopicRevision`. */
+  editedTopicRevisions: TopicRevisionsConnection;
   /** Reads and enables pagination through a set of `File`. */
   filesByContributorId: FilesConnection;
   hasPassword: Maybe<Scalars['Boolean']['output']>;
@@ -695,6 +975,8 @@ export type User = Node & {
   roomSubscriptionsBySubscriberId: RoomSubscriptionsConnection;
   /** If there are any delayed notifications, they are sent at this time every day. */
   sendingTimeForDeferredNotifications: Scalars['Time']['output'];
+  /** Reads and enables pagination through a set of `SpacePosting`. */
+  spacePostingsByPosterId: SpacePostingsConnection;
   updatedAt: Scalars['Datetime']['output'];
   /** Reads and enables pagination through a set of `UserAuthentication`. */
   userAuthentications: UserAuthenticationsConnection;
@@ -715,6 +997,58 @@ export type UserAuthoredTopicsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<TopicsOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
+export type UserEditedActiveMessageRevisionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<ActiveMessageRevisionCondition>;
+  filter?: InputMaybe<ActiveMessageRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<ActiveMessageRevisionsOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
+export type UserEditedCurrentMessageRevisionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<CurrentMessageRevisionCondition>;
+  filter?: InputMaybe<CurrentMessageRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<CurrentMessageRevisionsOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
+export type UserEditedMessageRevisionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<MessageRevisionCondition>;
+  filter?: InputMaybe<MessageRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<MessageRevisionsOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
+export type UserEditedTopicRevisionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<TopicRevisionCondition>;
+  filter?: InputMaybe<TopicRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<TopicRevisionsOrderBy>>;
 };
 
 
@@ -780,6 +1114,19 @@ export type UserRoomSubscriptionsBySubscriberIdArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<RoomSubscriptionsOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
+export type UserSpacePostingsByPosterIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpacePostingCondition>;
+  filter?: InputMaybe<SpacePostingFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpacePostingsOrderBy>>;
 };
 
 
@@ -913,6 +1260,22 @@ export type UserFilter = {
   createdAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `defaultHandlingOfNotifications` field. */
   defaultHandlingOfNotifications?: InputMaybe<NotificationSettingFilter>;
+  /** Filter by the object’s `editedActiveMessageRevisions` relation. */
+  editedActiveMessageRevisions?: InputMaybe<UserToManyActiveMessageRevisionFilter>;
+  /** Some related `editedActiveMessageRevisions` exist. */
+  editedActiveMessageRevisionsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editedCurrentMessageRevisions` relation. */
+  editedCurrentMessageRevisions?: InputMaybe<UserToManyCurrentMessageRevisionFilter>;
+  /** Some related `editedCurrentMessageRevisions` exist. */
+  editedCurrentMessageRevisionsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editedMessageRevisions` relation. */
+  editedMessageRevisions?: InputMaybe<UserToManyMessageRevisionFilter>;
+  /** Some related `editedMessageRevisions` exist. */
+  editedMessageRevisionsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editedTopicRevisions` relation. */
+  editedTopicRevisions?: InputMaybe<UserToManyTopicRevisionFilter>;
+  /** Some related `editedTopicRevisions` exist. */
+  editedTopicRevisionsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `filesByContributorId` relation. */
   filesByContributorId?: InputMaybe<UserToManyFileFilter>;
   /** Some related `filesByContributorId` exist. */
@@ -949,6 +1312,10 @@ export type UserFilter = {
   roomSubscriptionsBySubscriberIdExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `sendingTimeForDeferredNotifications` field. */
   sendingTimeForDeferredNotifications?: InputMaybe<TimeFilter>;
+  /** Filter by the object’s `spacePostingsByPosterId` relation. */
+  spacePostingsByPosterId?: InputMaybe<UserToManySpacePostingFilter>;
+  /** Some related `spacePostingsByPosterId` exist. */
+  spacePostingsByPosterIdExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `userAuthentications` relation. */
@@ -1109,6 +1476,512 @@ export type NotificationSetting =
   | 'IMMEDIATE'
   | 'SILENCED';
 
+/** A filter to be used against many `ActiveMessageRevision` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyActiveMessageRevisionFilter = {
+  /** Every related `ActiveMessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<ActiveMessageRevisionFilter>;
+  /** No related `ActiveMessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<ActiveMessageRevisionFilter>;
+  /** Some related `ActiveMessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<ActiveMessageRevisionFilter>;
+};
+
+/** A filter to be used against `ActiveMessageRevision` object types. All fields are combined with a logical ‘and.’ */
+export type ActiveMessageRevisionFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<ActiveMessageRevisionFilter>>;
+  /** Filter by the object’s `body` field. */
+  body?: InputMaybe<JsonFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `editContextId` field. */
+  editContextId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `editor` relation. */
+  editor?: InputMaybe<UserFilter>;
+  /** A related `editor` exists. */
+  editorExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editorId` field. */
+  editorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<ActiveMessageRevisionFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<ActiveMessageRevisionFilter>>;
+  /** Filter by the object’s `parentRevisionId` field. */
+  parentRevisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `subject` field. */
+  subject?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against JSON fields. All fields are combined with a logical ‘and.’ */
+export type JsonFilter = {
+  /** Contained by the specified JSON. */
+  containedBy?: InputMaybe<Scalars['JSON']['input']>;
+  /** Contains the specified JSON. */
+  contains?: InputMaybe<Scalars['JSON']['input']>;
+  /** Contains all of the specified keys. */
+  containsAllKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Contains any of the specified keys. */
+  containsAnyKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Contains the specified key. */
+  containsKey?: InputMaybe<Scalars['String']['input']>;
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['JSON']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['JSON']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['JSON']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['JSON']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['JSON']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['JSON']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['JSON']['input']>>;
+};
+
+/** A filter to be used against UUID fields. All fields are combined with a logical ‘and.’ */
+export type UuidFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['UUID']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['UUID']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['UUID']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['UUID']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['UUID']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['UUID']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['UUID']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['UUID']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['UUID']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['UUID']['input']>>;
+};
+
+/** A filter to be used against many `CurrentMessageRevision` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyCurrentMessageRevisionFilter = {
+  /** Every related `CurrentMessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<CurrentMessageRevisionFilter>;
+  /** No related `CurrentMessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<CurrentMessageRevisionFilter>;
+  /** Some related `CurrentMessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<CurrentMessageRevisionFilter>;
+};
+
+/** A filter to be used against `CurrentMessageRevision` object types. All fields are combined with a logical ‘and.’ */
+export type CurrentMessageRevisionFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<CurrentMessageRevisionFilter>>;
+  /** Filter by the object’s `body` field. */
+  body?: InputMaybe<JsonFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `editContextId` field. */
+  editContextId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `editor` relation. */
+  editor?: InputMaybe<UserFilter>;
+  /** A related `editor` exists. */
+  editorExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editorId` field. */
+  editorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<CurrentMessageRevisionFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<CurrentMessageRevisionFilter>>;
+  /** Filter by the object’s `parentRevisionId` field. */
+  parentRevisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `subject` field. */
+  subject?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against many `MessageRevision` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyMessageRevisionFilter = {
+  /** Every related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<MessageRevisionFilter>;
+  /** No related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<MessageRevisionFilter>;
+  /** Some related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<MessageRevisionFilter>;
+};
+
+/** A filter to be used against `MessageRevision` object types. All fields are combined with a logical ‘and.’ */
+export type MessageRevisionFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<MessageRevisionFilter>>;
+  /** Filter by the object’s `body` field. */
+  body?: InputMaybe<JsonFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `editContext` relation. */
+  editContext?: InputMaybe<SpaceFilter>;
+  /** A related `editContext` exists. */
+  editContextExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editContextId` field. */
+  editContextId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `editor` relation. */
+  editor?: InputMaybe<UserFilter>;
+  /** A related `editor` exists. */
+  editorExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editorId` field. */
+  editorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isLeaf` field. */
+  isLeaf?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `isPosted` field. */
+  isPosted?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `messageRevision` relation. */
+  messageRevision?: InputMaybe<MessageRevisionFilter>;
+  /** A related `messageRevision` exists. */
+  messageRevisionExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `messageRevisionsByIdAndParentRevisionId` relation. */
+  messageRevisionsByIdAndParentRevisionId?: InputMaybe<MessageRevisionToManyMessageRevisionFilter>;
+  /** Some related `messageRevisionsByIdAndParentRevisionId` exist. */
+  messageRevisionsByIdAndParentRevisionIdExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Negates the expression. */
+  not?: InputMaybe<MessageRevisionFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<MessageRevisionFilter>>;
+  /** Filter by the object’s `parentRevisionId` field. */
+  parentRevisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `spacePostings` relation. */
+  spacePostings?: InputMaybe<MessageRevisionToManySpacePostingFilter>;
+  /** Some related `spacePostings` exist. */
+  spacePostingsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `subject` field. */
+  subject?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against `Space` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<SpaceFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isPublic` field. */
+  isPublic?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `messageRevisionsByEditContextId` relation. */
+  messageRevisionsByEditContextId?: InputMaybe<SpaceToManyMessageRevisionFilter>;
+  /** Some related `messageRevisionsByEditContextId` exist. */
+  messageRevisionsByEditContextIdExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `name` field. */
+  name?: InputMaybe<StringFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<SpaceFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<SpaceFilter>>;
+  /** Filter by the object’s `postings` relation. */
+  postings?: InputMaybe<SpaceToManySpacePostingFilter>;
+  /** Some related `postings` exist. */
+  postingsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `spacePostingsByLinkedSpaceId` relation. */
+  spacePostingsByLinkedSpaceId?: InputMaybe<SpaceToManySpacePostingFilter>;
+  /** Some related `spacePostingsByLinkedSpaceId` exist. */
+  spacePostingsByLinkedSpaceIdExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’ */
+export type BooleanFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+};
+
+/** A filter to be used against many `MessageRevision` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceToManyMessageRevisionFilter = {
+  /** Every related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<MessageRevisionFilter>;
+  /** No related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<MessageRevisionFilter>;
+  /** Some related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<MessageRevisionFilter>;
+};
+
+/** A filter to be used against many `SpacePosting` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceToManySpacePostingFilter = {
+  /** Every related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpacePostingFilter>;
+  /** No related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpacePostingFilter>;
+  /** Some related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpacePostingFilter>;
+};
+
+/** A filter to be used against `SpacePosting` object types. All fields are combined with a logical ‘and.’ */
+export type SpacePostingFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<SpacePostingFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `itemCreatedAt` field. */
+  itemCreatedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `itemName` field. */
+  itemName?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `itemUpdatedAt` field. */
+  itemUpdatedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `linkedSpace` relation. */
+  linkedSpace?: InputMaybe<SpaceFilter>;
+  /** A related `linkedSpace` exists. */
+  linkedSpaceExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `linkedSpaceId` field. */
+  linkedSpaceId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `messageId` field. */
+  messageId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `messageRevision` relation. */
+  messageRevision?: InputMaybe<MessageRevisionFilter>;
+  /** A related `messageRevision` exists. */
+  messageRevisionExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Negates the expression. */
+  not?: InputMaybe<SpacePostingFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<SpacePostingFilter>>;
+  /** Filter by the object’s `poster` relation. */
+  poster?: InputMaybe<UserFilter>;
+  /** A related `poster` exists. */
+  posterExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `posterId` field. */
+  posterId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `slug` field. */
+  slug?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `sortOrder` field. */
+  sortOrder?: InputMaybe<FloatFilter>;
+  /** Filter by the object’s `space` relation. */
+  space?: InputMaybe<SpaceFilter>;
+  /** A related `space` exists. */
+  spaceExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `spaceId` field. */
+  spaceId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `topicId` field. */
+  topicId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `topicRevision` relation. */
+  topicRevision?: InputMaybe<TopicRevisionFilter>;
+  /** A related `topicRevision` exists. */
+  topicRevisionExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against Float fields. All fields are combined with a logical ‘and.’ */
+export type FloatFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['Float']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['Float']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['Float']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['Float']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['Float']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['Float']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['Float']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['Float']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['Float']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['Float']['input']>>;
+};
+
+/** A filter to be used against `TopicRevision` object types. All fields are combined with a logical ‘and.’ */
+export type TopicRevisionFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<TopicRevisionFilter>>;
+  /** Filter by the object’s `content` field. */
+  content?: InputMaybe<JsonFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `editor` relation. */
+  editor?: InputMaybe<UserFilter>;
+  /** A related `editor` exists. */
+  editorExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editorId` field. */
+  editorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `license` field. */
+  license?: InputMaybe<StringFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<TopicRevisionFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<TopicRevisionFilter>>;
+  /** Filter by the object’s `parentRevisionId` field. */
+  parentRevisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `spacePostings` relation. */
+  spacePostings?: InputMaybe<TopicRevisionToManySpacePostingFilter>;
+  /** Some related `spacePostings` exist. */
+  spacePostingsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `tags` field. */
+  tags?: InputMaybe<StringListFilter>;
+  /** Filter by the object’s `title` field. */
+  title?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `topicRevisionByParentRevisionIdAndId` relation. */
+  topicRevisionByParentRevisionIdAndId?: InputMaybe<TopicRevisionFilter>;
+  /** A related `topicRevisionByParentRevisionIdAndId` exists. */
+  topicRevisionByParentRevisionIdAndIdExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `topicRevisionsByParentRevisionIdAndId` relation. */
+  topicRevisionsByParentRevisionIdAndId?: InputMaybe<TopicRevisionToManyTopicRevisionFilter>;
+  /** Some related `topicRevisionsByParentRevisionIdAndId` exist. */
+  topicRevisionsByParentRevisionIdAndIdExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against many `SpacePosting` object types. All fields are combined with a logical ‘and.’ */
+export type TopicRevisionToManySpacePostingFilter = {
+  /** Every related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpacePostingFilter>;
+  /** No related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpacePostingFilter>;
+  /** Some related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpacePostingFilter>;
+};
+
+/** A filter to be used against String List fields. All fields are combined with a logical ‘and.’ */
+export type StringListFilter = {
+  /** Any array item is equal to the specified value. */
+  anyEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is greater than the specified value. */
+  anyGreaterThan?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is greater than or equal to the specified value. */
+  anyGreaterThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is less than the specified value. */
+  anyLessThan?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is less than or equal to the specified value. */
+  anyLessThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Any array item is not equal to the specified value. */
+  anyNotEqualTo?: InputMaybe<Scalars['String']['input']>;
+  /** Contained by the specified list of values. */
+  containedBy?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Contains the specified list of values. */
+  contains?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Overlaps the specified list of values. */
+  overlaps?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+/** A filter to be used against many `TopicRevision` object types. All fields are combined with a logical ‘and.’ */
+export type TopicRevisionToManyTopicRevisionFilter = {
+  /** Every related `TopicRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<TopicRevisionFilter>;
+  /** No related `TopicRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<TopicRevisionFilter>;
+  /** Some related `TopicRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<TopicRevisionFilter>;
+};
+
+/** A filter to be used against many `MessageRevision` object types. All fields are combined with a logical ‘and.’ */
+export type MessageRevisionToManyMessageRevisionFilter = {
+  /** Every related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<MessageRevisionFilter>;
+  /** No related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<MessageRevisionFilter>;
+  /** Some related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<MessageRevisionFilter>;
+};
+
+/** A filter to be used against many `SpacePosting` object types. All fields are combined with a logical ‘and.’ */
+export type MessageRevisionToManySpacePostingFilter = {
+  /** Every related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpacePostingFilter>;
+  /** No related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpacePostingFilter>;
+  /** Some related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpacePostingFilter>;
+};
+
+/** A filter to be used against many `TopicRevision` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyTopicRevisionFilter = {
+  /** Every related `TopicRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<TopicRevisionFilter>;
+  /** No related `TopicRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<TopicRevisionFilter>;
+  /** Some related `TopicRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<TopicRevisionFilter>;
+};
+
 /** A filter to be used against many `File` object types. All fields are combined with a logical ‘and.’ */
 export type UserToManyFileFilter = {
   /** Every related `File` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -1165,32 +2038,6 @@ export type FileFilter = {
   uploadedBytes?: InputMaybe<IntFilter>;
 };
 
-/** A filter to be used against UUID fields. All fields are combined with a logical ‘and.’ */
-export type UuidFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['UUID']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['UUID']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['UUID']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['UUID']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['UUID']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['UUID']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['UUID']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['UUID']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['UUID']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['UUID']['input']>>;
-};
-
 /** A filter to be used against `PdfFile` object types. All fields are combined with a logical ‘and.’ */
 export type PdfFileFilter = {
   /** Checks for all expressions in this list. */
@@ -1221,42 +2068,6 @@ export type PdfFileFilter = {
   title?: InputMaybe<StringFilter>;
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
-};
-
-/** A filter to be used against JSON fields. All fields are combined with a logical ‘and.’ */
-export type JsonFilter = {
-  /** Contained by the specified JSON. */
-  containedBy?: InputMaybe<Scalars['JSON']['input']>;
-  /** Contains the specified JSON. */
-  contains?: InputMaybe<Scalars['JSON']['input']>;
-  /** Contains all of the specified keys. */
-  containsAllKeys?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** Contains any of the specified keys. */
-  containsAnyKeys?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** Contains the specified key. */
-  containsKey?: InputMaybe<Scalars['String']['input']>;
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['JSON']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['JSON']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['JSON']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['JSON']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['JSON']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['JSON']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['JSON']['input']>>;
 };
 
 /** A filter to be used against Int fields. All fields are combined with a logical ‘and.’ */
@@ -1499,32 +2310,6 @@ export type BigIntFilter = {
   notIn?: InputMaybe<Array<Scalars['BigInt']['input']>>;
 };
 
-/** A filter to be used against Float fields. All fields are combined with a logical ‘and.’ */
-export type FloatFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['Float']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['Float']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['Float']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['Float']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['Float']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['Float']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['Float']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['Float']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['Float']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['Float']['input']>>;
-};
-
 /** A filter to be used against `Room` object types. All fields are combined with a logical ‘and.’ */
 export type RoomFilter = {
   /** Filter by the object’s `abstract` field. */
@@ -1637,32 +2422,6 @@ export type IntervalInput = {
   seconds?: InputMaybe<Scalars['Float']['input']>;
   /** A quantity of years. */
   years?: InputMaybe<Scalars['Int']['input']>;
-};
-
-/** A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’ */
-export type BooleanFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['Boolean']['input']>>;
 };
 
 /** A filter to be used against RoomVisibility fields. All fields are combined with a logical ‘and.’ */
@@ -2045,6 +2804,16 @@ export type TimeFilter = {
   notIn?: InputMaybe<Array<Scalars['Time']['input']>>;
 };
 
+/** A filter to be used against many `SpacePosting` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManySpacePostingFilter = {
+  /** Every related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpacePostingFilter>;
+  /** No related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpacePostingFilter>;
+  /** Some related `SpacePosting` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpacePostingFilter>;
+};
+
 /** A filter to be used against many `UserAuthentication` object types. All fields are combined with a logical ‘and.’ */
 export type UserToManyUserAuthenticationFilter = {
   /** Every related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -2173,46 +2942,6 @@ export type TopicToManyRoomMessageAttachmentFilter = {
   some?: InputMaybe<RoomMessageAttachmentFilter>;
 };
 
-/** A filter to be used against String List fields. All fields are combined with a logical ‘and.’ */
-export type StringListFilter = {
-  /** Any array item is equal to the specified value. */
-  anyEqualTo?: InputMaybe<Scalars['String']['input']>;
-  /** Any array item is greater than the specified value. */
-  anyGreaterThan?: InputMaybe<Scalars['String']['input']>;
-  /** Any array item is greater than or equal to the specified value. */
-  anyGreaterThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
-  /** Any array item is less than the specified value. */
-  anyLessThan?: InputMaybe<Scalars['String']['input']>;
-  /** Any array item is less than or equal to the specified value. */
-  anyLessThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
-  /** Any array item is not equal to the specified value. */
-  anyNotEqualTo?: InputMaybe<Scalars['String']['input']>;
-  /** Contained by the specified list of values. */
-  containedBy?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Contains the specified list of values. */
-  contains?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Overlaps the specified list of values. */
-  overlaps?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
 /** Methods to use when ordering `Topic`. */
 export type TopicsOrderBy =
   | 'AUTHOR_ID_ASC'
@@ -2261,8 +2990,11 @@ export type TopicsEdge = {
   node: Topic;
 };
 
-/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
-export type Topic = Node & {
+/**
+ *   A topic is a short text about something. Most topics should have the scope of a micro learning unit.
+ *
+ */
+export type Topic = Node & SubmittableEntity & {
   __typename?: 'Topic';
   /** Each topic has an author. The field might be null when the original author has unregistered from the application. */
   author: Maybe<User>;
@@ -2298,13 +3030,19 @@ export type Topic = Node & {
 };
 
 
-/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+/**
+ *   A topic is a short text about something. Most topics should have the scope of a micro learning unit.
+ *
+ */
 export type TopicContentPreviewArgs = {
   nFirstItems?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
-/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+/**
+ *   A topic is a short text about something. Most topics should have the scope of a micro learning unit.
+ *
+ */
 export type TopicRoomItemAttachmentsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -2317,7 +3055,10 @@ export type TopicRoomItemAttachmentsArgs = {
 };
 
 
-/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+/**
+ *   A topic is a short text about something. Most topics should have the scope of a micro learning unit.
+ *
+ */
 export type TopicRoomItemsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -2330,7 +3071,10 @@ export type TopicRoomItemsArgs = {
 };
 
 
-/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+/**
+ *   A topic is a short text about something. Most topics should have the scope of a micro learning unit.
+ *
+ */
 export type TopicRoomMessageAttachmentsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -2340,6 +3084,12 @@ export type TopicRoomMessageAttachmentsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<RoomMessageAttachmentsOrderBy>>;
+};
+
+export type SubmittableEntity = {
+  createdAt: Maybe<Scalars['Datetime']['output']>;
+  id: Maybe<Scalars['UUID']['output']>;
+  updatedAt: Maybe<Scalars['Datetime']['output']>;
 };
 
 export type Organization = Node & {
@@ -2961,7 +3711,11 @@ export type RoomItemAttachment = Node & {
   topicId: Maybe<Scalars['UUID']['output']>;
 };
 
-export type File = Node & {
+/**
+ *   A file stored on the system.
+ *
+ */
+export type File = Node & SubmittableEntity & {
   __typename?: 'File';
   /** Reads a single `User` that is related to this `File`. */
   contributor: Maybe<User>;
@@ -2986,6 +3740,10 @@ export type File = Node & {
 };
 
 
+/**
+ *   A file stored on the system.
+ *
+ */
 export type FilePdfFilesByThumbnailIdArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -2998,6 +3756,10 @@ export type FilePdfFilesByThumbnailIdArgs = {
 };
 
 
+/**
+ *   A file stored on the system.
+ *
+ */
 export type FileRoomItemAttachmentsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -3374,6 +4136,613 @@ export type RoomSubscriptionsEdge = {
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `RoomSubscription` at the end of the edge. */
   node: RoomSubscription;
+};
+
+/**
+ * A condition to be used against `ActiveMessageRevision` object types. All fields
+ * are tested for equality and combined with a logical ‘and.’
+ */
+export type ActiveMessageRevisionCondition = {
+  /** Checks for equality with the object’s `body` field. */
+  body?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `editContextId` field. */
+  editContextId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `editorId` field. */
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `parentRevisionId` field. */
+  parentRevisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `subject` field. */
+  subject?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `ActiveMessageRevision`. */
+export type ActiveMessageRevisionsOrderBy =
+  | 'BODY_ASC'
+  | 'BODY_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'EDIT_CONTEXT_ID_ASC'
+  | 'EDIT_CONTEXT_ID_DESC'
+  | 'EDITOR_ID_ASC'
+  | 'EDITOR_ID_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'NATURAL'
+  | 'PARENT_REVISION_ID_ASC'
+  | 'PARENT_REVISION_ID_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'REVISION_ID_ASC'
+  | 'REVISION_ID_DESC'
+  | 'SUBJECT_ASC'
+  | 'SUBJECT_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `ActiveMessageRevision` values. */
+export type ActiveMessageRevisionsConnection = {
+  __typename?: 'ActiveMessageRevisionsConnection';
+  /** A list of edges which contains the `ActiveMessageRevision` and cursor to aid in pagination. */
+  edges: Array<ActiveMessageRevisionsEdge>;
+  /** A list of `ActiveMessageRevision` objects. */
+  nodes: Array<ActiveMessageRevision>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `ActiveMessageRevision` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `ActiveMessageRevision` edge in the connection. */
+export type ActiveMessageRevisionsEdge = {
+  __typename?: 'ActiveMessageRevisionsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `ActiveMessageRevision` at the end of the edge. */
+  node: ActiveMessageRevision;
+};
+
+/**
+ * A condition to be used against `CurrentMessageRevision` object types. All fields
+ * are tested for equality and combined with a logical ‘and.’
+ */
+export type CurrentMessageRevisionCondition = {
+  /** Checks for equality with the object’s `body` field. */
+  body?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `editContextId` field. */
+  editContextId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `editorId` field. */
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `parentRevisionId` field. */
+  parentRevisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `subject` field. */
+  subject?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `CurrentMessageRevision`. */
+export type CurrentMessageRevisionsOrderBy =
+  | 'BODY_ASC'
+  | 'BODY_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'EDIT_CONTEXT_ID_ASC'
+  | 'EDIT_CONTEXT_ID_DESC'
+  | 'EDITOR_ID_ASC'
+  | 'EDITOR_ID_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'NATURAL'
+  | 'PARENT_REVISION_ID_ASC'
+  | 'PARENT_REVISION_ID_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'REVISION_ID_ASC'
+  | 'REVISION_ID_DESC'
+  | 'SUBJECT_ASC'
+  | 'SUBJECT_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `CurrentMessageRevision` values. */
+export type CurrentMessageRevisionsConnection = {
+  __typename?: 'CurrentMessageRevisionsConnection';
+  /** A list of edges which contains the `CurrentMessageRevision` and cursor to aid in pagination. */
+  edges: Array<CurrentMessageRevisionsEdge>;
+  /** A list of `CurrentMessageRevision` objects. */
+  nodes: Array<CurrentMessageRevision>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `CurrentMessageRevision` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `CurrentMessageRevision` edge in the connection. */
+export type CurrentMessageRevisionsEdge = {
+  __typename?: 'CurrentMessageRevisionsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `CurrentMessageRevision` at the end of the edge. */
+  node: CurrentMessageRevision;
+};
+
+export type CurrentMessageRevision = Node & {
+  __typename?: 'CurrentMessageRevision';
+  body: Maybe<Scalars['JSON']['output']>;
+  createdAt: Maybe<Scalars['Datetime']['output']>;
+  editContextId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `User` that is related to this `CurrentMessageRevision`. */
+  editor: Maybe<User>;
+  editorId: Maybe<Scalars['UUID']['output']>;
+  id: Scalars['UUID']['output'];
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  parentRevisionId: Maybe<Scalars['UUID']['output']>;
+  revisionId: Maybe<Scalars['UUID']['output']>;
+  subject: Maybe<Scalars['String']['output']>;
+  updatedAt: Maybe<Scalars['Datetime']['output']>;
+};
+
+/**
+ * A condition to be used against `MessageRevision` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type MessageRevisionCondition = {
+  /** Checks for equality with the object’s `body` field. */
+  body?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `editContextId` field. */
+  editContextId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `editorId` field. */
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `isLeaf` field. */
+  isLeaf?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Checks for equality with the object’s `isPosted` field. */
+  isPosted?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Checks for equality with the object’s `parentRevisionId` field. */
+  parentRevisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `subject` field. */
+  subject?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `MessageRevision`. */
+export type MessageRevisionsOrderBy =
+  | 'BODY_ASC'
+  | 'BODY_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'EDIT_CONTEXT_ID_ASC'
+  | 'EDIT_CONTEXT_ID_DESC'
+  | 'EDITOR_ID_ASC'
+  | 'EDITOR_ID_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'NATURAL'
+  | 'PARENT_REVISION_ID_ASC'
+  | 'PARENT_REVISION_ID_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'REVISION_ID_ASC'
+  | 'REVISION_ID_DESC'
+  | 'SUBJECT_ASC'
+  | 'SUBJECT_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `MessageRevision` values. */
+export type MessageRevisionsConnection = {
+  __typename?: 'MessageRevisionsConnection';
+  /** A list of edges which contains the `MessageRevision` and cursor to aid in pagination. */
+  edges: Array<MessageRevisionsEdge>;
+  /** A list of `MessageRevision` objects. */
+  nodes: Array<MessageRevision>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `MessageRevision` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `MessageRevision` edge in the connection. */
+export type MessageRevisionsEdge = {
+  __typename?: 'MessageRevisionsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `MessageRevision` at the end of the edge. */
+  node: MessageRevision;
+};
+
+export type MessageRevision = Node & SubmittableEntity & {
+  __typename?: 'MessageRevision';
+  body: Maybe<Scalars['JSON']['output']>;
+  createdAt: Scalars['Datetime']['output'];
+  /** Reads a single `Space` that is related to this `MessageRevision`. */
+  editContext: Maybe<Space>;
+  editContextId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `User` that is related to this `MessageRevision`. */
+  editor: Maybe<User>;
+  editorId: Maybe<Scalars['UUID']['output']>;
+  id: Scalars['UUID']['output'];
+  isLeaf: Maybe<Scalars['Boolean']['output']>;
+  isPosted: Maybe<Scalars['Boolean']['output']>;
+  /** Reads a single `MessageRevision` that is related to this `MessageRevision`. */
+  messageRevision: Maybe<MessageRevision>;
+  /** Reads and enables pagination through a set of `MessageRevision`. */
+  messageRevisionsByIdAndParentRevisionId: MessageRevisionsConnection;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  parentRevisionId: Maybe<Scalars['UUID']['output']>;
+  revisionId: Scalars['UUID']['output'];
+  /** Reads and enables pagination through a set of `SpacePosting`. */
+  spacePostings: SpacePostingsConnection;
+  subject: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+
+export type MessageRevisionMessageRevisionsByIdAndParentRevisionIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<MessageRevisionCondition>;
+  filter?: InputMaybe<MessageRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<MessageRevisionsOrderBy>>;
+};
+
+
+export type MessageRevisionSpacePostingsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpacePostingCondition>;
+  filter?: InputMaybe<SpacePostingFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpacePostingsOrderBy>>;
+};
+
+/**
+ *   A space is a place where users meet and interact with items.
+ *
+ */
+export type Space = Node & SubmittableEntity & {
+  __typename?: 'Space';
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  isPublic: Scalars['Boolean']['output'];
+  /** Reads and enables pagination through a set of `MessageRevision`. */
+  messageRevisionsByEditContextId: MessageRevisionsConnection;
+  name: Maybe<Scalars['String']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  /** Reads and enables pagination through a set of `SpacePosting`. */
+  postings: SpacePostingsConnection;
+  /** Reads and enables pagination through a set of `SpacePosting`. */
+  spacePostingsByLinkedSpaceId: SpacePostingsConnection;
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+
+/**
+ *   A space is a place where users meet and interact with items.
+ *
+ */
+export type SpaceMessageRevisionsByEditContextIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<MessageRevisionCondition>;
+  filter?: InputMaybe<MessageRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<MessageRevisionsOrderBy>>;
+};
+
+
+/**
+ *   A space is a place where users meet and interact with items.
+ *
+ */
+export type SpacePostingsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpacePostingCondition>;
+  filter?: InputMaybe<SpacePostingFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpacePostingsOrderBy>>;
+};
+
+
+/**
+ *   A space is a place where users meet and interact with items.
+ *
+ */
+export type SpaceSpacePostingsByLinkedSpaceIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpacePostingCondition>;
+  filter?: InputMaybe<SpacePostingFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpacePostingsOrderBy>>;
+};
+
+/**
+ * A condition to be used against `SpacePosting` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type SpacePostingCondition = {
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `itemCreatedAt` field. */
+  itemCreatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `itemName` field. */
+  itemName?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `itemUpdatedAt` field. */
+  itemUpdatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `linkedSpaceId` field. */
+  linkedSpaceId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `messageId` field. */
+  messageId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `posterId` field. */
+  posterId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `slug` field. */
+  slug?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `sortOrder` field. */
+  sortOrder?: InputMaybe<Scalars['Float']['input']>;
+  /** Checks for equality with the object’s `spaceId` field. */
+  spaceId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `topicId` field. */
+  topicId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `SpacePosting`. */
+export type SpacePostingsOrderBy =
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'ITEM_CREATED_AT_ASC'
+  | 'ITEM_CREATED_AT_DESC'
+  | 'ITEM_NAME_ASC'
+  | 'ITEM_NAME_DESC'
+  | 'ITEM_UPDATED_AT_ASC'
+  | 'ITEM_UPDATED_AT_DESC'
+  | 'LINKED_SPACE_ID_ASC'
+  | 'LINKED_SPACE_ID_DESC'
+  | 'MESSAGE_ID_ASC'
+  | 'MESSAGE_ID_DESC'
+  | 'NATURAL'
+  | 'POSTER_ID_ASC'
+  | 'POSTER_ID_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'REVISION_ID_ASC'
+  | 'REVISION_ID_DESC'
+  | 'SLUG_ASC'
+  | 'SLUG_DESC'
+  | 'SORT_ORDER_ASC'
+  | 'SORT_ORDER_DESC'
+  | 'SPACE_ID_ASC'
+  | 'SPACE_ID_DESC'
+  | 'TOPIC_ID_ASC'
+  | 'TOPIC_ID_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `SpacePosting` values. */
+export type SpacePostingsConnection = {
+  __typename?: 'SpacePostingsConnection';
+  /** A list of edges which contains the `SpacePosting` and cursor to aid in pagination. */
+  edges: Array<SpacePostingsEdge>;
+  /** A list of `SpacePosting` objects. */
+  nodes: Array<SpacePosting>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `SpacePosting` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `SpacePosting` edge in the connection. */
+export type SpacePostingsEdge = {
+  __typename?: 'SpacePostingsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `SpacePosting` at the end of the edge. */
+  node: SpacePosting;
+};
+
+export type SpacePosting = Node & {
+  __typename?: 'SpacePosting';
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  /** Reads a single `SubmittableEntity` that is related to this `SpacePosting`. */
+  item: Maybe<SubmittableEntity>;
+  /** Reads a single `Space` that is related to this `SpacePosting`. */
+  linkedSpace: Maybe<Space>;
+  linkedSpaceId: Maybe<Scalars['UUID']['output']>;
+  messageId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `MessageRevision` that is related to this `SpacePosting`. */
+  messageRevision: Maybe<MessageRevision>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  /** Reads a single `User` that is related to this `SpacePosting`. */
+  poster: Maybe<User>;
+  posterId: Maybe<Scalars['UUID']['output']>;
+  revisionId: Maybe<Scalars['UUID']['output']>;
+  /**
+   *
+   *   A URL path segment. We allow unreserved URI characters according to RFC 3986 (ALPHA / DIGIT / "-" / "." / "_" / "~")
+   *
+   */
+  slug: Maybe<Scalars['String']['output']>;
+  sortOrder: Maybe<Scalars['Float']['output']>;
+  /** Reads a single `Space` that is related to this `SpacePosting`. */
+  space: Maybe<Space>;
+  spaceId: Maybe<Scalars['UUID']['output']>;
+  topicId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `TopicRevision` that is related to this `SpacePosting`. */
+  topicRevision: Maybe<TopicRevision>;
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+export type TopicRevision = Node & {
+  __typename?: 'TopicRevision';
+  /** The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html */
+  content: Scalars['JSON']['output'];
+  createdAt: Scalars['Datetime']['output'];
+  /** Each topic has an editor. The field might be null when the editor has unregistered from the application. */
+  editor: Maybe<User>;
+  editorId: Maybe<Scalars['UUID']['output']>;
+  id: Scalars['UUID']['output'];
+  /** Each topic can optionally be licensed. Hyperlinks are allowed. */
+  license: Maybe<Scalars['String']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  parentRevisionId: Maybe<Scalars['UUID']['output']>;
+  revisionId: Scalars['UUID']['output'];
+  /** Reads and enables pagination through a set of `SpacePosting`. */
+  spacePostings: SpacePostingsConnection;
+  /** Each topic can be categorized using tags. */
+  tags: Array<Maybe<Scalars['String']['output']>>;
+  /** Each topic has an optional title. In case of an article, this would be the headline. */
+  title: Maybe<Scalars['String']['output']>;
+  /** Reads a single `TopicRevision` that is related to this `TopicRevision`. */
+  topicRevisionByParentRevisionIdAndId: Maybe<TopicRevision>;
+  /** Reads and enables pagination through a set of `TopicRevision`. */
+  topicRevisionsByParentRevisionIdAndId: TopicRevisionsConnection;
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+
+/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+export type TopicRevisionSpacePostingsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpacePostingCondition>;
+  filter?: InputMaybe<SpacePostingFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpacePostingsOrderBy>>;
+};
+
+
+/** A topic is a short text about something. Most topics should have the scope of a micro learning unit. */
+export type TopicRevisionTopicRevisionsByParentRevisionIdAndIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<TopicRevisionCondition>;
+  filter?: InputMaybe<TopicRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<TopicRevisionsOrderBy>>;
+};
+
+/**
+ * A condition to be used against `TopicRevision` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type TopicRevisionCondition = {
+  /** Checks for equality with the object’s `content` field. */
+  content?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `editorId` field. */
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `license` field. */
+  license?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `parentRevisionId` field. */
+  parentRevisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `tags` field. */
+  tags?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Checks for equality with the object’s `title` field. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `TopicRevision`. */
+export type TopicRevisionsOrderBy =
+  | 'CONTENT_ASC'
+  | 'CONTENT_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'EDITOR_ID_ASC'
+  | 'EDITOR_ID_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'LICENSE_ASC'
+  | 'LICENSE_DESC'
+  | 'NATURAL'
+  | 'PARENT_REVISION_ID_ASC'
+  | 'PARENT_REVISION_ID_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'REVISION_ID_ASC'
+  | 'REVISION_ID_DESC'
+  | 'TITLE_ASC'
+  | 'TITLE_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `TopicRevision` values. */
+export type TopicRevisionsConnection = {
+  __typename?: 'TopicRevisionsConnection';
+  /** A list of edges which contains the `TopicRevision` and cursor to aid in pagination. */
+  edges: Array<TopicRevisionsEdge>;
+  /** A list of `TopicRevision` objects. */
+  nodes: Array<TopicRevision>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `TopicRevision` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `TopicRevision` edge in the connection. */
+export type TopicRevisionsEdge = {
+  __typename?: 'TopicRevisionsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `TopicRevision` at the end of the edge. */
+  node: TopicRevision;
 };
 
 /** A condition to be used against `File` object types. All fields are tested for equality and combined with a logical ‘and.’ */
@@ -3797,6 +5166,116 @@ export type TextsearchMatch = {
   userId: Maybe<Scalars['UUID']['output']>;
 };
 
+/** A filter to be used against `SpaceSubscription` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceSubscriptionFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<SpaceSubscriptionFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isStarred` field. */
+  isStarred?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `lastNotificationAt` field. */
+  lastNotificationAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `lastVisitAt` field. */
+  lastVisitAt?: InputMaybe<DatetimeFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<SpaceSubscriptionFilter>;
+  /** Filter by the object’s `notifications` field. */
+  notifications?: InputMaybe<NotificationSettingFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<SpaceSubscriptionFilter>>;
+  /** Filter by the object’s `role` field. */
+  role?: InputMaybe<SpaceRoleFilter>;
+  /** Filter by the object’s `space` relation. */
+  space?: InputMaybe<SpaceFilter>;
+  /** A related `space` exists. */
+  spaceExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `spaceId` field. */
+  spaceId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `subscriber` relation. */
+  subscriber?: InputMaybe<UserFilter>;
+  /** A related `subscriber` exists. */
+  subscriberExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `subscriberId` field. */
+  subscriberId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against SpaceRole fields. All fields are combined with a logical ‘and.’ */
+export type SpaceRoleFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<SpaceRole>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<SpaceRole>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<SpaceRole>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<SpaceRole>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<SpaceRole>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<SpaceRole>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<SpaceRole>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<SpaceRole>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<SpaceRole>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<SpaceRole>>;
+};
+
+export type SpaceRole =
+  | 'ADMIN'
+  | 'CONTRIBUTOR'
+  | 'MODERATOR'
+  | 'VIEWER';
+
+/** A connection to a list of `SpaceSubscription` values. */
+export type SpaceSubscriptionsConnection = {
+  __typename?: 'SpaceSubscriptionsConnection';
+  /** A list of edges which contains the `SpaceSubscription` and cursor to aid in pagination. */
+  edges: Array<SpaceSubscriptionsEdge>;
+  /** A list of `SpaceSubscription` objects. */
+  nodes: Array<SpaceSubscription>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `SpaceSubscription` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `SpaceSubscription` edge in the connection. */
+export type SpaceSubscriptionsEdge = {
+  __typename?: 'SpaceSubscriptionsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `SpaceSubscription` at the end of the edge. */
+  node: SpaceSubscription;
+};
+
+export type SpaceSubscription = {
+  __typename?: 'SpaceSubscription';
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  isStarred: Scalars['Boolean']['output'];
+  lastNotificationAt: Maybe<Scalars['Datetime']['output']>;
+  lastVisitAt: Maybe<Scalars['Datetime']['output']>;
+  notifications: NotificationSetting;
+  role: SpaceRole;
+  /** Reads a single `Space` that is related to this `SpaceSubscription`. */
+  space: Maybe<Space>;
+  spaceId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `User` that is related to this `SpaceSubscription`. */
+  subscriber: Maybe<User>;
+  subscriberId: Maybe<Scalars['UUID']['output']>;
+  updatedAt: Scalars['Datetime']['output'];
+};
+
 /** A connection to a list of `UUID` values. */
 export type MySubscribedRoomIdsConnection = {
   __typename?: 'MySubscribedRoomIdsConnection';
@@ -3813,6 +5292,28 @@ export type MySubscribedRoomIdsConnection = {
 /** A `UUID` edge in the connection. */
 export type MySubscribedRoomIdsEdge = {
   __typename?: 'MySubscribedRoomIdsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `UUID` at the end of the edge. */
+  node: Maybe<Scalars['UUID']['output']>;
+};
+
+/** A connection to a list of `UUID` values. */
+export type MySubscribedSpaceIdsConnection = {
+  __typename?: 'MySubscribedSpaceIdsConnection';
+  /** A list of edges which contains the `UUID` and cursor to aid in pagination. */
+  edges: Array<Maybe<MySubscribedSpaceIdsEdge>>;
+  /** A list of `UUID` objects. */
+  nodes: Array<Maybe<Scalars['UUID']['output']>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `UUID` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `UUID` edge in the connection. */
+export type MySubscribedSpaceIdsEdge = {
+  __typename?: 'MySubscribedSpaceIdsEdge';
   /** A cursor for use in pagination. */
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `UUID` at the end of the edge. */
@@ -3872,6 +5373,199 @@ export type OrganizationsEdge = {
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `Organization` at the end of the edge. */
   node: Organization;
+};
+
+/**
+ * A condition to be used against `RevisionedSubmittableEntity` object types. All
+ * fields are tested for equality and combined with a logical ‘and.’
+ */
+export type RevisionedSubmittableEntityCondition = {
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** A filter to be used against `RevisionedSubmittableEntity` object types. All fields are combined with a logical ‘and.’ */
+export type RevisionedSubmittableEntityFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<RevisionedSubmittableEntityFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<RevisionedSubmittableEntityFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<RevisionedSubmittableEntityFilter>>;
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** Methods to use when ordering `RevisionedSubmittableEntity`. */
+export type RevisionedSubmittableEntitiesOrderBy =
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'NATURAL'
+  | 'REVISION_ID_ASC'
+  | 'REVISION_ID_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `RevisionedSubmittableEntity` values. */
+export type RevisionedSubmittableEntitiesConnection = {
+  __typename?: 'RevisionedSubmittableEntitiesConnection';
+  /** A list of edges which contains the `RevisionedSubmittableEntity` and cursor to aid in pagination. */
+  edges: Array<RevisionedSubmittableEntitiesEdge>;
+  /** A list of `RevisionedSubmittableEntity` objects. */
+  nodes: Array<RevisionedSubmittableEntity>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `RevisionedSubmittableEntity` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `RevisionedSubmittableEntity` edge in the connection. */
+export type RevisionedSubmittableEntitiesEdge = {
+  __typename?: 'RevisionedSubmittableEntitiesEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `RevisionedSubmittableEntity` at the end of the edge. */
+  node: RevisionedSubmittableEntity;
+};
+
+export type RevisionedSubmittableEntity = {
+  createdAt: Maybe<Scalars['Datetime']['output']>;
+  id: Maybe<Scalars['UUID']['output']>;
+  revisionId: Maybe<Scalars['UUID']['output']>;
+  updatedAt: Maybe<Scalars['Datetime']['output']>;
+};
+
+/** A condition to be used against `Space` object types. All fields are tested for equality and combined with a logical ‘and.’ */
+export type SpaceCondition = {
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `isPublic` field. */
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Checks for equality with the object’s `name` field. */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `Space`. */
+export type SpacesOrderBy =
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'IS_PUBLIC_ASC'
+  | 'IS_PUBLIC_DESC'
+  | 'NAME_ASC'
+  | 'NAME_DESC'
+  | 'NATURAL'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `Space` values. */
+export type SpacesConnection = {
+  __typename?: 'SpacesConnection';
+  /** A list of edges which contains the `Space` and cursor to aid in pagination. */
+  edges: Array<SpacesEdge>;
+  /** A list of `Space` objects. */
+  nodes: Array<Space>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `Space` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `Space` edge in the connection. */
+export type SpacesEdge = {
+  __typename?: 'SpacesEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `Space` at the end of the edge. */
+  node: Space;
+};
+
+/**
+ * A condition to be used against `SubmittableEntity` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type SubmittableEntityCondition = {
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** A filter to be used against `SubmittableEntity` object types. All fields are combined with a logical ‘and.’ */
+export type SubmittableEntityFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<SubmittableEntityFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<SubmittableEntityFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<SubmittableEntityFilter>>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+export type SubmittableEntityType =
+  | 'File'
+  | 'MessageRevision'
+  | 'Space'
+  | 'Topic';
+
+/** Methods to use when ordering `SubmittableEntity`. */
+export type SubmittableEntitiesOrderBy =
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'NATURAL'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `SubmittableEntity` values. */
+export type SubmittableEntitiesConnection = {
+  __typename?: 'SubmittableEntitiesConnection';
+  /** A list of edges which contains the `SubmittableEntity` and cursor to aid in pagination. */
+  edges: Array<SubmittableEntitiesEdge>;
+  /** A list of `SubmittableEntity` objects. */
+  nodes: Array<SubmittableEntity>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `SubmittableEntity` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `SubmittableEntity` edge in the connection. */
+export type SubmittableEntitiesEdge = {
+  __typename?: 'SubmittableEntitiesEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `SubmittableEntity` at the end of the edge. */
+  node: SubmittableEntity;
 };
 
 /** A condition to be used against `User` object types. All fields are tested for equality and combined with a logical ‘and.’ */
@@ -3956,8 +5650,14 @@ export type Mutation = {
   changePassword: Maybe<ChangePasswordPayload>;
   /** If you're certain you want to delete your account, use `requestAccountDeletion` to request an account deletion token, and then supply the token through this mutation to complete account deletion. */
   confirmAccountDeletion: Maybe<ConfirmAccountDeletionPayload>;
+  /** Creates a single `ActiveMessageRevision`. */
+  createActiveMessageRevision: Maybe<CreateActiveMessageRevisionPayload>;
+  /** Creates a single `CurrentMessageRevision`. */
+  createCurrentMessageRevision: Maybe<CreateCurrentMessageRevisionPayload>;
   /** Creates a single `File`. */
   createFile: Maybe<CreateFilePayload>;
+  /** Creates a single `MessageRevision`. */
+  createMessageRevision: Maybe<CreateMessageRevisionPayload>;
   createOrganization: Maybe<CreateOrganizationPayload>;
   /** Creates a single `PdfFile`. */
   createPdfFile: Maybe<CreatePdfFilePayload>;
@@ -3975,14 +5675,28 @@ export type Mutation = {
   createRoomSubscription: Maybe<CreateRoomSubscriptionPayload>;
   /** Creates a single `Topic`. */
   createTopic: Maybe<CreateTopicPayload>;
+  /** Creates a single `TopicRevision`. */
+  createTopicRevision: Maybe<CreateTopicRevisionPayload>;
   /** Creates a single `User`. */
   createUser: Maybe<CreateUserPayload>;
   /** Creates a single `UserEmail`. */
   createUserEmail: Maybe<CreateUserEmailPayload>;
+  /** Deletes a single `ActiveMessageRevision` using a unique key. */
+  deleteActiveMessageRevision: Maybe<DeleteActiveMessageRevisionPayload>;
+  /** Deletes a single `ActiveMessageRevision` using its globally unique id. */
+  deleteActiveMessageRevisionByNodeId: Maybe<DeleteActiveMessageRevisionPayload>;
+  /** Deletes a single `CurrentMessageRevision` using a unique key. */
+  deleteCurrentMessageRevision: Maybe<DeleteCurrentMessageRevisionPayload>;
+  /** Deletes a single `CurrentMessageRevision` using its globally unique id. */
+  deleteCurrentMessageRevisionByNodeId: Maybe<DeleteCurrentMessageRevisionPayload>;
   /** Deletes a single `File` using a unique key. */
   deleteFile: Maybe<DeleteFilePayload>;
   /** Deletes a single `File` using its globally unique id. */
   deleteFileByNodeId: Maybe<DeleteFilePayload>;
+  /** Deletes a single `MessageRevision` using a unique key. */
+  deleteMessageRevision: Maybe<DeleteMessageRevisionPayload>;
+  /** Deletes a single `MessageRevision` using its globally unique id. */
+  deleteMessageRevisionByNodeId: Maybe<DeleteMessageRevisionPayload>;
   deleteOrganization: Maybe<DeleteOrganizationPayload>;
   /** Deletes a single `PdfFile` using a unique key. */
   deletePdfFile: Maybe<DeletePdfFilePayload>;
@@ -4022,6 +5736,10 @@ export type Mutation = {
   deleteTopicByNodeId: Maybe<DeleteTopicPayload>;
   /** Deletes a single `Topic` using a unique key. */
   deleteTopicBySlugAndOrganizationId: Maybe<DeleteTopicPayload>;
+  /** Deletes a single `TopicRevision` using a unique key. */
+  deleteTopicRevision: Maybe<DeleteTopicRevisionPayload>;
+  /** Deletes a single `TopicRevision` using its globally unique id. */
+  deleteTopicRevisionByNodeId: Maybe<DeleteTopicRevisionPayload>;
   /** Deletes a single `UserAuthentication` using a unique key. */
   deleteUserAuthentication: Maybe<DeleteUserAuthenticationPayload>;
   /** Deletes a single `UserAuthentication` using its globally unique id. */
@@ -4055,10 +5773,22 @@ export type Mutation = {
   sendRoomMessage: Maybe<SendRoomMessagePayload>;
   transferOrganizationBillingContact: Maybe<TransferOrganizationBillingContactPayload>;
   transferOrganizationOwnership: Maybe<TransferOrganizationOwnershipPayload>;
+  /** Updates a single `ActiveMessageRevision` using a unique key and a patch. */
+  updateActiveMessageRevision: Maybe<UpdateActiveMessageRevisionPayload>;
+  /** Updates a single `ActiveMessageRevision` using its globally unique id and a patch. */
+  updateActiveMessageRevisionByNodeId: Maybe<UpdateActiveMessageRevisionPayload>;
+  /** Updates a single `CurrentMessageRevision` using a unique key and a patch. */
+  updateCurrentMessageRevision: Maybe<UpdateCurrentMessageRevisionPayload>;
+  /** Updates a single `CurrentMessageRevision` using its globally unique id and a patch. */
+  updateCurrentMessageRevisionByNodeId: Maybe<UpdateCurrentMessageRevisionPayload>;
   /** Updates a single `File` using a unique key and a patch. */
   updateFile: Maybe<UpdateFilePayload>;
   /** Updates a single `File` using its globally unique id and a patch. */
   updateFileByNodeId: Maybe<UpdateFilePayload>;
+  /** Updates a single `MessageRevision` using a unique key and a patch. */
+  updateMessageRevision: Maybe<UpdateMessageRevisionPayload>;
+  /** Updates a single `MessageRevision` using its globally unique id and a patch. */
+  updateMessageRevisionByNodeId: Maybe<UpdateMessageRevisionPayload>;
   /** Updates a single `Organization` using a unique key and a patch. */
   updateOrganization: Maybe<UpdateOrganizationPayload>;
   /** Updates a single `Organization` using its globally unique id and a patch. */
@@ -4123,8 +5853,26 @@ export type MutationConfirmAccountDeletionArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateActiveMessageRevisionArgs = {
+  input: CreateActiveMessageRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateCurrentMessageRevisionArgs = {
+  input: CreateCurrentMessageRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationCreateFileArgs = {
   input: CreateFileInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateMessageRevisionArgs = {
+  input: CreateMessageRevisionInput;
 };
 
 
@@ -4183,6 +5931,12 @@ export type MutationCreateTopicArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateTopicRevisionArgs = {
+  input: CreateTopicRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
 };
@@ -4195,6 +5949,30 @@ export type MutationCreateUserEmailArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteActiveMessageRevisionArgs = {
+  input: DeleteActiveMessageRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteActiveMessageRevisionByNodeIdArgs = {
+  input: DeleteActiveMessageRevisionByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteCurrentMessageRevisionArgs = {
+  input: DeleteCurrentMessageRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteCurrentMessageRevisionByNodeIdArgs = {
+  input: DeleteCurrentMessageRevisionByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationDeleteFileArgs = {
   input: DeleteFileInput;
 };
@@ -4203,6 +5981,18 @@ export type MutationDeleteFileArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationDeleteFileByNodeIdArgs = {
   input: DeleteFileByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteMessageRevisionArgs = {
+  input: DeleteMessageRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteMessageRevisionByNodeIdArgs = {
+  input: DeleteMessageRevisionByNodeIdInput;
 };
 
 
@@ -4327,6 +6117,18 @@ export type MutationDeleteTopicBySlugAndOrganizationIdArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteTopicRevisionArgs = {
+  input: DeleteTopicRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteTopicRevisionByNodeIdArgs = {
+  input: DeleteTopicRevisionByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationDeleteUserAuthenticationArgs = {
   input: DeleteUserAuthenticationInput;
 };
@@ -4435,6 +6237,30 @@ export type MutationTransferOrganizationOwnershipArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateActiveMessageRevisionArgs = {
+  input: UpdateActiveMessageRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateActiveMessageRevisionByNodeIdArgs = {
+  input: UpdateActiveMessageRevisionByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateCurrentMessageRevisionArgs = {
+  input: UpdateCurrentMessageRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateCurrentMessageRevisionByNodeIdArgs = {
+  input: UpdateCurrentMessageRevisionByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationUpdateFileArgs = {
   input: UpdateFileInput;
 };
@@ -4443,6 +6269,18 @@ export type MutationUpdateFileArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationUpdateFileByNodeIdArgs = {
   input: UpdateFileByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateMessageRevisionArgs = {
+  input: UpdateMessageRevisionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateMessageRevisionByNodeIdArgs = {
+  input: UpdateMessageRevisionByNodeIdInput;
 };
 
 
@@ -4641,6 +6479,94 @@ export type ConfirmAccountDeletionPayload = {
   query: Maybe<Query>;
 };
 
+/** All input for the create `ActiveMessageRevision` mutation. */
+export type CreateActiveMessageRevisionInput = {
+  /** The `ActiveMessageRevision` to be created by this mutation. */
+  activeMessageRevision: ActiveMessageRevisionInput;
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** An input for mutations affecting `ActiveMessageRevision` */
+export type ActiveMessageRevisionInput = {
+  body?: InputMaybe<Scalars['JSON']['input']>;
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  id: Scalars['UUID']['input'];
+  parentRevisionId?: InputMaybe<Scalars['UUID']['input']>;
+  subject?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The output of our create `ActiveMessageRevision` mutation. */
+export type CreateActiveMessageRevisionPayload = {
+  __typename?: 'CreateActiveMessageRevisionPayload';
+  /** The `ActiveMessageRevision` that was created by this mutation. */
+  activeMessageRevision: Maybe<ActiveMessageRevision>;
+  /** An edge for our `ActiveMessageRevision`. May be used by Relay 1. */
+  activeMessageRevisionEdge: Maybe<ActiveMessageRevisionsEdge>;
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `User` that is related to this `ActiveMessageRevision`. */
+  editor: Maybe<User>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our create `ActiveMessageRevision` mutation. */
+export type CreateActiveMessageRevisionPayloadActiveMessageRevisionEdgeArgs = {
+  orderBy?: Array<ActiveMessageRevisionsOrderBy>;
+};
+
+/** All input for the create `CurrentMessageRevision` mutation. */
+export type CreateCurrentMessageRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `CurrentMessageRevision` to be created by this mutation. */
+  currentMessageRevision: CurrentMessageRevisionInput;
+};
+
+/** An input for mutations affecting `CurrentMessageRevision` */
+export type CurrentMessageRevisionInput = {
+  body?: InputMaybe<Scalars['JSON']['input']>;
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  id: Scalars['UUID']['input'];
+  parentRevisionId?: InputMaybe<Scalars['UUID']['input']>;
+  subject?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The output of our create `CurrentMessageRevision` mutation. */
+export type CreateCurrentMessageRevisionPayload = {
+  __typename?: 'CreateCurrentMessageRevisionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** The `CurrentMessageRevision` that was created by this mutation. */
+  currentMessageRevision: Maybe<CurrentMessageRevision>;
+  /** An edge for our `CurrentMessageRevision`. May be used by Relay 1. */
+  currentMessageRevisionEdge: Maybe<CurrentMessageRevisionsEdge>;
+  /** Reads a single `User` that is related to this `CurrentMessageRevision`. */
+  editor: Maybe<User>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our create `CurrentMessageRevision` mutation. */
+export type CreateCurrentMessageRevisionPayloadCurrentMessageRevisionEdgeArgs = {
+  orderBy?: Array<CurrentMessageRevisionsOrderBy>;
+};
+
 /** All input for the create `File` mutation. */
 export type CreateFileInput = {
   /**
@@ -4684,6 +6610,52 @@ export type CreateFilePayload = {
 /** The output of our create `File` mutation. */
 export type CreateFilePayloadFileEdgeArgs = {
   orderBy?: Array<FilesOrderBy>;
+};
+
+/** All input for the create `MessageRevision` mutation. */
+export type CreateMessageRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `MessageRevision` to be created by this mutation. */
+  messageRevision: MessageRevisionInput;
+};
+
+/** An input for mutations affecting `MessageRevision` */
+export type MessageRevisionInput = {
+  body?: InputMaybe<Scalars['JSON']['input']>;
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  parentRevisionId?: InputMaybe<Scalars['UUID']['input']>;
+  subject?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The output of our create `MessageRevision` mutation. */
+export type CreateMessageRevisionPayload = {
+  __typename?: 'CreateMessageRevisionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `Space` that is related to this `MessageRevision`. */
+  editContext: Maybe<Space>;
+  /** Reads a single `User` that is related to this `MessageRevision`. */
+  editor: Maybe<User>;
+  /** The `MessageRevision` that was created by this mutation. */
+  messageRevision: Maybe<MessageRevision>;
+  /** An edge for our `MessageRevision`. May be used by Relay 1. */
+  messageRevisionEdge: Maybe<MessageRevisionsEdge>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our create `MessageRevision` mutation. */
+export type CreateMessageRevisionPayloadMessageRevisionEdgeArgs = {
+  orderBy?: Array<MessageRevisionsOrderBy>;
 };
 
 /** All input for the `createOrganization` mutation. */
@@ -5119,6 +7091,58 @@ export type CreateTopicPayloadTopicEdgeArgs = {
   orderBy?: Array<TopicsOrderBy>;
 };
 
+/** All input for the create `TopicRevision` mutation. */
+export type CreateTopicRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `TopicRevision` to be created by this mutation. */
+  topicRevision: TopicRevisionInput;
+};
+
+/** An input for mutations affecting `TopicRevision` */
+export type TopicRevisionInput = {
+  /** The topics contents as JSON. Can be converted to HTML with https://tiptap.dev/api/utilities/html */
+  content: Scalars['JSON']['input'];
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Each topic can optionally be licensed. Hyperlinks are allowed. */
+  license?: InputMaybe<Scalars['String']['input']>;
+  parentRevisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Each topic can be categorized using tags. */
+  tags?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Each topic has an optional title. In case of an article, this would be the headline. */
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The output of our create `TopicRevision` mutation. */
+export type CreateTopicRevisionPayload = {
+  __typename?: 'CreateTopicRevisionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Each topic has an editor. The field might be null when the editor has unregistered from the application. */
+  editor: Maybe<User>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `TopicRevision` that was created by this mutation. */
+  topicRevision: Maybe<TopicRevision>;
+  /** Reads a single `TopicRevision` that is related to this `TopicRevision`. */
+  topicRevisionByParentRevisionIdAndId: Maybe<TopicRevision>;
+  /** An edge for our `TopicRevision`. May be used by Relay 1. */
+  topicRevisionEdge: Maybe<TopicRevisionsEdge>;
+};
+
+
+/** The output of our create `TopicRevision` mutation. */
+export type CreateTopicRevisionPayloadTopicRevisionEdgeArgs = {
+  orderBy?: Array<TopicRevisionsOrderBy>;
+};
+
 /** All input for the create `User` mutation. */
 export type CreateUserInput = {
   /**
@@ -5201,6 +7225,99 @@ export type CreateUserEmailPayloadUserEmailEdgeArgs = {
   orderBy?: Array<UserEmailsOrderBy>;
 };
 
+/** All input for the `deleteActiveMessageRevision` mutation. */
+export type DeleteActiveMessageRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  revisionId: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `ActiveMessageRevision` mutation. */
+export type DeleteActiveMessageRevisionPayload = {
+  __typename?: 'DeleteActiveMessageRevisionPayload';
+  /** The `ActiveMessageRevision` that was deleted by this mutation. */
+  activeMessageRevision: Maybe<ActiveMessageRevision>;
+  /** An edge for our `ActiveMessageRevision`. May be used by Relay 1. */
+  activeMessageRevisionEdge: Maybe<ActiveMessageRevisionsEdge>;
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedActiveMessageRevisionNodeId: Maybe<Scalars['ID']['output']>;
+  /** Reads a single `User` that is related to this `ActiveMessageRevision`. */
+  editor: Maybe<User>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our delete `ActiveMessageRevision` mutation. */
+export type DeleteActiveMessageRevisionPayloadActiveMessageRevisionEdgeArgs = {
+  orderBy?: Array<ActiveMessageRevisionsOrderBy>;
+};
+
+/** All input for the `deleteActiveMessageRevisionByNodeId` mutation. */
+export type DeleteActiveMessageRevisionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `ActiveMessageRevision` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
+/** All input for the `deleteCurrentMessageRevision` mutation. */
+export type DeleteCurrentMessageRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `CurrentMessageRevision` mutation. */
+export type DeleteCurrentMessageRevisionPayload = {
+  __typename?: 'DeleteCurrentMessageRevisionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** The `CurrentMessageRevision` that was deleted by this mutation. */
+  currentMessageRevision: Maybe<CurrentMessageRevision>;
+  /** An edge for our `CurrentMessageRevision`. May be used by Relay 1. */
+  currentMessageRevisionEdge: Maybe<CurrentMessageRevisionsEdge>;
+  deletedCurrentMessageRevisionNodeId: Maybe<Scalars['ID']['output']>;
+  /** Reads a single `User` that is related to this `CurrentMessageRevision`. */
+  editor: Maybe<User>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our delete `CurrentMessageRevision` mutation. */
+export type DeleteCurrentMessageRevisionPayloadCurrentMessageRevisionEdgeArgs = {
+  orderBy?: Array<CurrentMessageRevisionsOrderBy>;
+};
+
+/** All input for the `deleteCurrentMessageRevisionByNodeId` mutation. */
+export type DeleteCurrentMessageRevisionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `CurrentMessageRevision` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
 /** All input for the `deleteFile` mutation. */
 export type DeleteFileInput = {
   /**
@@ -5244,6 +7361,55 @@ export type DeleteFileByNodeIdInput = {
    */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   /** The globally unique `ID` which will identify a single `File` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
+/** All input for the `deleteMessageRevision` mutation. */
+export type DeleteMessageRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  revisionId: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `MessageRevision` mutation. */
+export type DeleteMessageRevisionPayload = {
+  __typename?: 'DeleteMessageRevisionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedMessageRevisionNodeId: Maybe<Scalars['ID']['output']>;
+  /** Reads a single `Space` that is related to this `MessageRevision`. */
+  editContext: Maybe<Space>;
+  /** Reads a single `User` that is related to this `MessageRevision`. */
+  editor: Maybe<User>;
+  /** The `MessageRevision` that was deleted by this mutation. */
+  messageRevision: Maybe<MessageRevision>;
+  /** An edge for our `MessageRevision`. May be used by Relay 1. */
+  messageRevisionEdge: Maybe<MessageRevisionsEdge>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our delete `MessageRevision` mutation. */
+export type DeleteMessageRevisionPayloadMessageRevisionEdgeArgs = {
+  orderBy?: Array<MessageRevisionsOrderBy>;
+};
+
+/** All input for the `deleteMessageRevisionByNodeId` mutation. */
+export type DeleteMessageRevisionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `MessageRevision` to be deleted. */
   nodeId: Scalars['ID']['input'];
 };
 
@@ -5694,6 +7860,55 @@ export type DeleteTopicBySlugAndOrganizationIdInput = {
   slug: Scalars['String']['input'];
 };
 
+/** All input for the `deleteTopicRevision` mutation. */
+export type DeleteTopicRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  revisionId: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `TopicRevision` mutation. */
+export type DeleteTopicRevisionPayload = {
+  __typename?: 'DeleteTopicRevisionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedTopicRevisionNodeId: Maybe<Scalars['ID']['output']>;
+  /** Each topic has an editor. The field might be null when the editor has unregistered from the application. */
+  editor: Maybe<User>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `TopicRevision` that was deleted by this mutation. */
+  topicRevision: Maybe<TopicRevision>;
+  /** Reads a single `TopicRevision` that is related to this `TopicRevision`. */
+  topicRevisionByParentRevisionIdAndId: Maybe<TopicRevision>;
+  /** An edge for our `TopicRevision`. May be used by Relay 1. */
+  topicRevisionEdge: Maybe<TopicRevisionsEdge>;
+};
+
+
+/** The output of our delete `TopicRevision` mutation. */
+export type DeleteTopicRevisionPayloadTopicRevisionEdgeArgs = {
+  orderBy?: Array<TopicRevisionsOrderBy>;
+};
+
+/** All input for the `deleteTopicRevisionByNodeId` mutation. */
+export type DeleteTopicRevisionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `TopicRevision` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
 /** All input for the `deleteUserAuthentication` mutation. */
 export type DeleteUserAuthenticationInput = {
   /**
@@ -6112,6 +8327,119 @@ export type TransferOrganizationOwnershipPayloadOrganizationEdgeArgs = {
   orderBy?: Array<OrganizationsOrderBy>;
 };
 
+/** All input for the `updateActiveMessageRevision` mutation. */
+export type UpdateActiveMessageRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `ActiveMessageRevision` being updated. */
+  patch: ActiveMessageRevisionPatch;
+  revisionId: Scalars['UUID']['input'];
+};
+
+/** Represents an update to a `ActiveMessageRevision`. Fields that are set will be updated. */
+export type ActiveMessageRevisionPatch = {
+  body?: InputMaybe<Scalars['JSON']['input']>;
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  subject?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The output of our update `ActiveMessageRevision` mutation. */
+export type UpdateActiveMessageRevisionPayload = {
+  __typename?: 'UpdateActiveMessageRevisionPayload';
+  /** The `ActiveMessageRevision` that was updated by this mutation. */
+  activeMessageRevision: Maybe<ActiveMessageRevision>;
+  /** An edge for our `ActiveMessageRevision`. May be used by Relay 1. */
+  activeMessageRevisionEdge: Maybe<ActiveMessageRevisionsEdge>;
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `User` that is related to this `ActiveMessageRevision`. */
+  editor: Maybe<User>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our update `ActiveMessageRevision` mutation. */
+export type UpdateActiveMessageRevisionPayloadActiveMessageRevisionEdgeArgs = {
+  orderBy?: Array<ActiveMessageRevisionsOrderBy>;
+};
+
+/** All input for the `updateActiveMessageRevisionByNodeId` mutation. */
+export type UpdateActiveMessageRevisionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `ActiveMessageRevision` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `ActiveMessageRevision` being updated. */
+  patch: ActiveMessageRevisionPatch;
+};
+
+/** All input for the `updateCurrentMessageRevision` mutation. */
+export type UpdateCurrentMessageRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `CurrentMessageRevision` being updated. */
+  patch: CurrentMessageRevisionPatch;
+};
+
+/** Represents an update to a `CurrentMessageRevision`. Fields that are set will be updated. */
+export type CurrentMessageRevisionPatch = {
+  body?: InputMaybe<Scalars['JSON']['input']>;
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  subject?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The output of our update `CurrentMessageRevision` mutation. */
+export type UpdateCurrentMessageRevisionPayload = {
+  __typename?: 'UpdateCurrentMessageRevisionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** The `CurrentMessageRevision` that was updated by this mutation. */
+  currentMessageRevision: Maybe<CurrentMessageRevision>;
+  /** An edge for our `CurrentMessageRevision`. May be used by Relay 1. */
+  currentMessageRevisionEdge: Maybe<CurrentMessageRevisionsEdge>;
+  /** Reads a single `User` that is related to this `CurrentMessageRevision`. */
+  editor: Maybe<User>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our update `CurrentMessageRevision` mutation. */
+export type UpdateCurrentMessageRevisionPayloadCurrentMessageRevisionEdgeArgs = {
+  orderBy?: Array<CurrentMessageRevisionsOrderBy>;
+};
+
+/** All input for the `updateCurrentMessageRevisionByNodeId` mutation. */
+export type UpdateCurrentMessageRevisionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `CurrentMessageRevision` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `CurrentMessageRevision` being updated. */
+  patch: CurrentMessageRevisionPatch;
+};
+
 /** All input for the `updateFile` mutation. */
 export type UpdateFileInput = {
   /**
@@ -6168,6 +8496,64 @@ export type UpdateFileByNodeIdInput = {
   nodeId: Scalars['ID']['input'];
   /** An object where the defined keys will be set on the `File` being updated. */
   patch: FilePatch;
+};
+
+/** All input for the `updateMessageRevision` mutation. */
+export type UpdateMessageRevisionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `MessageRevision` being updated. */
+  patch: MessageRevisionPatch;
+  revisionId: Scalars['UUID']['input'];
+};
+
+/** Represents an update to a `MessageRevision`. Fields that are set will be updated. */
+export type MessageRevisionPatch = {
+  body?: InputMaybe<Scalars['JSON']['input']>;
+  subject?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The output of our update `MessageRevision` mutation. */
+export type UpdateMessageRevisionPayload = {
+  __typename?: 'UpdateMessageRevisionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `Space` that is related to this `MessageRevision`. */
+  editContext: Maybe<Space>;
+  /** Reads a single `User` that is related to this `MessageRevision`. */
+  editor: Maybe<User>;
+  /** The `MessageRevision` that was updated by this mutation. */
+  messageRevision: Maybe<MessageRevision>;
+  /** An edge for our `MessageRevision`. May be used by Relay 1. */
+  messageRevisionEdge: Maybe<MessageRevisionsEdge>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+};
+
+
+/** The output of our update `MessageRevision` mutation. */
+export type UpdateMessageRevisionPayloadMessageRevisionEdgeArgs = {
+  orderBy?: Array<MessageRevisionsOrderBy>;
+};
+
+/** All input for the `updateMessageRevisionByNodeId` mutation. */
+export type UpdateMessageRevisionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `MessageRevision` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `MessageRevision` being updated. */
+  patch: MessageRevisionPatch;
 };
 
 /** All input for the `updateOrganization` mutation. */

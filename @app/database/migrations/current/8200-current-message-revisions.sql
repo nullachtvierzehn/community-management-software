@@ -1,3 +1,24 @@
+create or replace view app_public.current_message_revisions
+  with (security_invoker=true, security_barrier=true, check_option=cascaded) as 
+  select tip.*
+  from app_public.active_message_revisions as tip
+  where (tip.created_at, tip.revision_id) >= all (
+    select created_at, revision_id
+    from app_public.active_message_revisions as others
+    where tip.id = others.id
+  );
+
+comment on view app_public.current_message_revisions is $$
+  @primaryKey id
+  @foreignKey (editor_id) references app_public.users (id)
+  $$;
+
+grant select on app_public.current_message_revisions to :DATABASE_VISITOR;
+grant insert (id, parent_revision_id, editor_id, "subject", body) on app_public.current_message_revisions to :DATABASE_VISITOR;
+grant update (editor_id, "subject", body) on app_public.current_message_revisions to :DATABASE_VISITOR;
+grant delete on app_public.current_message_revisions to :DATABASE_VISITOR;
+
+
 create or replace function app_hidden.update_active_message_revision()
   returns trigger
   language plpgsql
@@ -29,8 +50,8 @@ begin
       "subject" = new."subject",
       body = new.body
     where 
-      r.id = old.id
-      and r.revision_id = old.revision_id
+      r.id = old_revision.id
+      and r.revision_id = old_revision.revision_id
     returning * into strict new;
   else
     insert into app_public.message_revisions 
