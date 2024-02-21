@@ -1,0 +1,51 @@
+query FetchSpaces(
+  $after: Cursor
+  $before: Cursor
+  $condition: SpaceCondition
+  $filter: SpaceFilter
+  $first: Int
+  $last: Int
+  $offset: Int
+  $orderBy: [SpacesOrderBy!]
+) {
+  spaces(
+    after: $after
+    before: $before
+    condition: $condition
+    filter: $filter
+    first: $first
+    last: $last
+    offset: $offset
+    orderBy: $orderBy
+  ) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    nodes {
+      id
+      name
+      createdAt
+      latestPost {
+        id
+        createdAt
+        poster {
+          id
+          ...ShortProfile
+        }
+        nthPostSinceLastVisit
+      }
+      mySubscription {
+        id
+        ...ShortSpaceSubscription
+      }
+      nSubscriptions
+      hasSubscriptions
+      nPosts
+      nPostsSinceLastVisit
+    }
+  }
+}

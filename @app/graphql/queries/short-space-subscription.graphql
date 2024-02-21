@@ -1,0 +1,19 @@
+fragment ShortSpaceSubscription on SpaceSubscription {
+  id
+  subscriberId
+  subscriber {
+    id
+    ...ShortProfile
+  }
+  spaceId
+  space {
+    id
+    name
+  }
+  lastVisitAt
+  notifications
+  role
+  capabilities
+  createdAt
+  updatedAt
+}

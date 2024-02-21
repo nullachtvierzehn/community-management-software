@@ -1316,6 +1316,70 @@
               "deprecationReason": null
             },
             {
+              "name": "organizationForInvitation",
+              "description": null,
+              "args": [
+                {
+                  "name": "invitationId",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "UUID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "code",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Organization",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "fetchDraftInRoom",
+              "description": null,
+              "args": [
+                {
+                  "name": "roomId",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "UUID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "RoomMessage",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "mySubscribedSpaceIds",
               "description": "Reads and enables pagination through a set of `Uuid`.",
               "args": [
@@ -1326,6 +1390,20 @@
                     "kind": "ENUM",
                     "name": "SpaceRole",
                     "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "minimumCapabilities",
+                  "description": null,
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "SpaceCapability",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": null
                 },
@@ -1393,70 +1471,6 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "MySubscribedSpaceIdsConnection",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "organizationForInvitation",
-              "description": null,
-              "args": [
-                {
-                  "name": "invitationId",
-                  "description": null,
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "UUID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                },
-                {
-                  "name": "code",
-                  "description": null,
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Organization",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "fetchDraftInRoom",
-              "description": null,
-              "args": [
-                {
-                  "name": "roomId",
-                  "description": null,
-                  "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "UUID",
-                      "ofType": null
-                    }
-                  },
-                  "defaultValue": null
-                }
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "RoomMessage",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -1697,6 +1711,20 @@
                     "kind": "ENUM",
                     "name": "SpaceRole",
                     "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "minimumCapabilities",
+                  "description": null,
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "SpaceCapability",
+                      "ofType": null
+                    }
                   },
                   "defaultValue": null
                 },
@@ -4811,11 +4839,6 @@
             },
             {
               "kind": "OBJECT",
-              "name": "SpaceSubscription",
-              "ofType": null
-            },
-            {
-              "kind": "OBJECT",
               "name": "SpacePosting",
               "ofType": null
             },
@@ -4827,6 +4850,11 @@
             {
               "kind": "OBJECT",
               "name": "SpaceSubmission",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "SpaceSubscription",
               "ofType": null
             },
             {
@@ -16400,6 +16428,16 @@
               "defaultValue": null
             },
             {
+              "name": "nthPostSinceLastVisit",
+              "description": "Filter by the object’s `nthPostSinceLastVisit` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BigIntFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "itemName",
               "description": "Filter by the object’s `itemName` field.",
               "type": {
@@ -16970,6 +17008,46 @@
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "DatetimeFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nPosts",
+              "description": "Filter by the object’s `nPosts` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BigIntFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nPostsSinceLastVisit",
+              "description": "Filter by the object’s `nPostsSinceLastVisit` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BigIntFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "hasSubscriptions",
+              "description": "Filter by the object’s `hasSubscriptions` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BooleanFilter",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nSubscriptions",
+              "description": "Filter by the object’s `nSubscriptions` field.",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BigIntFilter",
                 "ofType": null
               },
               "defaultValue": null
@@ -26422,6 +26500,182 @@
               "deprecationReason": null
             },
             {
+              "name": "nPosts",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nPostsSinceLastVisit",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nPostsSinceDate",
+              "description": null,
+              "args": [
+                {
+                  "name": "date",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Datetime",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nPostsSince",
+              "description": null,
+              "args": [
+                {
+                  "name": "interval",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "IntervalInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "hasSubscriptions",
+              "description": null,
+              "args": [
+                {
+                  "name": "minimumRole",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "SpaceRole",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "minimumCapabilities",
+                  "description": null,
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "SpaceCapability",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nSubscriptions",
+              "description": null,
+              "args": [
+                {
+                  "name": "minimumRole",
+                  "description": null,
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "SpaceRole",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "minimumCapabilities",
+                  "description": null,
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "SpaceCapability",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "latestPost",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SpacePosting",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "mySubscription",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SpaceSubscription",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "id",
               "description": null,
               "args": [],
@@ -27145,980 +27399,6 @@
           "possibleTypes": null
         },
         {
-          "kind": "ENUM",
-          "name": "MessageRevisionsOrderBy",
-          "description": "Methods to use when ordering `MessageRevision`.",
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
-          "enumValues": [
-            {
-              "name": "NATURAL",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "PRIMARY_KEY_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "PRIMARY_KEY_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "ID_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "ID_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "REVISION_ID_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "REVISION_ID_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "PARENT_REVISION_ID_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "PARENT_REVISION_ID_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "EDITOR_ID_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "EDITOR_ID_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "EDIT_CONTEXT_ID_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "EDIT_CONTEXT_ID_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "CREATED_AT_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "CREATED_AT_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "UPDATED_AT_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "UPDATED_AT_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "SUBJECT_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "SUBJECT_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "BODY_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "BODY_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "possibleTypes": null
-        },
-        {
-          "kind": "INPUT_OBJECT",
-          "name": "MessageRevisionCondition",
-          "description": "A condition to be used against `MessageRevision` object types. All fields are\ntested for equality and combined with a logical ‘and.’",
-          "fields": null,
-          "inputFields": [
-            {
-              "name": "id",
-              "description": "Checks for equality with the object’s `id` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "revisionId",
-              "description": "Checks for equality with the object’s `revisionId` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "parentRevisionId",
-              "description": "Checks for equality with the object’s `parentRevisionId` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "editorId",
-              "description": "Checks for equality with the object’s `editorId` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "editContextId",
-              "description": "Checks for equality with the object’s `editContextId` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "createdAt",
-              "description": "Checks for equality with the object’s `createdAt` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "updatedAt",
-              "description": "Checks for equality with the object’s `updatedAt` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "subject",
-              "description": "Checks for equality with the object’s `subject` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "body",
-              "description": "Checks for equality with the object’s `body` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "JSON",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "isLeaf",
-              "description": "Checks for equality with the object’s `isLeaf` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "isPosted",
-              "description": "Checks for equality with the object’s `isPosted` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              },
-              "defaultValue": null
-            }
-          ],
-          "interfaces": null,
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "SpaceSubscriptionsConnection",
-          "description": "A connection to a list of `SpaceSubscription` values.",
-          "fields": [
-            {
-              "name": "nodes",
-              "description": "A list of `SpaceSubscription` objects.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "OBJECT",
-                      "name": "SpaceSubscription",
-                      "ofType": null
-                    }
-                  }
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "edges",
-              "description": "A list of edges which contains the `SpaceSubscription` and cursor to aid in pagination.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "OBJECT",
-                      "name": "SpaceSubscriptionsEdge",
-                      "ofType": null
-                    }
-                  }
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "pageInfo",
-              "description": "Information to aid in pagination.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "PageInfo",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "totalCount",
-              "description": "The count of *all* `SpaceSubscription` you could get from the connection.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "SpaceSubscription",
-          "description": null,
-          "fields": [
-            {
-              "name": "nodeId",
-              "description": "A globally unique identifier. Can be used in various places throughout the system to identify this single value.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "ID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "id",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "UUID",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "spaceId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "subscriberId",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "role",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "ENUM",
-                  "name": "SpaceRole",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "capabilities",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "ENUM",
-                    "name": "SpaceCapability",
-                    "ofType": null
-                  }
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "notifications",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "ENUM",
-                  "name": "NotificationSetting",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "lastVisitAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "lastNotificationAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "isStarred",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "createdAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Datetime",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "updatedAt",
-              "description": null,
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Datetime",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "space",
-              "description": "Reads a single `Space` that is related to this `SpaceSubscription`.",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Space",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "subscriber",
-              "description": "Reads a single `User` that is related to this `SpaceSubscription`.",
-              "args": [],
-              "type": {
-                "kind": "OBJECT",
-                "name": "User",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "Node",
-              "ofType": null
-            }
-          ],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "SpaceSubscriptionsEdge",
-          "description": "A `SpaceSubscription` edge in the connection.",
-          "fields": [
-            {
-              "name": "cursor",
-              "description": "A cursor for use in pagination.",
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "Cursor",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "node",
-              "description": "The `SpaceSubscription` at the end of the edge.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "SpaceSubscription",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "ENUM",
-          "name": "SpaceSubscriptionsOrderBy",
-          "description": "Methods to use when ordering `SpaceSubscription`.",
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
-          "enumValues": [
-            {
-              "name": "NATURAL",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "PRIMARY_KEY_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "PRIMARY_KEY_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "ID_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "ID_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "SPACE_ID_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "SPACE_ID_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "SUBSCRIBER_ID_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "SUBSCRIBER_ID_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "ROLE_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "ROLE_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "NOTIFICATIONS_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "NOTIFICATIONS_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "LAST_VISIT_AT_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "LAST_VISIT_AT_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "LAST_NOTIFICATION_AT_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "LAST_NOTIFICATION_AT_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "IS_STARRED_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "IS_STARRED_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "CREATED_AT_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "CREATED_AT_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "UPDATED_AT_ASC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "UPDATED_AT_DESC",
-              "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "possibleTypes": null
-        },
-        {
-          "kind": "INPUT_OBJECT",
-          "name": "SpaceSubscriptionCondition",
-          "description": "A condition to be used against `SpaceSubscription` object types. All fields are\ntested for equality and combined with a logical ‘and.’",
-          "fields": null,
-          "inputFields": [
-            {
-              "name": "id",
-              "description": "Checks for equality with the object’s `id` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "spaceId",
-              "description": "Checks for equality with the object’s `spaceId` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "subscriberId",
-              "description": "Checks for equality with the object’s `subscriberId` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "UUID",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "role",
-              "description": "Checks for equality with the object’s `role` field.",
-              "type": {
-                "kind": "ENUM",
-                "name": "SpaceRole",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "capabilities",
-              "description": "Checks for equality with the object’s `capabilities` field.",
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "ENUM",
-                  "name": "SpaceCapability",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "notifications",
-              "description": "Checks for equality with the object’s `notifications` field.",
-              "type": {
-                "kind": "ENUM",
-                "name": "NotificationSetting",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "lastVisitAt",
-              "description": "Checks for equality with the object’s `lastVisitAt` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "lastNotificationAt",
-              "description": "Checks for equality with the object’s `lastNotificationAt` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "isStarred",
-              "description": "Checks for equality with the object’s `isStarred` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "createdAt",
-              "description": "Checks for equality with the object’s `createdAt` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "updatedAt",
-              "description": "Checks for equality with the object’s `updatedAt` field.",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Datetime",
-                "ofType": null
-              },
-              "defaultValue": null
-            }
-          ],
-          "interfaces": null,
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "SpacePostingsConnection",
-          "description": "A connection to a list of `SpacePosting` values.",
-          "fields": [
-            {
-              "name": "nodes",
-              "description": "A list of `SpacePosting` objects.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "OBJECT",
-                      "name": "SpacePosting",
-                      "ofType": null
-                    }
-                  }
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "edges",
-              "description": "A list of edges which contains the `SpacePosting` and cursor to aid in pagination.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "OBJECT",
-                      "name": "SpacePostingsEdge",
-                      "ofType": null
-                    }
-                  }
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "pageInfo",
-              "description": "Information to aid in pagination.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "PageInfo",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "totalCount",
-              "description": "The count of *all* `SpacePosting` you could get from the connection.",
-              "args": [],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
           "kind": "OBJECT",
           "name": "SpacePosting",
           "description": null,
@@ -28135,6 +27415,18 @@
                   "name": "ID",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nthPostSinceLastVisit",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -29375,6 +28667,136 @@
           "possibleTypes": null
         },
         {
+          "kind": "OBJECT",
+          "name": "SpacePostingsConnection",
+          "description": "A connection to a list of `SpacePosting` values.",
+          "fields": [
+            {
+              "name": "nodes",
+              "description": "A list of `SpacePosting` objects.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "SpacePosting",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges which contains the `SpacePosting` and cursor to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "SpacePostingsEdge",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "totalCount",
+              "description": "The count of *all* `SpacePosting` you could get from the connection.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SpacePostingsEdge",
+          "description": "A `SpacePosting` edge in the connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Cursor",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The `SpacePosting` at the end of the edge.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SpacePosting",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "ENUM",
           "name": "SpacePostingsOrderBy",
           "description": "Methods to use when ordering `SpacePosting`.",
@@ -29408,6 +28830,18 @@
             },
             {
               "name": "ITEM_UPDATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NTH_POST_SINCE_LAST_VISIT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NTH_POST_SINCE_LAST_VISIT_DESC",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -29703,6 +29137,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nthPostSinceLastVisit",
+              "description": "Checks for equality with the object’s `nthPostSinceLastVisit` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
                 "ofType": null
               },
               "defaultValue": null
@@ -30419,8 +29863,578 @@
         },
         {
           "kind": "OBJECT",
-          "name": "SpacePostingsEdge",
-          "description": "A `SpacePosting` edge in the connection.",
+          "name": "SpaceSubscription",
+          "description": null,
+          "fields": [
+            {
+              "name": "nodeId",
+              "description": "A globally unique identifier. Can be used in various places throughout the system to identify this single value.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "id",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "spaceId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "subscriberId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "role",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "SpaceRole",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "capabilities",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "SpaceCapability",
+                    "ofType": null
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "notifications",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "NotificationSetting",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "lastVisitAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "lastNotificationAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "isStarred",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Datetime",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Datetime",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "space",
+              "description": "Reads a single `Space` that is related to this `SpaceSubscription`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Space",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "subscriber",
+              "description": "Reads a single `User` that is related to this `SpaceSubscription`.",
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "Node",
+              "ofType": null
+            }
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "MessageRevisionsOrderBy",
+          "description": "Methods to use when ordering `MessageRevision`.",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "NATURAL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PRIMARY_KEY_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PRIMARY_KEY_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "REVISION_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "REVISION_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PARENT_REVISION_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PARENT_REVISION_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "EDITOR_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "EDITOR_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "EDIT_CONTEXT_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "EDIT_CONTEXT_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SUBJECT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SUBJECT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "BODY_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "BODY_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "MessageRevisionCondition",
+          "description": "A condition to be used against `MessageRevision` object types. All fields are\ntested for equality and combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "Checks for equality with the object’s `id` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "revisionId",
+              "description": "Checks for equality with the object’s `revisionId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "parentRevisionId",
+              "description": "Checks for equality with the object’s `parentRevisionId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "editorId",
+              "description": "Checks for equality with the object’s `editorId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "editContextId",
+              "description": "Checks for equality with the object’s `editContextId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "createdAt",
+              "description": "Checks for equality with the object’s `createdAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Checks for equality with the object’s `updatedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "subject",
+              "description": "Checks for equality with the object’s `subject` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "body",
+              "description": "Checks for equality with the object’s `body` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "JSON",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isLeaf",
+              "description": "Checks for equality with the object’s `isLeaf` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isPosted",
+              "description": "Checks for equality with the object’s `isPosted` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SpaceSubscriptionsConnection",
+          "description": "A connection to a list of `SpaceSubscription` values.",
+          "fields": [
+            {
+              "name": "nodes",
+              "description": "A list of `SpaceSubscription` objects.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "SpaceSubscription",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "edges",
+              "description": "A list of edges which contains the `SpaceSubscription` and cursor to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "SpaceSubscriptionsEdge",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "totalCount",
+              "description": "The count of *all* `SpaceSubscription` you could get from the connection.",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SpaceSubscriptionsEdge",
+          "description": "A `SpaceSubscription` edge in the connection.",
           "fields": [
             {
               "name": "cursor",
@@ -30436,14 +30450,14 @@
             },
             {
               "name": "node",
-              "description": "The `SpacePosting` at the end of the edge.",
+              "description": "The `SpaceSubscription` at the end of the edge.",
               "args": [],
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
                   "kind": "OBJECT",
-                  "name": "SpacePosting",
+                  "name": "SpaceSubscription",
                   "ofType": null
                 }
               },
@@ -30453,6 +30467,280 @@
           ],
           "inputFields": null,
           "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "SpaceSubscriptionsOrderBy",
+          "description": "Methods to use when ordering `SpaceSubscription`.",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "NATURAL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PRIMARY_KEY_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PRIMARY_KEY_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SPACE_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SPACE_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SUBSCRIBER_ID_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SUBSCRIBER_ID_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ROLE_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ROLE_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NOTIFICATIONS_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "NOTIFICATIONS_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LAST_VISIT_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LAST_VISIT_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LAST_NOTIFICATION_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LAST_NOTIFICATION_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_STARRED_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "IS_STARRED_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CREATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UPDATED_AT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "SpaceSubscriptionCondition",
+          "description": "A condition to be used against `SpaceSubscription` object types. All fields are\ntested for equality and combined with a logical ‘and.’",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "Checks for equality with the object’s `id` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "spaceId",
+              "description": "Checks for equality with the object’s `spaceId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "subscriberId",
+              "description": "Checks for equality with the object’s `subscriberId` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "role",
+              "description": "Checks for equality with the object’s `role` field.",
+              "type": {
+                "kind": "ENUM",
+                "name": "SpaceRole",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "capabilities",
+              "description": "Checks for equality with the object’s `capabilities` field.",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "SpaceCapability",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "notifications",
+              "description": "Checks for equality with the object’s `notifications` field.",
+              "type": {
+                "kind": "ENUM",
+                "name": "NotificationSetting",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "lastVisitAt",
+              "description": "Checks for equality with the object’s `lastVisitAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "lastNotificationAt",
+              "description": "Checks for equality with the object’s `lastNotificationAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "isStarred",
+              "description": "Checks for equality with the object’s `isStarred` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "createdAt",
+              "description": "Checks for equality with the object’s `createdAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Checks for equality with the object’s `updatedAt` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -33403,6 +33691,42 @@
               "deprecationReason": null
             },
             {
+              "name": "N_POSTS_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "N_POSTS_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "N_POSTS_SINCE_LAST_VISIT_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "N_POSTS_SINCE_LAST_VISIT_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "N_SUBSCRIPTIONS_ASC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "N_SUBSCRIPTIONS_DESC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "PRIMARY_KEY_ASC",
               "description": null,
               "isDeprecated": false,
@@ -33529,6 +33853,46 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Datetime",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nPosts",
+              "description": "Checks for equality with the object’s `nPosts` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nPostsSinceLastVisit",
+              "description": "Checks for equality with the object’s `nPostsSinceLastVisit` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "hasSubscriptions",
+              "description": "Checks for equality with the object’s `hasSubscriptions` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "nSubscriptions",
+              "description": "Checks for equality with the object’s `nSubscriptions` field.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt",
                 "ofType": null
               },
               "defaultValue": null

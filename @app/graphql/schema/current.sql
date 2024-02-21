@@ -310,6 +310,33 @@ CREATE TYPE app_public.topic_visibility AS ENUM (
 
 
 --
+-- Name: procrastinate_job_event_type; Type: TYPE; Schema: procrastinate; Owner: -
+--
+
+CREATE TYPE procrastinate.procrastinate_job_event_type AS ENUM (
+    'deferred',
+    'started',
+    'deferred_for_retry',
+    'failed',
+    'succeeded',
+    'cancelled',
+    'scheduled'
+);
+
+
+--
+-- Name: procrastinate_job_status; Type: TYPE; Schema: procrastinate; Owner: -
+--
+
+CREATE TYPE procrastinate.procrastinate_job_status AS ENUM (
+    'todo',
+    'doing',
+    'succeeded',
+    'failed'
+);
+
+
+--
 -- Name: increment_last_visit_when_contributing_items(); Type: FUNCTION; Schema: app_hidden; Owner: -
 --
 
@@ -2242,14 +2269,18 @@ CREATE TABLE app_public.space_subscriptions (
 
 
 --
--- Name: my_space_subscriptions(app_public.space_role); Type: FUNCTION; Schema: app_public; Owner: -
+-- Name: my_space_subscriptions(app_public.space_role, app_public.space_capability[]); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
-CREATE FUNCTION app_public.my_space_subscriptions(minimum_role app_public.space_role DEFAULT 'viewer'::app_public.space_role) RETURNS SETOF app_public.space_subscriptions
-    LANGUAGE sql STABLE SECURITY DEFINER PARALLEL SAFE
-    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+CREATE FUNCTION app_public.my_space_subscriptions(minimum_role app_public.space_role DEFAULT NULL::app_public.space_role, minimum_capabilities app_public.space_capability[] DEFAULT NULL::app_public.space_capability[]) RETURNS SETOF app_public.space_subscriptions
+    LANGUAGE sql STABLE ROWS 30 PARALLEL SAFE
     AS $$
-  select * from app_public.space_subscriptions where subscriber_id = app_public.current_user_id() and "role" >= minimum_role;
+  select * 
+  from app_public.space_subscriptions 
+  where 
+    subscriber_id = app_public.current_user_id()
+    and (minimum_role is null or "role" >= minimum_role)
+    and (minimum_capabilities is null or capabilities @> minimum_capabilities)
 $$;
 
 
@@ -2266,15 +2297,20 @@ $$;
 
 
 --
--- Name: my_subscribed_space_ids(app_public.space_role); Type: FUNCTION; Schema: app_public; Owner: -
+-- Name: my_subscribed_space_ids(app_public.space_role, app_public.space_capability[]); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
-CREATE FUNCTION app_public.my_subscribed_space_ids(minimum_role app_public.space_role DEFAULT 'viewer'::app_public.space_role) RETURNS SETOF uuid
+CREATE FUNCTION app_public.my_subscribed_space_ids(minimum_role app_public.space_role DEFAULT NULL::app_public.space_role, minimum_capabilities app_public.space_capability[] DEFAULT NULL::app_public.space_capability[]) RETURNS SETOF uuid
     LANGUAGE sql STABLE SECURITY DEFINER PARALLEL SAFE
     SET search_path TO 'pg_catalog', 'public', 'pg_temp'
     AS $$
-    select space_id from app_public.space_subscriptions where subscriber_id = app_public.current_user_id() and "role" >= minimum_role;
-  $$;
+  select space_id 
+  from app_public.space_subscriptions 
+  where 
+    subscriber_id = app_public.current_user_id() 
+    and (minimum_role is null or "role" >= minimum_role)
+    and (minimum_capabilities is null or capabilities @> minimum_capabilities)
+$$;
 
 
 --
@@ -2806,6 +2842,243 @@ COMMENT ON FUNCTION app_public.space_postings_item_updated_at(p app_public.space
 
 
 --
+-- Name: space_postings_nth_post_since_last_visit(app_public.space_postings); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.space_postings_nth_post_since_last_visit(posting app_public.space_postings) RETURNS bigint
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  with postings_in_same_space as (
+    select 
+      p.id as id,
+      p.space_id,
+      case 
+        when p.created_at > sub.last_visit_at
+        then row_number() over (
+          partition by p.space_id, p.created_at > sub.last_visit_at
+          order by p.created_at asc
+        )
+        when p.created_at <= sub.last_visit_at
+        then -1 * row_number() over (
+          partition by p.space_id, p.created_at > sub.last_visit_at
+          order by p.created_at desc
+        )
+      end as n
+    from app_public.space_postings as p
+    join app_public.spaces as s on (p.space_id = s.id)
+    join lateral app_public.spaces_my_subscription(s) as sub on (true)
+  )
+  select n 
+  from postings_in_same_space 
+  where 
+    postings_in_same_space.id = posting.id
+    and postings_in_same_space.space_id = posting.space_id
+$$;
+
+
+--
+-- Name: FUNCTION space_postings_nth_post_since_last_visit(posting app_public.space_postings); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.space_postings_nth_post_since_last_visit(posting app_public.space_postings) IS '@behavior typeField +orderBy +filterBy';
+
+
+--
+-- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.spaces (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    name text,
+    is_public boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE spaces; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.spaces IS '
+  @implements SubmittableEntity
+  A space is a place where users meet and interact with items.
+  ';
+
+
+--
+-- Name: spaces_has_subscriptions(app_public.spaces, app_public.space_role, app_public.space_capability[]); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.spaces_has_subscriptions(s app_public.spaces, minimum_role app_public.space_role DEFAULT NULL::app_public.space_role, minimum_capabilities app_public.space_capability[] DEFAULT NULL::app_public.space_capability[]) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER PARALLEL SAFE
+    AS $$
+  select exists (
+    select from app_public.space_subscriptions
+    where 
+      space_id = s.id 
+      and (minimum_role is null or "role" >= minimum_role)
+      and (minimum_capabilities is null or capabilities @> minimum_capabilities)
+  )
+$$;
+
+
+--
+-- Name: FUNCTION spaces_has_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.spaces_has_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) IS '
+  @behavior +typeField +filterBy
+  ';
+
+
+--
+-- Name: spaces_latest_post(app_public.spaces); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.spaces_latest_post(s app_public.spaces) RETURNS app_public.space_postings
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select *
+  from app_public.space_postings
+  where space_id = s.id
+  order by created_at desc
+  limit 1
+$$;
+
+
+--
+-- Name: FUNCTION spaces_latest_post(s app_public.spaces); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.spaces_latest_post(s app_public.spaces) IS '@behavior typeField';
+
+
+--
+-- Name: spaces_my_subscription(app_public.spaces); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.spaces_my_subscription(s app_public.spaces) RETURNS app_public.space_subscriptions
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select *
+  from app_public.space_subscriptions
+  where 
+    space_id = s.id
+    and subscriber_id = app_public.current_user_id()
+$$;
+
+
+--
+-- Name: spaces_n_posts(app_public.spaces); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.spaces_n_posts(s app_public.spaces) RETURNS bigint
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select count(*) 
+  from app_public.space_postings 
+  where space_id = s.id 
+$$;
+
+
+--
+-- Name: FUNCTION spaces_n_posts(s app_public.spaces); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.spaces_n_posts(s app_public.spaces) IS '@behavior +typeField +orderBy +filterBy';
+
+
+--
+-- Name: spaces_n_posts_since(app_public.spaces, interval); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.spaces_n_posts_since(s app_public.spaces, "interval" interval) RETURNS bigint
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select count(*) 
+  from app_public.space_postings 
+  where 
+    space_id = s.id 
+    and created_at > (now() - "interval")
+$$;
+
+
+--
+-- Name: FUNCTION spaces_n_posts_since(s app_public.spaces, "interval" interval); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.spaces_n_posts_since(s app_public.spaces, "interval" interval) IS '@behavior +typeField +orderBy +filterBy';
+
+
+--
+-- Name: spaces_n_posts_since_date(app_public.spaces, timestamp with time zone); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.spaces_n_posts_since_date(s app_public.spaces, date timestamp with time zone) RETURNS bigint
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select count(*) 
+  from app_public.space_postings 
+  where 
+    space_id = s.id 
+    and created_at > "date"
+$$;
+
+
+--
+-- Name: FUNCTION spaces_n_posts_since_date(s app_public.spaces, date timestamp with time zone); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.spaces_n_posts_since_date(s app_public.spaces, date timestamp with time zone) IS '@behavior +typeField +orderBy +filterBy';
+
+
+--
+-- Name: spaces_n_posts_since_last_visit(app_public.spaces); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.spaces_n_posts_since_last_visit(s app_public.spaces) RETURNS bigint
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select count(p.*) 
+  from app_public.spaces_my_subscription(s) as sub
+  join app_public.space_postings as p on (sub.space_id = p.space_id and p.created_at > sub.last_visit_at)
+$$;
+
+
+--
+-- Name: FUNCTION spaces_n_posts_since_last_visit(s app_public.spaces); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.spaces_n_posts_since_last_visit(s app_public.spaces) IS '@behavior +typeField +orderBy +filterBy';
+
+
+--
+-- Name: spaces_n_subscriptions(app_public.spaces, app_public.space_role, app_public.space_capability[]); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.spaces_n_subscriptions(s app_public.spaces, minimum_role app_public.space_role DEFAULT NULL::app_public.space_role, minimum_capabilities app_public.space_capability[] DEFAULT NULL::app_public.space_capability[]) RETURNS bigint
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select count(*)
+  from app_public.space_subscriptions
+  where 
+    space_id = s.id 
+    and (minimum_role is null or "role" >= minimum_role)
+    and (minimum_capabilities is null or capabilities @> minimum_capabilities)
+$$;
+
+
+--
+-- Name: FUNCTION spaces_n_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.spaces_n_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) IS '
+  @behavior +typeField +orderBy +filterBy
+  ';
+
+
+--
 -- Name: tg__graphql_subscription(); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -3252,6 +3525,379 @@ $$;
 
 
 --
+-- Name: procrastinate_defer_job(character varying, character varying, text, text, jsonb, timestamp with time zone); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_defer_job(queue_name character varying, task_name character varying, lock text, queueing_lock text, args jsonb, scheduled_at timestamp with time zone) RETURNS bigint
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	job_id bigint;
+BEGIN
+    INSERT INTO procrastinate_jobs (queue_name, task_name, lock, queueing_lock, args, scheduled_at)
+    VALUES (queue_name, task_name, lock, queueing_lock, args, scheduled_at)
+    RETURNING id INTO job_id;
+
+    RETURN job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_defer_periodic_job(character varying, character varying, character varying, character varying, bigint); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _defer_timestamp bigint) RETURNS bigint
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	_job_id bigint;
+	_defer_id bigint;
+BEGIN
+
+    INSERT
+        INTO procrastinate_periodic_defers (task_name, queue_name, defer_timestamp)
+        VALUES (_task_name, _queue_name, _defer_timestamp)
+        ON CONFLICT DO NOTHING
+        RETURNING id into _defer_id;
+
+    IF _defer_id IS NULL THEN
+        RETURN NULL;
+    END IF;
+
+    UPDATE procrastinate_periodic_defers
+        SET job_id = procrastinate_defer_job(
+                _queue_name,
+                _task_name,
+                _lock,
+                _queueing_lock,
+                ('{"timestamp": ' || _defer_timestamp || '}')::jsonb,
+                NULL
+            )
+        WHERE id = _defer_id
+        RETURNING job_id INTO _job_id;
+
+    DELETE
+        FROM procrastinate_periodic_defers
+        USING (
+            SELECT id
+            FROM procrastinate_periodic_defers
+            WHERE procrastinate_periodic_defers.task_name = _task_name
+            AND procrastinate_periodic_defers.queue_name = _queue_name
+            AND procrastinate_periodic_defers.defer_timestamp < _defer_timestamp
+            ORDER BY id
+            FOR UPDATE
+        ) to_delete
+        WHERE procrastinate_periodic_defers.id = to_delete.id;
+
+    RETURN _job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_defer_periodic_job(character varying, character varying, character varying, character varying, character varying, bigint, jsonb); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _periodic_id character varying, _defer_timestamp bigint, _args jsonb) RETURNS bigint
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	_job_id bigint;
+	_defer_id bigint;
+BEGIN
+
+    INSERT
+        INTO procrastinate_periodic_defers (task_name, periodic_id, defer_timestamp)
+        VALUES (_task_name, _periodic_id, _defer_timestamp)
+        ON CONFLICT DO NOTHING
+        RETURNING id into _defer_id;
+
+    IF _defer_id IS NULL THEN
+        RETURN NULL;
+    END IF;
+
+    UPDATE procrastinate_periodic_defers
+        SET job_id = procrastinate_defer_job(
+                _queue_name,
+                _task_name,
+                _lock,
+                _queueing_lock,
+                _args,
+                NULL
+            )
+        WHERE id = _defer_id
+        RETURNING job_id INTO _job_id;
+
+    DELETE
+        FROM procrastinate_periodic_defers
+        USING (
+            SELECT id
+            FROM procrastinate_periodic_defers
+            WHERE procrastinate_periodic_defers.task_name = _task_name
+            AND procrastinate_periodic_defers.periodic_id = _periodic_id
+            AND procrastinate_periodic_defers.defer_timestamp < _defer_timestamp
+            ORDER BY id
+            FOR UPDATE
+        ) to_delete
+        WHERE procrastinate_periodic_defers.id = to_delete.id;
+
+    RETURN _job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_jobs; Type: TABLE; Schema: procrastinate; Owner: -
+--
+
+CREATE TABLE procrastinate.procrastinate_jobs (
+    id bigint NOT NULL,
+    queue_name character varying(128) NOT NULL,
+    task_name character varying(128) NOT NULL,
+    lock text,
+    queueing_lock text,
+    args jsonb DEFAULT '{}'::jsonb NOT NULL,
+    status procrastinate.procrastinate_job_status DEFAULT 'todo'::procrastinate.procrastinate_job_status NOT NULL,
+    scheduled_at timestamp with time zone,
+    attempts integer DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: procrastinate_fetch_job(character varying[]); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_fetch_job(target_queue_names character varying[]) RETURNS procrastinate.procrastinate_jobs
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	found_jobs procrastinate_jobs;
+BEGIN
+    WITH candidate AS (
+        SELECT jobs.*
+            FROM procrastinate_jobs AS jobs
+            WHERE
+                -- reject the job if its lock has earlier jobs
+                NOT EXISTS (
+                    SELECT 1
+                        FROM procrastinate_jobs AS earlier_jobs
+                        WHERE
+                            jobs.lock IS NOT NULL
+                            AND earlier_jobs.lock = jobs.lock
+                            AND earlier_jobs.status IN ('todo', 'doing')
+                            AND earlier_jobs.id < jobs.id)
+                AND jobs.status = 'todo'
+                AND (target_queue_names IS NULL OR jobs.queue_name = ANY( target_queue_names ))
+                AND (jobs.scheduled_at IS NULL OR jobs.scheduled_at <= now())
+            ORDER BY jobs.id ASC LIMIT 1
+            FOR UPDATE OF jobs SKIP LOCKED
+    )
+    UPDATE procrastinate_jobs
+        SET status = 'doing'
+        FROM candidate
+        WHERE procrastinate_jobs.id = candidate.id
+        RETURNING procrastinate_jobs.* INTO found_jobs;
+
+	RETURN found_jobs;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_finish_job(integer, procrastinate.procrastinate_job_status); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    UPDATE procrastinate_jobs
+    SET status = end_status,
+        attempts = attempts + 1
+    WHERE id = job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_finish_job(integer, procrastinate.procrastinate_job_status, timestamp with time zone); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    UPDATE procrastinate_jobs
+    SET status = end_status,
+        attempts = attempts + 1,
+        scheduled_at = COALESCE(next_scheduled_at, scheduled_at)
+    WHERE id = job_id;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_finish_job(integer, procrastinate.procrastinate_job_status, timestamp with time zone, boolean); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone, delete_job boolean) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    _job_id bigint;
+BEGIN
+    IF end_status NOT IN ('succeeded', 'failed') THEN
+        RAISE 'End status should be either "succeeded" or "failed" (job id: %)', job_id;
+    END IF;
+    IF delete_job THEN
+        DELETE FROM procrastinate_jobs
+        WHERE id = job_id AND status IN ('todo', 'doing')
+        RETURNING id INTO _job_id;
+    ELSE
+        UPDATE procrastinate_jobs
+        SET status = end_status,
+            attempts =
+                CASE
+                    WHEN status = 'doing' THEN attempts + 1
+                    ELSE attempts
+                END
+        WHERE id = job_id AND status IN ('todo', 'doing')
+        RETURNING id INTO _job_id;
+    END IF;
+    IF _job_id IS NULL THEN
+        RAISE 'Job was not found or not in "doing" or "todo" status (job id: %)', job_id;
+    END IF;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_notify_queue(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_notify_queue() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+	PERFORM pg_notify('procrastinate_queue#' || NEW.queue_name, NEW.task_name);
+	PERFORM pg_notify('procrastinate_any_queue', NEW.task_name);
+	RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_retry_job(integer, timestamp with time zone); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_retry_job(job_id integer, retry_at timestamp with time zone) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    _job_id bigint;
+BEGIN
+    UPDATE procrastinate_jobs
+    SET status = 'todo',
+        attempts = attempts + 1,
+        scheduled_at = retry_at
+    WHERE id = job_id AND status = 'doing'
+    RETURNING id INTO _job_id;
+    IF _job_id IS NULL THEN
+        RAISE 'Job was not found or not in "doing" status (job id: %)', job_id;
+    END IF;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_trigger_scheduled_events_procedure(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_trigger_scheduled_events_procedure() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    INSERT INTO procrastinate_events(job_id, type, at)
+        VALUES (NEW.id, 'scheduled'::procrastinate_job_event_type, NEW.scheduled_at);
+
+	RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_trigger_status_events_procedure_insert(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    INSERT INTO procrastinate_events(job_id, type)
+        VALUES (NEW.id, 'deferred'::procrastinate_job_event_type);
+	RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_trigger_status_events_procedure_update(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    WITH t AS (
+        SELECT CASE
+            WHEN OLD.status = 'todo'::procrastinate_job_status
+                AND NEW.status = 'doing'::procrastinate_job_status
+                THEN 'started'::procrastinate_job_event_type
+            WHEN OLD.status = 'doing'::procrastinate_job_status
+                AND NEW.status = 'todo'::procrastinate_job_status
+                THEN 'deferred_for_retry'::procrastinate_job_event_type
+            WHEN OLD.status = 'doing'::procrastinate_job_status
+                AND NEW.status = 'failed'::procrastinate_job_status
+                THEN 'failed'::procrastinate_job_event_type
+            WHEN OLD.status = 'doing'::procrastinate_job_status
+                AND NEW.status = 'succeeded'::procrastinate_job_status
+                THEN 'succeeded'::procrastinate_job_event_type
+            WHEN OLD.status = 'todo'::procrastinate_job_status
+                AND (
+                    NEW.status = 'failed'::procrastinate_job_status
+                    OR NEW.status = 'succeeded'::procrastinate_job_status
+                )
+                THEN 'cancelled'::procrastinate_job_event_type
+            ELSE NULL
+        END as event_type
+    )
+    INSERT INTO procrastinate_events(job_id, type)
+        SELECT NEW.id, t.event_type
+        FROM t
+        WHERE t.event_type IS NOT NULL;
+	RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: procrastinate_unlink_periodic_defers(); Type: FUNCTION; Schema: procrastinate; Owner: -
+--
+
+CREATE FUNCTION procrastinate.procrastinate_unlink_periodic_defers() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    UPDATE procrastinate_periodic_defers
+    SET job_id = NULL
+    WHERE job_id = OLD.id;
+    RETURN OLD;
+END;
+$$;
+
+
+--
 -- Name: connect_pg_simple_sessions; Type: TABLE; Schema: app_private; Owner: -
 --
 
@@ -3542,29 +4188,6 @@ CREATE TABLE app_public.space_submissions (
 
 
 --
--- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.spaces (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    name text,
-    is_public boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
---
--- Name: TABLE spaces; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON TABLE app_public.spaces IS '
-  @implements SubmittableEntity
-  A space is a place where users meet and interact with items.
-  ';
-
-
---
 -- Name: topic_revisions; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -3658,6 +4281,110 @@ COMMENT ON COLUMN app_public.user_authentications.identifier IS 'A unique identi
 --
 
 COMMENT ON COLUMN app_public.user_authentications.details IS 'Additional profile details extracted from this login method';
+
+
+--
+-- Name: procrastinate_events; Type: TABLE; Schema: procrastinate; Owner: -
+--
+
+CREATE TABLE procrastinate.procrastinate_events (
+    id bigint NOT NULL,
+    job_id integer NOT NULL,
+    type procrastinate.procrastinate_job_event_type,
+    at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: procrastinate_events_id_seq; Type: SEQUENCE; Schema: procrastinate; Owner: -
+--
+
+CREATE SEQUENCE procrastinate.procrastinate_events_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: procrastinate_events_id_seq; Type: SEQUENCE OWNED BY; Schema: procrastinate; Owner: -
+--
+
+ALTER SEQUENCE procrastinate.procrastinate_events_id_seq OWNED BY procrastinate.procrastinate_events.id;
+
+
+--
+-- Name: procrastinate_jobs_id_seq; Type: SEQUENCE; Schema: procrastinate; Owner: -
+--
+
+CREATE SEQUENCE procrastinate.procrastinate_jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: procrastinate_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: procrastinate; Owner: -
+--
+
+ALTER SEQUENCE procrastinate.procrastinate_jobs_id_seq OWNED BY procrastinate.procrastinate_jobs.id;
+
+
+--
+-- Name: procrastinate_periodic_defers; Type: TABLE; Schema: procrastinate; Owner: -
+--
+
+CREATE TABLE procrastinate.procrastinate_periodic_defers (
+    id bigint NOT NULL,
+    task_name character varying(128) NOT NULL,
+    defer_timestamp bigint,
+    job_id bigint,
+    queue_name character varying(128),
+    periodic_id character varying(128) DEFAULT ''::character varying NOT NULL
+);
+
+
+--
+-- Name: procrastinate_periodic_defers_id_seq; Type: SEQUENCE; Schema: procrastinate; Owner: -
+--
+
+CREATE SEQUENCE procrastinate.procrastinate_periodic_defers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: procrastinate_periodic_defers_id_seq; Type: SEQUENCE OWNED BY; Schema: procrastinate; Owner: -
+--
+
+ALTER SEQUENCE procrastinate.procrastinate_periodic_defers_id_seq OWNED BY procrastinate.procrastinate_periodic_defers.id;
+
+
+--
+-- Name: procrastinate_events id; Type: DEFAULT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_events ALTER COLUMN id SET DEFAULT nextval('procrastinate.procrastinate_events_id_seq'::regclass);
+
+
+--
+-- Name: procrastinate_jobs id; Type: DEFAULT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_jobs ALTER COLUMN id SET DEFAULT nextval('procrastinate.procrastinate_jobs_id_seq'::regclass);
+
+
+--
+-- Name: procrastinate_periodic_defers id; Type: DEFAULT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers ALTER COLUMN id SET DEFAULT nextval('procrastinate.procrastinate_periodic_defers_id_seq'::regclass);
 
 
 --
@@ -3962,6 +4689,38 @@ ALTER TABLE ONLY app_public.users
 
 ALTER TABLE ONLY app_public.users
     ADD CONSTRAINT users_username_key UNIQUE (username);
+
+
+--
+-- Name: procrastinate_events procrastinate_events_pkey; Type: CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_events
+    ADD CONSTRAINT procrastinate_events_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procrastinate_jobs procrastinate_jobs_pkey; Type: CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_jobs
+    ADD CONSTRAINT procrastinate_jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procrastinate_periodic_defers procrastinate_periodic_defers_pkey; Type: CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers
+    ADD CONSTRAINT procrastinate_periodic_defers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: procrastinate_periodic_defers procrastinate_periodic_defers_unique; Type: CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers
+    ADD CONSTRAINT procrastinate_periodic_defers_unique UNIQUE (task_name, periodic_id, defer_timestamp);
 
 
 --
@@ -4350,6 +5109,48 @@ CREATE INDEX users_on_fuzzy_username ON app_public.users USING gist (username pu
 
 
 --
+-- Name: procrastinate_events_job_id_fkey; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE INDEX procrastinate_events_job_id_fkey ON procrastinate.procrastinate_events USING btree (job_id);
+
+
+--
+-- Name: procrastinate_jobs_id_lock_idx; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE INDEX procrastinate_jobs_id_lock_idx ON procrastinate.procrastinate_jobs USING btree (id, lock) WHERE (status = ANY (ARRAY['todo'::procrastinate.procrastinate_job_status, 'doing'::procrastinate.procrastinate_job_status]));
+
+
+--
+-- Name: procrastinate_jobs_lock_idx; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE UNIQUE INDEX procrastinate_jobs_lock_idx ON procrastinate.procrastinate_jobs USING btree (lock) WHERE (status = 'doing'::procrastinate.procrastinate_job_status);
+
+
+--
+-- Name: procrastinate_jobs_queue_name_idx; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE INDEX procrastinate_jobs_queue_name_idx ON procrastinate.procrastinate_jobs USING btree (queue_name);
+
+
+--
+-- Name: procrastinate_jobs_queueing_lock_idx; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE UNIQUE INDEX procrastinate_jobs_queueing_lock_idx ON procrastinate.procrastinate_jobs USING btree (queueing_lock) WHERE (status = 'todo'::procrastinate.procrastinate_job_status);
+
+
+--
+-- Name: procrastinate_periodic_defers_job_id_fkey; Type: INDEX; Schema: procrastinate; Owner: -
+--
+
+CREATE INDEX procrastinate_periodic_defers_job_id_fkey ON procrastinate.procrastinate_periodic_defers USING btree (job_id);
+
+
+--
 -- Name: files _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -4550,6 +5351,41 @@ CREATE TRIGGER _900_send_verification_email AFTER INSERT ON app_public.user_emai
 --
 
 CREATE CONSTRAINT TRIGGER t900_verify_role_updates_on_room_subscriptions AFTER UPDATE ON app_public.room_subscriptions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW WHEN (((new.role IS DISTINCT FROM old.role) AND row_security_active('app_public.room_subscriptions'::text))) EXECUTE FUNCTION app_hidden.verify_role_updates_on_room_subscriptions();
+
+
+--
+-- Name: procrastinate_jobs procrastinate_jobs_notify_queue; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_jobs_notify_queue AFTER INSERT ON procrastinate.procrastinate_jobs FOR EACH ROW WHEN ((new.status = 'todo'::procrastinate.procrastinate_job_status)) EXECUTE FUNCTION procrastinate.procrastinate_notify_queue();
+
+
+--
+-- Name: procrastinate_jobs procrastinate_trigger_delete_jobs; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_trigger_delete_jobs BEFORE DELETE ON procrastinate.procrastinate_jobs FOR EACH ROW EXECUTE FUNCTION procrastinate.procrastinate_unlink_periodic_defers();
+
+
+--
+-- Name: procrastinate_jobs procrastinate_trigger_scheduled_events; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_trigger_scheduled_events AFTER INSERT OR UPDATE ON procrastinate.procrastinate_jobs FOR EACH ROW WHEN (((new.scheduled_at IS NOT NULL) AND (new.status = 'todo'::procrastinate.procrastinate_job_status))) EXECUTE FUNCTION procrastinate.procrastinate_trigger_scheduled_events_procedure();
+
+
+--
+-- Name: procrastinate_jobs procrastinate_trigger_status_events_insert; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_trigger_status_events_insert AFTER INSERT ON procrastinate.procrastinate_jobs FOR EACH ROW WHEN ((new.status = 'todo'::procrastinate.procrastinate_job_status)) EXECUTE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_insert();
+
+
+--
+-- Name: procrastinate_jobs procrastinate_trigger_status_events_update; Type: TRIGGER; Schema: procrastinate; Owner: -
+--
+
+CREATE TRIGGER procrastinate_trigger_status_events_update AFTER UPDATE OF status ON procrastinate.procrastinate_jobs FOR EACH ROW EXECUTE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update();
 
 
 --
@@ -5090,6 +5926,22 @@ ALTER TABLE ONLY app_public.user_authentications
 
 ALTER TABLE ONLY app_public.user_emails
     ADD CONSTRAINT user_emails_user_id_fkey FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: procrastinate_events procrastinate_events_job_id_fkey; Type: FK CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_events
+    ADD CONSTRAINT procrastinate_events_job_id_fkey FOREIGN KEY (job_id) REFERENCES procrastinate.procrastinate_jobs(id) ON DELETE CASCADE;
+
+
+--
+-- Name: procrastinate_periodic_defers procrastinate_periodic_defers_job_id_fkey; Type: FK CONSTRAINT; Schema: procrastinate; Owner: -
+--
+
+ALTER TABLE ONLY procrastinate.procrastinate_periodic_defers
+    ADD CONSTRAINT procrastinate_periodic_defers_job_id_fkey FOREIGN KEY (job_id) REFERENCES procrastinate.procrastinate_jobs(id);
 
 
 --
@@ -6282,11 +7134,11 @@ GRANT SELECT ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
 
 
 --
--- Name: FUNCTION my_space_subscriptions(minimum_role app_public.space_role); Type: ACL; Schema: app_public; Owner: -
+-- Name: FUNCTION my_space_subscriptions(minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]); Type: ACL; Schema: app_public; Owner: -
 --
 
-REVOKE ALL ON FUNCTION app_public.my_space_subscriptions(minimum_role app_public.space_role) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_space_subscriptions(minimum_role app_public.space_role) TO null814_cms_app_users;
+REVOKE ALL ON FUNCTION app_public.my_space_subscriptions(minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.my_space_subscriptions(minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) TO null814_cms_app_users;
 
 
 --
@@ -6298,11 +7150,11 @@ GRANT ALL ON FUNCTION app_public.my_subscribed_room_ids(minimum_role app_public.
 
 
 --
--- Name: FUNCTION my_subscribed_space_ids(minimum_role app_public.space_role); Type: ACL; Schema: app_public; Owner: -
+-- Name: FUNCTION my_subscribed_space_ids(minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]); Type: ACL; Schema: app_public; Owner: -
 --
 
-REVOKE ALL ON FUNCTION app_public.my_subscribed_space_ids(minimum_role app_public.space_role) FROM PUBLIC;
-GRANT ALL ON FUNCTION app_public.my_subscribed_space_ids(minimum_role app_public.space_role) TO null814_cms_app_users;
+REVOKE ALL ON FUNCTION app_public.my_subscribed_space_ids(minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.my_subscribed_space_ids(minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) TO null814_cms_app_users;
 
 
 --
@@ -6438,6 +7290,85 @@ GRANT ALL ON FUNCTION app_public.space_postings_item_name(p app_public.space_pos
 
 REVOKE ALL ON FUNCTION app_public.space_postings_item_updated_at(p app_public.space_postings) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.space_postings_item_updated_at(p app_public.space_postings) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION space_postings_nth_post_since_last_visit(posting app_public.space_postings); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.space_postings_nth_post_since_last_visit(posting app_public.space_postings) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.space_postings_nth_post_since_last_visit(posting app_public.space_postings) TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE spaces; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION spaces_has_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.spaces_has_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.spaces_has_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION spaces_latest_post(s app_public.spaces); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.spaces_latest_post(s app_public.spaces) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.spaces_latest_post(s app_public.spaces) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION spaces_my_subscription(s app_public.spaces); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.spaces_my_subscription(s app_public.spaces) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.spaces_my_subscription(s app_public.spaces) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION spaces_n_posts(s app_public.spaces); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.spaces_n_posts(s app_public.spaces) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.spaces_n_posts(s app_public.spaces) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION spaces_n_posts_since(s app_public.spaces, "interval" interval); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.spaces_n_posts_since(s app_public.spaces, "interval" interval) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.spaces_n_posts_since(s app_public.spaces, "interval" interval) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION spaces_n_posts_since_date(s app_public.spaces, date timestamp with time zone); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.spaces_n_posts_since_date(s app_public.spaces, date timestamp with time zone) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.spaces_n_posts_since_date(s app_public.spaces, date timestamp with time zone) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION spaces_n_posts_since_last_visit(s app_public.spaces); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.spaces_n_posts_since_last_visit(s app_public.spaces) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.spaces_n_posts_since_last_visit(s app_public.spaces) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION spaces_n_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.spaces_n_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.spaces_n_subscriptions(s app_public.spaces, minimum_role app_public.space_role, minimum_capabilities app_public.space_capability[]) TO null814_cms_app_users;
 
 
 --
@@ -6589,6 +7520,97 @@ GRANT ALL ON FUNCTION app_public.users_has_password(u app_public.users) TO null8
 
 REVOKE ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.verify_email(user_email_id uuid, token text) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION procrastinate_defer_job(queue_name character varying, task_name character varying, lock text, queueing_lock text, args jsonb, scheduled_at timestamp with time zone); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_defer_job(queue_name character varying, task_name character varying, lock text, queueing_lock text, args jsonb, scheduled_at timestamp with time zone) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _defer_timestamp bigint); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _defer_timestamp bigint) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _periodic_id character varying, _defer_timestamp bigint, _args jsonb); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_defer_periodic_job(_queue_name character varying, _lock character varying, _queueing_lock character varying, _task_name character varying, _periodic_id character varying, _defer_timestamp bigint, _args jsonb) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_fetch_job(target_queue_names character varying[]); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_fetch_job(target_queue_names character varying[]) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone, delete_job boolean); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_finish_job(job_id integer, end_status procrastinate.procrastinate_job_status, next_scheduled_at timestamp with time zone, delete_job boolean) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_notify_queue(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_notify_queue() FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_retry_job(job_id integer, retry_at timestamp with time zone); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_retry_job(job_id integer, retry_at timestamp with time zone) FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_trigger_scheduled_events_procedure(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_scheduled_events_procedure() FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_trigger_status_events_procedure_insert(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_insert() FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_trigger_status_events_procedure_update(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update() FROM PUBLIC;
+
+
+--
+-- Name: FUNCTION procrastinate_unlink_periodic_defers(); Type: ACL; Schema: procrastinate; Owner: -
+--
+
+REVOKE ALL ON FUNCTION procrastinate.procrastinate_unlink_periodic_defers() FROM PUBLIC;
 
 
 --
@@ -6848,13 +7870,6 @@ GRANT INSERT(topic_id) ON TABLE app_public.room_message_attachments TO null814_c
 --
 
 GRANT SELECT ON TABLE app_public.space_submissions TO null814_cms_app_users;
-
-
---
--- Name: TABLE spaces; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT ON TABLE app_public.spaces TO null814_cms_app_users;
 
 
 --

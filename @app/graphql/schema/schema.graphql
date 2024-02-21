@@ -198,10 +198,13 @@ type Query implements Node {
     """
     filter: UUIDFilter
   ): MySubscribedRoomIdsConnection
+  organizationForInvitation(invitationId: UUID!, code: String): Organization
+  fetchDraftInRoom(roomId: UUID!): RoomMessage
 
   """Reads and enables pagination through a set of `Uuid`."""
   mySubscribedSpaceIds(
     minimumRole: SpaceRole
+    minimumCapabilities: [SpaceCapability]
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -226,8 +229,6 @@ type Query implements Node {
     """
     filter: UUIDFilter
   ): MySubscribedSpaceIdsConnection
-  organizationForInvitation(invitationId: UUID!, code: String): Organization
-  fetchDraftInRoom(roomId: UUID!): RoomMessage
 
   """Reads and enables pagination through a set of `TextsearchMatch`."""
   globalSearch(
@@ -300,6 +301,7 @@ type Query implements Node {
   """Reads and enables pagination through a set of `SpaceSubscription`."""
   mySpaceSubscriptions(
     minimumRole: SpaceRole
+    minimumCapabilities: [SpaceCapability]
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -4720,6 +4722,9 @@ input SpacePostingFilter {
   """Filter by the object’s `itemUpdatedAt` field."""
   itemUpdatedAt: DatetimeFilter
 
+  """Filter by the object’s `nthPostSinceLastVisit` field."""
+  nthPostSinceLastVisit: BigIntFilter
+
   """Filter by the object’s `itemName` field."""
   itemName: StringFilter
 
@@ -4893,6 +4898,18 @@ input SpaceFilter {
 
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
+
+  """Filter by the object’s `nPosts` field."""
+  nPosts: BigIntFilter
+
+  """Filter by the object’s `nPostsSinceLastVisit` field."""
+  nPostsSinceLastVisit: BigIntFilter
+
+  """Filter by the object’s `hasSubscriptions` field."""
+  hasSubscriptions: BooleanFilter
+
+  """Filter by the object’s `nSubscriptions` field."""
+  nSubscriptions: BigIntFilter
 
   """Filter by the object’s `messageRevisionsByEditContextId` relation."""
   messageRevisionsByEditContextId: SpaceToManyMessageRevisionFilter
@@ -7281,6 +7298,14 @@ type Space implements Node & SubmittableEntity {
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
+  nPosts: BigInt
+  nPostsSinceLastVisit: BigInt
+  nPostsSinceDate(date: Datetime!): BigInt
+  nPostsSince(interval: IntervalInput!): BigInt
+  hasSubscriptions(minimumRole: SpaceRole, minimumCapabilities: [SpaceCapability]): Boolean
+  nSubscriptions(minimumRole: SpaceRole, minimumCapabilities: [SpaceCapability]): BigInt
+  latestPost: SpacePosting
+  mySubscription: SpaceSubscription
   id: UUID!
   name: String
   isPublic: Boolean!
@@ -7492,210 +7517,12 @@ type Space implements Node & SubmittableEntity {
   ): SpaceSubmissionsConnection!
 }
 
-"""Methods to use when ordering `MessageRevision`."""
-enum MessageRevisionsOrderBy {
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  ID_ASC
-  ID_DESC
-  REVISION_ID_ASC
-  REVISION_ID_DESC
-  PARENT_REVISION_ID_ASC
-  PARENT_REVISION_ID_DESC
-  EDITOR_ID_ASC
-  EDITOR_ID_DESC
-  EDIT_CONTEXT_ID_ASC
-  EDIT_CONTEXT_ID_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-  UPDATED_AT_ASC
-  UPDATED_AT_DESC
-  SUBJECT_ASC
-  SUBJECT_DESC
-  BODY_ASC
-  BODY_DESC
-}
-
-"""
-A condition to be used against `MessageRevision` object types. All fields are
-tested for equality and combined with a logical ‘and.’
-"""
-input MessageRevisionCondition {
-  """Checks for equality with the object’s `id` field."""
-  id: UUID
-
-  """Checks for equality with the object’s `revisionId` field."""
-  revisionId: UUID
-
-  """Checks for equality with the object’s `parentRevisionId` field."""
-  parentRevisionId: UUID
-
-  """Checks for equality with the object’s `editorId` field."""
-  editorId: UUID
-
-  """Checks for equality with the object’s `editContextId` field."""
-  editContextId: UUID
-
-  """Checks for equality with the object’s `createdAt` field."""
-  createdAt: Datetime
-
-  """Checks for equality with the object’s `updatedAt` field."""
-  updatedAt: Datetime
-
-  """Checks for equality with the object’s `subject` field."""
-  subject: String
-
-  """Checks for equality with the object’s `body` field."""
-  body: JSON
-
-  """Checks for equality with the object’s `isLeaf` field."""
-  isLeaf: Boolean
-
-  """Checks for equality with the object’s `isPosted` field."""
-  isPosted: Boolean
-}
-
-"""A connection to a list of `SpaceSubscription` values."""
-type SpaceSubscriptionsConnection {
-  """A list of `SpaceSubscription` objects."""
-  nodes: [SpaceSubscription!]!
-
-  """
-  A list of edges which contains the `SpaceSubscription` and cursor to aid in pagination.
-  """
-  edges: [SpaceSubscriptionsEdge!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """
-  The count of *all* `SpaceSubscription` you could get from the connection.
-  """
-  totalCount: Int!
-}
-
-type SpaceSubscription implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-  id: UUID!
-  spaceId: UUID
-  subscriberId: UUID
-  role: SpaceRole!
-  capabilities: [SpaceCapability]!
-  notifications: NotificationSetting!
-  lastVisitAt: Datetime
-  lastNotificationAt: Datetime
-  isStarred: Boolean!
-  createdAt: Datetime!
-  updatedAt: Datetime!
-
-  """Reads a single `Space` that is related to this `SpaceSubscription`."""
-  space: Space
-
-  """Reads a single `User` that is related to this `SpaceSubscription`."""
-  subscriber: User
-}
-
-"""A `SpaceSubscription` edge in the connection."""
-type SpaceSubscriptionsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `SpaceSubscription` at the end of the edge."""
-  node: SpaceSubscription!
-}
-
-"""Methods to use when ordering `SpaceSubscription`."""
-enum SpaceSubscriptionsOrderBy {
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  ID_ASC
-  ID_DESC
-  SPACE_ID_ASC
-  SPACE_ID_DESC
-  SUBSCRIBER_ID_ASC
-  SUBSCRIBER_ID_DESC
-  ROLE_ASC
-  ROLE_DESC
-  NOTIFICATIONS_ASC
-  NOTIFICATIONS_DESC
-  LAST_VISIT_AT_ASC
-  LAST_VISIT_AT_DESC
-  LAST_NOTIFICATION_AT_ASC
-  LAST_NOTIFICATION_AT_DESC
-  IS_STARRED_ASC
-  IS_STARRED_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-  UPDATED_AT_ASC
-  UPDATED_AT_DESC
-}
-
-"""
-A condition to be used against `SpaceSubscription` object types. All fields are
-tested for equality and combined with a logical ‘and.’
-"""
-input SpaceSubscriptionCondition {
-  """Checks for equality with the object’s `id` field."""
-  id: UUID
-
-  """Checks for equality with the object’s `spaceId` field."""
-  spaceId: UUID
-
-  """Checks for equality with the object’s `subscriberId` field."""
-  subscriberId: UUID
-
-  """Checks for equality with the object’s `role` field."""
-  role: SpaceRole
-
-  """Checks for equality with the object’s `capabilities` field."""
-  capabilities: [SpaceCapability]
-
-  """Checks for equality with the object’s `notifications` field."""
-  notifications: NotificationSetting
-
-  """Checks for equality with the object’s `lastVisitAt` field."""
-  lastVisitAt: Datetime
-
-  """Checks for equality with the object’s `lastNotificationAt` field."""
-  lastNotificationAt: Datetime
-
-  """Checks for equality with the object’s `isStarred` field."""
-  isStarred: Boolean
-
-  """Checks for equality with the object’s `createdAt` field."""
-  createdAt: Datetime
-
-  """Checks for equality with the object’s `updatedAt` field."""
-  updatedAt: Datetime
-}
-
-"""A connection to a list of `SpacePosting` values."""
-type SpacePostingsConnection {
-  """A list of `SpacePosting` objects."""
-  nodes: [SpacePosting!]!
-
-  """
-  A list of edges which contains the `SpacePosting` and cursor to aid in pagination.
-  """
-  edges: [SpacePostingsEdge!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `SpacePosting` you could get from the connection."""
-  totalCount: Int!
-}
-
 type SpacePosting implements Node {
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
+  nthPostSinceLastVisit: BigInt
   id: UUID!
   spaceId: UUID
   posterId: UUID
@@ -7998,6 +7825,32 @@ input TopicRevisionCondition {
   content: JSON
 }
 
+"""A connection to a list of `SpacePosting` values."""
+type SpacePostingsConnection {
+  """A list of `SpacePosting` objects."""
+  nodes: [SpacePosting!]!
+
+  """
+  A list of edges which contains the `SpacePosting` and cursor to aid in pagination.
+  """
+  edges: [SpacePostingsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `SpacePosting` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `SpacePosting` edge in the connection."""
+type SpacePostingsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `SpacePosting` at the end of the edge."""
+  node: SpacePosting!
+}
+
 """Methods to use when ordering `SpacePosting`."""
 enum SpacePostingsOrderBy {
   NATURAL
@@ -8005,6 +7858,8 @@ enum SpacePostingsOrderBy {
   ITEM_CREATED_AT_DESC
   ITEM_UPDATED_AT_ASC
   ITEM_UPDATED_AT_DESC
+  NTH_POST_SINCE_LAST_VISIT_ASC
+  NTH_POST_SINCE_LAST_VISIT_DESC
   ITEM_NAME_ASC
   ITEM_NAME_DESC
   PRIMARY_KEY_ASC
@@ -8076,6 +7931,9 @@ input SpacePostingCondition {
 
   """Checks for equality with the object’s `itemUpdatedAt` field."""
   itemUpdatedAt: Datetime
+
+  """Checks for equality with the object’s `nthPostSinceLastVisit` field."""
+  nthPostSinceLastVisit: BigInt
 
   """Checks for equality with the object’s `itemName` field."""
   itemName: String
@@ -8225,13 +8083,186 @@ input SpaceSubmissionCondition {
   updatedAt: Datetime
 }
 
-"""A `SpacePosting` edge in the connection."""
-type SpacePostingsEdge {
+type SpaceSubscription implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  spaceId: UUID
+  subscriberId: UUID
+  role: SpaceRole!
+  capabilities: [SpaceCapability]!
+  notifications: NotificationSetting!
+  lastVisitAt: Datetime
+  lastNotificationAt: Datetime
+  isStarred: Boolean!
+  createdAt: Datetime!
+  updatedAt: Datetime!
+
+  """Reads a single `Space` that is related to this `SpaceSubscription`."""
+  space: Space
+
+  """Reads a single `User` that is related to this `SpaceSubscription`."""
+  subscriber: User
+}
+
+"""Methods to use when ordering `MessageRevision`."""
+enum MessageRevisionsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
+  PARENT_REVISION_ID_ASC
+  PARENT_REVISION_ID_DESC
+  EDITOR_ID_ASC
+  EDITOR_ID_DESC
+  EDIT_CONTEXT_ID_ASC
+  EDIT_CONTEXT_ID_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  SUBJECT_ASC
+  SUBJECT_DESC
+  BODY_ASC
+  BODY_DESC
+}
+
+"""
+A condition to be used against `MessageRevision` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input MessageRevisionCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: UUID
+
+  """Checks for equality with the object’s `parentRevisionId` field."""
+  parentRevisionId: UUID
+
+  """Checks for equality with the object’s `editorId` field."""
+  editorId: UUID
+
+  """Checks for equality with the object’s `editContextId` field."""
+  editContextId: UUID
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `subject` field."""
+  subject: String
+
+  """Checks for equality with the object’s `body` field."""
+  body: JSON
+
+  """Checks for equality with the object’s `isLeaf` field."""
+  isLeaf: Boolean
+
+  """Checks for equality with the object’s `isPosted` field."""
+  isPosted: Boolean
+}
+
+"""A connection to a list of `SpaceSubscription` values."""
+type SpaceSubscriptionsConnection {
+  """A list of `SpaceSubscription` objects."""
+  nodes: [SpaceSubscription!]!
+
+  """
+  A list of edges which contains the `SpaceSubscription` and cursor to aid in pagination.
+  """
+  edges: [SpaceSubscriptionsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `SpaceSubscription` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `SpaceSubscription` edge in the connection."""
+type SpaceSubscriptionsEdge {
   """A cursor for use in pagination."""
   cursor: Cursor
 
-  """The `SpacePosting` at the end of the edge."""
-  node: SpacePosting!
+  """The `SpaceSubscription` at the end of the edge."""
+  node: SpaceSubscription!
+}
+
+"""Methods to use when ordering `SpaceSubscription`."""
+enum SpaceSubscriptionsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  SPACE_ID_ASC
+  SPACE_ID_DESC
+  SUBSCRIBER_ID_ASC
+  SUBSCRIBER_ID_DESC
+  ROLE_ASC
+  ROLE_DESC
+  NOTIFICATIONS_ASC
+  NOTIFICATIONS_DESC
+  LAST_VISIT_AT_ASC
+  LAST_VISIT_AT_DESC
+  LAST_NOTIFICATION_AT_ASC
+  LAST_NOTIFICATION_AT_DESC
+  IS_STARRED_ASC
+  IS_STARRED_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+A condition to be used against `SpaceSubscription` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input SpaceSubscriptionCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `spaceId` field."""
+  spaceId: UUID
+
+  """Checks for equality with the object’s `subscriberId` field."""
+  subscriberId: UUID
+
+  """Checks for equality with the object’s `role` field."""
+  role: SpaceRole
+
+  """Checks for equality with the object’s `capabilities` field."""
+  capabilities: [SpaceCapability]
+
+  """Checks for equality with the object’s `notifications` field."""
+  notifications: NotificationSetting
+
+  """Checks for equality with the object’s `lastVisitAt` field."""
+  lastVisitAt: Datetime
+
+  """Checks for equality with the object’s `lastNotificationAt` field."""
+  lastNotificationAt: Datetime
+
+  """Checks for equality with the object’s `isStarred` field."""
+  isStarred: Boolean
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
 }
 
 """A `MessageRevision` edge in the connection."""
@@ -8886,6 +8917,12 @@ type SpacesEdge {
 """Methods to use when ordering `Space`."""
 enum SpacesOrderBy {
   NATURAL
+  N_POSTS_ASC
+  N_POSTS_DESC
+  N_POSTS_SINCE_LAST_VISIT_ASC
+  N_POSTS_SINCE_LAST_VISIT_DESC
+  N_SUBSCRIPTIONS_ASC
+  N_SUBSCRIPTIONS_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
   ID_ASC
@@ -8918,6 +8955,18 @@ input SpaceCondition {
 
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
+
+  """Checks for equality with the object’s `nPosts` field."""
+  nPosts: BigInt
+
+  """Checks for equality with the object’s `nPostsSinceLastVisit` field."""
+  nPostsSinceLastVisit: BigInt
+
+  """Checks for equality with the object’s `hasSubscriptions` field."""
+  hasSubscriptions: Boolean
+
+  """Checks for equality with the object’s `nSubscriptions` field."""
+  nSubscriptions: BigInt
 }
 
 """A connection to a list of `Organization` values."""
