@@ -13,8 +13,12 @@ where not exists (
   where leafs.revision_id = children.parent_revision_id
 );
 
+comment on view app_public.active_message_revisions is $$
+  @primaryKey id,revision_id
+  $$;
+
 grant select on app_public.active_message_revisions to "$DATABASE_VISITOR";
-grant update ("subject", body) on app_public.active_message_revisions to "$DATABASE_VISITOR";
+grant update (editor_id, "subject", body) on app_public.active_message_revisions to "$DATABASE_VISITOR";
 grant insert (id, parent_revision_id, editor_id, "subject", body) on app_public.active_message_revisions to "$DATABASE_VISITOR";
 grant delete on app_public.active_message_revisions to "$DATABASE_VISITOR";
 
