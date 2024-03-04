@@ -2399,6 +2399,35 @@ CREATE VIEW app_public.active_message_revisions WITH (security_barrier='true', s
 
 
 --
+-- Name: current_message_revisions; Type: VIEW; Schema: app_public; Owner: -
+--
+
+CREATE VIEW app_public.current_message_revisions WITH (security_barrier='true', security_invoker='true') AS
+ SELECT id,
+    revision_id,
+    parent_revision_id,
+    editor_id,
+    created_at,
+    updated_at,
+    subject,
+    body
+   FROM app_public.message_revisions latest
+  WHERE (NOT (EXISTS ( SELECT
+           FROM app_public.message_revisions even_later
+          WHERE ((even_later.id = latest.id) AND (even_later.updated_at > latest.updated_at)))))
+  WITH CASCADED CHECK OPTION;
+
+
+--
+-- Name: VIEW current_message_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON VIEW app_public.current_message_revisions IS '
+  @primaryKey id
+  ';
+
+
+--
 -- Name: organization_invitations; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -4462,6 +4491,90 @@ GRANT INSERT(subject),UPDATE(subject) ON TABLE app_public.message_revisions TO n
 --
 
 GRANT INSERT(body),UPDATE(body) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE active_message_revisions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.parent_revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(parent_revision_id) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.editor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(editor_id) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.subject; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(subject),UPDATE(subject) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN active_message_revisions.body; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(body),UPDATE(body) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE current_message_revisions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.parent_revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(parent_revision_id) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.editor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(editor_id) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.subject; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(subject),UPDATE(subject) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.body; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(body),UPDATE(body) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
 
 
 --
