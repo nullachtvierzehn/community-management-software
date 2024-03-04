@@ -4,6 +4,6 @@
 
 initial 2024-03-04T09:25:56Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # Add users and organizations, copied from Graphile Starter.
 message-revisions [initial] 2024-03-04T12:19:24Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table message_revisions
-message-revisions/policies/manage-mine [message-revisions] 2024-03-04T12:28:18Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # manage my message_revisions
+message-revisions/policies/select-mine [message-revisions] 2024-03-04T12:28:18Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # manage my message_revisions
 message-revisions/view-for-active-revisions [message-revisions] 2024-03-04T14:11:50Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # create view for active/leaf message revisions
 message-revisions/view-for-current-revisions [message-revisions/view-for-active-revisions] 2024-03-04T14:18:40Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # create view for current/most-recent message revisions

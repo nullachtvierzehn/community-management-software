@@ -2,6 +2,6 @@
 
 BEGIN;
 
--- XXX Add DDLs here.
+drop view app_public.current_message_revisions;
 
 COMMIT;

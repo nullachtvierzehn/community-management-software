@@ -3853,13 +3853,6 @@ CREATE POLICY insert_own ON app_public.user_emails FOR INSERT WITH CHECK ((user_
 
 
 --
--- Name: message_revisions manage_mine; Type: POLICY; Schema: app_public; Owner: -
---
-
-CREATE POLICY manage_mine ON app_public.message_revisions TO null814_cms_app_users USING ((editor_id = app_public.current_user_id()));
-
-
---
 -- Name: message_revisions; Type: ROW SECURITY; Schema: app_public; Owner: -
 --
 
@@ -3916,6 +3909,13 @@ CREATE POLICY select_member ON app_public.organization_memberships FOR SELECT US
 --
 
 CREATE POLICY select_member ON app_public.organizations FOR SELECT USING ((id IN ( SELECT app_public.current_user_member_organization_ids() AS current_user_member_organization_ids)));
+
+
+--
+-- Name: message_revisions select_mine; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_mine ON app_public.message_revisions FOR SELECT TO null814_cms_app_users USING ((editor_id = app_public.current_user_id()));
 
 
 --
