@@ -2399,6 +2399,15 @@ CREATE VIEW app_public.active_message_revisions WITH (security_barrier='true', s
 
 
 --
+-- Name: VIEW active_message_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON VIEW app_public.active_message_revisions IS '
+  @primaryKey id,revision_id
+  ';
+
+
+--
 -- Name: current_message_revisions; Type: VIEW; Schema: app_public; Owner: -
 --
 
@@ -3853,6 +3862,15 @@ CREATE POLICY delete_own ON app_public.user_emails FOR DELETE USING ((user_id = 
 
 
 --
+-- Name: message_revisions insert_mine_if_active; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY insert_mine_if_active ON app_public.message_revisions FOR INSERT TO null814_cms_app_users WITH CHECK (((editor_id = app_public.current_user_id()) AND (NOT (EXISTS ( SELECT
+   FROM app_public.message_revisions children
+  WHERE (children.parent_revision_id = message_revisions.revision_id))))));
+
+
+--
 -- Name: user_emails insert_own; Type: POLICY; Schema: app_public; Owner: -
 --
 
@@ -4534,7 +4552,7 @@ GRANT INSERT(parent_revision_id) ON TABLE app_public.active_message_revisions TO
 -- Name: COLUMN active_message_revisions.editor_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(editor_id) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
 
 
 --
@@ -4576,7 +4594,7 @@ GRANT INSERT(parent_revision_id) ON TABLE app_public.current_message_revisions T
 -- Name: COLUMN current_message_revisions.editor_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(editor_id) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
 
 
 --
