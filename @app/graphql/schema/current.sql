@@ -3152,6 +3152,34 @@ COMMENT ON COLUMN sqitch.tags.planner_email IS 'Email address of the user who pl
 
 
 --
+-- Name: active_message_revisions id; Type: DEFAULT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.active_message_revisions ALTER COLUMN id SET DEFAULT public.uuid_generate_v1mc();
+
+
+--
+-- Name: active_message_revisions editor_id; Type: DEFAULT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.active_message_revisions ALTER COLUMN editor_id SET DEFAULT app_public.current_user_id();
+
+
+--
+-- Name: current_message_revisions id; Type: DEFAULT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.current_message_revisions ALTER COLUMN id SET DEFAULT public.uuid_generate_v1mc();
+
+
+--
+-- Name: current_message_revisions editor_id; Type: DEFAULT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.current_message_revisions ALTER COLUMN editor_id SET DEFAULT app_public.current_user_id();
+
+
+--
 -- Name: procrastinate_events id; Type: DEFAULT; Schema: procrastinate; Owner: -
 --
 
