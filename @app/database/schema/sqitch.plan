@@ -1,0 +1,5 @@
+%syntax-version=1.0.0
+%project=0814-cms
+%uri=https://github.com/nullachtvierzehn/community-management-software
+
+initial 2024-03-04T09:25:56Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # Add users and organizations, copied from Graphile Starter.
