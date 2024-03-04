@@ -78,6 +78,7 @@ as $$
   limit 1
 $$;
 
+grant execute on function app_public.space_postings_item_created_at(app_public.space_postings) to :DATABASE_VISITOR;
 comment on function app_public.space_postings_item_created_at(filing app_public.space_postings) is $$
   @behavior -typeField +orderBy
   $$;

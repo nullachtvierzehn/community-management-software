@@ -8,4 +8,4 @@ create table app_public.spaces (
   updated_at timestamptz not null default now()
 );
 
-grant select on app_public.spaces to :DATABASE_VISITOR;
+grant select, insert, update, delete on app_public.spaces to :DATABASE_VISITOR;

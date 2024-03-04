@@ -1,0 +1,7 @@
+mutation CreateSpace($space: SpaceInput!) {
+  createSpace(input: { space: $space }) {
+    space {
+      id
+    }
+  }
+}

@@ -7304,7 +7304,7 @@ GRANT ALL ON FUNCTION app_public.space_postings_nth_post_since_last_visit(postin
 -- Name: TABLE spaces; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.spaces TO null814_cms_app_users;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE app_public.spaces TO null814_cms_app_users;
 
 
 --

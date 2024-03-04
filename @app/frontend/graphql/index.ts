@@ -6234,6 +6234,8 @@ export type Mutation = {
   createRoomMessageAttachment: Maybe<CreateRoomMessageAttachmentPayload>;
   /** Creates a single `RoomSubscription`. */
   createRoomSubscription: Maybe<CreateRoomSubscriptionPayload>;
+  /** Creates a single `Space`. */
+  createSpace: Maybe<CreateSpacePayload>;
   /** Creates a single `Topic`. */
   createTopic: Maybe<CreateTopicPayload>;
   /** Creates a single `TopicRevision`. */
@@ -6291,6 +6293,10 @@ export type Mutation = {
   deleteRoomSubscriptionByNodeId: Maybe<DeleteRoomSubscriptionPayload>;
   /** Deletes a single `RoomSubscription` using a unique key. */
   deleteRoomSubscriptionBySubscriberIdAndRoomId: Maybe<DeleteRoomSubscriptionPayload>;
+  /** Deletes a single `Space` using a unique key. */
+  deleteSpace: Maybe<DeleteSpacePayload>;
+  /** Deletes a single `Space` using its globally unique id. */
+  deleteSpaceByNodeId: Maybe<DeleteSpacePayload>;
   /** Deletes a single `Topic` using a unique key. */
   deleteTopic: Maybe<DeleteTopicPayload>;
   /** Deletes a single `Topic` using its globally unique id. */
@@ -6378,6 +6384,10 @@ export type Mutation = {
   updateRoomSubscriptionByNodeId: Maybe<UpdateRoomSubscriptionPayload>;
   /** Updates a single `RoomSubscription` using a unique key and a patch. */
   updateRoomSubscriptionBySubscriberIdAndRoomId: Maybe<UpdateRoomSubscriptionPayload>;
+  /** Updates a single `Space` using a unique key and a patch. */
+  updateSpace: Maybe<UpdateSpacePayload>;
+  /** Updates a single `Space` using its globally unique id and a patch. */
+  updateSpaceByNodeId: Maybe<UpdateSpacePayload>;
   /** Updates a single `Topic` using a unique key and a patch. */
   updateTopic: Maybe<UpdateTopicPayload>;
   /** Updates a single `Topic` using its globally unique id and a patch. */
@@ -6482,6 +6492,12 @@ export type MutationCreateRoomMessageAttachmentArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationCreateRoomSubscriptionArgs = {
   input: CreateRoomSubscriptionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateSpaceArgs = {
+  input: CreateSpaceInput;
 };
 
 
@@ -6656,6 +6672,18 @@ export type MutationDeleteRoomSubscriptionByNodeIdArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationDeleteRoomSubscriptionBySubscriberIdAndRoomIdArgs = {
   input: DeleteRoomSubscriptionBySubscriberIdAndRoomIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteSpaceArgs = {
+  input: DeleteSpaceInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteSpaceByNodeIdArgs = {
+  input: DeleteSpaceByNodeIdInput;
 };
 
 
@@ -6926,6 +6954,18 @@ export type MutationUpdateRoomSubscriptionByNodeIdArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationUpdateRoomSubscriptionBySubscriberIdAndRoomIdArgs = {
   input: UpdateRoomSubscriptionBySubscriberIdAndRoomIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateSpaceArgs = {
+  input: UpdateSpaceInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateSpaceByNodeIdArgs = {
+  input: UpdateSpaceByNodeIdInput;
 };
 
 
@@ -7597,6 +7637,48 @@ export type CreateRoomSubscriptionPayload = {
 /** The output of our create `RoomSubscription` mutation. */
 export type CreateRoomSubscriptionPayloadRoomSubscriptionEdgeArgs = {
   orderBy?: Array<RoomSubscriptionsOrderBy>;
+};
+
+/** All input for the create `Space` mutation. */
+export type CreateSpaceInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `Space` to be created by this mutation. */
+  space: SpaceInput;
+};
+
+/** An input for mutations affecting `Space` */
+export type SpaceInput = {
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** The output of our create `Space` mutation. */
+export type CreateSpacePayload = {
+  __typename?: 'CreateSpacePayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `Space` that was created by this mutation. */
+  space: Maybe<Space>;
+  /** An edge for our `Space`. May be used by Relay 1. */
+  spaceEdge: Maybe<SpacesEdge>;
+};
+
+
+/** The output of our create `Space` mutation. */
+export type CreateSpacePayloadSpaceEdgeArgs = {
+  orderBy?: Array<SpacesOrderBy>;
 };
 
 /** All input for the create `Topic` mutation. */
@@ -8363,6 +8445,50 @@ export type DeleteRoomSubscriptionBySubscriberIdAndRoomIdInput = {
   roomId: Scalars['UUID']['input'];
   /** The subscribing user. */
   subscriberId: Scalars['UUID']['input'];
+};
+
+/** All input for the `deleteSpace` mutation. */
+export type DeleteSpaceInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `Space` mutation. */
+export type DeleteSpacePayload = {
+  __typename?: 'DeleteSpacePayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedSpaceNodeId: Maybe<Scalars['ID']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `Space` that was deleted by this mutation. */
+  space: Maybe<Space>;
+  /** An edge for our `Space`. May be used by Relay 1. */
+  spaceEdge: Maybe<SpacesEdge>;
+};
+
+
+/** The output of our delete `Space` mutation. */
+export type DeleteSpacePayloadSpaceEdgeArgs = {
+  orderBy?: Array<SpacesOrderBy>;
+};
+
+/** All input for the `deleteSpaceByNodeId` mutation. */
+export type DeleteSpaceByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `Space` to be deleted. */
+  nodeId: Scalars['ID']['input'];
 };
 
 /** All input for the `deleteTopic` mutation. */
@@ -9517,6 +9643,62 @@ export type UpdateRoomSubscriptionBySubscriberIdAndRoomIdInput = {
   subscriberId: Scalars['UUID']['input'];
 };
 
+/** All input for the `updateSpace` mutation. */
+export type UpdateSpaceInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+  /** An object where the defined keys will be set on the `Space` being updated. */
+  patch: SpacePatch;
+};
+
+/** Represents an update to a `Space`. Fields that are set will be updated. */
+export type SpacePatch = {
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** The output of our update `Space` mutation. */
+export type UpdateSpacePayload = {
+  __typename?: 'UpdateSpacePayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** The `Space` that was updated by this mutation. */
+  space: Maybe<Space>;
+  /** An edge for our `Space`. May be used by Relay 1. */
+  spaceEdge: Maybe<SpacesEdge>;
+};
+
+
+/** The output of our update `Space` mutation. */
+export type UpdateSpacePayloadSpaceEdgeArgs = {
+  orderBy?: Array<SpacesOrderBy>;
+};
+
+/** All input for the `updateSpaceByNodeId` mutation. */
+export type UpdateSpaceByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `Space` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `Space` being updated. */
+  patch: SpacePatch;
+};
+
 /** All input for the `updateTopic` mutation. */
 export type UpdateTopicInput = {
   /**
@@ -9742,6 +9924,13 @@ export type CreateRoomMutationVariables = Exact<{
 
 export type CreateRoomMutation = { __typename?: 'Mutation', createRoom: { __typename?: 'CreateRoomPayload', room: { __typename?: 'Room', id: string } | null } | null };
 
+export type CreateSpaceMutationVariables = Exact<{
+  space: SpaceInput;
+}>;
+
+
+export type CreateSpaceMutation = { __typename?: 'Mutation', createSpace: { __typename?: 'CreateSpacePayload', space: { __typename?: 'Space', id: string } | null } | null };
+
 export type CreateTopicMutationVariables = Exact<{
   topic: TopicInput;
 }>;
@@ -9874,7 +10063,7 @@ export type FetchSpacesQueryVariables = Exact<{
 }>;
 
 
-export type FetchSpacesQuery = { __typename?: 'Query', spaces: { __typename?: 'SpacesConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: any | null, endCursor: any | null }, nodes: Array<{ __typename?: 'Space', id: string, name: string | null, createdAt: string, nSubscriptions: any | null, hasSubscriptions: boolean | null, nPosts: any | null, nPostsSinceLastVisit: any | null, latestPost: { __typename?: 'SpacePosting', id: string, createdAt: string, nthPostSinceLastVisit: any | null, poster: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, mySubscription: { __typename?: 'SpaceSubscription', id: string, subscriberId: string | null, spaceId: string | null, lastVisitAt: string | null, notifications: NotificationSetting, role: SpaceRole, capabilities: Array<SpaceCapability | null>, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, space: { __typename?: 'Space', id: string, name: string | null } | null } | null }> } | null };
+export type FetchSpacesQuery = { __typename?: 'Query', spaces: { __typename?: 'SpacesConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: any | null, endCursor: any | null }, nodes: Array<{ __typename?: 'Space', id: string, name: string | null, createdAt: string, isPublic: boolean, nSubscriptions: any | null, hasSubscriptions: boolean | null, nPosts: any | null, nPostsSinceLastVisit: any | null, latestPost: { __typename?: 'SpacePosting', id: string, createdAt: string, nthPostSinceLastVisit: any | null, poster: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, mySubscription: { __typename?: 'SpaceSubscription', id: string, subscriberId: string | null, spaceId: string | null, lastVisitAt: string | null, notifications: NotificationSetting, role: SpaceRole, capabilities: Array<SpaceCapability | null>, createdAt: string, updatedAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, space: { __typename?: 'Space', id: string, name: string | null } | null } | null }> } | null };
 
 export type FetchTopicsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -10262,6 +10451,15 @@ export const CreateRoom = gql`
   }
 }
     `;
+export const CreateSpace = gql`
+    mutation CreateSpace($space: SpaceInput!) {
+  createSpace(input: {space: $space}) {
+    space {
+      id
+    }
+  }
+}
+    `;
 export const CreateTopic = gql`
     mutation CreateTopic($topic: TopicInput!) {
   createTopic(input: {topic: $topic}) {
@@ -10457,6 +10655,7 @@ export const FetchSpaces = gql`
       id
       name
       createdAt
+      isPublic
       latestPost {
         id
         createdAt
@@ -10964,6 +11163,19 @@ export const CreateRoomDocument = gql`
 export function useCreateRoomMutation() {
   return Urql.useMutation<CreateRoomMutation, CreateRoomMutationVariables>(CreateRoomDocument);
 };
+export const CreateSpaceDocument = gql`
+    mutation CreateSpace($space: SpaceInput!) {
+  createSpace(input: {space: $space}) {
+    space {
+      id
+    }
+  }
+}
+    `;
+
+export function useCreateSpaceMutation() {
+  return Urql.useMutation<CreateSpaceMutation, CreateSpaceMutationVariables>(CreateSpaceDocument);
+};
 export const CreateTopicDocument = gql`
     mutation CreateTopic($topic: TopicInput!) {
   createTopic(input: {topic: $topic}) {
@@ -11203,6 +11415,7 @@ export const FetchSpacesDocument = gql`
       id
       name
       createdAt
+      isPublic
       latestPost {
         id
         createdAt

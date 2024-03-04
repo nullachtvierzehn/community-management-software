@@ -29,6 +29,7 @@ query FetchSpaces(
       id
       name
       createdAt
+      isPublic
       latestPost {
         id
         createdAt
