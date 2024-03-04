@@ -3832,6 +3832,13 @@ ALTER TABLE app_private.user_email_secrets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_private.user_secrets ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: message_revisions delete_mine; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY delete_mine ON app_public.message_revisions FOR DELETE TO null814_cms_app_users USING ((editor_id = app_public.current_user_id()));
+
+
+--
 -- Name: user_authentications delete_own; Type: POLICY; Schema: app_public; Owner: -
 --
 
