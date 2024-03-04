@@ -2394,7 +2394,7 @@ CREATE VIEW app_public.active_message_revisions WITH (security_barrier='true', s
    FROM app_public.message_revisions leafs
   WHERE (NOT (EXISTS ( SELECT
            FROM app_public.message_revisions children
-          WHERE (leafs.id = children.parent_revision_id))))
+          WHERE (leafs.revision_id = children.parent_revision_id))))
   WITH CASCADED CHECK OPTION;
 
 
@@ -3930,6 +3930,15 @@ CREATE POLICY select_own ON app_public.user_authentications FOR SELECT USING ((u
 --
 
 CREATE POLICY select_own ON app_public.user_emails FOR SELECT USING ((user_id = app_public.current_user_id()));
+
+
+--
+-- Name: message_revisions update_mine; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY update_mine ON app_public.message_revisions FOR UPDATE TO null814_cms_app_users USING ((editor_id = app_public.current_user_id())) WITH CHECK (((editor_id = app_public.current_user_id()) AND (NOT (EXISTS ( SELECT
+   FROM app_public.message_revisions children
+  WHERE (children.parent_revision_id = message_revisions.revision_id))))));
 
 
 --
