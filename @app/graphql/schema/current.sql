@@ -156,6 +156,24 @@ CREATE TYPE procrastinate.procrastinate_job_status AS ENUM (
 
 
 --
+-- Name: rebase_message_revisions_before_deletion(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.rebase_message_revisions_before_deletion() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+begin
+  update app_public.message_revisions
+    set parent_revision_id = old.parent_revision_id
+    where 
+      id = old.id 
+      and parent_revision_id = old.revision_id;
+  return old;
+end
+$$;
+
+
+--
 -- Name: update_active_or_current_message_revision(); Type: FUNCTION; Schema: app_hidden; Owner: -
 --
 
@@ -3587,6 +3605,13 @@ CREATE TRIGGER _200_forbid_existing_email BEFORE INSERT ON app_public.user_email
 
 
 --
+-- Name: message_revisions _200_rebase_message_revisions_before_deletion; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _200_rebase_message_revisions_before_deletion BEFORE DELETE ON app_public.message_revisions FOR EACH ROW EXECUTE FUNCTION app_hidden.rebase_message_revisions_before_deletion();
+
+
+--
 -- Name: user_emails _500_audit_added; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -4092,6 +4117,14 @@ GRANT USAGE ON SCHEMA app_public TO null814_cms_app_users;
 
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION rebase_message_revisions_before_deletion(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.rebase_message_revisions_before_deletion() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.rebase_message_revisions_before_deletion() TO null814_cms_app_users;
 
 
 --
