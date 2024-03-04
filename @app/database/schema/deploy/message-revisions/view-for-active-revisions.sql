@@ -10,7 +10,7 @@ as select
 from app_public.message_revisions as leafs
 where not exists (
   select from app_public.message_revisions as children
-  where leafs.id = children.parent_revision_id
+  where leafs.revision_id = children.parent_revision_id
 );
 
 grant select on app_public.active_message_revisions to "$DATABASE_VISITOR";
