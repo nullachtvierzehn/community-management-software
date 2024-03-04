@@ -13,6 +13,9 @@ where not exists (
   where leafs.revision_id = children.parent_revision_id
 );
 
+alter view app_public.active_message_revisions alter column id set default uuid_generate_v1mc();
+alter view app_public.active_message_revisions alter column editor_id set default app_public.current_user_id();
+
 comment on view app_public.active_message_revisions is $$
   @primaryKey id,revision_id
   $$;
