@@ -2363,6 +2363,22 @@ COMMENT ON TABLE app_private.user_secrets IS 'The contents of this table should 
 
 
 --
+-- Name: message_revisions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.message_revisions (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    revision_id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    parent_revision_id uuid,
+    editor_id uuid DEFAULT app_public.current_user_id(),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    subject text,
+    body jsonb
+);
+
+
+--
 -- Name: organization_invitations; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -3071,6 +3087,14 @@ ALTER TABLE ONLY app_private.user_secrets
 
 
 --
+-- Name: message_revisions message_revisions_pk; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.message_revisions
+    ADD CONSTRAINT message_revisions_pk PRIMARY KEY (id, revision_id);
+
+
+--
 -- Name: organization_invitations organization_invitations_organization_id_email_key; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -3300,6 +3324,41 @@ CREATE INDEX idx_user_emails_user ON app_public.user_emails USING btree (user_id
 
 
 --
+-- Name: message_revisions_on_created_at; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX message_revisions_on_created_at ON app_public.message_revisions USING brin (created_at);
+
+
+--
+-- Name: message_revisions_on_editor_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX message_revisions_on_editor_id ON app_public.message_revisions USING btree (editor_id);
+
+
+--
+-- Name: message_revisions_on_parent_revision_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX message_revisions_on_parent_revision_id ON app_public.message_revisions USING btree (parent_revision_id);
+
+
+--
+-- Name: message_revisions_on_revision_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX message_revisions_on_revision_id ON app_public.message_revisions USING btree (revision_id);
+
+
+--
+-- Name: message_revisions_on_updated_at; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX message_revisions_on_updated_at ON app_public.message_revisions USING brin (updated_at);
+
+
+--
 -- Name: organization_invitations_user_id_idx; Type: INDEX; Schema: app_public; Owner: -
 --
 
@@ -3374,6 +3433,13 @@ CREATE UNIQUE INDEX procrastinate_jobs_queueing_lock_idx ON procrastinate.procra
 --
 
 CREATE INDEX procrastinate_periodic_defers_job_id_fkey ON procrastinate.procrastinate_periodic_defers USING btree (job_id);
+
+
+--
+-- Name: message_revisions _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.message_revisions FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
 
 
 --
@@ -3549,6 +3615,14 @@ ALTER TABLE ONLY app_private.user_secrets
 
 
 --
+-- Name: message_revisions editor; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.message_revisions
+    ADD CONSTRAINT editor FOREIGN KEY (editor_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: organization_invitations organization_invitations_organization_id_fkey; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -3578,6 +3652,24 @@ ALTER TABLE ONLY app_public.organization_memberships
 
 ALTER TABLE ONLY app_public.organization_memberships
     ADD CONSTRAINT organization_memberships_user_id_fkey FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: message_revisions parent_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.message_revisions
+    ADD CONSTRAINT parent_revision FOREIGN KEY (id, parent_revision_id) REFERENCES app_public.message_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: CONSTRAINT parent_revision ON message_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT parent_revision ON app_public.message_revisions IS '
+  @fieldName parentRevision
+  @foreignFieldName childRevisions
+  ';
 
 
 --
@@ -3710,6 +3802,19 @@ CREATE POLICY delete_own ON app_public.user_emails FOR DELETE USING ((user_id = 
 
 CREATE POLICY insert_own ON app_public.user_emails FOR INSERT WITH CHECK ((user_id = app_public.current_user_id()));
 
+
+--
+-- Name: message_revisions manage_mine; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY manage_mine ON app_public.message_revisions TO null814_cms_app_users USING ((editor_id = app_public.current_user_id()));
+
+
+--
+-- Name: message_revisions; Type: ROW SECURITY; Schema: app_public; Owner: -
+--
+
+ALTER TABLE app_public.message_revisions ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: organization_invitations; Type: ROW SECURITY; Schema: app_public; Owner: -
@@ -4295,6 +4400,48 @@ REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_status_events_procedu
 --
 
 REVOKE ALL ON FUNCTION procrastinate.procrastinate_unlink_periodic_defers() FROM PUBLIC;
+
+
+--
+-- Name: TABLE message_revisions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.parent_revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(parent_revision_id) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.editor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(editor_id) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.subject; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(subject),UPDATE(subject) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.body; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(body),UPDATE(body) ON TABLE app_public.message_revisions TO null814_cms_app_users;
 
 
 --
