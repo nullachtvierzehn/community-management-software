@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)"
+   sodipodi:docname="reply-to-message.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.78662318"
+     inkscape:cx="396.6321"
+     inkscape:cy="561.25984"
+     inkscape:window-width="1920"
+     inkscape:window-height="1163"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#deddda;stroke-width:0.264999;stroke-linecap:round;stroke-linejoin:round"
+       id="rect1"
+       width="148.82452"
+       height="192.08798"
+       x="26.851768"
+       y="50.187595"
+       rx="2.9654276"
+       ry="2.9654276" />
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;line-height:1.25;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0.148167px;text-anchor:middle;stroke-width:0.264583"
+       x="101.23863"
+       y="44.704773"
+       id="text2"><tspan
+         sodipodi:role="line"
+         id="tspan2"
+         style="text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="101.31271"
+         y="44.704773">Fall &quot;Benjamin&quot;</tspan></text>
+    <rect
+       style="fill:#dc8add;stroke-width:0.264999;stroke-linecap:round;stroke-linejoin:round"
+       id="rect2"
+       width="143.8515"
+       height="40.784157"
+       x="29.33828"
+       y="52.570969"
+       ry="3.4410524"
+       rx="3.4410524" />
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;line-height:1.25;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans, Normal';font-variant-ligatures:none;text-align:center;letter-spacing:0.148167px;text-anchor:middle;fill:#613583;stroke-width:0.264583"
+       x="101.32753"
+       y="60.739368"
+       id="text3"><tspan
+         sodipodi:role="line"
+         id="tspan3"
+         style="text-align:center;text-anchor:middle;fill:#613583;stroke-width:0.264583"
+         x="101.32753"
+         y="60.739368">Interner Bereich</tspan><tspan
+         sodipodi:role="line"
+         style="text-align:center;text-anchor:middle;fill:#613583;stroke-width:0.264583"
+         x="101.40161"
+         y="68.676865"
+         id="tspan5">„Staging Area“</tspan></text>
+  </g>
+</svg>
