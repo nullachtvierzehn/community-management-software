@@ -2379,6 +2379,26 @@ CREATE TABLE app_public.message_revisions (
 
 
 --
+-- Name: active_message_revisions; Type: VIEW; Schema: app_public; Owner: -
+--
+
+CREATE VIEW app_public.active_message_revisions WITH (security_barrier='true', security_invoker='true') AS
+ SELECT id,
+    revision_id,
+    parent_revision_id,
+    editor_id,
+    created_at,
+    updated_at,
+    subject,
+    body
+   FROM app_public.message_revisions leafs
+  WHERE (NOT (EXISTS ( SELECT
+           FROM app_public.message_revisions children
+          WHERE (leafs.id = children.parent_revision_id))))
+  WITH CASCADED CHECK OPTION;
+
+
+--
 -- Name: organization_invitations; Type: TABLE; Schema: app_public; Owner: -
 --
 
