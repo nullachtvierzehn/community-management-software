@@ -10,3 +10,4 @@ message-revisions/view-for-current-revisions [message-revisions/view-for-active-
 message-revisions/policies/update-mine [message-revisions] 2024-03-04T14:56:57Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow to update my revisions
 message-revisions/policies/delete-mine [message-revisions] 2024-03-04T15:04:58Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow to delete my revisions
 message-revisions/policies/insert-mine-if-active [message-revisions] 2024-03-04T15:33:48Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow to insert new active revisions
+message-revisions/update-active-or-current-revisions-using-a-trigger [message-revisions/view-for-active-revisions message-revisions/view-for-current-revisions] 2024-03-04T15:38:15Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # update active or current revisions using a trigger
