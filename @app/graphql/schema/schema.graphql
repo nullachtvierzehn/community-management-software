@@ -41,6 +41,12 @@ type Query implements Node {
   """Get a single `User`."""
   userByUsername(username: String!): User
 
+  """Get a single `UserAuthentication`."""
+  userAuthentication(id: UUID!): UserAuthentication
+
+  """Get a single `UserAuthentication`."""
+  userAuthenticationByServiceAndIdentifier(service: String!, identifier: String!): UserAuthentication
+
   """Get a single `ActiveMessageRevision`."""
   activeMessageRevision(id: UUID!, revisionId: UUID!): ActiveMessageRevision
 
@@ -49,12 +55,6 @@ type Query implements Node {
 
   """Get a single `MessageRevision`."""
   messageRevision(id: UUID!, revisionId: UUID!): MessageRevision
-
-  """Get a single `UserAuthentication`."""
-  userAuthentication(id: UUID!): UserAuthentication
-
-  """Get a single `UserAuthentication`."""
-  userAuthenticationByServiceAndIdentifier(service: String!, identifier: String!): UserAuthentication
 
   """Handy method to get the current session ID."""
   currentSessionId: UUID
@@ -150,6 +150,14 @@ type Query implements Node {
     nodeId: ID!
   ): User
 
+  """Reads a single `UserAuthentication` using its globally unique `ID`."""
+  userAuthenticationByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `UserAuthentication`.
+    """
+    nodeId: ID!
+  ): UserAuthentication
+
   """Reads a single `ActiveMessageRevision` using its globally unique `ID`."""
   activeMessageRevisionByNodeId(
     """
@@ -175,14 +183,6 @@ type Query implements Node {
     """
     nodeId: ID!
   ): MessageRevision
-
-  """Reads a single `UserAuthentication` using its globally unique `ID`."""
-  userAuthenticationByNodeId(
-    """
-    The globally unique `ID` to be used in selecting a single `UserAuthentication`.
-    """
-    nodeId: ID!
-  ): UserAuthentication
 
   """
   Reads and enables pagination through a set of `OrganizationMembership`.
@@ -322,6 +322,40 @@ type Query implements Node {
     filter: UserFilter
   ): UsersConnection
 
+  """Reads and enables pagination through a set of `UserAuthentication`."""
+  userAuthentications(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `UserAuthentication`."""
+    orderBy: [UserAuthenticationsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: UserAuthenticationCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserAuthenticationFilter
+  ): UserAuthenticationsConnection
+
   """Reads and enables pagination through a set of `ActiveMessageRevision`."""
   activeMessageRevisions(
     """Only read the first `n` values of the set."""
@@ -425,40 +459,6 @@ type Query implements Node {
     """
     filter: MessageRevisionFilter
   ): MessageRevisionsConnection
-
-  """Reads and enables pagination through a set of `UserAuthentication`."""
-  userAuthentications(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `UserAuthentication`."""
-    orderBy: [UserAuthenticationsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: UserAuthenticationCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: UserAuthenticationFilter
-  ): UserAuthenticationsConnection
 }
 
 """An object with a globally unique `ID`."""
@@ -1303,6 +1303,9 @@ input MessageRevisionFilter {
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
 
+  """Filter by the object’s `updateComment` field."""
+  updateComment: StringFilter
+
   """Filter by the object’s `subject` field."""
   subject: StringFilter
 
@@ -1752,6 +1755,7 @@ type MessageRevision implements Node {
   editorId: UUID
   createdAt: Datetime!
   updatedAt: Datetime!
+  updateComment: String
   subject: String
   body: JSON
 
@@ -1815,6 +1819,8 @@ enum MessageRevisionsOrderBy {
   CREATED_AT_DESC
   UPDATED_AT_ASC
   UPDATED_AT_DESC
+  UPDATE_COMMENT_ASC
+  UPDATE_COMMENT_DESC
   SUBJECT_ASC
   SUBJECT_DESC
   BODY_ASC
@@ -1844,6 +1850,9 @@ input MessageRevisionCondition {
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
 
+  """Checks for equality with the object’s `updateComment` field."""
+  updateComment: String
+
   """Checks for equality with the object’s `subject` field."""
   subject: String
 
@@ -1871,6 +1880,7 @@ type ActiveMessageRevision implements Node {
   editorId: UUID
   createdAt: Datetime
   updatedAt: Datetime
+  updateComment: String
   subject: String
   body: JSON
 }
@@ -1886,6 +1896,7 @@ type CurrentMessageRevision implements Node {
   editorId: UUID
   createdAt: Datetime
   updatedAt: Datetime
+  updateComment: String
   subject: String
   body: JSON
 }
@@ -2135,6 +2146,8 @@ enum ActiveMessageRevisionsOrderBy {
   CREATED_AT_DESC
   UPDATED_AT_ASC
   UPDATED_AT_DESC
+  UPDATE_COMMENT_ASC
+  UPDATE_COMMENT_DESC
   SUBJECT_ASC
   SUBJECT_DESC
   BODY_ASC
@@ -2164,6 +2177,9 @@ input ActiveMessageRevisionCondition {
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
 
+  """Checks for equality with the object’s `updateComment` field."""
+  updateComment: String
+
   """Checks for equality with the object’s `subject` field."""
   subject: String
 
@@ -2192,6 +2208,9 @@ input ActiveMessageRevisionFilter {
 
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
+
+  """Filter by the object’s `updateComment` field."""
+  updateComment: StringFilter
 
   """Filter by the object’s `subject` field."""
   subject: StringFilter
@@ -2254,6 +2273,8 @@ enum CurrentMessageRevisionsOrderBy {
   CREATED_AT_DESC
   UPDATED_AT_ASC
   UPDATED_AT_DESC
+  UPDATE_COMMENT_ASC
+  UPDATE_COMMENT_DESC
   SUBJECT_ASC
   SUBJECT_DESC
   BODY_ASC
@@ -2283,6 +2304,9 @@ input CurrentMessageRevisionCondition {
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
 
+  """Checks for equality with the object’s `updateComment` field."""
+  updateComment: String
+
   """Checks for equality with the object’s `subject` field."""
   subject: String
 
@@ -2311,6 +2335,9 @@ input CurrentMessageRevisionFilter {
 
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
+
+  """Filter by the object’s `updateComment` field."""
+  updateComment: StringFilter
 
   """Filter by the object’s `subject` field."""
   subject: StringFilter
@@ -2604,6 +2631,30 @@ type Mutation {
     input: DeleteUserEmailByUserIdAndEmailInput!
   ): DeleteUserEmailPayload
 
+  """Deletes a single `UserAuthentication` using its globally unique id."""
+  deleteUserAuthenticationByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserAuthenticationByNodeIdInput!
+  ): DeleteUserAuthenticationPayload
+
+  """Deletes a single `UserAuthentication` using a unique key."""
+  deleteUserAuthentication(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserAuthenticationInput!
+  ): DeleteUserAuthenticationPayload
+
+  """Deletes a single `UserAuthentication` using a unique key."""
+  deleteUserAuthenticationByServiceAndIdentifier(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserAuthenticationByServiceAndIdentifierInput!
+  ): DeleteUserAuthenticationPayload
+
   """Deletes a single `ActiveMessageRevision` using its globally unique id."""
   deleteActiveMessageRevisionByNodeId(
     """
@@ -2653,30 +2704,6 @@ type Mutation {
     """
     input: DeleteMessageRevisionInput!
   ): DeleteMessageRevisionPayload
-
-  """Deletes a single `UserAuthentication` using its globally unique id."""
-  deleteUserAuthenticationByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserAuthenticationByNodeIdInput!
-  ): DeleteUserAuthenticationPayload
-
-  """Deletes a single `UserAuthentication` using a unique key."""
-  deleteUserAuthentication(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserAuthenticationInput!
-  ): DeleteUserAuthenticationPayload
-
-  """Deletes a single `UserAuthentication` using a unique key."""
-  deleteUserAuthenticationByServiceAndIdentifier(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserAuthenticationByServiceAndIdentifierInput!
-  ): DeleteUserAuthenticationPayload
 
   """
   Use this mutation to create an account on our system. This may only be used if you are logged out.
@@ -3178,6 +3205,7 @@ input ActiveMessageRevisionInput {
   id: UUID
   parentRevisionId: UUID
   editorId: UUID
+  updateComment: String
   subject: String
   body: JSON
 }
@@ -3222,6 +3250,7 @@ input CurrentMessageRevisionInput {
   id: UUID
   parentRevisionId: UUID
   editorId: UUID
+  updateComment: String
   subject: String
   body: JSON
 }
@@ -3274,6 +3303,7 @@ input MessageRevisionInput {
   id: UUID
   parentRevisionId: UUID
   editorId: UUID
+  updateComment: String
   subject: String
   body: JSON
 }
@@ -3493,6 +3523,7 @@ Represents an update to a `ActiveMessageRevision`. Fields that are set will be u
 """
 input ActiveMessageRevisionPatch {
   editorId: UUID
+  updateComment: String
   subject: String
   body: JSON
 }
@@ -3560,6 +3591,7 @@ Represents an update to a `CurrentMessageRevision`. Fields that are set will be 
 """
 input CurrentMessageRevisionPatch {
   editorId: UUID
+  updateComment: String
   subject: String
   body: JSON
 }
@@ -3633,6 +3665,7 @@ input UpdateMessageRevisionByNodeIdInput {
 Represents an update to a `MessageRevision`. Fields that are set will be updated.
 """
 input MessageRevisionPatch {
+  updateComment: String
   subject: String
   body: JSON
 }
@@ -3715,6 +3748,74 @@ input DeleteUserEmailByUserIdAndEmailInput {
 
   """The users email address, in `a@b.c` format."""
   email: String!
+}
+
+"""The output of our delete `UserAuthentication` mutation."""
+type DeleteUserAuthenticationPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `UserAuthentication` that was deleted by this mutation."""
+  userAuthentication: UserAuthentication
+  deletedUserAuthenticationNodeId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `UserAuthentication`. May be used by Relay 1."""
+  userAuthenticationEdge(
+    """The method to use when ordering `UserAuthentication`."""
+    orderBy: [UserAuthenticationsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): UserAuthenticationsEdge
+
+  """Reads a single `User` that is related to this `UserAuthentication`."""
+  user: User
+}
+
+"""All input for the `deleteUserAuthenticationByNodeId` mutation."""
+input DeleteUserAuthenticationByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `UserAuthentication` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""All input for the `deleteUserAuthentication` mutation."""
+input DeleteUserAuthenticationInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+}
+
+"""
+All input for the `deleteUserAuthenticationByServiceAndIdentifier` mutation.
+"""
+input DeleteUserAuthenticationByServiceAndIdentifierInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The login service used, e.g. `twitter` or `github`."""
+  service: String!
+
+  """A unique identifier for the user within the login service."""
+  identifier: String!
 }
 
 """The output of our delete `ActiveMessageRevision` mutation."""
@@ -3869,74 +3970,6 @@ input DeleteMessageRevisionInput {
   clientMutationId: String
   id: UUID!
   revisionId: UUID!
-}
-
-"""The output of our delete `UserAuthentication` mutation."""
-type DeleteUserAuthenticationPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """The `UserAuthentication` that was deleted by this mutation."""
-  userAuthentication: UserAuthentication
-  deletedUserAuthenticationNodeId: ID
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our `UserAuthentication`. May be used by Relay 1."""
-  userAuthenticationEdge(
-    """The method to use when ordering `UserAuthentication`."""
-    orderBy: [UserAuthenticationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UserAuthenticationsEdge
-
-  """Reads a single `User` that is related to this `UserAuthentication`."""
-  user: User
-}
-
-"""All input for the `deleteUserAuthenticationByNodeId` mutation."""
-input DeleteUserAuthenticationByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `UserAuthentication` to be deleted.
-  """
-  nodeId: ID!
-}
-
-"""All input for the `deleteUserAuthentication` mutation."""
-input DeleteUserAuthenticationInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-}
-
-"""
-All input for the `deleteUserAuthenticationByServiceAndIdentifier` mutation.
-"""
-input DeleteUserAuthenticationByServiceAndIdentifierInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """The login service used, e.g. `twitter` or `github`."""
-  service: String!
-
-  """A unique identifier for the user within the login service."""
-  identifier: String!
 }
 
 type RegisterPayload {

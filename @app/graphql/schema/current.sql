@@ -2449,6 +2449,7 @@ CREATE TABLE app_public.message_revisions (
     editor_id uuid DEFAULT app_public.current_user_id(),
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    update_comment text,
     subject text,
     body jsonb
 );
@@ -2465,6 +2466,7 @@ CREATE VIEW app_public.active_message_revisions WITH (security_barrier='true', s
     editor_id,
     created_at,
     updated_at,
+    update_comment,
     subject,
     body
    FROM app_public.message_revisions leafs
@@ -2494,6 +2496,7 @@ CREATE VIEW app_public.current_message_revisions WITH (security_barrier='true', 
     editor_id,
     created_at,
     updated_at,
+    update_comment,
     subject,
     body
    FROM app_public.message_revisions latest
@@ -4655,6 +4658,13 @@ GRANT INSERT(editor_id) ON TABLE app_public.message_revisions TO null814_cms_app
 
 
 --
+-- Name: COLUMN message_revisions.update_comment; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(update_comment),UPDATE(update_comment) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
 -- Name: COLUMN message_revisions.subject; Type: ACL; Schema: app_public; Owner: -
 --
 
@@ -4697,6 +4707,13 @@ GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.active_message_rev
 
 
 --
+-- Name: COLUMN active_message_revisions.update_comment; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(update_comment),UPDATE(update_comment) ON TABLE app_public.active_message_revisions TO null814_cms_app_users;
+
+
+--
 -- Name: COLUMN active_message_revisions.subject; Type: ACL; Schema: app_public; Owner: -
 --
 
@@ -4736,6 +4753,13 @@ GRANT INSERT(parent_revision_id) ON TABLE app_public.current_message_revisions T
 --
 
 GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN current_message_revisions.update_comment; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(update_comment),UPDATE(update_comment) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
 
 
 --

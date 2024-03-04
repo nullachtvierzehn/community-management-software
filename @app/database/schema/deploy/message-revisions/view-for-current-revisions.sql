@@ -27,8 +27,8 @@ comment on view app_public.current_message_revisions is $$
   $$;
 
 grant select on app_public.current_message_revisions to "$DATABASE_VISITOR";
-grant update (editor_id, "subject", body) on app_public.current_message_revisions to "$DATABASE_VISITOR";
-grant insert (id, parent_revision_id, editor_id, "subject", body) on app_public.current_message_revisions to "$DATABASE_VISITOR";
+grant update (editor_id, "subject", body, update_comment) on app_public.current_message_revisions to "$DATABASE_VISITOR";
+grant insert (id, parent_revision_id, editor_id, "subject", body, update_comment) on app_public.current_message_revisions to "$DATABASE_VISITOR";
 grant delete on app_public.current_message_revisions to "$DATABASE_VISITOR";
 
 COMMIT;

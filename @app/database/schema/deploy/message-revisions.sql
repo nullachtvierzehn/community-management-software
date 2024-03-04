@@ -27,6 +27,7 @@ create table app_public.message_revisions (
       on update cascade on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  update_comment text,
 
   -- body
   "subject" text,
@@ -47,8 +48,8 @@ create index message_revisions_on_created_at on app_public.message_revisions usi
 create index message_revisions_on_updated_at on app_public.message_revisions using brin (updated_at);
 
 grant select on app_public.message_revisions to "$DATABASE_VISITOR";
-grant update ("subject", body) on app_public.message_revisions to "$DATABASE_VISITOR";
-grant insert (id, parent_revision_id, editor_id, "subject", body) on app_public.message_revisions to "$DATABASE_VISITOR";
+grant update ("subject", body, update_comment) on app_public.message_revisions to "$DATABASE_VISITOR";
+grant insert (id, parent_revision_id, editor_id, "subject", body, update_comment) on app_public.message_revisions to "$DATABASE_VISITOR";
 grant delete on app_public.message_revisions to "$DATABASE_VISITOR";
 
 -- auto-update updated_at
