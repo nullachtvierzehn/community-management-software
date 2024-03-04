@@ -9,4 +9,4 @@ pg_dump "$SQITCH_TARGET" --no-sync --schema-only --no-owner --exclude-schema=gra
 ls -r ../migrations/current-data/dump-*.sql | tail -n +6 | xargs -I {} rm -- {}
 
 # restore the latest data dump
-# psql "$SQITCH_TARGET" < $(ls -t ../migrations/current-data/dump-*.sql | head -1)
+psql "$SQITCH_TARGET" < $(ls -t ../migrations/current-data/dump-*.sql | head -1)
