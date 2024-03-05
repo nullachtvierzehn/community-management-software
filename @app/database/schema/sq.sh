@@ -21,8 +21,6 @@ for arg in "$@"; do
   fi
 done
 
-echo "sub_command=$sub_command"
-
 # Has a target?
 has_target=0
 found_target=""
