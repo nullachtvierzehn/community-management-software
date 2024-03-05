@@ -2591,6 +2591,21 @@ CREATE TABLE app_public.organization_memberships (
 
 
 --
+-- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.spaces (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    organization_id uuid DEFAULT app_public.current_user_first_member_organization_id() NOT NULL,
+    creator_id uuid DEFAULT app_public.current_user_id(),
+    name text NOT NULL,
+    is_open boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
 -- Name: user_authentications; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -3362,6 +3377,14 @@ ALTER TABLE ONLY app_public.organizations
 
 
 --
+-- Name: spaces spaces_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.spaces
+    ADD CONSTRAINT spaces_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: user_authentications uniq_user_authentications; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -3581,6 +3604,34 @@ CREATE INDEX organization_invitations_user_id_idx ON app_public.organization_inv
 --
 
 CREATE INDEX organization_memberships_user_id_idx ON app_public.organization_memberships USING btree (user_id);
+
+
+--
+-- Name: spaces_on_created_at; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX spaces_on_created_at ON app_public.spaces USING btree (created_at);
+
+
+--
+-- Name: spaces_on_creator_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX spaces_on_creator_id ON app_public.spaces USING btree (creator_id);
+
+
+--
+-- Name: spaces_on_organization_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX spaces_on_organization_id ON app_public.spaces USING btree (organization_id);
+
+
+--
+-- Name: spaces_on_updated_at; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX spaces_on_updated_at ON app_public.spaces USING btree (updated_at);
 
 
 --
@@ -3847,11 +3898,27 @@ ALTER TABLE ONLY app_private.user_secrets
 
 
 --
+-- Name: spaces creator; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.spaces
+    ADD CONSTRAINT creator FOREIGN KEY (creator_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: message_revisions editor; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
 ALTER TABLE ONLY app_public.message_revisions
     ADD CONSTRAINT editor FOREIGN KEY (editor_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: spaces organization; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.spaces
+    ADD CONSTRAINT organization FOREIGN KEY (organization_id) REFERENCES app_public.organizations(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -4130,6 +4197,12 @@ CREATE POLICY select_own ON app_public.user_authentications FOR SELECT USING ((u
 
 CREATE POLICY select_own ON app_public.user_emails FOR SELECT USING ((user_id = app_public.current_user_id()));
 
+
+--
+-- Name: spaces; Type: ROW SECURITY; Schema: app_public; Owner: -
+--
+
+ALTER TABLE app_public.spaces ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: message_revisions update_mine; Type: POLICY; Schema: app_public; Owner: -
@@ -4835,6 +4908,48 @@ GRANT INSERT(body),UPDATE(body) ON TABLE app_public.current_message_revisions TO
 --
 
 GRANT SELECT ON TABLE app_public.organization_memberships TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE spaces; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.organization_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.creator_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(creator_id) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.name; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(name),UPDATE(name) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.is_open; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(is_open),UPDATE(is_open) ON TABLE app_public.spaces TO null814_cms_app_users;
 
 
 --

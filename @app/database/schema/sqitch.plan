@@ -15,3 +15,4 @@ message-revisions/rebase-message-revisions-before-deletion [message-revisions] 2
 current-user/first-member-organization-id [initial] 2024-03-05T08:34:42Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add a procedure to fetch the first member organization of a user
 abilities [initial] 2024-03-05T08:44:48Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add enum type for abilities
 organizations/add-default-abilities [abilities initial] 2024-03-05T08:58:16Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add default (owner) abilities for organizations
+spaces [initial] 2024-03-05T09:05:18Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table spaces, sometimes called rooms or cases
