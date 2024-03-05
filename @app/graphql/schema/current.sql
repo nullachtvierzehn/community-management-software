@@ -1091,6 +1091,22 @@ COMMENT ON FUNCTION app_public."current_user"() IS 'The currently logged in user
 
 
 --
+-- Name: current_user_first_member_organization_id(); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.current_user_first_member_organization_id() RETURNS uuid
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+  select organization_id 
+    from app_public.organization_memberships
+    where user_id = app_public.current_user_id()
+    order by created_at asc
+    limit 1;
+$$;
+
+
+--
 -- Name: current_user_id(); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -4338,6 +4354,14 @@ GRANT ALL ON FUNCTION app_public.current_session_id() TO null814_cms_app_users;
 
 REVOKE ALL ON FUNCTION app_public."current_user"() FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public."current_user"() TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION current_user_first_member_organization_id(); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.current_user_first_member_organization_id() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.current_user_first_member_organization_id() TO null814_cms_app_users;
 
 
 --

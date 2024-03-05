@@ -12,3 +12,4 @@ message-revisions/policies/delete-mine [message-revisions] 2024-03-04T15:04:58Z 
 message-revisions/policies/insert-mine-if-active [message-revisions] 2024-03-04T15:33:48Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow to insert new active revisions
 message-revisions/update-active-or-current-revisions-using-a-trigger [message-revisions/view-for-active-revisions message-revisions/view-for-current-revisions] 2024-03-04T15:38:15Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # update active or current revisions using a trigger
 message-revisions/rebase-message-revisions-before-deletion [message-revisions] 2024-03-04T15:53:22Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # rebase message revisions before deletion
+current-user/first-member-organization-id [initial] 2024-03-05T08:34:42Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add a procedure to fetch the first member organization of a user

@@ -58,6 +58,7 @@ type Query implements Node {
 
   """Handy method to get the current session ID."""
   currentSessionId: UUID
+  currentUserFirstMemberOrganizationId: UUID
 
   """
   Handy method to get the current user ID for use in RLS policies, etc; in GraphQL, use `currentUser{id}` instead.

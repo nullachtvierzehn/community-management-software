@@ -507,6 +507,18 @@
               "deprecationReason": null
             },
             {
+              "name": "currentUserFirstMemberOrganizationId",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "UUID",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "currentUserId",
               "description": "Handy method to get the current user ID for use in RLS policies, etc; in GraphQL, use `currentUser{id}` instead.",
               "args": [],
