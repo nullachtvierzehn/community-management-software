@@ -129,6 +129,34 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
+-- Name: ability; Type: TYPE; Schema: app_public; Owner: -
+--
+
+CREATE TYPE app_public.ability AS ENUM (
+    'view',
+    'create',
+    'create__space',
+    'create__message',
+    'create__file',
+    'update',
+    'update__space',
+    'update__message',
+    'update__file',
+    'delete',
+    'delete__space',
+    'delete__message',
+    'delete__file',
+    'submit',
+    'submit__message',
+    'submit__file',
+    'accept',
+    'accept__message',
+    'accept__file',
+    'manage'
+);
+
+
+--
 -- Name: procrastinate_job_event_type; Type: TYPE; Schema: procrastinate; Owner: -
 --
 
