@@ -23,12 +23,6 @@ type Query implements Node {
   """Get a single `OrganizationMembership`."""
   organizationMembershipByOrganizationIdAndUserId(organizationId: UUID!, userId: UUID!): OrganizationMembership
 
-  """Get a single `Organization`."""
-  organization(id: UUID!): Organization
-
-  """Get a single `Organization`."""
-  organizationBySlug(slug: String!): Organization
-
   """Get a single `UserEmail`."""
   userEmail(id: UUID!): UserEmail
 
@@ -55,6 +49,12 @@ type Query implements Node {
 
   """Get a single `MessageRevision`."""
   messageRevision(id: UUID!, revisionId: UUID!): MessageRevision
+
+  """Get a single `Organization`."""
+  organization(id: UUID!): Organization
+
+  """Get a single `Organization`."""
+  organizationBySlug(slug: String!): Organization
 
   """Handy method to get the current session ID."""
   currentSessionId: UUID
@@ -116,10 +116,10 @@ type Query implements Node {
     """
     filter: UUIDFilter
   ): CurrentUserMemberOrganizationIdsConnection
-  organizationForInvitation(invitationId: UUID!, code: String): Organization
 
   """The currently logged in user (or null if not logged in)."""
   currentUser: User
+  organizationForInvitation(invitationId: UUID!, code: String): Organization
 
   """
   Reads a single `OrganizationMembership` using its globally unique `ID`.
@@ -130,14 +130,6 @@ type Query implements Node {
     """
     nodeId: ID!
   ): OrganizationMembership
-
-  """Reads a single `Organization` using its globally unique `ID`."""
-  organizationByNodeId(
-    """
-    The globally unique `ID` to be used in selecting a single `Organization`.
-    """
-    nodeId: ID!
-  ): Organization
 
   """Reads a single `UserEmail` using its globally unique `ID`."""
   userEmailByNodeId(
@@ -185,6 +177,14 @@ type Query implements Node {
     nodeId: ID!
   ): MessageRevision
 
+  """Reads a single `Organization` using its globally unique `ID`."""
+  organizationByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `Organization`.
+    """
+    nodeId: ID!
+  ): Organization
+
   """
   Reads and enables pagination through a set of `OrganizationMembership`.
   """
@@ -220,40 +220,6 @@ type Query implements Node {
     """
     filter: OrganizationMembershipFilter
   ): OrganizationMembershipsConnection
-
-  """Reads and enables pagination through a set of `Organization`."""
-  organizations(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `Organization`."""
-    orderBy: [OrganizationsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: OrganizationCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: OrganizationFilter
-  ): OrganizationsConnection
 
   """Reads and enables pagination through a set of `UserEmail`."""
   userEmails(
@@ -460,6 +426,40 @@ type Query implements Node {
     """
     filter: MessageRevisionFilter
   ): MessageRevisionsConnection
+
+  """Reads and enables pagination through a set of `Organization`."""
+  organizations(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `Organization`."""
+    orderBy: [OrganizationsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: OrganizationCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrganizationFilter
+  ): OrganizationsConnection
 }
 
 """An object with a globally unique `ID`."""
@@ -518,6 +518,8 @@ type Organization implements Node {
   slug: String!
   name: String!
   createdAt: Datetime!
+  memberAbilities: [Ability]!
+  ownerAbilities: [Ability]!
 
   """
   Reads and enables pagination through a set of `OrganizationMembership`.
@@ -554,6 +556,29 @@ type Organization implements Node {
     """
     filter: OrganizationMembershipFilter
   ): OrganizationMembershipsConnection!
+}
+
+enum Ability {
+  VIEW
+  CREATE
+  CREATE_SPACE
+  CREATE_MESSAGE
+  CREATE_FILE
+  UPDATE
+  UPDATE_SPACE
+  UPDATE_MESSAGE
+  UPDATE_FILE
+  DELETE
+  DELETE_SPACE
+  DELETE_MESSAGE
+  DELETE_FILE
+  SUBMIT
+  SUBMIT_MESSAGE
+  SUBMIT_FILE
+  ACCEPT
+  ACCEPT_MESSAGE
+  ACCEPT_FILE
+  MANAGE
 }
 
 """A connection to a list of `OrganizationMembership` values."""
@@ -825,6 +850,12 @@ input OrganizationFilter {
   """Filter by the object’s `createdAt` field."""
   createdAt: DatetimeFilter
 
+  """Filter by the object’s `memberAbilities` field."""
+  memberAbilities: AbilityListFilter
+
+  """Filter by the object’s `ownerAbilities` field."""
+  ownerAbilities: AbilityListFilter
+
   """Filter by the object’s `currentUserIsBillingContact` field."""
   currentUserIsBillingContact: BooleanFilter
 
@@ -977,6 +1008,69 @@ input StringFilter {
 
   """Greater than or equal to the specified value (case-insensitive)."""
   greaterThanOrEqualToInsensitive: String
+}
+
+"""
+A filter to be used against Ability List fields. All fields are combined with a logical ‘and.’
+"""
+input AbilityListFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: [Ability]
+
+  """Not equal to the specified value."""
+  notEqualTo: [Ability]
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: [Ability]
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: [Ability]
+
+  """Less than the specified value."""
+  lessThan: [Ability]
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: [Ability]
+
+  """Greater than the specified value."""
+  greaterThan: [Ability]
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: [Ability]
+
+  """Contains the specified list of values."""
+  contains: [Ability]
+
+  """Contained by the specified list of values."""
+  containedBy: [Ability]
+
+  """Overlaps the specified list of values."""
+  overlaps: [Ability]
+
+  """Any array item is equal to the specified value."""
+  anyEqualTo: Ability
+
+  """Any array item is not equal to the specified value."""
+  anyNotEqualTo: Ability
+
+  """Any array item is less than the specified value."""
+  anyLessThan: Ability
+
+  """Any array item is less than or equal to the specified value."""
+  anyLessThanOrEqualTo: Ability
+
+  """Any array item is greater than the specified value."""
+  anyGreaterThan: Ability
+
+  """Any array item is greater than or equal to the specified value."""
+  anyGreaterThanOrEqualTo: Ability
 }
 
 """
@@ -1954,73 +2048,6 @@ type CurrentUserMemberOrganizationIdsEdge {
   node: UUID
 }
 
-"""A connection to a list of `Organization` values."""
-type OrganizationsConnection {
-  """A list of `Organization` objects."""
-  nodes: [Organization!]!
-
-  """
-  A list of edges which contains the `Organization` and cursor to aid in pagination.
-  """
-  edges: [OrganizationsEdge!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Organization` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Organization` edge in the connection."""
-type OrganizationsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Organization` at the end of the edge."""
-  node: Organization!
-}
-
-"""Methods to use when ordering `Organization`."""
-enum OrganizationsOrderBy {
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  ID_ASC
-  ID_DESC
-  SLUG_ASC
-  SLUG_DESC
-  NAME_ASC
-  NAME_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-}
-
-"""
-A condition to be used against `Organization` object types. All fields are
-tested for equality and combined with a logical ‘and.’
-"""
-input OrganizationCondition {
-  """Checks for equality with the object’s `id` field."""
-  id: UUID
-
-  """Checks for equality with the object’s `slug` field."""
-  slug: String
-
-  """Checks for equality with the object’s `name` field."""
-  name: String
-
-  """Checks for equality with the object’s `createdAt` field."""
-  createdAt: Datetime
-
-  """
-  Checks for equality with the object’s `currentUserIsBillingContact` field.
-  """
-  currentUserIsBillingContact: Boolean
-
-  """Checks for equality with the object’s `currentUserIsOwner` field."""
-  currentUserIsOwner: Boolean
-}
-
 """A connection to a list of `User` values."""
 type UsersConnection {
   """A list of `User` objects."""
@@ -2356,6 +2383,79 @@ input CurrentMessageRevisionFilter {
   not: CurrentMessageRevisionFilter
 }
 
+"""A connection to a list of `Organization` values."""
+type OrganizationsConnection {
+  """A list of `Organization` objects."""
+  nodes: [Organization!]!
+
+  """
+  A list of edges which contains the `Organization` and cursor to aid in pagination.
+  """
+  edges: [OrganizationsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Organization` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Organization` edge in the connection."""
+type OrganizationsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Organization` at the end of the edge."""
+  node: Organization!
+}
+
+"""Methods to use when ordering `Organization`."""
+enum OrganizationsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  SLUG_ASC
+  SLUG_DESC
+  NAME_ASC
+  NAME_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+}
+
+"""
+A condition to be used against `Organization` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input OrganizationCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `slug` field."""
+  slug: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `memberAbilities` field."""
+  memberAbilities: [Ability]
+
+  """Checks for equality with the object’s `ownerAbilities` field."""
+  ownerAbilities: [Ability]
+
+  """
+  Checks for equality with the object’s `currentUserIsBillingContact` field.
+  """
+  currentUserIsBillingContact: Boolean
+
+  """Checks for equality with the object’s `currentUserIsOwner` field."""
+  currentUserIsOwner: Boolean
+}
+
 """
 The root mutation type which contains root level fields which mutate data.
 """
@@ -2439,6 +2539,16 @@ type Mutation {
     """
     input: ChangePasswordInput!
   ): ChangePasswordPayload
+
+  """
+  Your primary email is where we'll notify of account events; other emails may be used for discovery or login. Use this when you're changing your email address.
+  """
+  makeEmailPrimary(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: MakeEmailPrimaryInput!
+  ): MakeEmailPrimaryPayload
   createOrganization(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
@@ -2457,16 +2567,6 @@ type Mutation {
     """
     input: TransferOrganizationOwnershipInput!
   ): TransferOrganizationOwnershipPayload
-
-  """
-  Your primary email is where we'll notify of account events; other emails may be used for discovery or login. Use this when you're changing your email address.
-  """
-  makeEmailPrimary(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: MakeEmailPrimaryInput!
-  ): MakeEmailPrimaryPayload
 
   """Creates a single `UserEmail`."""
   createUserEmail(
@@ -2499,32 +2599,6 @@ type Mutation {
     """
     input: CreateMessageRevisionInput!
   ): CreateMessageRevisionPayload
-
-  """
-  Updates a single `Organization` using its globally unique id and a patch.
-  """
-  updateOrganizationByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationByNodeIdInput!
-  ): UpdateOrganizationPayload
-
-  """Updates a single `Organization` using a unique key and a patch."""
-  updateOrganization(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationInput!
-  ): UpdateOrganizationPayload
-
-  """Updates a single `Organization` using a unique key and a patch."""
-  updateOrganizationBySlug(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationBySlugInput!
-  ): UpdateOrganizationPayload
 
   """Updates a single `User` using its globally unique id and a patch."""
   updateUserByNodeId(
@@ -2607,6 +2681,32 @@ type Mutation {
     """
     input: UpdateMessageRevisionInput!
   ): UpdateMessageRevisionPayload
+
+  """
+  Updates a single `Organization` using its globally unique id and a patch.
+  """
+  updateOrganizationByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrganizationByNodeIdInput!
+  ): UpdateOrganizationPayload
+
+  """Updates a single `Organization` using a unique key and a patch."""
+  updateOrganization(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrganizationInput!
+  ): UpdateOrganizationPayload
+
+  """Updates a single `Organization` using a unique key and a patch."""
+  updateOrganizationBySlug(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrganizationBySlugInput!
+  ): UpdateOrganizationPayload
 
   """Deletes a single `UserEmail` using its globally unique id."""
   deleteUserEmailByNodeId(
@@ -2992,6 +3092,40 @@ input ChangePasswordInput {
   newPassword: String!
 }
 
+"""The output of our `makeEmailPrimary` mutation."""
+type MakeEmailPrimaryPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+  userEmail: UserEmail
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `UserEmail`. May be used by Relay 1."""
+  userEmailEdge(
+    """The method to use when ordering `UserEmail`."""
+    orderBy: [UserEmailsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): UserEmailsEdge
+
+  """Reads a single `User` that is related to this `UserEmail`."""
+  user: User
+}
+
+"""All input for the `makeEmailPrimary` mutation."""
+input MakeEmailPrimaryInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  emailId: UUID!
+}
+
 """The output of our `createOrganization` mutation."""
 type CreateOrganizationPayload {
   """
@@ -3086,40 +3220,6 @@ input TransferOrganizationOwnershipInput {
   clientMutationId: String
   organizationId: UUID!
   userId: UUID!
-}
-
-"""The output of our `makeEmailPrimary` mutation."""
-type MakeEmailPrimaryPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-  userEmail: UserEmail
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our `UserEmail`. May be used by Relay 1."""
-  userEmailEdge(
-    """The method to use when ordering `UserEmail`."""
-    orderBy: [UserEmailsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UserEmailsEdge
-
-  """Reads a single `User` that is related to this `UserEmail`."""
-  user: User
-}
-
-"""All input for the `makeEmailPrimary` mutation."""
-input MakeEmailPrimaryInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  emailId: UUID!
 }
 
 """The output of our create `UserEmail` mutation."""
@@ -3307,86 +3407,6 @@ input MessageRevisionInput {
   updateComment: String
   subject: String
   body: JSON
-}
-
-"""The output of our update `Organization` mutation."""
-type UpdateOrganizationPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """The `Organization` that was updated by this mutation."""
-  organization: Organization
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our `Organization`. May be used by Relay 1."""
-  organizationEdge(
-    """The method to use when ordering `Organization`."""
-    orderBy: [OrganizationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): OrganizationsEdge
-}
-
-"""All input for the `updateOrganizationByNodeId` mutation."""
-input UpdateOrganizationByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `Organization` to be updated.
-  """
-  nodeId: ID!
-
-  """
-  An object where the defined keys will be set on the `Organization` being updated.
-  """
-  patch: OrganizationPatch!
-}
-
-"""
-Represents an update to a `Organization`. Fields that are set will be updated.
-"""
-input OrganizationPatch {
-  slug: String
-  name: String
-}
-
-"""All input for the `updateOrganization` mutation."""
-input UpdateOrganizationInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-
-  """
-  An object where the defined keys will be set on the `Organization` being updated.
-  """
-  patch: OrganizationPatch!
-}
-
-"""All input for the `updateOrganizationBySlug` mutation."""
-input UpdateOrganizationBySlugInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  slug: String!
-
-  """
-  An object where the defined keys will be set on the `Organization` being updated.
-  """
-  patch: OrganizationPatch!
 }
 
 """The output of our update `User` mutation."""
@@ -3685,6 +3705,86 @@ input UpdateMessageRevisionInput {
   An object where the defined keys will be set on the `MessageRevision` being updated.
   """
   patch: MessageRevisionPatch!
+}
+
+"""The output of our update `Organization` mutation."""
+type UpdateOrganizationPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `Organization` that was updated by this mutation."""
+  organization: Organization
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `Organization`. May be used by Relay 1."""
+  organizationEdge(
+    """The method to use when ordering `Organization`."""
+    orderBy: [OrganizationsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): OrganizationsEdge
+}
+
+"""All input for the `updateOrganizationByNodeId` mutation."""
+input UpdateOrganizationByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `Organization` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the `Organization` being updated.
+  """
+  patch: OrganizationPatch!
+}
+
+"""
+Represents an update to a `Organization`. Fields that are set will be updated.
+"""
+input OrganizationPatch {
+  slug: String
+  name: String
+}
+
+"""All input for the `updateOrganization` mutation."""
+input UpdateOrganizationInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+
+  """
+  An object where the defined keys will be set on the `Organization` being updated.
+  """
+  patch: OrganizationPatch!
+}
+
+"""All input for the `updateOrganizationBySlug` mutation."""
+input UpdateOrganizationBySlugInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  slug: String!
+
+  """
+  An object where the defined keys will be set on the `Organization` being updated.
+  """
+  patch: OrganizationPatch!
 }
 
 """The output of our delete `UserEmail` mutation."""

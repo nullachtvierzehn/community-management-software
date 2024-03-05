@@ -1056,7 +1056,9 @@ CREATE TABLE app_public.organizations (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     slug public.citext NOT NULL,
     name text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    member_abilities app_public.ability[] DEFAULT '{create__message,update__message,submit__message}'::app_public.ability[] NOT NULL,
+    owner_abilities app_public.ability[] DEFAULT '{manage}'::app_public.ability[] NOT NULL
 );
 
 
