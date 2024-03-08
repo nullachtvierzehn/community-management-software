@@ -16,3 +16,4 @@ current-user/first-member-organization-id [initial] 2024-03-05T08:34:42Z Timo St
 abilities [initial] 2024-03-05T08:44:48Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add enum type for abilities
 organizations/add-default-abilities [abilities initial] 2024-03-05T08:58:16Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add default (owner) abilities for organizations
 spaces [initial] 2024-03-05T09:05:18Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table spaces, sometimes called rooms or cases
+organization-memberships/add-abilities [abilities initial] 2024-03-06T08:04:28Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add organization_membership.abilities
