@@ -202,6 +202,100 @@ $$;
 
 
 --
+-- Name: refresh_user_abilities_per_organization_on_update(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.refresh_user_abilities_per_organization_on_update() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+begin
+  with new_abilities_per_user_and_organization as (
+    select
+      m.user_id,
+      m.organization_id,
+      array(
+        select distinct e
+        from unnest(
+          case 
+          when m.is_owner then 
+            NEW.owner_abilities || NEW.member_abilities || m.abilities
+          else 
+            NEW.member_abilities || m.abilities
+          end
+        ) as _(e)
+        order by e
+      ) as abilities
+    from app_public.organization_memberships as m
+    where m.organization_id = NEW.id
+  )
+  merge into app_hidden.user_abilities_per_organization as t
+  using new_abilities_per_user_and_organization as s 
+    on (t.organization_id = s.organization_id and t."user_id" = s."user_id")
+  when matched and s.abilities is distinct from t.abilities then
+    update set abilities = s.abilities;
+
+  return new;
+end
+$$;
+
+
+--
+-- Name: refresh_user_abilities_per_organization_when_memberships_change(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.refresh_user_abilities_per_organization_when_memberships_change() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+begin
+  -- Step 1: Delete old memberships, if not updated.
+  -- Afterwards, there are no more rows of old_memberships, 
+  -- that are not also included in new_memberships.
+  -- That is important for step 2.
+  if tg_op = 'UPDATE' then
+    delete from app_public.organization_memberships
+    where (organization_id, "user_id") in (
+      select organization_id, "user_id" from old_memberships
+      except 
+      select organization_id, "user_id" from new_memberships
+    );
+  end if;
+
+  -- Step 2: Update or create memberships.
+  with new_abilities_per_user_and_organization as (
+    select
+      m.user_id,
+      m.organization_id,
+      array(
+        select distinct e
+        from unnest(
+          case 
+          when m.is_owner then 
+            o.owner_abilities || o.member_abilities || m.abilities
+          else 
+            o.member_abilities || m.abilities
+          end
+        ) as _(e)
+        order by e
+      ) as abilities
+    from new_memberships as m
+    join app_public.organizations as o on (m.organization_id = o.id)
+  )
+  merge into app_hidden.user_abilities_per_organization as t
+  using new_abilities_per_user_and_organization as s 
+    on (t.organization_id = s.organization_id and t."user_id" = s."user_id")
+  when matched and s.abilities is distinct from t.abilities then
+    update set abilities = s.abilities
+  when not matched then
+    insert ("user_id", organization_id, abilities) values (s."user_id", s.organization_id, s.abilities);
+  
+  return new;
+end
+$$;
+
+
+--
 -- Name: update_active_or_current_message_revision(); Type: FUNCTION; Schema: app_hidden; Owner: -
 --
 
@@ -2380,6 +2474,17 @@ CREATE FUNCTION public.text_array_to_string(text[], text) RETURNS text
 
 
 --
+-- Name: user_abilities_per_organization; Type: TABLE; Schema: app_hidden; Owner: -
+--
+
+CREATE TABLE app_hidden.user_abilities_per_organization (
+    user_id uuid,
+    organization_id uuid,
+    abilities app_public.ability[]
+);
+
+
+--
 -- Name: connect_pg_simple_sessions; Type: TABLE; Schema: app_private; Owner: -
 --
 
@@ -2586,7 +2691,8 @@ CREATE TABLE app_public.organization_memberships (
     user_id uuid NOT NULL,
     is_owner boolean DEFAULT false NOT NULL,
     is_billing_contact boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    abilities app_public.ability[]
 );
 
 
@@ -3537,6 +3643,20 @@ ALTER TABLE ONLY sqitch.tags
 
 
 --
+-- Name: user_abilities_per_organization_on_organization_id; Type: INDEX; Schema: app_hidden; Owner: -
+--
+
+CREATE INDEX user_abilities_per_organization_on_organization_id ON app_hidden.user_abilities_per_organization USING btree (organization_id);
+
+
+--
+-- Name: user_abilities_per_organization_on_organization_id_user_id; Type: INDEX; Schema: app_hidden; Owner: -
+--
+
+CREATE UNIQUE INDEX user_abilities_per_organization_on_organization_id_user_id ON app_hidden.user_abilities_per_organization USING btree (user_id, organization_id) INCLUDE (abilities);
+
+
+--
 -- Name: sessions_user_id_idx; Type: INDEX; Schema: app_private; Owner: -
 --
 
@@ -3824,6 +3944,27 @@ CREATE TRIGGER _500_verify_account_on_verified AFTER INSERT OR UPDATE OF is_veri
 
 
 --
+-- Name: organizations _800_refresh_user_abilities_per_organization; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _800_refresh_user_abilities_per_organization AFTER UPDATE OF owner_abilities, member_abilities ON app_public.organizations FOR EACH ROW EXECUTE FUNCTION app_hidden.refresh_user_abilities_per_organization_on_update();
+
+
+--
+-- Name: organization_memberships _800_refresh_user_abilities_per_organization_after_insert; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _800_refresh_user_abilities_per_organization_after_insert AFTER INSERT ON app_public.organization_memberships REFERENCING NEW TABLE AS new_memberships FOR EACH STATEMENT EXECUTE FUNCTION app_hidden.refresh_user_abilities_per_organization_when_memberships_change();
+
+
+--
+-- Name: organization_memberships _800_refresh_user_abilities_per_organization_after_update; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _800_refresh_user_abilities_per_organization_after_update AFTER UPDATE ON app_public.organization_memberships REFERENCING OLD TABLE AS old_memberships NEW TABLE AS new_memberships FOR EACH STATEMENT EXECUTE FUNCTION app_hidden.refresh_user_abilities_per_organization_when_memberships_change();
+
+
+--
 -- Name: user_emails _900_send_verification_email; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -3863,6 +4004,30 @@ CREATE TRIGGER procrastinate_trigger_status_events_insert AFTER INSERT ON procra
 --
 
 CREATE TRIGGER procrastinate_trigger_status_events_update AFTER UPDATE OF status ON procrastinate.procrastinate_jobs FOR EACH ROW EXECUTE FUNCTION procrastinate.procrastinate_trigger_status_events_procedure_update();
+
+
+--
+-- Name: user_abilities_per_organization organization; Type: FK CONSTRAINT; Schema: app_hidden; Owner: -
+--
+
+ALTER TABLE ONLY app_hidden.user_abilities_per_organization
+    ADD CONSTRAINT organization FOREIGN KEY (organization_id) REFERENCES app_public.organizations(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: user_abilities_per_organization organization_membership; Type: FK CONSTRAINT; Schema: app_hidden; Owner: -
+--
+
+ALTER TABLE ONLY app_hidden.user_abilities_per_organization
+    ADD CONSTRAINT organization_membership FOREIGN KEY (organization_id, user_id) REFERENCES app_public.organization_memberships(organization_id, user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: user_abilities_per_organization user; Type: FK CONSTRAINT; Schema: app_hidden; Owner: -
+--
+
+ALTER TABLE ONLY app_hidden.user_abilities_per_organization
+    ADD CONSTRAINT "user" FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -4275,6 +4440,22 @@ GRANT USAGE ON SCHEMA public TO null814_cms_app_users;
 
 REVOKE ALL ON FUNCTION app_hidden.rebase_message_revisions_before_deletion() FROM PUBLIC;
 GRANT ALL ON FUNCTION app_hidden.rebase_message_revisions_before_deletion() TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION refresh_user_abilities_per_organization_on_update(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.refresh_user_abilities_per_organization_on_update() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.refresh_user_abilities_per_organization_on_update() TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION refresh_user_abilities_per_organization_when_memberships_change(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.refresh_user_abilities_per_organization_when_memberships_change() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.refresh_user_abilities_per_organization_when_memberships_change() TO null814_cms_app_users;
 
 
 --
@@ -4754,6 +4935,13 @@ REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_status_events_procedu
 --
 
 REVOKE ALL ON FUNCTION procrastinate.procrastinate_unlink_periodic_defers() FROM PUBLIC;
+
+
+--
+-- Name: TABLE user_abilities_per_organization; Type: ACL; Schema: app_hidden; Owner: -
+--
+
+GRANT SELECT ON TABLE app_hidden.user_abilities_per_organization TO null814_cms_app_users;
 
 
 --

@@ -17,3 +17,4 @@ abilities [initial] 2024-03-05T08:44:48Z Timo Stolz <timo.stolz@nullachtvierzehn
 organizations/add-default-abilities [abilities initial] 2024-03-05T08:58:16Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add default (owner) abilities for organizations
 spaces [initial] 2024-03-05T09:05:18Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table spaces, sometimes called rooms or cases
 organization-memberships/add-abilities [abilities initial] 2024-03-06T08:04:28Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add organization_membership.abilities
+users/view-for-organization-abilities [organization-memberships/add-abilities] 2024-03-06T10:14:28Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add a view for organization abilities
