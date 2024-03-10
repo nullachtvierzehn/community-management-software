@@ -2697,6 +2697,23 @@ CREATE TABLE app_public.organization_memberships (
 
 
 --
+-- Name: space_subscriptions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.space_subscriptions (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    space_id uuid,
+    subscriber_id uuid,
+    abilities app_public.ability[] DEFAULT '{view}'::app_public.ability[] NOT NULL,
+    is_receiving_notifications boolean DEFAULT false NOT NULL,
+    last_visit_at timestamp with time zone,
+    last_notification_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
 -- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -3485,6 +3502,14 @@ ALTER TABLE ONLY app_public.organizations
 
 
 --
+-- Name: space_subscriptions space_subscriptions_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_subscriptions
+    ADD CONSTRAINT space_subscriptions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: spaces spaces_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4144,6 +4169,29 @@ COMMENT ON CONSTRAINT parent_revision ON app_public.message_revisions IS '
   @fieldName parentRevision
   @foreignFieldName childRevisions
   ';
+
+
+--
+-- Name: space_subscriptions space; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_subscriptions
+    ADD CONSTRAINT space FOREIGN KEY (space_id) REFERENCES app_public.spaces(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: CONSTRAINT space ON space_subscriptions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON CONSTRAINT space ON app_public.space_subscriptions IS '@foreignFieldName subscriptions';
+
+
+--
+-- Name: space_subscriptions subscriber; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_subscriptions
+    ADD CONSTRAINT subscriber FOREIGN KEY (subscriber_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5115,6 +5163,13 @@ GRANT INSERT(body),UPDATE(body) ON TABLE app_public.current_message_revisions TO
 --
 
 GRANT SELECT ON TABLE app_public.organization_memberships TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE space_subscriptions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
 
 
 --

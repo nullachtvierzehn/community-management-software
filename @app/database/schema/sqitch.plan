@@ -19,3 +19,4 @@ spaces [initial] 2024-03-05T09:05:18Z Timo Stolz <timo.stolz@nullachtvierzehn.de
 organization-memberships/add-abilities [abilities initial] 2024-03-06T08:04:28Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add organization_membership.abilities
 users/view-for-organization-abilities [organization-memberships/add-abilities] 2024-03-06T10:14:28Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add a view for organization abilities
 spaces/policies/can-create-root-spaces-when-organization-abilities-match [spaces users/view-for-organization-abilities] 2024-03-10T11:17:58Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow users to create root spaces for their organizations
+space-subscriptions [spaces initial] 2024-03-10T11:32:42Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table for space subscriptions
