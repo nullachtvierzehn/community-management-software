@@ -2705,9 +2705,11 @@ CREATE TABLE app_public.spaces (
     organization_id uuid DEFAULT app_public.current_user_first_member_organization_id() NOT NULL,
     creator_id uuid DEFAULT app_public.current_user_id(),
     name text NOT NULL,
+    slug text NOT NULL,
     is_open boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT is_valid_slug CHECK ((slug ~ '^[a-zA-Z0-9_-]+$'::text))
 );
 
 
@@ -3499,6 +3501,14 @@ ALTER TABLE ONLY app_public.user_authentications
 
 
 --
+-- Name: spaces unique_slug_per_organization; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.spaces
+    ADD CONSTRAINT unique_slug_per_organization UNIQUE NULLS NOT DISTINCT (organization_id, slug);
+
+
+--
 -- Name: user_authentications user_authentications_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4245,6 +4255,15 @@ ALTER TABLE app_private.user_email_secrets ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE app_private.user_secrets ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: spaces can_create_root_spaces_when_organization_abilities_match; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_create_root_spaces_when_organization_abilities_match ON app_public.spaces FOR INSERT TO null814_cms_app_users WITH CHECK ((EXISTS ( SELECT
+   FROM app_hidden.user_abilities_per_organization
+  WHERE ((user_abilities_per_organization.user_id = app_public.current_user_id()) AND (user_abilities_per_organization.organization_id IN ( SELECT app_public.current_user_member_organization_ids() AS current_user_member_organization_ids)) AND (user_abilities_per_organization.organization_id = spaces.organization_id) AND ('{create__space,create,manage}'::app_public.ability[] && user_abilities_per_organization.abilities)))));
+
 
 --
 -- Name: message_revisions delete_mine; Type: POLICY; Schema: app_public; Owner: -

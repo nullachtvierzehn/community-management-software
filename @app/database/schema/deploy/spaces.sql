@@ -17,6 +17,11 @@ create table app_public.spaces (
       references app_public.users (id)
       on update cascade on delete set null,
   "name" text not null,
+  slug text not null
+    constraint is_valid_slug
+    check (slug ~ '^[a-zA-Z0-9_-]+$'),
+  constraint unique_slug_per_organization
+    unique nulls not distinct (organization_id, slug),
   is_open boolean not null default false,
   created_at timestamptz not null default current_timestamp,
   updated_at timestamptz not null default current_timestamp
