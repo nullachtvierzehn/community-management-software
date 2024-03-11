@@ -22,6 +22,8 @@ create table app_public.space_subscriptions (
   updated_at timestamptz not null default current_timestamp
 );
 
+alter table app_public.space_subscriptions enable row level security;
+
 comment on constraint "space" on app_public.space_subscriptions 
   is E'@foreignFieldName subscriptions';
 
