@@ -17,4 +17,6 @@ as $$
   where subscriber_id = app_public.current_user_id()
 $$;
 
+grant execute on function app_public.my_space_subscription_ids() to "$DATABASE_VISITOR";
+
 COMMIT;
