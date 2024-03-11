@@ -25,7 +25,18 @@
     "files.associations": {
       "*.css": "tailwindcss"
     },
-    "typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "sqltools.connections": [
+      {
+        "previewLimit": 50,
+        "server": "localhost",
+        "port": 5432,
+        "driver": "PostgreSQL",
+        "name": "Local",
+        "database": "null814_cms",
+        "username": "null814_cms_owner"
+      }
+    ]
   },
   "folders": [
     {
