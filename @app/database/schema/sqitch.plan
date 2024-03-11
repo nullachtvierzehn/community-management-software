@@ -25,3 +25,4 @@ spaces/policies/can-select-if-newly-created [spaces] 2024-03-11T10:57:25Z Timo S
 space-subscriptions/my-space-subscription-ids [space-subscriptions] 2024-03-11T11:13:23Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add function to fetch the IDs of the space subscriptions of the current user
 space-subscriptions/policies/can-select-my-subscriptions [space-subscriptions/my-space-subscription-ids] 2024-03-11T11:26:10Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # can select own subscriptions
 space-subscriptions/policies/can-delete-my-subscriptions [space-subscriptions/my-space-subscription-ids] 2024-03-11T11:29:07Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # can delete own subscriptions
+space-subscriptions/policies/can-insert-own-subscriptions-if-space-is-open [space-subscriptions/my-space-subscription-ids] 2024-03-11T11:31:12Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # can insert own subscriptions if space is open
