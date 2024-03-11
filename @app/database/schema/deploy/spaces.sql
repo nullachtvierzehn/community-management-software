@@ -39,4 +39,11 @@ grant insert (id, organization_id, creator_id, "name", is_open) on app_public.sp
 grant update (organization_id, "name", is_open) on app_public.spaces to "$DATABASE_VISITOR";
 grant delete on app_public.spaces to "$DATABASE_VISITOR";
 
+
+-- auto-update updated_at
+create trigger _200_timestamps
+  before insert or update on app_public.spaces
+  for each row
+  execute procedure app_private.tg__timestamps();
+
 COMMIT;

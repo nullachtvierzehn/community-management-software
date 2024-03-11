@@ -27,4 +27,10 @@ comment on constraint "space" on app_public.space_subscriptions
 
 grant select on app_public.space_subscriptions to "$DATABASE_VISITOR";
 
+-- auto-update updated_at
+create trigger _200_timestamps
+  before insert or update on app_public.space_subscriptions
+  for each row
+  execute procedure app_private.tg__timestamps();
+
 COMMIT;
