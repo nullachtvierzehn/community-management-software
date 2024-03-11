@@ -184,6 +184,34 @@ CREATE TYPE procrastinate.procrastinate_job_status AS ENUM (
 
 
 --
+-- Name: auto_subscribe_after_space_creation(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.auto_subscribe_after_space_creation() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+declare
+  my_user_id uuid := app_public.current_user_id();
+  abilities_for_space_creators app_public.ability[];
+begin
+  select space_creator_abilities into abilities_for_space_creators
+    from app_public.organizations
+    where id = new.organization_id;
+
+  if 
+    my_user_id is not null 
+    and array_length(abilities_for_space_creators, 1) > 0 
+  then
+    insert into app_public.space_subscriptions (space_id, "user_id", abilites)
+      values (new.id, my_user_id, abilities_for_space_creators);
+  end if;
+  return new;
+end
+$$;
+
+
+--
 -- Name: rebase_message_revisions_before_deletion(); Type: FUNCTION; Schema: app_hidden; Owner: -
 --
 
@@ -1152,7 +1180,8 @@ CREATE TABLE app_public.organizations (
     name text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     member_abilities app_public.ability[] DEFAULT '{create__message,update__message,submit__message}'::app_public.ability[] NOT NULL,
-    owner_abilities app_public.ability[] DEFAULT '{manage}'::app_public.ability[] NOT NULL
+    owner_abilities app_public.ability[] DEFAULT '{manage}'::app_public.ability[] NOT NULL,
+    space_creator_abilities app_public.ability[] DEFAULT '{manage}'::app_public.ability[] NOT NULL
 );
 
 
@@ -3895,6 +3924,20 @@ CREATE TRIGGER _200_rebase_message_revisions_before_deletion BEFORE DELETE ON ap
 
 
 --
+-- Name: space_subscriptions _200_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _200_timestamps BEFORE INSERT OR UPDATE ON app_public.space_subscriptions FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
+
+
+--
+-- Name: spaces _200_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _200_timestamps BEFORE INSERT OR UPDATE ON app_public.spaces FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
+
+
+--
 -- Name: user_emails _500_audit_added; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -3913,6 +3956,13 @@ CREATE TRIGGER _500_audit_removed AFTER DELETE ON app_public.user_authentication
 --
 
 CREATE TRIGGER _500_audit_removed AFTER DELETE ON app_public.user_emails FOR EACH ROW EXECUTE FUNCTION app_private.tg__add_audit_job('removed_email', 'user_id', 'id', 'email');
+
+
+--
+-- Name: spaces _500_auto_subscribe_after_space_creation; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _500_auto_subscribe_after_space_creation AFTER INSERT ON app_public.spaces FOR EACH ROW EXECUTE FUNCTION app_hidden.auto_subscribe_after_space_creation();
 
 
 --
@@ -4499,6 +4549,14 @@ GRANT USAGE ON SCHEMA app_public TO null814_cms_app_users;
 
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION auto_subscribe_after_space_creation(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.auto_subscribe_after_space_creation() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.auto_subscribe_after_space_creation() TO null814_cms_app_users;
 
 
 --
