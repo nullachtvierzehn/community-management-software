@@ -4378,6 +4378,13 @@ CREATE POLICY can_create_root_spaces_when_organization_abilities_match ON app_pu
 
 
 --
+-- Name: space_subscriptions can_delete_my_subscriptions; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_delete_my_subscriptions ON app_public.space_subscriptions FOR DELETE TO null814_cms_app_users USING ((id IN ( SELECT app_public.my_space_subscription_ids() AS my_space_subscription_ids)));
+
+
+--
 -- Name: spaces can_select_if_newly_created; Type: POLICY; Schema: app_public; Owner: -
 --
 
