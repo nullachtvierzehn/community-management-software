@@ -152,6 +152,8 @@ CREATE TYPE app_public.ability AS ENUM (
     'accept',
     'accept__message',
     'accept__file',
+    'grant',
+    'grant__ability',
     'manage'
 );
 
@@ -4382,6 +4384,15 @@ CREATE POLICY can_create_root_spaces_when_organization_abilities_match ON app_pu
 --
 
 CREATE POLICY can_delete_my_subscriptions ON app_public.space_subscriptions FOR DELETE TO null814_cms_app_users USING ((id IN ( SELECT app_public.my_space_subscription_ids() AS my_space_subscription_ids)));
+
+
+--
+-- Name: space_subscriptions can_insert_own_subscriptions_if_space_is_open; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_insert_own_subscriptions_if_space_is_open ON app_public.space_subscriptions FOR INSERT TO null814_cms_app_users WITH CHECK (((subscriber_id = app_public.current_user_id()) AND ((abilities IS NULL) OR (abilities <@ '{view}'::app_public.ability[])) AND (space_id IN ( SELECT spaces.id
+   FROM app_public.spaces
+  WHERE spaces.is_open))));
 
 
 --

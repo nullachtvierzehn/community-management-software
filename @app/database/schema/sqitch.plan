@@ -26,3 +26,4 @@ space-subscriptions/my-space-subscription-ids [space-subscriptions] 2024-03-11T1
 space-subscriptions/policies/can-select-my-subscriptions [space-subscriptions/my-space-subscription-ids] 2024-03-11T11:26:10Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # can select own subscriptions
 space-subscriptions/policies/can-delete-my-subscriptions [space-subscriptions/my-space-subscription-ids] 2024-03-11T11:29:07Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # can delete own subscriptions
 space-subscriptions/policies/can-insert-own-subscriptions-if-space-is-open [space-subscriptions/my-space-subscription-ids] 2024-03-11T11:31:12Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # can insert own subscriptions if space is open
+abilities/add-grant-ability [abilities] 2024-03-11T11:44:11Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add grant ability

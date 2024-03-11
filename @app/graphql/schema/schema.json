@@ -5887,6 +5887,18 @@
               "deprecationReason": null
             },
             {
+              "name": "GRANT",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "GRANT_ABILITY",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "MANAGE",
               "description": null,
               "isDeprecated": false,
