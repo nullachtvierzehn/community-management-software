@@ -17,17 +17,17 @@ type Query implements Node {
     nodeId: ID!
   ): Node
 
-  """Get a single `OrganizationMembership`."""
-  organizationMembership(id: UUID!): OrganizationMembership
-
-  """Get a single `OrganizationMembership`."""
-  organizationMembershipByOrganizationIdAndUserId(organizationId: UUID!, userId: UUID!): OrganizationMembership
-
   """Get a single `UserEmail`."""
   userEmail(id: UUID!): UserEmail
 
   """Get a single `UserEmail`."""
   userEmailByUserIdAndEmail(userId: UUID!, email: String!): UserEmail
+
+  """Get a single `Space`."""
+  space(id: UUID!): Space
+
+  """Get a single `Space`."""
+  spaceByOrganizationIdAndSlug(organizationId: UUID!, slug: String!): Space
 
   """Get a single `User`."""
   user(id: UUID!): User
@@ -50,11 +50,20 @@ type Query implements Node {
   """Get a single `MessageRevision`."""
   messageRevision(id: UUID!, revisionId: UUID!): MessageRevision
 
+  """Get a single `OrganizationMembership`."""
+  organizationMembership(id: UUID!): OrganizationMembership
+
+  """Get a single `OrganizationMembership`."""
+  organizationMembershipByOrganizationIdAndUserId(organizationId: UUID!, userId: UUID!): OrganizationMembership
+
   """Get a single `Organization`."""
   organization(id: UUID!): Organization
 
   """Get a single `Organization`."""
   organizationBySlug(slug: String!): Organization
+
+  """Get a single `SpaceSubscription`."""
+  spaceSubscription(id: UUID!): SpaceSubscription
 
   """Handy method to get the current session ID."""
   currentSessionId: UUID
@@ -121,21 +130,17 @@ type Query implements Node {
   currentUser: User
   organizationForInvitation(invitationId: UUID!, code: String): Organization
 
-  """
-  Reads a single `OrganizationMembership` using its globally unique `ID`.
-  """
-  organizationMembershipByNodeId(
-    """
-    The globally unique `ID` to be used in selecting a single `OrganizationMembership`.
-    """
-    nodeId: ID!
-  ): OrganizationMembership
-
   """Reads a single `UserEmail` using its globally unique `ID`."""
   userEmailByNodeId(
     """The globally unique `ID` to be used in selecting a single `UserEmail`."""
     nodeId: ID!
   ): UserEmail
+
+  """Reads a single `Space` using its globally unique `ID`."""
+  spaceByNodeId(
+    """The globally unique `ID` to be used in selecting a single `Space`."""
+    nodeId: ID!
+  ): Space
 
   """Reads a single `User` using its globally unique `ID`."""
   userByNodeId(
@@ -177,6 +182,16 @@ type Query implements Node {
     nodeId: ID!
   ): MessageRevision
 
+  """
+  Reads a single `OrganizationMembership` using its globally unique `ID`.
+  """
+  organizationMembershipByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `OrganizationMembership`.
+    """
+    nodeId: ID!
+  ): OrganizationMembership
+
   """Reads a single `Organization` using its globally unique `ID`."""
   organizationByNodeId(
     """
@@ -185,41 +200,13 @@ type Query implements Node {
     nodeId: ID!
   ): Organization
 
-  """
-  Reads and enables pagination through a set of `OrganizationMembership`.
-  """
-  organizationMemberships(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
+  """Reads a single `SpaceSubscription` using its globally unique `ID`."""
+  spaceSubscriptionByNodeId(
     """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
+    The globally unique `ID` to be used in selecting a single `SpaceSubscription`.
     """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `OrganizationMembership`."""
-    orderBy: [OrganizationMembershipsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: OrganizationMembershipCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: OrganizationMembershipFilter
-  ): OrganizationMembershipsConnection
+    nodeId: ID!
+  ): SpaceSubscription
 
   """Reads and enables pagination through a set of `UserEmail`."""
   userEmails(
@@ -254,6 +241,40 @@ type Query implements Node {
     """
     filter: UserEmailFilter
   ): UserEmailsConnection
+
+  """Reads and enables pagination through a set of `Space`."""
+  spaces(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `Space`."""
+    orderBy: [SpacesOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilter
+  ): SpacesConnection
 
   """Reads and enables pagination through a set of `User`."""
   users(
@@ -427,100 +448,6 @@ type Query implements Node {
     filter: MessageRevisionFilter
   ): MessageRevisionsConnection
 
-  """Reads and enables pagination through a set of `Organization`."""
-  organizations(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `Organization`."""
-    orderBy: [OrganizationsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: OrganizationCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: OrganizationFilter
-  ): OrganizationsConnection
-}
-
-"""An object with a globally unique `ID`."""
-interface Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-}
-
-type OrganizationMembership implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-  id: UUID!
-  organizationId: UUID!
-  userId: UUID!
-  isOwner: Boolean!
-  isBillingContact: Boolean!
-  createdAt: Datetime!
-
-  """
-  Reads a single `Organization` that is related to this `OrganizationMembership`.
-  """
-  organization: Organization
-
-  """
-  Reads a single `User` that is related to this `OrganizationMembership`.
-  """
-  user: User
-}
-
-"""
-A universally unique identifier as defined by [RFC 4122](https://tools.ietf.org/html/rfc4122).
-"""
-scalar UUID
-
-"""
-A point in time as described by the [ISO
-8601](https://en.wikipedia.org/wiki/ISO_8601) and, if it has a timezone, [RFC
-3339](https://datatracker.ietf.org/doc/html/rfc3339) standards. Input values
-that do not conform to both ISO 8601 and RFC 3339 may be coerced, which may lead
-to unexpected results.
-"""
-scalar Datetime
-
-type Organization implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-  currentUserIsBillingContact: Boolean
-  currentUserIsOwner: Boolean
-  id: UUID!
-  slug: String!
-  name: String!
-  createdAt: Datetime!
-  memberAbilities: [Ability]!
-  ownerAbilities: [Ability]!
-
   """
   Reads and enables pagination through a set of `OrganizationMembership`.
   """
@@ -555,905 +482,122 @@ type Organization implements Node {
     A filter to be used in determining which values should be returned by the collection.
     """
     filter: OrganizationMembershipFilter
-  ): OrganizationMembershipsConnection!
+  ): OrganizationMembershipsConnection
+
+  """Reads and enables pagination through a set of `Organization`."""
+  organizations(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `Organization`."""
+    orderBy: [OrganizationsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: OrganizationCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrganizationFilter
+  ): OrganizationsConnection
+
+  """Reads and enables pagination through a set of `SpaceSubscription`."""
+  spaceSubscriptions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubscription`."""
+    orderBy: [SpaceSubscriptionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubscriptionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubscriptionFilter
+  ): SpaceSubscriptionsConnection
 }
 
-enum Ability {
-  VIEW
-  CREATE
-  CREATE_SPACE
-  CREATE_MESSAGE
-  CREATE_FILE
-  UPDATE
-  UPDATE_SPACE
-  UPDATE_MESSAGE
-  UPDATE_FILE
-  DELETE
-  DELETE_SPACE
-  DELETE_MESSAGE
-  DELETE_FILE
-  SUBMIT
-  SUBMIT_MESSAGE
-  SUBMIT_FILE
-  ACCEPT
-  ACCEPT_MESSAGE
-  ACCEPT_FILE
-  MANAGE
+"""An object with a globally unique `ID`."""
+interface Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
 }
 
-"""A connection to a list of `OrganizationMembership` values."""
-type OrganizationMembershipsConnection {
-  """A list of `OrganizationMembership` objects."""
-  nodes: [OrganizationMembership!]!
+"""Information about a user's email address."""
+type UserEmail implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  userId: UUID!
+
+  """The users email address, in `a@b.c` format."""
+  email: String!
 
   """
-  A list of edges which contains the `OrganizationMembership` and cursor to aid in pagination.
+  True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise.
   """
-  edges: [OrganizationMembershipsEdge!]!
+  isVerified: Boolean!
+  isPrimary: Boolean!
+  createdAt: Datetime!
+  updatedAt: Datetime!
 
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """
-  The count of *all* `OrganizationMembership` you could get from the connection.
-  """
-  totalCount: Int!
-}
-
-"""A `OrganizationMembership` edge in the connection."""
-type OrganizationMembershipsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `OrganizationMembership` at the end of the edge."""
-  node: OrganizationMembership!
-}
-
-"""A location in a connection that can be used for resuming pagination."""
-scalar Cursor
-
-"""Information about pagination in a connection."""
-type PageInfo {
-  """When paginating forwards, are there more items?"""
-  hasNextPage: Boolean!
-
-  """When paginating backwards, are there more items?"""
-  hasPreviousPage: Boolean!
-
-  """When paginating backwards, the cursor to continue."""
-  startCursor: Cursor
-
-  """When paginating forwards, the cursor to continue."""
-  endCursor: Cursor
-}
-
-"""Methods to use when ordering `OrganizationMembership`."""
-enum OrganizationMembershipsOrderBy {
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  ID_ASC
-  ID_DESC
-  ORGANIZATION_ID_ASC
-  ORGANIZATION_ID_DESC
-  USER_ID_ASC
-  USER_ID_DESC
-  IS_OWNER_ASC
-  IS_OWNER_DESC
-  IS_BILLING_CONTACT_ASC
-  IS_BILLING_CONTACT_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-}
-
-"""
-A condition to be used against `OrganizationMembership` object types. All fields
-are tested for equality and combined with a logical ‘and.’
-"""
-input OrganizationMembershipCondition {
-  """Checks for equality with the object’s `id` field."""
-  id: UUID
-
-  """Checks for equality with the object’s `organizationId` field."""
-  organizationId: UUID
-
-  """Checks for equality with the object’s `userId` field."""
-  userId: UUID
-
-  """Checks for equality with the object’s `isOwner` field."""
-  isOwner: Boolean
-
-  """Checks for equality with the object’s `isBillingContact` field."""
-  isBillingContact: Boolean
-
-  """Checks for equality with the object’s `createdAt` field."""
-  createdAt: Datetime
+  """Reads a single `User` that is related to this `UserEmail`."""
+  user: User
 }
 
 """
-A filter to be used against `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
+A universally unique identifier as defined by [RFC 4122](https://tools.ietf.org/html/rfc4122).
 """
-input OrganizationMembershipFilter {
-  """Filter by the object’s `id` field."""
-  id: UUIDFilter
-
-  """Filter by the object’s `organizationId` field."""
-  organizationId: UUIDFilter
-
-  """Filter by the object’s `userId` field."""
-  userId: UUIDFilter
-
-  """Filter by the object’s `isOwner` field."""
-  isOwner: BooleanFilter
-
-  """Filter by the object’s `isBillingContact` field."""
-  isBillingContact: BooleanFilter
-
-  """Filter by the object’s `createdAt` field."""
-  createdAt: DatetimeFilter
-
-  """Filter by the object’s `organization` relation."""
-  organization: OrganizationFilter
-
-  """Filter by the object’s `user` relation."""
-  user: UserFilter
-
-  """Checks for all expressions in this list."""
-  and: [OrganizationMembershipFilter!]
-
-  """Checks for any expressions in this list."""
-  or: [OrganizationMembershipFilter!]
-
-  """Negates the expression."""
-  not: OrganizationMembershipFilter
-}
+scalar UUID
 
 """
-A filter to be used against UUID fields. All fields are combined with a logical ‘and.’
+A point in time as described by the [ISO
+8601](https://en.wikipedia.org/wiki/ISO_8601) and, if it has a timezone, [RFC
+3339](https://datatracker.ietf.org/doc/html/rfc3339) standards. Input values
+that do not conform to both ISO 8601 and RFC 3339 may be coerced, which may lead
+to unexpected results.
 """
-input UUIDFilter {
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Equal to the specified value."""
-  equalTo: UUID
-
-  """Not equal to the specified value."""
-  notEqualTo: UUID
-
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: UUID
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: UUID
-
-  """Included in the specified list."""
-  in: [UUID!]
-
-  """Not included in the specified list."""
-  notIn: [UUID!]
-
-  """Less than the specified value."""
-  lessThan: UUID
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: UUID
-
-  """Greater than the specified value."""
-  greaterThan: UUID
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: UUID
-}
-
-"""
-A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’
-"""
-input BooleanFilter {
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Equal to the specified value."""
-  equalTo: Boolean
-
-  """Not equal to the specified value."""
-  notEqualTo: Boolean
-
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: Boolean
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: Boolean
-
-  """Included in the specified list."""
-  in: [Boolean!]
-
-  """Not included in the specified list."""
-  notIn: [Boolean!]
-
-  """Less than the specified value."""
-  lessThan: Boolean
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: Boolean
-
-  """Greater than the specified value."""
-  greaterThan: Boolean
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: Boolean
-}
-
-"""
-A filter to be used against Datetime fields. All fields are combined with a logical ‘and.’
-"""
-input DatetimeFilter {
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Equal to the specified value."""
-  equalTo: Datetime
-
-  """Not equal to the specified value."""
-  notEqualTo: Datetime
-
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: Datetime
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: Datetime
-
-  """Included in the specified list."""
-  in: [Datetime!]
-
-  """Not included in the specified list."""
-  notIn: [Datetime!]
-
-  """Less than the specified value."""
-  lessThan: Datetime
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: Datetime
-
-  """Greater than the specified value."""
-  greaterThan: Datetime
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: Datetime
-}
-
-"""
-A filter to be used against `Organization` object types. All fields are combined with a logical ‘and.’
-"""
-input OrganizationFilter {
-  """Filter by the object’s `id` field."""
-  id: UUIDFilter
-
-  """Filter by the object’s `slug` field."""
-  slug: StringFilter
-
-  """Filter by the object’s `name` field."""
-  name: StringFilter
-
-  """Filter by the object’s `createdAt` field."""
-  createdAt: DatetimeFilter
-
-  """Filter by the object’s `memberAbilities` field."""
-  memberAbilities: AbilityListFilter
-
-  """Filter by the object’s `ownerAbilities` field."""
-  ownerAbilities: AbilityListFilter
-
-  """Filter by the object’s `currentUserIsBillingContact` field."""
-  currentUserIsBillingContact: BooleanFilter
-
-  """Filter by the object’s `currentUserIsOwner` field."""
-  currentUserIsOwner: BooleanFilter
-
-  """Filter by the object’s `organizationMemberships` relation."""
-  organizationMemberships: OrganizationToManyOrganizationMembershipFilter
-
-  """Some related `organizationMemberships` exist."""
-  organizationMembershipsExist: Boolean
-
-  """Checks for all expressions in this list."""
-  and: [OrganizationFilter!]
-
-  """Checks for any expressions in this list."""
-  or: [OrganizationFilter!]
-
-  """Negates the expression."""
-  not: OrganizationFilter
-}
-
-"""
-A filter to be used against String fields. All fields are combined with a logical ‘and.’
-"""
-input StringFilter {
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Equal to the specified value."""
-  equalTo: String
-
-  """Not equal to the specified value."""
-  notEqualTo: String
-
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: String
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: String
-
-  """Included in the specified list."""
-  in: [String!]
-
-  """Not included in the specified list."""
-  notIn: [String!]
-
-  """Less than the specified value."""
-  lessThan: String
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: String
-
-  """Greater than the specified value."""
-  greaterThan: String
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: String
-
-  """Contains the specified string (case-sensitive)."""
-  includes: String
-
-  """Does not contain the specified string (case-sensitive)."""
-  notIncludes: String
-
-  """Contains the specified string (case-insensitive)."""
-  includesInsensitive: String
-
-  """Does not contain the specified string (case-insensitive)."""
-  notIncludesInsensitive: String
-
-  """Starts with the specified string (case-sensitive)."""
-  startsWith: String
-
-  """Does not start with the specified string (case-sensitive)."""
-  notStartsWith: String
-
-  """Starts with the specified string (case-insensitive)."""
-  startsWithInsensitive: String
-
-  """Does not start with the specified string (case-insensitive)."""
-  notStartsWithInsensitive: String
-
-  """Ends with the specified string (case-sensitive)."""
-  endsWith: String
-
-  """Does not end with the specified string (case-sensitive)."""
-  notEndsWith: String
-
-  """Ends with the specified string (case-insensitive)."""
-  endsWithInsensitive: String
-
-  """Does not end with the specified string (case-insensitive)."""
-  notEndsWithInsensitive: String
-
-  """
-  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
-  """
-  like: String
-
-  """
-  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
-  """
-  notLike: String
-
-  """
-  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
-  """
-  likeInsensitive: String
-
-  """
-  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
-  """
-  notLikeInsensitive: String
-
-  """Equal to the specified value (case-insensitive)."""
-  equalToInsensitive: String
-
-  """Not equal to the specified value (case-insensitive)."""
-  notEqualToInsensitive: String
-
-  """
-  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
-  """
-  distinctFromInsensitive: String
-
-  """
-  Equal to the specified value, treating null like an ordinary value (case-insensitive).
-  """
-  notDistinctFromInsensitive: String
-
-  """Included in the specified list (case-insensitive)."""
-  inInsensitive: [String!]
-
-  """Not included in the specified list (case-insensitive)."""
-  notInInsensitive: [String!]
-
-  """Less than the specified value (case-insensitive)."""
-  lessThanInsensitive: String
-
-  """Less than or equal to the specified value (case-insensitive)."""
-  lessThanOrEqualToInsensitive: String
-
-  """Greater than the specified value (case-insensitive)."""
-  greaterThanInsensitive: String
-
-  """Greater than or equal to the specified value (case-insensitive)."""
-  greaterThanOrEqualToInsensitive: String
-}
-
-"""
-A filter to be used against Ability List fields. All fields are combined with a logical ‘and.’
-"""
-input AbilityListFilter {
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Equal to the specified value."""
-  equalTo: [Ability]
-
-  """Not equal to the specified value."""
-  notEqualTo: [Ability]
-
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: [Ability]
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: [Ability]
-
-  """Less than the specified value."""
-  lessThan: [Ability]
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: [Ability]
-
-  """Greater than the specified value."""
-  greaterThan: [Ability]
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: [Ability]
-
-  """Contains the specified list of values."""
-  contains: [Ability]
-
-  """Contained by the specified list of values."""
-  containedBy: [Ability]
-
-  """Overlaps the specified list of values."""
-  overlaps: [Ability]
-
-  """Any array item is equal to the specified value."""
-  anyEqualTo: Ability
-
-  """Any array item is not equal to the specified value."""
-  anyNotEqualTo: Ability
-
-  """Any array item is less than the specified value."""
-  anyLessThan: Ability
-
-  """Any array item is less than or equal to the specified value."""
-  anyLessThanOrEqualTo: Ability
-
-  """Any array item is greater than the specified value."""
-  anyGreaterThan: Ability
-
-  """Any array item is greater than or equal to the specified value."""
-  anyGreaterThanOrEqualTo: Ability
-}
-
-"""
-A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
-"""
-input OrganizationToManyOrganizationMembershipFilter {
-  """
-  Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: OrganizationMembershipFilter
-
-  """
-  Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: OrganizationMembershipFilter
-
-  """
-  No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: OrganizationMembershipFilter
-}
-
-"""
-A filter to be used against `User` object types. All fields are combined with a logical ‘and.’
-"""
-input UserFilter {
-  """Filter by the object’s `id` field."""
-  id: UUIDFilter
-
-  """Filter by the object’s `username` field."""
-  username: StringFilter
-
-  """Filter by the object’s `name` field."""
-  name: StringFilter
-
-  """Filter by the object’s `avatarUrl` field."""
-  avatarUrl: StringFilter
-
-  """Filter by the object’s `isAdmin` field."""
-  isAdmin: BooleanFilter
-
-  """Filter by the object’s `isVerified` field."""
-  isVerified: BooleanFilter
-
-  """Filter by the object’s `createdAt` field."""
-  createdAt: DatetimeFilter
-
-  """Filter by the object’s `updatedAt` field."""
-  updatedAt: DatetimeFilter
-
-  """Filter by the object’s `hasPassword` field."""
-  hasPassword: BooleanFilter
-
-  """Filter by the object’s `userEmails` relation."""
-  userEmails: UserToManyUserEmailFilter
-
-  """Some related `userEmails` exist."""
-  userEmailsExist: Boolean
-
-  """Filter by the object’s `userAuthentications` relation."""
-  userAuthentications: UserToManyUserAuthenticationFilter
-
-  """Some related `userAuthentications` exist."""
-  userAuthenticationsExist: Boolean
-
-  """Filter by the object’s `organizationMemberships` relation."""
-  organizationMemberships: UserToManyOrganizationMembershipFilter
-
-  """Some related `organizationMemberships` exist."""
-  organizationMembershipsExist: Boolean
-
-  """Filter by the object’s `editedMessageRevisions` relation."""
-  editedMessageRevisions: UserToManyMessageRevisionFilter
-
-  """Some related `editedMessageRevisions` exist."""
-  editedMessageRevisionsExist: Boolean
-
-  """Checks for all expressions in this list."""
-  and: [UserFilter!]
-
-  """Checks for any expressions in this list."""
-  or: [UserFilter!]
-
-  """Negates the expression."""
-  not: UserFilter
-}
-
-"""
-A filter to be used against many `UserEmail` object types. All fields are combined with a logical ‘and.’
-"""
-input UserToManyUserEmailFilter {
-  """
-  Every related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: UserEmailFilter
-
-  """
-  Some related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: UserEmailFilter
-
-  """
-  No related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: UserEmailFilter
-}
-
-"""
-A filter to be used against `UserEmail` object types. All fields are combined with a logical ‘and.’
-"""
-input UserEmailFilter {
-  """Filter by the object’s `id` field."""
-  id: UUIDFilter
-
-  """Filter by the object’s `userId` field."""
-  userId: UUIDFilter
-
-  """Filter by the object’s `email` field."""
-  email: StringFilter
-
-  """Filter by the object’s `isVerified` field."""
-  isVerified: BooleanFilter
-
-  """Filter by the object’s `isPrimary` field."""
-  isPrimary: BooleanFilter
-
-  """Filter by the object’s `createdAt` field."""
-  createdAt: DatetimeFilter
-
-  """Filter by the object’s `updatedAt` field."""
-  updatedAt: DatetimeFilter
-
-  """Filter by the object’s `user` relation."""
-  user: UserFilter
-
-  """Checks for all expressions in this list."""
-  and: [UserEmailFilter!]
-
-  """Checks for any expressions in this list."""
-  or: [UserEmailFilter!]
-
-  """Negates the expression."""
-  not: UserEmailFilter
-}
-
-"""
-A filter to be used against many `UserAuthentication` object types. All fields are combined with a logical ‘and.’
-"""
-input UserToManyUserAuthenticationFilter {
-  """
-  Every related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: UserAuthenticationFilter
-
-  """
-  Some related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: UserAuthenticationFilter
-
-  """
-  No related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: UserAuthenticationFilter
-}
-
-"""
-A filter to be used against `UserAuthentication` object types. All fields are combined with a logical ‘and.’
-"""
-input UserAuthenticationFilter {
-  """Filter by the object’s `id` field."""
-  id: UUIDFilter
-
-  """Filter by the object’s `userId` field."""
-  userId: UUIDFilter
-
-  """Filter by the object’s `service` field."""
-  service: StringFilter
-
-  """Filter by the object’s `identifier` field."""
-  identifier: StringFilter
-
-  """Filter by the object’s `details` field."""
-  details: JSONFilter
-
-  """Filter by the object’s `createdAt` field."""
-  createdAt: DatetimeFilter
-
-  """Filter by the object’s `updatedAt` field."""
-  updatedAt: DatetimeFilter
-
-  """Filter by the object’s `user` relation."""
-  user: UserFilter
-
-  """Checks for all expressions in this list."""
-  and: [UserAuthenticationFilter!]
-
-  """Checks for any expressions in this list."""
-  or: [UserAuthenticationFilter!]
-
-  """Negates the expression."""
-  not: UserAuthenticationFilter
-}
-
-"""
-A filter to be used against JSON fields. All fields are combined with a logical ‘and.’
-"""
-input JSONFilter {
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Equal to the specified value."""
-  equalTo: JSON
-
-  """Not equal to the specified value."""
-  notEqualTo: JSON
-
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: JSON
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: JSON
-
-  """Included in the specified list."""
-  in: [JSON!]
-
-  """Not included in the specified list."""
-  notIn: [JSON!]
-
-  """Less than the specified value."""
-  lessThan: JSON
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: JSON
-
-  """Greater than the specified value."""
-  greaterThan: JSON
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: JSON
-
-  """Contains the specified JSON."""
-  contains: JSON
-
-  """Contains the specified key."""
-  containsKey: String
-
-  """Contains all of the specified keys."""
-  containsAllKeys: [String!]
-
-  """Contains any of the specified keys."""
-  containsAnyKeys: [String!]
-
-  """Contained by the specified JSON."""
-  containedBy: JSON
-}
-
-"""
-Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
-
-"""
-A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
-"""
-input UserToManyOrganizationMembershipFilter {
-  """
-  Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: OrganizationMembershipFilter
-
-  """
-  Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: OrganizationMembershipFilter
-
-  """
-  No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: OrganizationMembershipFilter
-}
-
-"""
-A filter to be used against many `MessageRevision` object types. All fields are combined with a logical ‘and.’
-"""
-input UserToManyMessageRevisionFilter {
-  """
-  Every related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: MessageRevisionFilter
-
-  """
-  Some related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: MessageRevisionFilter
-
-  """
-  No related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: MessageRevisionFilter
-}
-
-"""
-A filter to be used against `MessageRevision` object types. All fields are combined with a logical ‘and.’
-"""
-input MessageRevisionFilter {
-  """Filter by the object’s `id` field."""
-  id: UUIDFilter
-
-  """Filter by the object’s `revisionId` field."""
-  revisionId: UUIDFilter
-
-  """Filter by the object’s `parentRevisionId` field."""
-  parentRevisionId: UUIDFilter
-
-  """Filter by the object’s `editorId` field."""
-  editorId: UUIDFilter
-
-  """Filter by the object’s `createdAt` field."""
-  createdAt: DatetimeFilter
-
-  """Filter by the object’s `updatedAt` field."""
-  updatedAt: DatetimeFilter
-
-  """Filter by the object’s `updateComment` field."""
-  updateComment: StringFilter
-
-  """Filter by the object’s `subject` field."""
-  subject: StringFilter
-
-  """Filter by the object’s `body` field."""
-  body: JSONFilter
-
-  """Filter by the object’s `childRevisions` relation."""
-  childRevisions: MessageRevisionToManyMessageRevisionFilter
-
-  """Some related `childRevisions` exist."""
-  childRevisionsExist: Boolean
-
-  """Filter by the object’s `editor` relation."""
-  editor: UserFilter
-
-  """A related `editor` exists."""
-  editorExists: Boolean
-
-  """Filter by the object’s `parentRevision` relation."""
-  parentRevision: MessageRevisionFilter
-
-  """A related `parentRevision` exists."""
-  parentRevisionExists: Boolean
-
-  """Checks for all expressions in this list."""
-  and: [MessageRevisionFilter!]
-
-  """Checks for any expressions in this list."""
-  or: [MessageRevisionFilter!]
-
-  """Negates the expression."""
-  not: MessageRevisionFilter
-}
-
-"""
-A filter to be used against many `MessageRevision` object types. All fields are combined with a logical ‘and.’
-"""
-input MessageRevisionToManyMessageRevisionFilter {
-  """
-  Every related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: MessageRevisionFilter
-
-  """
-  Some related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: MessageRevisionFilter
-
-  """
-  No related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: MessageRevisionFilter
-}
+scalar Datetime
 
 """A user who can log in to the application."""
 type User implements Node {
@@ -1618,6 +762,74 @@ type User implements Node {
     """
     filter: MessageRevisionFilter
   ): MessageRevisionsConnection!
+
+  """Reads and enables pagination through a set of `Space`."""
+  spacesByCreatorId(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `Space`."""
+    orderBy: [SpacesOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilter
+  ): SpacesConnection!
+
+  """Reads and enables pagination through a set of `SpaceSubscription`."""
+  spaceSubscriptionsBySubscriberId(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubscription`."""
+    orderBy: [SpaceSubscriptionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubscriptionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubscriptionFilter
+  ): SpaceSubscriptionsConnection!
 }
 
 """A connection to a list of `UserEmail` values."""
@@ -1637,30 +849,6 @@ type UserEmailsConnection {
   totalCount: Int!
 }
 
-"""Information about a user's email address."""
-type UserEmail implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-  id: UUID!
-  userId: UUID!
-
-  """The users email address, in `a@b.c` format."""
-  email: String!
-
-  """
-  True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise.
-  """
-  isVerified: Boolean!
-  isPrimary: Boolean!
-  createdAt: Datetime!
-  updatedAt: Datetime!
-
-  """Reads a single `User` that is related to this `UserEmail`."""
-  user: User
-}
-
 """A `UserEmail` edge in the connection."""
 type UserEmailsEdge {
   """A cursor for use in pagination."""
@@ -1668,6 +856,24 @@ type UserEmailsEdge {
 
   """The `UserEmail` at the end of the edge."""
   node: UserEmail!
+}
+
+"""A location in a connection that can be used for resuming pagination."""
+scalar Cursor
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
 }
 
 """Methods to use when ordering `UserEmail`."""
@@ -1716,6 +922,1024 @@ input UserEmailCondition {
 
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
+}
+
+"""
+A filter to be used against `UserEmail` object types. All fields are combined with a logical ‘and.’
+"""
+input UserEmailFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `userId` field."""
+  userId: UUIDFilter
+
+  """Filter by the object’s `email` field."""
+  email: StringFilter
+
+  """Filter by the object’s `isVerified` field."""
+  isVerified: BooleanFilter
+
+  """Filter by the object’s `isPrimary` field."""
+  isPrimary: BooleanFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `user` relation."""
+  user: UserFilter
+
+  """Checks for all expressions in this list."""
+  and: [UserEmailFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [UserEmailFilter!]
+
+  """Negates the expression."""
+  not: UserEmailFilter
+}
+
+"""
+A filter to be used against UUID fields. All fields are combined with a logical ‘and.’
+"""
+input UUIDFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: UUID
+
+  """Not equal to the specified value."""
+  notEqualTo: UUID
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: UUID
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: UUID
+
+  """Included in the specified list."""
+  in: [UUID!]
+
+  """Not included in the specified list."""
+  notIn: [UUID!]
+
+  """Less than the specified value."""
+  lessThan: UUID
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: UUID
+
+  """Greater than the specified value."""
+  greaterThan: UUID
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: UUID
+}
+
+"""
+A filter to be used against String fields. All fields are combined with a logical ‘and.’
+"""
+input StringFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: String
+
+  """Not equal to the specified value."""
+  notEqualTo: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: String
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: String
+
+  """Included in the specified list."""
+  in: [String!]
+
+  """Not included in the specified list."""
+  notIn: [String!]
+
+  """Less than the specified value."""
+  lessThan: String
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: String
+
+  """Greater than the specified value."""
+  greaterThan: String
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: String
+
+  """Contains the specified string (case-sensitive)."""
+  includes: String
+
+  """Does not contain the specified string (case-sensitive)."""
+  notIncludes: String
+
+  """Contains the specified string (case-insensitive)."""
+  includesInsensitive: String
+
+  """Does not contain the specified string (case-insensitive)."""
+  notIncludesInsensitive: String
+
+  """Starts with the specified string (case-sensitive)."""
+  startsWith: String
+
+  """Does not start with the specified string (case-sensitive)."""
+  notStartsWith: String
+
+  """Starts with the specified string (case-insensitive)."""
+  startsWithInsensitive: String
+
+  """Does not start with the specified string (case-insensitive)."""
+  notStartsWithInsensitive: String
+
+  """Ends with the specified string (case-sensitive)."""
+  endsWith: String
+
+  """Does not end with the specified string (case-sensitive)."""
+  notEndsWith: String
+
+  """Ends with the specified string (case-insensitive)."""
+  endsWithInsensitive: String
+
+  """Does not end with the specified string (case-insensitive)."""
+  notEndsWithInsensitive: String
+
+  """
+  Matches the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  like: String
+
+  """
+  Does not match the specified pattern (case-sensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLike: String
+
+  """
+  Matches the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  likeInsensitive: String
+
+  """
+  Does not match the specified pattern (case-insensitive). An underscore (_) matches any single character; a percent sign (%) matches any sequence of zero or more characters.
+  """
+  notLikeInsensitive: String
+
+  """Equal to the specified value (case-insensitive)."""
+  equalToInsensitive: String
+
+  """Not equal to the specified value (case-insensitive)."""
+  notEqualToInsensitive: String
+
+  """
+  Not equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  distinctFromInsensitive: String
+
+  """
+  Equal to the specified value, treating null like an ordinary value (case-insensitive).
+  """
+  notDistinctFromInsensitive: String
+
+  """Included in the specified list (case-insensitive)."""
+  inInsensitive: [String!]
+
+  """Not included in the specified list (case-insensitive)."""
+  notInInsensitive: [String!]
+
+  """Less than the specified value (case-insensitive)."""
+  lessThanInsensitive: String
+
+  """Less than or equal to the specified value (case-insensitive)."""
+  lessThanOrEqualToInsensitive: String
+
+  """Greater than the specified value (case-insensitive)."""
+  greaterThanInsensitive: String
+
+  """Greater than or equal to the specified value (case-insensitive)."""
+  greaterThanOrEqualToInsensitive: String
+}
+
+"""
+A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’
+"""
+input BooleanFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Boolean
+
+  """Not equal to the specified value."""
+  notEqualTo: Boolean
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Boolean
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Boolean
+
+  """Included in the specified list."""
+  in: [Boolean!]
+
+  """Not included in the specified list."""
+  notIn: [Boolean!]
+
+  """Less than the specified value."""
+  lessThan: Boolean
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Boolean
+
+  """Greater than the specified value."""
+  greaterThan: Boolean
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Boolean
+}
+
+"""
+A filter to be used against Datetime fields. All fields are combined with a logical ‘and.’
+"""
+input DatetimeFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Datetime
+
+  """Not equal to the specified value."""
+  notEqualTo: Datetime
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Datetime
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Datetime
+
+  """Included in the specified list."""
+  in: [Datetime!]
+
+  """Not included in the specified list."""
+  notIn: [Datetime!]
+
+  """Less than the specified value."""
+  lessThan: Datetime
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Datetime
+
+  """Greater than the specified value."""
+  greaterThan: Datetime
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Datetime
+}
+
+"""
+A filter to be used against `User` object types. All fields are combined with a logical ‘and.’
+"""
+input UserFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `username` field."""
+  username: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `avatarUrl` field."""
+  avatarUrl: StringFilter
+
+  """Filter by the object’s `isAdmin` field."""
+  isAdmin: BooleanFilter
+
+  """Filter by the object’s `isVerified` field."""
+  isVerified: BooleanFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `hasPassword` field."""
+  hasPassword: BooleanFilter
+
+  """Filter by the object’s `userEmails` relation."""
+  userEmails: UserToManyUserEmailFilter
+
+  """Some related `userEmails` exist."""
+  userEmailsExist: Boolean
+
+  """Filter by the object’s `userAuthentications` relation."""
+  userAuthentications: UserToManyUserAuthenticationFilter
+
+  """Some related `userAuthentications` exist."""
+  userAuthenticationsExist: Boolean
+
+  """Filter by the object’s `organizationMemberships` relation."""
+  organizationMemberships: UserToManyOrganizationMembershipFilter
+
+  """Some related `organizationMemberships` exist."""
+  organizationMembershipsExist: Boolean
+
+  """Filter by the object’s `editedMessageRevisions` relation."""
+  editedMessageRevisions: UserToManyMessageRevisionFilter
+
+  """Some related `editedMessageRevisions` exist."""
+  editedMessageRevisionsExist: Boolean
+
+  """Filter by the object’s `spacesByCreatorId` relation."""
+  spacesByCreatorId: UserToManySpaceFilter
+
+  """Some related `spacesByCreatorId` exist."""
+  spacesByCreatorIdExist: Boolean
+
+  """Filter by the object’s `spaceSubscriptionsBySubscriberId` relation."""
+  spaceSubscriptionsBySubscriberId: UserToManySpaceSubscriptionFilter
+
+  """Some related `spaceSubscriptionsBySubscriberId` exist."""
+  spaceSubscriptionsBySubscriberIdExist: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [UserFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [UserFilter!]
+
+  """Negates the expression."""
+  not: UserFilter
+}
+
+"""
+A filter to be used against many `UserEmail` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyUserEmailFilter {
+  """
+  Every related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: UserEmailFilter
+
+  """
+  Some related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: UserEmailFilter
+
+  """
+  No related `UserEmail` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: UserEmailFilter
+}
+
+"""
+A filter to be used against many `UserAuthentication` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyUserAuthenticationFilter {
+  """
+  Every related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: UserAuthenticationFilter
+
+  """
+  Some related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: UserAuthenticationFilter
+
+  """
+  No related `UserAuthentication` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: UserAuthenticationFilter
+}
+
+"""
+A filter to be used against `UserAuthentication` object types. All fields are combined with a logical ‘and.’
+"""
+input UserAuthenticationFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `userId` field."""
+  userId: UUIDFilter
+
+  """Filter by the object’s `service` field."""
+  service: StringFilter
+
+  """Filter by the object’s `identifier` field."""
+  identifier: StringFilter
+
+  """Filter by the object’s `details` field."""
+  details: JSONFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `user` relation."""
+  user: UserFilter
+
+  """Checks for all expressions in this list."""
+  and: [UserAuthenticationFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [UserAuthenticationFilter!]
+
+  """Negates the expression."""
+  not: UserAuthenticationFilter
+}
+
+"""
+A filter to be used against JSON fields. All fields are combined with a logical ‘and.’
+"""
+input JSONFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: JSON
+
+  """Not equal to the specified value."""
+  notEqualTo: JSON
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: JSON
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: JSON
+
+  """Included in the specified list."""
+  in: [JSON!]
+
+  """Not included in the specified list."""
+  notIn: [JSON!]
+
+  """Less than the specified value."""
+  lessThan: JSON
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: JSON
+
+  """Greater than the specified value."""
+  greaterThan: JSON
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: JSON
+
+  """Contains the specified JSON."""
+  contains: JSON
+
+  """Contains the specified key."""
+  containsKey: String
+
+  """Contains all of the specified keys."""
+  containsAllKeys: [String!]
+
+  """Contains any of the specified keys."""
+  containsAnyKeys: [String!]
+
+  """Contained by the specified JSON."""
+  containedBy: JSON
+}
+
+"""
+Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+"""
+A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyOrganizationMembershipFilter {
+  """
+  Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: OrganizationMembershipFilter
+
+  """
+  Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: OrganizationMembershipFilter
+
+  """
+  No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: OrganizationMembershipFilter
+}
+
+"""
+A filter to be used against `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
+"""
+input OrganizationMembershipFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `organizationId` field."""
+  organizationId: UUIDFilter
+
+  """Filter by the object’s `userId` field."""
+  userId: UUIDFilter
+
+  """Filter by the object’s `isOwner` field."""
+  isOwner: BooleanFilter
+
+  """Filter by the object’s `isBillingContact` field."""
+  isBillingContact: BooleanFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `abilities` field."""
+  abilities: AbilityListFilter
+
+  """Filter by the object’s `organization` relation."""
+  organization: OrganizationFilter
+
+  """Filter by the object’s `user` relation."""
+  user: UserFilter
+
+  """Checks for all expressions in this list."""
+  and: [OrganizationMembershipFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [OrganizationMembershipFilter!]
+
+  """Negates the expression."""
+  not: OrganizationMembershipFilter
+}
+
+"""
+A filter to be used against Ability List fields. All fields are combined with a logical ‘and.’
+"""
+input AbilityListFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: [Ability]
+
+  """Not equal to the specified value."""
+  notEqualTo: [Ability]
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: [Ability]
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: [Ability]
+
+  """Less than the specified value."""
+  lessThan: [Ability]
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: [Ability]
+
+  """Greater than the specified value."""
+  greaterThan: [Ability]
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: [Ability]
+
+  """Contains the specified list of values."""
+  contains: [Ability]
+
+  """Contained by the specified list of values."""
+  containedBy: [Ability]
+
+  """Overlaps the specified list of values."""
+  overlaps: [Ability]
+
+  """Any array item is equal to the specified value."""
+  anyEqualTo: Ability
+
+  """Any array item is not equal to the specified value."""
+  anyNotEqualTo: Ability
+
+  """Any array item is less than the specified value."""
+  anyLessThan: Ability
+
+  """Any array item is less than or equal to the specified value."""
+  anyLessThanOrEqualTo: Ability
+
+  """Any array item is greater than the specified value."""
+  anyGreaterThan: Ability
+
+  """Any array item is greater than or equal to the specified value."""
+  anyGreaterThanOrEqualTo: Ability
+}
+
+enum Ability {
+  VIEW
+  CREATE
+  CREATE_SPACE
+  CREATE_MESSAGE
+  CREATE_FILE
+  UPDATE
+  UPDATE_SPACE
+  UPDATE_MESSAGE
+  UPDATE_FILE
+  DELETE
+  DELETE_SPACE
+  DELETE_MESSAGE
+  DELETE_FILE
+  SUBMIT
+  SUBMIT_MESSAGE
+  SUBMIT_FILE
+  ACCEPT
+  ACCEPT_MESSAGE
+  ACCEPT_FILE
+  MANAGE
+}
+
+"""
+A filter to be used against `Organization` object types. All fields are combined with a logical ‘and.’
+"""
+input OrganizationFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `slug` field."""
+  slug: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `memberAbilities` field."""
+  memberAbilities: AbilityListFilter
+
+  """Filter by the object’s `ownerAbilities` field."""
+  ownerAbilities: AbilityListFilter
+
+  """Filter by the object’s `spaceCreatorAbilities` field."""
+  spaceCreatorAbilities: AbilityListFilter
+
+  """Filter by the object’s `currentUserIsBillingContact` field."""
+  currentUserIsBillingContact: BooleanFilter
+
+  """Filter by the object’s `currentUserIsOwner` field."""
+  currentUserIsOwner: BooleanFilter
+
+  """Filter by the object’s `organizationMemberships` relation."""
+  organizationMemberships: OrganizationToManyOrganizationMembershipFilter
+
+  """Some related `organizationMemberships` exist."""
+  organizationMembershipsExist: Boolean
+
+  """Filter by the object’s `spaces` relation."""
+  spaces: OrganizationToManySpaceFilter
+
+  """Some related `spaces` exist."""
+  spacesExist: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [OrganizationFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [OrganizationFilter!]
+
+  """Negates the expression."""
+  not: OrganizationFilter
+}
+
+"""
+A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
+"""
+input OrganizationToManyOrganizationMembershipFilter {
+  """
+  Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: OrganizationMembershipFilter
+
+  """
+  Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: OrganizationMembershipFilter
+
+  """
+  No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: OrganizationMembershipFilter
+}
+
+"""
+A filter to be used against many `Space` object types. All fields are combined with a logical ‘and.’
+"""
+input OrganizationToManySpaceFilter {
+  """
+  Every related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceFilter
+
+  """
+  Some related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceFilter
+
+  """
+  No related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceFilter
+}
+
+"""
+A filter to be used against `Space` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `organizationId` field."""
+  organizationId: UUIDFilter
+
+  """Filter by the object’s `creatorId` field."""
+  creatorId: UUIDFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Filter by the object’s `slug` field."""
+  slug: StringFilter
+
+  """Filter by the object’s `isOpen` field."""
+  isOpen: BooleanFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `subscriptions` relation."""
+  subscriptions: SpaceToManySpaceSubscriptionFilter
+
+  """Some related `subscriptions` exist."""
+  subscriptionsExist: Boolean
+
+  """Filter by the object’s `creator` relation."""
+  creator: UserFilter
+
+  """A related `creator` exists."""
+  creatorExists: Boolean
+
+  """Filter by the object’s `organization` relation."""
+  organization: OrganizationFilter
+
+  """Checks for all expressions in this list."""
+  and: [SpaceFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [SpaceFilter!]
+
+  """Negates the expression."""
+  not: SpaceFilter
+}
+
+"""
+A filter to be used against many `SpaceSubscription` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceToManySpaceSubscriptionFilter {
+  """
+  Every related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceSubscriptionFilter
+
+  """
+  Some related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceSubscriptionFilter
+
+  """
+  No related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceSubscriptionFilter
+}
+
+"""
+A filter to be used against `SpaceSubscription` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceSubscriptionFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `spaceId` field."""
+  spaceId: UUIDFilter
+
+  """Filter by the object’s `subscriberId` field."""
+  subscriberId: UUIDFilter
+
+  """Filter by the object’s `abilities` field."""
+  abilities: AbilityListFilter
+
+  """Filter by the object’s `isReceivingNotifications` field."""
+  isReceivingNotifications: BooleanFilter
+
+  """Filter by the object’s `lastVisitAt` field."""
+  lastVisitAt: DatetimeFilter
+
+  """Filter by the object’s `lastNotificationAt` field."""
+  lastNotificationAt: DatetimeFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `space` relation."""
+  space: SpaceFilter
+
+  """A related `space` exists."""
+  spaceExists: Boolean
+
+  """Filter by the object’s `subscriber` relation."""
+  subscriber: UserFilter
+
+  """A related `subscriber` exists."""
+  subscriberExists: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [SpaceSubscriptionFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [SpaceSubscriptionFilter!]
+
+  """Negates the expression."""
+  not: SpaceSubscriptionFilter
+}
+
+"""
+A filter to be used against many `MessageRevision` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyMessageRevisionFilter {
+  """
+  Every related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: MessageRevisionFilter
+
+  """
+  Some related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: MessageRevisionFilter
+
+  """
+  No related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: MessageRevisionFilter
+}
+
+"""
+A filter to be used against `MessageRevision` object types. All fields are combined with a logical ‘and.’
+"""
+input MessageRevisionFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `revisionId` field."""
+  revisionId: UUIDFilter
+
+  """Filter by the object’s `parentRevisionId` field."""
+  parentRevisionId: UUIDFilter
+
+  """Filter by the object’s `editorId` field."""
+  editorId: UUIDFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `updateComment` field."""
+  updateComment: StringFilter
+
+  """Filter by the object’s `subject` field."""
+  subject: StringFilter
+
+  """Filter by the object’s `body` field."""
+  body: JSONFilter
+
+  """Filter by the object’s `childRevisions` relation."""
+  childRevisions: MessageRevisionToManyMessageRevisionFilter
+
+  """Some related `childRevisions` exist."""
+  childRevisionsExist: Boolean
+
+  """Filter by the object’s `editor` relation."""
+  editor: UserFilter
+
+  """A related `editor` exists."""
+  editorExists: Boolean
+
+  """Filter by the object’s `parentRevision` relation."""
+  parentRevision: MessageRevisionFilter
+
+  """A related `parentRevision` exists."""
+  parentRevisionExists: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [MessageRevisionFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [MessageRevisionFilter!]
+
+  """Negates the expression."""
+  not: MessageRevisionFilter
+}
+
+"""
+A filter to be used against many `MessageRevision` object types. All fields are combined with a logical ‘and.’
+"""
+input MessageRevisionToManyMessageRevisionFilter {
+  """
+  Every related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: MessageRevisionFilter
+
+  """
+  Some related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: MessageRevisionFilter
+
+  """
+  No related `MessageRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: MessageRevisionFilter
+}
+
+"""
+A filter to be used against many `Space` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManySpaceFilter {
+  """
+  Every related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceFilter
+
+  """
+  Some related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceFilter
+
+  """
+  No related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceFilter
+}
+
+"""
+A filter to be used against many `SpaceSubscription` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManySpaceSubscriptionFilter {
+  """
+  Every related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceSubscriptionFilter
+
+  """
+  Some related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceSubscriptionFilter
+
+  """
+  No related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceSubscriptionFilter
 }
 
 """A connection to a list of `UserAuthentication` values."""
@@ -1818,6 +2042,431 @@ input UserAuthenticationCondition {
 
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
+}
+
+"""A connection to a list of `OrganizationMembership` values."""
+type OrganizationMembershipsConnection {
+  """A list of `OrganizationMembership` objects."""
+  nodes: [OrganizationMembership!]!
+
+  """
+  A list of edges which contains the `OrganizationMembership` and cursor to aid in pagination.
+  """
+  edges: [OrganizationMembershipsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `OrganizationMembership` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+type OrganizationMembership implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  organizationId: UUID!
+  userId: UUID!
+  isOwner: Boolean!
+  isBillingContact: Boolean!
+  createdAt: Datetime!
+  abilities: [Ability]
+
+  """
+  Reads a single `Organization` that is related to this `OrganizationMembership`.
+  """
+  organization: Organization
+
+  """
+  Reads a single `User` that is related to this `OrganizationMembership`.
+  """
+  user: User
+}
+
+type Organization implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  currentUserIsBillingContact: Boolean
+  currentUserIsOwner: Boolean
+  id: UUID!
+  slug: String!
+  name: String!
+  createdAt: Datetime!
+  memberAbilities: [Ability]!
+  ownerAbilities: [Ability]!
+  spaceCreatorAbilities: [Ability]!
+
+  """
+  Reads and enables pagination through a set of `OrganizationMembership`.
+  """
+  organizationMemberships(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `OrganizationMembership`."""
+    orderBy: [OrganizationMembershipsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: OrganizationMembershipCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrganizationMembershipFilter
+  ): OrganizationMembershipsConnection!
+
+  """Reads and enables pagination through a set of `Space`."""
+  spaces(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `Space`."""
+    orderBy: [SpacesOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceFilter
+  ): SpacesConnection!
+}
+
+"""Methods to use when ordering `OrganizationMembership`."""
+enum OrganizationMembershipsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  ORGANIZATION_ID_ASC
+  ORGANIZATION_ID_DESC
+  USER_ID_ASC
+  USER_ID_DESC
+  IS_OWNER_ASC
+  IS_OWNER_DESC
+  IS_BILLING_CONTACT_ASC
+  IS_BILLING_CONTACT_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+}
+
+"""
+A condition to be used against `OrganizationMembership` object types. All fields
+are tested for equality and combined with a logical ‘and.’
+"""
+input OrganizationMembershipCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `organizationId` field."""
+  organizationId: UUID
+
+  """Checks for equality with the object’s `userId` field."""
+  userId: UUID
+
+  """Checks for equality with the object’s `isOwner` field."""
+  isOwner: Boolean
+
+  """Checks for equality with the object’s `isBillingContact` field."""
+  isBillingContact: Boolean
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `abilities` field."""
+  abilities: [Ability]
+}
+
+"""A connection to a list of `Space` values."""
+type SpacesConnection {
+  """A list of `Space` objects."""
+  nodes: [Space!]!
+
+  """
+  A list of edges which contains the `Space` and cursor to aid in pagination.
+  """
+  edges: [SpacesEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Space` you could get from the connection."""
+  totalCount: Int!
+}
+
+type Space implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  organizationId: UUID!
+  creatorId: UUID
+  name: String!
+  slug: String!
+  isOpen: Boolean!
+  createdAt: Datetime!
+  updatedAt: Datetime!
+
+  """Reads a single `User` that is related to this `Space`."""
+  creator: User
+
+  """Reads a single `Organization` that is related to this `Space`."""
+  organization: Organization
+
+  """Reads and enables pagination through a set of `SpaceSubscription`."""
+  subscriptions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubscription`."""
+    orderBy: [SpaceSubscriptionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubscriptionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubscriptionFilter
+  ): SpaceSubscriptionsConnection!
+}
+
+"""A connection to a list of `SpaceSubscription` values."""
+type SpaceSubscriptionsConnection {
+  """A list of `SpaceSubscription` objects."""
+  nodes: [SpaceSubscription!]!
+
+  """
+  A list of edges which contains the `SpaceSubscription` and cursor to aid in pagination.
+  """
+  edges: [SpaceSubscriptionsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `SpaceSubscription` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+type SpaceSubscription implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  spaceId: UUID
+  subscriberId: UUID
+  abilities: [Ability]!
+  isReceivingNotifications: Boolean!
+  lastVisitAt: Datetime
+  lastNotificationAt: Datetime
+  createdAt: Datetime!
+  updatedAt: Datetime!
+
+  """Reads a single `Space` that is related to this `SpaceSubscription`."""
+  space: Space
+
+  """Reads a single `User` that is related to this `SpaceSubscription`."""
+  subscriber: User
+}
+
+"""A `SpaceSubscription` edge in the connection."""
+type SpaceSubscriptionsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `SpaceSubscription` at the end of the edge."""
+  node: SpaceSubscription!
+}
+
+"""Methods to use when ordering `SpaceSubscription`."""
+enum SpaceSubscriptionsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  SPACE_ID_ASC
+  SPACE_ID_DESC
+  SUBSCRIBER_ID_ASC
+  SUBSCRIBER_ID_DESC
+  IS_RECEIVING_NOTIFICATIONS_ASC
+  IS_RECEIVING_NOTIFICATIONS_DESC
+  LAST_VISIT_AT_ASC
+  LAST_VISIT_AT_DESC
+  LAST_NOTIFICATION_AT_ASC
+  LAST_NOTIFICATION_AT_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+A condition to be used against `SpaceSubscription` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input SpaceSubscriptionCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `spaceId` field."""
+  spaceId: UUID
+
+  """Checks for equality with the object’s `subscriberId` field."""
+  subscriberId: UUID
+
+  """Checks for equality with the object’s `abilities` field."""
+  abilities: [Ability]
+
+  """
+  Checks for equality with the object’s `isReceivingNotifications` field.
+  """
+  isReceivingNotifications: Boolean
+
+  """Checks for equality with the object’s `lastVisitAt` field."""
+  lastVisitAt: Datetime
+
+  """Checks for equality with the object’s `lastNotificationAt` field."""
+  lastNotificationAt: Datetime
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+"""A `Space` edge in the connection."""
+type SpacesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Space` at the end of the edge."""
+  node: Space!
+}
+
+"""Methods to use when ordering `Space`."""
+enum SpacesOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  ORGANIZATION_ID_ASC
+  ORGANIZATION_ID_DESC
+  CREATOR_ID_ASC
+  CREATOR_ID_DESC
+  NAME_ASC
+  NAME_DESC
+  SLUG_ASC
+  SLUG_DESC
+  IS_OPEN_ASC
+  IS_OPEN_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+A condition to be used against `Space` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input SpaceCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `organizationId` field."""
+  organizationId: UUID
+
+  """Checks for equality with the object’s `creatorId` field."""
+  creatorId: UUID
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `slug` field."""
+  slug: String
+
+  """Checks for equality with the object’s `isOpen` field."""
+  isOpen: Boolean
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
+"""A `OrganizationMembership` edge in the connection."""
+type OrganizationMembershipsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `OrganizationMembership` at the end of the edge."""
+  node: OrganizationMembership!
 }
 
 """A connection to a list of `MessageRevision` values."""
@@ -2447,6 +3096,9 @@ input OrganizationCondition {
   """Checks for equality with the object’s `ownerAbilities` field."""
   ownerAbilities: [Ability]
 
+  """Checks for equality with the object’s `spaceCreatorAbilities` field."""
+  spaceCreatorAbilities: [Ability]
+
   """
   Checks for equality with the object’s `currentUserIsBillingContact` field.
   """
@@ -2576,6 +3228,14 @@ type Mutation {
     input: CreateUserEmailInput!
   ): CreateUserEmailPayload
 
+  """Creates a single `Space`."""
+  createSpace(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateSpaceInput!
+  ): CreateSpacePayload
+
   """Creates a single `ActiveMessageRevision`."""
   createActiveMessageRevision(
     """
@@ -2599,6 +3259,30 @@ type Mutation {
     """
     input: CreateMessageRevisionInput!
   ): CreateMessageRevisionPayload
+
+  """Updates a single `Space` using its globally unique id and a patch."""
+  updateSpaceByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateSpaceByNodeIdInput!
+  ): UpdateSpacePayload
+
+  """Updates a single `Space` using a unique key and a patch."""
+  updateSpace(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateSpaceInput!
+  ): UpdateSpacePayload
+
+  """Updates a single `Space` using a unique key and a patch."""
+  updateSpaceByOrganizationIdAndSlug(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateSpaceByOrganizationIdAndSlugInput!
+  ): UpdateSpacePayload
 
   """Updates a single `User` using its globally unique id and a patch."""
   updateUserByNodeId(
@@ -2731,6 +3415,30 @@ type Mutation {
     """
     input: DeleteUserEmailByUserIdAndEmailInput!
   ): DeleteUserEmailPayload
+
+  """Deletes a single `Space` using its globally unique id."""
+  deleteSpaceByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteSpaceByNodeIdInput!
+  ): DeleteSpacePayload
+
+  """Deletes a single `Space` using a unique key."""
+  deleteSpace(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteSpaceInput!
+  ): DeleteSpacePayload
+
+  """Deletes a single `Space` using a unique key."""
+  deleteSpaceByOrganizationIdAndSlug(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteSpaceByOrganizationIdAndSlugInput!
+  ): DeleteSpacePayload
 
   """Deletes a single `UserAuthentication` using its globally unique id."""
   deleteUserAuthenticationByNodeId(
@@ -3266,6 +3974,57 @@ input UserEmailInput {
   email: String!
 }
 
+"""The output of our create `Space` mutation."""
+type CreateSpacePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `Space` that was created by this mutation."""
+  space: Space
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `Space`. May be used by Relay 1."""
+  spaceEdge(
+    """The method to use when ordering `Space`."""
+    orderBy: [SpacesOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): SpacesEdge
+
+  """Reads a single `User` that is related to this `Space`."""
+  creator: User
+
+  """Reads a single `Organization` that is related to this `Space`."""
+  organization: Organization
+}
+
+"""All input for the create `Space` mutation."""
+input CreateSpaceInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `Space` to be created by this mutation."""
+  space: SpaceInput!
+}
+
+"""An input for mutations affecting `Space`"""
+input SpaceInput {
+  id: UUID
+  organizationId: UUID
+  creatorId: UUID
+  name: String!
+  slug: String!
+  isOpen: Boolean
+}
+
 """The output of our create `ActiveMessageRevision` mutation."""
 type CreateActiveMessageRevisionPayload {
   """
@@ -3407,6 +4166,95 @@ input MessageRevisionInput {
   updateComment: String
   subject: String
   body: JSON
+}
+
+"""The output of our update `Space` mutation."""
+type UpdateSpacePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `Space` that was updated by this mutation."""
+  space: Space
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `Space`. May be used by Relay 1."""
+  spaceEdge(
+    """The method to use when ordering `Space`."""
+    orderBy: [SpacesOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): SpacesEdge
+
+  """Reads a single `User` that is related to this `Space`."""
+  creator: User
+
+  """Reads a single `Organization` that is related to this `Space`."""
+  organization: Organization
+}
+
+"""All input for the `updateSpaceByNodeId` mutation."""
+input UpdateSpaceByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `Space` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the `Space` being updated.
+  """
+  patch: SpacePatch!
+}
+
+"""
+Represents an update to a `Space`. Fields that are set will be updated.
+"""
+input SpacePatch {
+  organizationId: UUID
+  name: String
+  slug: String
+  isOpen: Boolean
+}
+
+"""All input for the `updateSpace` mutation."""
+input UpdateSpaceInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+
+  """
+  An object where the defined keys will be set on the `Space` being updated.
+  """
+  patch: SpacePatch!
+}
+
+"""All input for the `updateSpaceByOrganizationIdAndSlug` mutation."""
+input UpdateSpaceByOrganizationIdAndSlugInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  organizationId: UUID!
+  slug: String!
+
+  """
+  An object where the defined keys will be set on the `Space` being updated.
+  """
+  patch: SpacePatch!
 }
 
 """The output of our update `User` mutation."""
@@ -3849,6 +4697,71 @@ input DeleteUserEmailByUserIdAndEmailInput {
 
   """The users email address, in `a@b.c` format."""
   email: String!
+}
+
+"""The output of our delete `Space` mutation."""
+type DeleteSpacePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `Space` that was deleted by this mutation."""
+  space: Space
+  deletedSpaceNodeId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `Space`. May be used by Relay 1."""
+  spaceEdge(
+    """The method to use when ordering `Space`."""
+    orderBy: [SpacesOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): SpacesEdge
+
+  """Reads a single `User` that is related to this `Space`."""
+  creator: User
+
+  """Reads a single `Organization` that is related to this `Space`."""
+  organization: Organization
+}
+
+"""All input for the `deleteSpaceByNodeId` mutation."""
+input DeleteSpaceByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `Space` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""All input for the `deleteSpace` mutation."""
+input DeleteSpaceInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+}
+
+"""All input for the `deleteSpaceByOrganizationIdAndSlug` mutation."""
+input DeleteSpaceByOrganizationIdAndSlugInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  organizationId: UUID!
+  slug: String!
 }
 
 """The output of our delete `UserAuthentication` mutation."""

@@ -203,7 +203,7 @@ begin
     my_user_id is not null 
     and array_length(abilities_for_space_creators, 1) > 0 
   then
-    insert into app_public.space_subscriptions (space_id, "user_id", abilites)
+    insert into app_public.space_subscriptions (space_id, subscriber_id, abilities)
       values (new.id, my_user_id, abilities_for_space_creators);
   end if;
   return new;
@@ -4364,6 +4364,13 @@ CREATE POLICY can_create_root_spaces_when_organization_abilities_match ON app_pu
 
 
 --
+-- Name: spaces can_select_if_newly_created; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_select_if_newly_created ON app_public.spaces FOR SELECT TO null814_cms_app_users USING ((created_at = CURRENT_TIMESTAMP));
+
+
+--
 -- Name: message_revisions delete_mine; Type: POLICY; Schema: app_public; Owner: -
 --
 
@@ -4479,6 +4486,12 @@ CREATE POLICY select_own ON app_public.user_authentications FOR SELECT USING ((u
 
 CREATE POLICY select_own ON app_public.user_emails FOR SELECT USING ((user_id = app_public.current_user_id()));
 
+
+--
+-- Name: space_subscriptions; Type: ROW SECURITY; Schema: app_public; Owner: -
+--
+
+ALTER TABLE app_public.space_subscriptions ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: spaces; Type: ROW SECURITY; Schema: app_public; Owner: -
@@ -5263,6 +5276,13 @@ GRANT INSERT(creator_id) ON TABLE app_public.spaces TO null814_cms_app_users;
 --
 
 GRANT INSERT(name),UPDATE(name) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.slug; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.spaces TO null814_cms_app_users;
 
 
 --

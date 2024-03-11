@@ -25,7 +25,7 @@ begin
     my_user_id is not null 
     and array_length(abilities_for_space_creators, 1) > 0 
   then
-    insert into app_public.space_subscriptions (space_id, "user_id", abilites)
+    insert into app_public.space_subscriptions (space_id, subscriber_id, abilities)
       values (new.id, my_user_id, abilities_for_space_creators);
   end if;
   return new;
