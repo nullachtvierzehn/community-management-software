@@ -4385,6 +4385,13 @@ CREATE POLICY can_select_if_newly_created ON app_public.spaces FOR SELECT TO nul
 
 
 --
+-- Name: space_subscriptions can_select_my_subscriptions; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_select_my_subscriptions ON app_public.space_subscriptions FOR SELECT TO null814_cms_app_users USING ((id IN ( SELECT app_public.my_space_subscription_ids() AS my_space_subscription_ids)));
+
+
+--
 -- Name: message_revisions delete_mine; Type: POLICY; Schema: app_public; Owner: -
 --
 
