@@ -1575,6 +1575,20 @@ COMMENT ON FUNCTION app_public.make_email_primary(email_id uuid) IS 'Your primar
 
 
 --
+-- Name: my_space_subscription_ids(); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.my_space_subscription_ids() RETURNS SETOF uuid
+    LANGUAGE sql STABLE SECURITY DEFINER ROWS 30 PARALLEL SAFE
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+  select id 
+  from app_public.space_subscriptions
+  where subscriber_id = app_public.current_user_id()
+$$;
+
+
+--
 -- Name: organization_for_invitation(uuid, text); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -4862,6 +4876,14 @@ GRANT INSERT(email) ON TABLE app_public.user_emails TO null814_cms_app_users;
 
 REVOKE ALL ON FUNCTION app_public.make_email_primary(email_id uuid) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.make_email_primary(email_id uuid) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION my_space_subscription_ids(); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.my_space_subscription_ids() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.my_space_subscription_ids() TO null814_cms_app_users;
 
 
 --

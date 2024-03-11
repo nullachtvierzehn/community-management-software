@@ -22,3 +22,4 @@ spaces/policies/can-create-root-spaces-when-organization-abilities-match [spaces
 space-subscriptions [spaces initial] 2024-03-10T11:32:42Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table for space subscriptions
 space-subscriptions/auto-subscribe-after-space-creation [space-subscriptions] 2024-03-10T11:37:57Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # auto-subscribe the creator of a space
 spaces/policies/can-select-if-newly-created [spaces] 2024-03-11T10:57:25Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # users can select spaces that were created right at the moment
+space-subscriptions/my-space-subscription-ids [space-subscriptions] 2024-03-11T11:13:23Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add function to fetch the IDs of the space subscriptions of the current user

@@ -126,6 +126,32 @@ type Query implements Node {
     filter: UUIDFilter
   ): CurrentUserMemberOrganizationIdsConnection
 
+  """Reads and enables pagination through a set of `Uuid`."""
+  mySpaceSubscriptionIds(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UUIDFilter
+  ): MySpaceSubscriptionIdsConnection
+
   """The currently logged in user (or null if not logged in)."""
   currentUser: User
   organizationForInvitation(invitationId: UUID!, code: String): Organization
@@ -2690,6 +2716,32 @@ type CurrentUserMemberOrganizationIdsConnection {
 
 """A `UUID` edge in the connection."""
 type CurrentUserMemberOrganizationIdsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `UUID` at the end of the edge."""
+  node: UUID
+}
+
+"""A connection to a list of `UUID` values."""
+type MySpaceSubscriptionIdsConnection {
+  """A list of `UUID` objects."""
+  nodes: [UUID]!
+
+  """
+  A list of edges which contains the `UUID` and cursor to aid in pagination.
+  """
+  edges: [MySpaceSubscriptionIdsEdge]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `UUID` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `UUID` edge in the connection."""
+type MySpaceSubscriptionIdsEdge {
   """A cursor for use in pagination."""
   cursor: Cursor
 
