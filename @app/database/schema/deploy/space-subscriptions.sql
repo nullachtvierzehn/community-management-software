@@ -14,6 +14,8 @@ create table app_public.space_subscriptions (
     constraint subscriber
       references app_public.users (id)
       on update cascade on delete cascade,
+  constraint one_subscription_per_space_and_user
+    unique (subscriber_id, space_id),
   abilities app_public.ability[] not null default '{view}',
   is_receiving_notifications boolean not null default false,
   last_visit_at timestamptz,
