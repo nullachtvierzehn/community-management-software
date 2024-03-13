@@ -326,6 +326,190 @@ $$;
 
 
 --
+-- Name: refresh_user_abilities_per_space_when_memberships_change(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.refresh_user_abilities_per_space_when_memberships_change() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+declare
+  affected_user_ids uuid[] := '{}';
+begin
+  if tg_op in ('DELETE', 'UPDATE') then
+    affected_user_ids := (select array(select "user_id" from old_memberships) || affected_user_ids);
+  end if;
+
+  if tg_op in ('INSERT', 'UPDATE') then
+    affected_user_ids := (select array(select "user_id" from new_memberships) || affected_user_ids);
+  end if;
+
+  with new_abilities_per_user_and_space as (
+    select
+      sub.subscriber_id as "user_id",
+      sub.space_id,
+      array(
+        select unnest(sub.abilities)
+        union 
+        select unnest(oa.abilities)
+      ) as abilities,
+      array(
+        select unnest(sub.abilities) where '{manage,grant,grant__ability}' && sub.abilities
+        union 
+        select unnest(oa.abilities) where '{manage,grant,grant__ability}' && oa.abilities
+      ) as abilities_with_grant_option
+    from app_public.space_subscriptions as sub
+    join app_public.spaces as s on (sub.space_id = s.id)
+    -- Organization memberships are optional. For members, abilities propagate to the spaces of an organization.
+    left join app_hidden.user_abilities_per_organization as oa on (s.organization_id = oa.organization_id and sub.subscriber_id = oa.user_id)
+    where sub.subscriber_id = any (affected_user_ids)
+  )
+  merge into app_hidden.user_abilities_per_space as t
+  using new_abilities_per_user_and_space as s 
+    on (t.space_id = s.space_id and t."user_id" = s."user_id")
+  when matched and s.abilities is distinct from t.abilities then
+    update set abilities = s.abilities, abilities_with_grant_option = s.abilities_with_grant_option
+  when not matched then
+    insert ("user_id", space_id, abilities, abilities_with_grant_option) values (s."user_id", s.space_id, s.abilities, s.abilities_with_grant_option);
+
+  if tg_op = 'DELETE' then
+    return old;
+  else
+    return new;
+  end if;
+end
+$$;
+
+
+--
+-- Name: refresh_user_abilities_per_space_when_subscriptions_change(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.refresh_user_abilities_per_space_when_subscriptions_change() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+begin
+  -- Step 1: Delete old subscriptions, if not updated.
+  -- Afterwards, there are no more rows of old_subscriptions, 
+  -- that are not also included in new_subscriptions.
+  -- That is important for step 2.
+  if tg_op = 'UPDATE' then
+    delete from app_public.space_subscriptions
+    where (space_id, subscriber_id) in (
+      select space_id, subscriber_id from old_subscriptions
+      except 
+      select space_id, subscriber_id from new_subscriptions
+    );
+  end if;
+
+  -- Step 2: Update or create memberships.
+  with new_abilities_per_user_and_space as (
+    select
+      sub.subscriber_id as "user_id",
+      sub.space_id,
+      array(
+        select unnest(sub.abilities)
+        union 
+        select unnest(oa.abilities)
+      ) as abilities,
+      array(
+        select unnest(sub.abilities) where '{manage,grant,grant__ability}' && sub.abilities
+        union 
+        select unnest(oa.abilities) where '{manage,grant,grant__ability}' && oa.abilities
+      ) as abilities_with_grant_option
+    from new_subscriptions as sub
+    join app_public.spaces as s on (sub.space_id = s.id)
+    -- Organization memberships are optional. For members, abilities propagate to the spaces of an organization.
+    left join app_hidden.user_abilities_per_organization as oa on (s.organization_id = oa.organization_id and sub.subscriber_id = oa.user_id)
+  )
+  merge into app_hidden.user_abilities_per_space as t
+  using new_abilities_per_user_and_space as s 
+    on (t.space_id = s.space_id and t."user_id" = s."user_id")
+  when matched and s.abilities is distinct from t.abilities then
+    update set abilities = s.abilities, abilities_with_grant_option = s.abilities_with_grant_option
+  when not matched then
+    insert ("user_id", space_id, abilities, abilities_with_grant_option) values (s."user_id", s.space_id, s.abilities, s.abilities_with_grant_option);
+  
+  return new;
+end
+$$;
+
+
+--
+-- Name: restrict_ability_updates_on_space_subscriptions(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.restrict_ability_updates_on_space_subscriptions() RETURNS trigger
+    LANGUAGE plpgsql STABLE SECURITY DEFINER
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $_$
+declare
+  my app_hidden.user_abilities_per_space;
+  current_space app_public.spaces;
+  added_abilities app_public.ability[] := array(
+    select unnest(NEW.abilities) 
+    except 
+    select unnest(OLD.abilities)
+  );
+  categories_of_added_abilities app_public.ability[] := array(
+    select distinct regexp_replace(
+      unnest(added_abilities)::text, 
+      '__.*$', 
+      ''
+    )::app_public.ability
+  );
+begin
+  -- OK: New abilities are a subset of the old ones.
+  if 
+    new.space_id = old.space_id
+    and new.subscriber_id = old.subscriber_id
+    and (
+      new.abilities is null 
+      or new.abilities <@ OLD.abilities 
+      or categories_of_added_abilities <@ OLD.abilities
+    ) 
+  then
+    return new;
+  end if;
+
+  -- Fetch space
+  select * into current_space 
+  from app_public.spaces 
+  where id = new.space_id;
+
+  -- Fetch my abilities in this space.
+  select * into my
+  from app_hidden.user_abilities_per_space
+  where 
+    space_id = new.space_id
+    and "user_id"= app_public.current_user_id();
+
+  -- Handle my own subscriptions.
+  if new.subscriber_id = app_public.current_user_id() then
+    -- Right here, new abilities must be a superset of old abilities.
+    -- (Otherwise, this function would already have returned.)
+    -- Giving yourself abilities is only allowed if you already had the 'manage' ability.
+    if not 'manage' = any (my.abilities) then
+      raise exception 'You can''t give yourself any new abilities.' using errcode = 'DNIED';
+    end if;
+  -- Handle subscriptions of others.
+  else
+    -- Verify that I am allowed to grant the added abilities.
+    if not (
+      added_abilities <@ my.abilities_with_grant_option
+      or categories_of_added_abilities <@ my.abilities_with_grant_option
+    ) then
+      raise exception 'You are not allowed to grant these abilities.' using errcode = 'DNIED';
+    end if;
+  end if;
+  
+  return new;
+end
+$_$;
+
+
+--
 -- Name: update_active_or_current_message_revision(); Type: FUNCTION; Schema: app_hidden; Owner: -
 --
 
@@ -2530,6 +2714,18 @@ CREATE TABLE app_hidden.user_abilities_per_organization (
 
 
 --
+-- Name: user_abilities_per_space; Type: TABLE; Schema: app_hidden; Owner: -
+--
+
+CREATE TABLE app_hidden.user_abilities_per_space (
+    user_id uuid,
+    space_id uuid,
+    abilities app_public.ability[],
+    abilities_with_grant_option app_public.ability[]
+);
+
+
+--
 -- Name: connect_pg_simple_sessions; Type: TABLE; Schema: app_private; Owner: -
 --
 
@@ -3491,6 +3687,14 @@ ALTER TABLE ONLY app_public.message_revisions
 
 
 --
+-- Name: space_subscriptions one_subscription_per_space_and_user; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_subscriptions
+    ADD CONSTRAINT one_subscription_per_space_and_user UNIQUE (subscriber_id, space_id);
+
+
+--
 -- Name: organization_invitations organization_invitations_organization_id_email_key; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -3737,6 +3941,20 @@ CREATE UNIQUE INDEX user_abilities_per_organization_on_organization_id_user_id O
 
 
 --
+-- Name: user_abilities_per_space_on_space_id; Type: INDEX; Schema: app_hidden; Owner: -
+--
+
+CREATE INDEX user_abilities_per_space_on_space_id ON app_hidden.user_abilities_per_space USING btree (space_id);
+
+
+--
+-- Name: user_abilities_per_space_on_user_id_space_id; Type: INDEX; Schema: app_hidden; Owner: -
+--
+
+CREATE UNIQUE INDEX user_abilities_per_space_on_user_id_space_id ON app_hidden.user_abilities_per_space USING btree (user_id, space_id) INCLUDE (abilities);
+
+
+--
 -- Name: sessions_user_id_idx; Type: INDEX; Schema: app_private; Owner: -
 --
 
@@ -3895,6 +4113,27 @@ CREATE UNIQUE INDEX procrastinate_jobs_queueing_lock_idx ON procrastinate.procra
 --
 
 CREATE INDEX procrastinate_periodic_defers_job_id_fkey ON procrastinate.procrastinate_periodic_defers USING btree (job_id);
+
+
+--
+-- Name: user_abilities_per_organization _800_refresh_user_abilities_per_space_after_delete; Type: TRIGGER; Schema: app_hidden; Owner: -
+--
+
+CREATE TRIGGER _800_refresh_user_abilities_per_space_after_delete AFTER DELETE ON app_hidden.user_abilities_per_organization REFERENCING OLD TABLE AS old_memberships FOR EACH STATEMENT EXECUTE FUNCTION app_hidden.refresh_user_abilities_per_space_when_memberships_change();
+
+
+--
+-- Name: user_abilities_per_organization _800_refresh_user_abilities_per_space_after_insert; Type: TRIGGER; Schema: app_hidden; Owner: -
+--
+
+CREATE TRIGGER _800_refresh_user_abilities_per_space_after_insert AFTER INSERT ON app_hidden.user_abilities_per_organization REFERENCING NEW TABLE AS new_memberships FOR EACH STATEMENT EXECUTE FUNCTION app_hidden.refresh_user_abilities_per_space_when_memberships_change();
+
+
+--
+-- Name: user_abilities_per_organization _800_refresh_user_abilities_per_space_after_update; Type: TRIGGER; Schema: app_hidden; Owner: -
+--
+
+CREATE TRIGGER _800_refresh_user_abilities_per_space_after_update AFTER UPDATE ON app_hidden.user_abilities_per_organization REFERENCING OLD TABLE AS old_memberships NEW TABLE AS new_memberships FOR EACH STATEMENT EXECUTE FUNCTION app_hidden.refresh_user_abilities_per_space_when_memberships_change();
 
 
 --
@@ -4066,6 +4305,27 @@ CREATE TRIGGER _800_refresh_user_abilities_per_organization_after_update AFTER U
 
 
 --
+-- Name: space_subscriptions _800_refresh_user_abilities_per_space_after_insert; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _800_refresh_user_abilities_per_space_after_insert AFTER INSERT ON app_public.space_subscriptions REFERENCING NEW TABLE AS new_subscriptions FOR EACH STATEMENT EXECUTE FUNCTION app_hidden.refresh_user_abilities_per_space_when_subscriptions_change();
+
+
+--
+-- Name: space_subscriptions _800_refresh_user_abilities_per_space_after_update; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _800_refresh_user_abilities_per_space_after_update AFTER UPDATE ON app_public.space_subscriptions REFERENCING OLD TABLE AS old_subscriptions NEW TABLE AS new_subscriptions FOR EACH STATEMENT EXECUTE FUNCTION app_hidden.refresh_user_abilities_per_space_when_subscriptions_change();
+
+
+--
+-- Name: space_subscriptions _900_restrict_ability_updates; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _900_restrict_ability_updates BEFORE UPDATE ON app_public.space_subscriptions FOR EACH ROW WHEN ((old.abilities IS DISTINCT FROM new.abilities)) EXECUTE FUNCTION app_hidden.restrict_ability_updates_on_space_subscriptions();
+
+
+--
 -- Name: user_emails _900_send_verification_email; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -4124,10 +4384,34 @@ ALTER TABLE ONLY app_hidden.user_abilities_per_organization
 
 
 --
+-- Name: user_abilities_per_space space; Type: FK CONSTRAINT; Schema: app_hidden; Owner: -
+--
+
+ALTER TABLE ONLY app_hidden.user_abilities_per_space
+    ADD CONSTRAINT space FOREIGN KEY (space_id) REFERENCES app_public.spaces(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: user_abilities_per_space space_subscription; Type: FK CONSTRAINT; Schema: app_hidden; Owner: -
+--
+
+ALTER TABLE ONLY app_hidden.user_abilities_per_space
+    ADD CONSTRAINT space_subscription FOREIGN KEY (space_id, user_id) REFERENCES app_public.space_subscriptions(space_id, subscriber_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: user_abilities_per_organization user; Type: FK CONSTRAINT; Schema: app_hidden; Owner: -
 --
 
 ALTER TABLE ONLY app_hidden.user_abilities_per_organization
+    ADD CONSTRAINT "user" FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: user_abilities_per_space user; Type: FK CONSTRAINT; Schema: app_hidden; Owner: -
+--
+
+ALTER TABLE ONLY app_hidden.user_abilities_per_space
     ADD CONSTRAINT "user" FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
@@ -4410,6 +4694,13 @@ CREATE POLICY can_select_my_subscriptions ON app_public.space_subscriptions FOR 
 
 
 --
+-- Name: space_subscriptions can_update_my_subscriptions; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_update_my_subscriptions ON app_public.space_subscriptions FOR UPDATE TO null814_cms_app_users USING ((id IN ( SELECT app_public.my_space_subscription_ids() AS my_space_subscription_ids)));
+
+
+--
 -- Name: message_revisions delete_mine; Type: POLICY; Schema: app_public; Owner: -
 --
 
@@ -4633,6 +4924,30 @@ GRANT ALL ON FUNCTION app_hidden.refresh_user_abilities_per_organization_on_upda
 
 REVOKE ALL ON FUNCTION app_hidden.refresh_user_abilities_per_organization_when_memberships_change() FROM PUBLIC;
 GRANT ALL ON FUNCTION app_hidden.refresh_user_abilities_per_organization_when_memberships_change() TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION refresh_user_abilities_per_space_when_memberships_change(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.refresh_user_abilities_per_space_when_memberships_change() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.refresh_user_abilities_per_space_when_memberships_change() TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION refresh_user_abilities_per_space_when_subscriptions_change(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.refresh_user_abilities_per_space_when_subscriptions_change() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.refresh_user_abilities_per_space_when_subscriptions_change() TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION restrict_ability_updates_on_space_subscriptions(); Type: ACL; Schema: app_hidden; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_hidden.restrict_ability_updates_on_space_subscriptions() FROM PUBLIC;
+GRANT ALL ON FUNCTION app_hidden.restrict_ability_updates_on_space_subscriptions() TO null814_cms_app_users;
 
 
 --
@@ -5287,7 +5602,49 @@ GRANT SELECT ON TABLE app_public.organization_memberships TO null814_cms_app_use
 -- Name: TABLE space_subscriptions; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+GRANT SELECT,DELETE ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.space_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(space_id) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.subscriber_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(subscriber_id) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.abilities; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(abilities),UPDATE(abilities) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.is_receiving_notifications; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(is_receiving_notifications),UPDATE(is_receiving_notifications) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.last_visit_at; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(last_visit_at),UPDATE(last_visit_at) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
 
 
 --

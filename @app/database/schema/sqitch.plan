@@ -29,3 +29,4 @@ space-subscriptions/policies/can-insert-own-subscriptions-if-space-is-open [spac
 abilities/add-grant-ability [abilities] 2024-03-11T11:44:11Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add grant ability
 users/view-for-space-abilities [abilities/add-grant-ability space-subscriptions] 2024-03-12T07:26:48Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add view app_hidden.user_abilities_per_space
 space-subscriptions/restrict-ability-updates [abilities/add-grant-ability users/view-for-space-abilities space-subscriptions] 2024-03-11T12:11:07Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # restrict updates of space_subscriptions.abilities
+space-subscriptions/policies/can-update-my-own-policies [space-subscriptions/my-space-subscription-ids] 2024-03-13T14:37:37Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow users to update their own policies

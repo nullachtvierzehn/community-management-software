@@ -30,6 +30,9 @@ comment on constraint "space" on app_public.space_subscriptions
   is E'@foreignFieldName subscriptions';
 
 grant select on app_public.space_subscriptions to "$DATABASE_VISITOR";
+grant insert (id, space_id, subscriber_id, abilities, is_receiving_notifications, last_visit_at) on app_public.space_subscriptions to "$DATABASE_VISITOR";
+grant update (abilities, is_receiving_notifications, last_visit_at) on app_public.space_subscriptions to "$DATABASE_VISITOR";
+grant delete on app_public.space_subscriptions to "$DATABASE_VISITOR";
 
 -- auto-update updated_at
 create trigger _200_timestamps
