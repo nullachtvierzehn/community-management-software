@@ -78,7 +78,10 @@ begin
         select unnest(oa.abilities)
       ) as abilities,
       array(
-        select unnest(sub.abilities) where '{manage,grant,grant__ability}' && sub.abilities
+        select unnest(sub.abilities) 
+        where 
+          '{manage,grant,grant__ability}' && sub.abilities
+          or '{manage,grant,grant__ability}' && oa.abilities
         union 
         select unnest(oa.abilities) where '{manage,grant,grant__ability}' && oa.abilities
       ) as abilities_with_grant_option
