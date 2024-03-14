@@ -4789,6 +4789,13 @@ CREATE POLICY can_insert_own_subscriptions_if_space_is_public ON app_public.spac
 
 
 --
+-- Name: spaces can_manage_with_matching_abilities; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_manage_with_matching_abilities ON app_public.spaces TO null814_cms_app_users USING ((id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{manage}'::app_public.ability[]) AS my_space_ids)));
+
+
+--
 -- Name: spaces can_select_if_newly_created; Type: POLICY; Schema: app_public; Owner: -
 --
 
@@ -4800,6 +4807,13 @@ CREATE POLICY can_select_if_newly_created ON app_public.spaces FOR SELECT TO nul
 --
 
 CREATE POLICY can_select_if_public ON app_public.spaces FOR SELECT USING (is_public);
+
+
+--
+-- Name: spaces can_select_if_subscribed; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_select_if_subscribed ON app_public.spaces FOR SELECT TO null814_cms_app_users USING ((id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_space_ids)));
 
 
 --
