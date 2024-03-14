@@ -1,15 +1,17 @@
 {
   "version": "0.2.0",
   "configurations": [
+    // https://stackoverflow.com/questions/34450175/can-visual-studio-code-be-configured-to-launch-with-nodemon
     {
       "type": "node",
       "request": "launch",
       "name": "current migrations",
       "outputCapture": "std",
-      "program": "${workspaceFolder:Root}/node_modules/graphile-migrate/dist/cli.js",
+      "runtimeExecutable": "${workspaceFolder:Root}/node_modules/nodemon/bin/nodemon.js",
       "cwd": "${workspaceFolder:Database}",
-      "args": ["watch"],
-      "envFile": "${workspaceFolder:Root}/.env"
+      "restart": { "delay": 750 },
+      "console": "internalConsole",
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }
