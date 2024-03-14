@@ -1764,6 +1764,23 @@ COMMENT ON FUNCTION app_public.make_email_primary(email_id uuid) IS 'Your primar
 
 
 --
+-- Name: my_organization_ids(app_public.ability[], app_public.ability[]); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.my_organization_ids(with_any_abilities app_public.ability[] DEFAULT '{view,manage}'::app_public.ability[], with_all_abilities app_public.ability[] DEFAULT '{}'::app_public.ability[]) RETURNS SETOF uuid
+    LANGUAGE sql STABLE SECURITY DEFINER ROWS 30 PARALLEL SAFE
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+select organization_id
+from app_hidden.user_abilities_per_organization
+where
+  "user_id" = app_public.current_user_id()
+  and with_any_abilities && abilities
+  and with_all_abilities <@ abilities
+$$;
+
+
+--
 -- Name: my_space_ids(app_public.ability[], app_public.ability[]); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -4792,7 +4809,7 @@ CREATE POLICY can_insert_own_subscriptions_if_space_is_public ON app_public.spac
 -- Name: spaces can_manage_with_matching_abilities; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY can_manage_with_matching_abilities ON app_public.spaces TO null814_cms_app_users USING ((id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{manage}'::app_public.ability[]) AS my_space_ids)));
+CREATE POLICY can_manage_with_matching_abilities ON app_public.spaces TO null814_cms_app_users USING (((id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{manage}'::app_public.ability[]) AS my_space_ids)) OR (organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{manage}'::app_public.ability[]) AS my_organization_ids))));
 
 
 --
@@ -4813,7 +4830,7 @@ CREATE POLICY can_select_if_public ON app_public.spaces FOR SELECT USING (is_pub
 -- Name: spaces can_select_if_subscribed; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY can_select_if_subscribed ON app_public.spaces FOR SELECT TO null814_cms_app_users USING ((id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_space_ids)));
+CREATE POLICY can_select_if_subscribed ON app_public.spaces FOR SELECT TO null814_cms_app_users USING (((id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_space_ids)) OR (organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_organization_ids))));
 
 
 --
@@ -5352,6 +5369,14 @@ GRANT INSERT(email) ON TABLE app_public.user_emails TO null814_cms_app_users;
 
 REVOKE ALL ON FUNCTION app_public.make_email_primary(email_id uuid) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.make_email_primary(email_id uuid) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION my_organization_ids(with_any_abilities app_public.ability[], with_all_abilities app_public.ability[]); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.my_organization_ids(with_any_abilities app_public.ability[], with_all_abilities app_public.ability[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.my_organization_ids(with_any_abilities app_public.ability[], with_all_abilities app_public.ability[]) TO null814_cms_app_users;
 
 
 --

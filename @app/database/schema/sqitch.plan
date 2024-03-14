@@ -31,8 +31,9 @@ users/view-for-space-abilities [abilities/add-grant-ability space-subscriptions]
 space-subscriptions/restrict-ability-updates [abilities/add-grant-ability users/view-for-space-abilities space-subscriptions] 2024-03-11T12:11:07Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # restrict updates of space_subscriptions.abilities
 space-subscriptions/policies/can-update-my-own-policies [space-subscriptions/my-space-subscription-ids] 2024-03-13T14:37:37Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow users to update their own policies
 space-submissions [spaces initial message-revisions] 2024-03-14T14:00:01Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table for space_submissions
-spaces/my-space-ids [spaces space-subscriptions/my-space-subscription-ids] 2024-03-14T14:37:36Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add function my_space_ids()
+spaces/my-space-ids [users/view-for-space-abilities] 2024-03-14T14:37:36Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add function my_space_ids()
 spaces/policies/select-public-spaces [spaces/my-space-ids] 2024-03-14T14:45:04Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add policies for public spaces
 space-submissions/policies/select-own [spaces/my-space-ids space-submissions] 2024-03-14T14:59:19Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow users to see their own submissions
-spaces/policies/can-select-if-subscribed [spaces/my-space-ids] 2024-03-14T15:08:41Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # show my subscribed spaces
-spaces/policies/can-manage-depending-on-abilities [spaces/my-space-ids] 2024-03-14T15:13:46Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # manage spaces, depending on abilities
+organizations/my-organization-ids [users/view-for-organization-abilities] 2024-03-14T16:13:08Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add app_public.my_organization_ids(...)
+spaces/policies/can-manage-depending-on-abilities [spaces/my-space-ids organizations/my-organization-ids] 2024-03-14T15:13:46Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # manage spaces, depending on abilities
+spaces/policies/can-select-if-subscribed [spaces/my-space-ids organizations/my-organization-ids] 2024-03-14T15:08:41Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # show my subscribed spaces

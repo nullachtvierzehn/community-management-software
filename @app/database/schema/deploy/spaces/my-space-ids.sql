@@ -1,6 +1,5 @@
 -- Deploy 0814-cms:spaces/my-space-ids to pg
--- requires: spaces
--- requires: space-subscriptions/my-space-subscription-ids
+-- requires: users/view-for-space-abilities
 
 BEGIN;
 

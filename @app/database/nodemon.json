@@ -2,5 +2,5 @@
   "watch": ["schema/deploy"],
   "ext": "sql",
   "delay": 750,
-  "exec": "cd schema && ./sq.sh rebase --modified"
+  "exec": "cd schema && ./sq.sh rebase --modified -y || exit 1"
 }
