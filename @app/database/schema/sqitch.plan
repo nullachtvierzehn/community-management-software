@@ -32,3 +32,4 @@ space-subscriptions/restrict-ability-updates [abilities/add-grant-ability users/
 space-subscriptions/policies/can-update-my-own-policies [space-subscriptions/my-space-subscription-ids] 2024-03-13T14:37:37Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow users to update their own policies
 space-submissions [spaces initial message-revisions] 2024-03-14T14:00:01Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table for space_submissions
 spaces/my-space-ids [spaces space-subscriptions/my-space-subscription-ids] 2024-03-14T14:37:36Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add function my_space_ids()
+spaces/policies/select-public-spaces [spaces/my-space-ids] 2024-03-14T14:45:04Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add policies for public spaces

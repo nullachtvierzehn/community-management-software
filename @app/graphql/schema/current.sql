@@ -414,7 +414,10 @@ begin
         select unnest(oa.abilities)
       ) as abilities,
       array(
-        select unnest(sub.abilities) where '{manage,grant,grant__ability}' && sub.abilities
+        select unnest(sub.abilities) 
+        where 
+          '{manage,grant,grant__ability}' && sub.abilities
+          or '{manage,grant,grant__ability}' && oa.abilities
         union 
         select unnest(oa.abilities) where '{manage,grant,grant__ability}' && oa.abilities
       ) as abilities_with_grant_option
@@ -2996,7 +2999,7 @@ CREATE TABLE app_public.spaces (
     creator_id uuid DEFAULT app_public.current_user_id(),
     name text NOT NULL,
     slug text NOT NULL,
-    is_open boolean DEFAULT false NOT NULL,
+    is_public boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT is_valid_slug CHECK ((slug ~ '^[a-zA-Z0-9_-]+$'::text))
@@ -4777,12 +4780,12 @@ CREATE POLICY can_delete_my_subscriptions ON app_public.space_subscriptions FOR 
 
 
 --
--- Name: space_subscriptions can_insert_own_subscriptions_if_space_is_open; Type: POLICY; Schema: app_public; Owner: -
+-- Name: space_subscriptions can_insert_own_subscriptions_if_space_is_public; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY can_insert_own_subscriptions_if_space_is_open ON app_public.space_subscriptions FOR INSERT TO null814_cms_app_users WITH CHECK (((subscriber_id = app_public.current_user_id()) AND ((abilities IS NULL) OR (abilities <@ '{view}'::app_public.ability[])) AND (space_id IN ( SELECT spaces.id
+CREATE POLICY can_insert_own_subscriptions_if_space_is_public ON app_public.space_subscriptions FOR INSERT TO null814_cms_app_users WITH CHECK (((subscriber_id = app_public.current_user_id()) AND ((abilities IS NULL) OR (abilities <@ '{view}'::app_public.ability[])) AND (space_id IN ( SELECT spaces.id
    FROM app_public.spaces
-  WHERE spaces.is_open))));
+  WHERE spaces.is_public))));
 
 
 --
@@ -4790,6 +4793,13 @@ CREATE POLICY can_insert_own_subscriptions_if_space_is_open ON app_public.space_
 --
 
 CREATE POLICY can_select_if_newly_created ON app_public.spaces FOR SELECT TO null814_cms_app_users USING ((created_at = CURRENT_TIMESTAMP));
+
+
+--
+-- Name: spaces can_select_if_public; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_select_if_public ON app_public.spaces FOR SELECT USING (is_public);
 
 
 --
@@ -5852,10 +5862,10 @@ GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.spaces TO null814_cms_app_us
 
 
 --
--- Name: COLUMN spaces.is_open; Type: ACL; Schema: app_public; Owner: -
+-- Name: COLUMN spaces.is_public; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(is_open),UPDATE(is_open) ON TABLE app_public.spaces TO null814_cms_app_users;
+GRANT INSERT(is_public),UPDATE(is_public) ON TABLE app_public.spaces TO null814_cms_app_users;
 
 
 --
