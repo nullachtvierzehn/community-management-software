@@ -22,7 +22,7 @@ create table app_public.spaces (
     check (slug ~ '^[a-zA-Z0-9_-]+$'),
   constraint unique_slug_per_organization
     unique nulls not distinct (organization_id, slug),
-  is_open boolean not null default false,
+  is_public boolean not null default false,
   created_at timestamptz not null default current_timestamp,
   updated_at timestamptz not null default current_timestamp
 );
@@ -35,8 +35,8 @@ create index spaces_on_updated_at on app_public.spaces (updated_at);
 create index spaces_on_organization_id on app_public.spaces (organization_id);
 
 grant select on app_public.spaces to "$DATABASE_VISITOR";
-grant insert (id, organization_id, creator_id, slug, "name", is_open) on app_public.spaces to "$DATABASE_VISITOR";
-grant update (organization_id, slug, "name", is_open) on app_public.spaces to "$DATABASE_VISITOR";
+grant insert (id, organization_id, creator_id, slug, "name", is_public) on app_public.spaces to "$DATABASE_VISITOR";
+grant update (organization_id, slug, "name", is_public) on app_public.spaces to "$DATABASE_VISITOR";
 grant delete on app_public.spaces to "$DATABASE_VISITOR";
 
 
