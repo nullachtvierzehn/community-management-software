@@ -2,6 +2,6 @@
 
 BEGIN;
 
-drop table app_public.space_submissions;
+drop table app_public.space_items;
 
 COMMIT;
