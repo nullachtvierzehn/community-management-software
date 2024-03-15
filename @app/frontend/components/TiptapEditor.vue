@@ -12,31 +12,23 @@
 </template>
 
 <script lang="ts" setup>
+import type { EditorEvents } from '@tiptap/core'
 import ImageExtension from '@tiptap/extension-image'
 import LinkExtension from '@tiptap/extension-link'
 import StarterKit from '@tiptap/starter-kit'
-import {
-  EditorContent,
-  type HTMLContent,
-  type JSONContent,
-  useEditor,
-} from '@tiptap/vue-3'
-import { useField } from 'vee-validate'
+import { EditorContent, type JSONContent, useEditor } from '@tiptap/vue-3'
 
-const props = defineProps<
-  { name: string; actions?: string[] } & (
-    | { json: JSONContent; html?: null }
-    | { json?: null; html: HTMLContent }
-  )
->()
-
-const editorElement = ref<HTMLElement>()
-const { handleBlur, handleChange } = useField(() => props.name)
+const props = defineProps<{
+  actions?: string[]
+  json: JSONContent
+}>()
 
 const emit = defineEmits<{
   (e: 'update:json', value: JSONContent): void
-  (e: 'update:html', value: HTMLContent): void
+  (e: 'blur', value: EditorEvents['blur']): void
 }>()
+
+const editorElement = ref<HTMLElement>()
 
 const editor = useEditor({
   extensions: [
@@ -45,21 +37,15 @@ const editor = useEditor({
     //DropCursorExtension,
     LinkExtension,
   ],
-  content: props.json ?? props.html,
+  content: props.json,
   onUpdate({ editor }) {
     if (props.json) {
       const json = editor.getJSON()
       emit('update:json', json)
-      handleChange(json)
-    }
-    if (props.html) {
-      const html = editor.getHTML()
-      emit('update:html', html)
-      handleChange(html)
     }
   },
-  onBlur({ event }) {
-    handleBlur(event)
+  onBlur(blurEvent) {
+    emit('blur', blurEvent)
   },
 })
 </script>

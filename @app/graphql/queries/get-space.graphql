@@ -1,0 +1,39 @@
+query GetSpace($id: UUID!) {
+  space(id: $id) {
+    id
+    name
+    isPublic
+    items(orderBy: [CREATED_AT_ASC], first: 10) {
+      pageInfo {
+        hasNextPage
+      }
+      nodes {
+        id
+        createdAt
+        editor {
+          id
+          ...ShortProfile
+        }
+        messageRevision {
+          id
+          editor {
+            id
+            ...ShortProfile
+          }
+          body
+        }
+      }
+    }
+    subscriptions {
+      totalCount
+      nodes {
+        id
+        createdAt
+        subscriber {
+          id
+          ...ShortProfile
+        }
+      }
+    }
+  }
+}

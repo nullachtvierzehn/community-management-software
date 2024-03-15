@@ -4797,6 +4797,17 @@ CREATE POLICY can_create_root_spaces_when_organization_abilities_match ON app_pu
 
 
 --
+-- Name: space_items can_create_with_proper_abilities; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_create_with_proper_abilities ON app_public.space_items FOR INSERT TO null814_cms_app_users WITH CHECK ((space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{manage,create}'::app_public.ability[]) AS my_space_ids
+UNION ALL
+ SELECT spaces.id
+   FROM app_public.spaces
+  WHERE (spaces.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{manage,create}'::app_public.ability[]) AS my_organization_ids)))));
+
+
+--
 -- Name: space_subscriptions can_delete_my_subscriptions; Type: POLICY; Schema: app_public; Owner: -
 --
 

@@ -1,0 +1,9 @@
+mutation CreateMessageRevision($payload: MessageRevisionInput!) {
+  createMessageRevision(input: { messageRevision: $payload }) {
+    messageRevision {
+      id
+      revisionId
+      createdAt
+    }
+  }
+}
