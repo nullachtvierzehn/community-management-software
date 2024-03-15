@@ -961,6 +961,8 @@ export type User = Node & {
   createdAt: Scalars['Datetime']['output'];
   /** Reads and enables pagination through a set of `MessageRevision`. */
   editedMessageRevisions: MessageRevisionsConnection;
+  /** Reads and enables pagination through a set of `SpaceItem`. */
+  editedSpaceItems: SpaceItemsConnection;
   hasPassword: Maybe<Scalars['Boolean']['output']>;
   /** Unique identifier for the user. */
   id: Scalars['UUID']['output'];
@@ -973,8 +975,6 @@ export type User = Node & {
   nodeId: Scalars['ID']['output'];
   /** Reads and enables pagination through a set of `OrganizationMembership`. */
   organizationMemberships: OrganizationMembershipsConnection;
-  /** Reads and enables pagination through a set of `SpaceItem`. */
-  spaceItemsBySubmitterId: SpaceItemsConnection;
   /** Reads and enables pagination through a set of `Space`. */
   spacesByCreatorId: SpacesConnection;
   /** Reads and enables pagination through a set of `SpaceSubscription`. */
@@ -1003,6 +1003,19 @@ export type UserEditedMessageRevisionsArgs = {
 
 
 /** A user who can log in to the application. */
+export type UserEditedSpaceItemsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceItemCondition>;
+  filter?: InputMaybe<SpaceItemFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
 export type UserOrganizationMembershipsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -1012,19 +1025,6 @@ export type UserOrganizationMembershipsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<OrganizationMembershipsOrderBy>>;
-};
-
-
-/** A user who can log in to the application. */
-export type UserSpaceItemsBySubmitterIdArgs = {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  condition?: InputMaybe<SpaceItemCondition>;
-  filter?: InputMaybe<SpaceItemFilter>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
 };
 
 
@@ -1170,6 +1170,10 @@ export type UserFilter = {
   editedMessageRevisions?: InputMaybe<UserToManyMessageRevisionFilter>;
   /** Some related `editedMessageRevisions` exist. */
   editedMessageRevisionsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editedSpaceItems` relation. */
+  editedSpaceItems?: InputMaybe<UserToManySpaceItemFilter>;
+  /** Some related `editedSpaceItems` exist. */
+  editedSpaceItemsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `hasPassword` field. */
   hasPassword?: InputMaybe<BooleanFilter>;
   /** Filter by the object’s `id` field. */
@@ -1188,10 +1192,6 @@ export type UserFilter = {
   organizationMemberships?: InputMaybe<UserToManyOrganizationMembershipFilter>;
   /** Some related `organizationMemberships` exist. */
   organizationMembershipsExist?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `spaceItemsBySubmitterId` relation. */
-  spaceItemsBySubmitterId?: InputMaybe<UserToManySpaceItemFilter>;
-  /** Some related `spaceItemsBySubmitterId` exist. */
-  spaceItemsBySubmitterIdExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `spacesByCreatorId` relation. */
   spacesByCreatorId?: InputMaybe<UserToManySpaceFilter>;
   /** Some related `spacesByCreatorId` exist. */
@@ -1224,6 +1224,88 @@ export type UserToManyMessageRevisionFilter = {
   some?: InputMaybe<MessageRevisionFilter>;
 };
 
+/** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManySpaceItemFilter = {
+  /** Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceItemFilter>;
+  /** No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceItemFilter>;
+  /** Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceItemFilter>;
+};
+
+/** A filter to be used against `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceItemFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<SpaceItemFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `editor` relation. */
+  editor?: InputMaybe<UserFilter>;
+  /** A related `editor` exists. */
+  editorExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `editorId` field. */
+  editorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `messageId` field. */
+  messageId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `messageRevision` relation. */
+  messageRevision?: InputMaybe<MessageRevisionFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<SpaceItemFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<SpaceItemFilter>>;
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `space` relation. */
+  space?: InputMaybe<SpaceFilter>;
+  /** Filter by the object’s `spaceId` field. */
+  spaceId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against `Space` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<SpaceFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `creator` relation. */
+  creator?: InputMaybe<UserFilter>;
+  /** A related `creator` exists. */
+  creatorExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `creatorId` field. */
+  creatorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isPublic` field. */
+  isPublic?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `items` relation. */
+  items?: InputMaybe<SpaceToManySpaceItemFilter>;
+  /** Some related `items` exist. */
+  itemsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `name` field. */
+  name?: InputMaybe<StringFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<SpaceFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<SpaceFilter>>;
+  /** Filter by the object’s `organization` relation. */
+  organization?: InputMaybe<OrganizationFilter>;
+  /** Filter by the object’s `organizationId` field. */
+  organizationId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `slug` field. */
+  slug?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `subscriptions` relation. */
+  subscriptions?: InputMaybe<SpaceToManySpaceSubscriptionFilter>;
+  /** Some related `subscriptions` exist. */
+  subscriptionsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
 /** A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’ */
 export type BooleanFilter = {
   /** Not equal to the specified value, treating null like an ordinary value. */
@@ -1250,42 +1332,50 @@ export type BooleanFilter = {
   notIn?: InputMaybe<Array<Scalars['Boolean']['input']>>;
 };
 
-/** A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
-export type UserToManyOrganizationMembershipFilter = {
-  /** Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<OrganizationMembershipFilter>;
-  /** No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<OrganizationMembershipFilter>;
-  /** Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<OrganizationMembershipFilter>;
+/** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceToManySpaceItemFilter = {
+  /** Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceItemFilter>;
+  /** No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceItemFilter>;
+  /** Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceItemFilter>;
 };
 
-/** A filter to be used against `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
-export type OrganizationMembershipFilter = {
-  /** Filter by the object’s `abilities` field. */
-  abilities?: InputMaybe<AbilityListFilter>;
+/** A filter to be used against `Organization` object types. All fields are combined with a logical ‘and.’ */
+export type OrganizationFilter = {
   /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<OrganizationMembershipFilter>>;
+  and?: InputMaybe<Array<OrganizationFilter>>;
   /** Filter by the object’s `createdAt` field. */
   createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `currentUserIsBillingContact` field. */
+  currentUserIsBillingContact?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `currentUserIsOwner` field. */
+  currentUserIsOwner?: InputMaybe<BooleanFilter>;
   /** Filter by the object’s `id` field. */
   id?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `isBillingContact` field. */
-  isBillingContact?: InputMaybe<BooleanFilter>;
-  /** Filter by the object’s `isOwner` field. */
-  isOwner?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `memberAbilities` field. */
+  memberAbilities?: InputMaybe<AbilityListFilter>;
+  /** Filter by the object’s `name` field. */
+  name?: InputMaybe<StringFilter>;
   /** Negates the expression. */
-  not?: InputMaybe<OrganizationMembershipFilter>;
+  not?: InputMaybe<OrganizationFilter>;
   /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<OrganizationMembershipFilter>>;
-  /** Filter by the object’s `organization` relation. */
-  organization?: InputMaybe<OrganizationFilter>;
-  /** Filter by the object’s `organizationId` field. */
-  organizationId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `user` relation. */
-  user?: InputMaybe<UserFilter>;
-  /** Filter by the object’s `userId` field. */
-  userId?: InputMaybe<UuidFilter>;
+  or?: InputMaybe<Array<OrganizationFilter>>;
+  /** Filter by the object’s `organizationMemberships` relation. */
+  organizationMemberships?: InputMaybe<OrganizationToManyOrganizationMembershipFilter>;
+  /** Some related `organizationMemberships` exist. */
+  organizationMembershipsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `ownerAbilities` field. */
+  ownerAbilities?: InputMaybe<AbilityListFilter>;
+  /** Filter by the object’s `slug` field. */
+  slug?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `spaceCreatorAbilities` field. */
+  spaceCreatorAbilities?: InputMaybe<AbilityListFilter>;
+  /** Filter by the object’s `spaces` relation. */
+  spaces?: InputMaybe<OrganizationToManySpaceFilter>;
+  /** Some related `spaces` exist. */
+  spacesExist?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** A filter to be used against Ability List fields. All fields are combined with a logical ‘and.’ */
@@ -1352,42 +1442,6 @@ export type Ability =
   | 'UPDATE_SPACE'
   | 'VIEW';
 
-/** A filter to be used against `Organization` object types. All fields are combined with a logical ‘and.’ */
-export type OrganizationFilter = {
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<OrganizationFilter>>;
-  /** Filter by the object’s `createdAt` field. */
-  createdAt?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `currentUserIsBillingContact` field. */
-  currentUserIsBillingContact?: InputMaybe<BooleanFilter>;
-  /** Filter by the object’s `currentUserIsOwner` field. */
-  currentUserIsOwner?: InputMaybe<BooleanFilter>;
-  /** Filter by the object’s `id` field. */
-  id?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `memberAbilities` field. */
-  memberAbilities?: InputMaybe<AbilityListFilter>;
-  /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>;
-  /** Negates the expression. */
-  not?: InputMaybe<OrganizationFilter>;
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<OrganizationFilter>>;
-  /** Filter by the object’s `organizationMemberships` relation. */
-  organizationMemberships?: InputMaybe<OrganizationToManyOrganizationMembershipFilter>;
-  /** Some related `organizationMemberships` exist. */
-  organizationMembershipsExist?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `ownerAbilities` field. */
-  ownerAbilities?: InputMaybe<AbilityListFilter>;
-  /** Filter by the object’s `slug` field. */
-  slug?: InputMaybe<StringFilter>;
-  /** Filter by the object’s `spaceCreatorAbilities` field. */
-  spaceCreatorAbilities?: InputMaybe<AbilityListFilter>;
-  /** Filter by the object’s `spaces` relation. */
-  spaces?: InputMaybe<OrganizationToManySpaceFilter>;
-  /** Some related `spaces` exist. */
-  spacesExist?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
 /** A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
 export type OrganizationToManyOrganizationMembershipFilter = {
   /** Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -1398,6 +1452,34 @@ export type OrganizationToManyOrganizationMembershipFilter = {
   some?: InputMaybe<OrganizationMembershipFilter>;
 };
 
+/** A filter to be used against `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
+export type OrganizationMembershipFilter = {
+  /** Filter by the object’s `abilities` field. */
+  abilities?: InputMaybe<AbilityListFilter>;
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<OrganizationMembershipFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isBillingContact` field. */
+  isBillingContact?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `isOwner` field. */
+  isOwner?: InputMaybe<BooleanFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<OrganizationMembershipFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<OrganizationMembershipFilter>>;
+  /** Filter by the object’s `organization` relation. */
+  organization?: InputMaybe<OrganizationFilter>;
+  /** Filter by the object’s `organizationId` field. */
+  organizationId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `user` relation. */
+  user?: InputMaybe<UserFilter>;
+  /** Filter by the object’s `userId` field. */
+  userId?: InputMaybe<UuidFilter>;
+};
+
 /** A filter to be used against many `Space` object types. All fields are combined with a logical ‘and.’ */
 export type OrganizationToManySpaceFilter = {
   /** Every related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -1406,88 +1488,6 @@ export type OrganizationToManySpaceFilter = {
   none?: InputMaybe<SpaceFilter>;
   /** Some related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<SpaceFilter>;
-};
-
-/** A filter to be used against `Space` object types. All fields are combined with a logical ‘and.’ */
-export type SpaceFilter = {
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<SpaceFilter>>;
-  /** Filter by the object’s `createdAt` field. */
-  createdAt?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `creator` relation. */
-  creator?: InputMaybe<UserFilter>;
-  /** A related `creator` exists. */
-  creatorExists?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `creatorId` field. */
-  creatorId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `id` field. */
-  id?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `isPublic` field. */
-  isPublic?: InputMaybe<BooleanFilter>;
-  /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>;
-  /** Negates the expression. */
-  not?: InputMaybe<SpaceFilter>;
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<SpaceFilter>>;
-  /** Filter by the object’s `organization` relation. */
-  organization?: InputMaybe<OrganizationFilter>;
-  /** Filter by the object’s `organizationId` field. */
-  organizationId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `slug` field. */
-  slug?: InputMaybe<StringFilter>;
-  /** Filter by the object’s `spaceItems` relation. */
-  spaceItems?: InputMaybe<SpaceToManySpaceItemFilter>;
-  /** Some related `spaceItems` exist. */
-  spaceItemsExist?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `subscriptions` relation. */
-  subscriptions?: InputMaybe<SpaceToManySpaceSubscriptionFilter>;
-  /** Some related `subscriptions` exist. */
-  subscriptionsExist?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `updatedAt` field. */
-  updatedAt?: InputMaybe<DatetimeFilter>;
-};
-
-/** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
-export type SpaceToManySpaceItemFilter = {
-  /** Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SpaceItemFilter>;
-  /** No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SpaceItemFilter>;
-  /** Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SpaceItemFilter>;
-};
-
-/** A filter to be used against `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
-export type SpaceItemFilter = {
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<SpaceItemFilter>>;
-  /** Filter by the object’s `createdAt` field. */
-  createdAt?: InputMaybe<DatetimeFilter>;
-  /** Filter by the object’s `id` field. */
-  id?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `messageId` field. */
-  messageId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `messageRevision` relation. */
-  messageRevision?: InputMaybe<MessageRevisionFilter>;
-  /** Negates the expression. */
-  not?: InputMaybe<SpaceItemFilter>;
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<SpaceItemFilter>>;
-  /** Filter by the object’s `revisionId` field. */
-  revisionId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `space` relation. */
-  space?: InputMaybe<SpaceFilter>;
-  /** Filter by the object’s `spaceId` field. */
-  spaceId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `submitter` relation. */
-  submitter?: InputMaybe<UserFilter>;
-  /** A related `submitter` exists. */
-  submitterExists?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Filter by the object’s `submitterId` field. */
-  submitterId?: InputMaybe<UuidFilter>;
-  /** Filter by the object’s `updatedAt` field. */
-  updatedAt?: InputMaybe<DatetimeFilter>;
 };
 
 /** A filter to be used against many `SpaceSubscription` object types. All fields are combined with a logical ‘and.’ */
@@ -1536,14 +1536,14 @@ export type SpaceSubscriptionFilter = {
   updatedAt?: InputMaybe<DatetimeFilter>;
 };
 
-/** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
-export type UserToManySpaceItemFilter = {
-  /** Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SpaceItemFilter>;
-  /** No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SpaceItemFilter>;
-  /** Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SpaceItemFilter>;
+/** A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManyOrganizationMembershipFilter = {
+  /** Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<OrganizationMembershipFilter>;
+  /** No related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<OrganizationMembershipFilter>;
+  /** Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<OrganizationMembershipFilter>;
 };
 
 /** A filter to be used against many `Space` object types. All fields are combined with a logical ‘and.’ */
@@ -1748,6 +1748,8 @@ export type MessageRevisionSpaceItemsArgs = {
 export type SpaceItemCondition = {
   /** Checks for equality with the object’s `createdAt` field. */
   createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `editorId` field. */
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `id` field. */
   id?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `messageId` field. */
@@ -1756,8 +1758,6 @@ export type SpaceItemCondition = {
   revisionId?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `spaceId` field. */
   spaceId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Checks for equality with the object’s `submitterId` field. */
-  submitterId?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
 };
@@ -1766,6 +1766,8 @@ export type SpaceItemCondition = {
 export type SpaceItemsOrderBy =
   | 'CREATED_AT_ASC'
   | 'CREATED_AT_DESC'
+  | 'EDITOR_ID_ASC'
+  | 'EDITOR_ID_DESC'
   | 'ID_ASC'
   | 'ID_DESC'
   | 'MESSAGE_ID_ASC'
@@ -1777,8 +1779,6 @@ export type SpaceItemsOrderBy =
   | 'REVISION_ID_DESC'
   | 'SPACE_ID_ASC'
   | 'SPACE_ID_DESC'
-  | 'SUBMITTER_ID_ASC'
-  | 'SUBMITTER_ID_DESC'
   | 'UPDATED_AT_ASC'
   | 'UPDATED_AT_DESC';
 
@@ -1807,6 +1807,9 @@ export type SpaceItemsEdge = {
 export type SpaceItem = Node & {
   __typename?: 'SpaceItem';
   createdAt: Scalars['Datetime']['output'];
+  /** Reads a single `User` that is related to this `SpaceItem`. */
+  editor: Maybe<User>;
+  editorId: Maybe<Scalars['UUID']['output']>;
   id: Scalars['UUID']['output'];
   messageId: Scalars['UUID']['output'];
   /** Reads a single `MessageRevision` that is related to this `SpaceItem`. */
@@ -1817,9 +1820,6 @@ export type SpaceItem = Node & {
   /** Reads a single `Space` that is related to this `SpaceItem`. */
   space: Maybe<Space>;
   spaceId: Scalars['UUID']['output'];
-  /** Reads a single `User` that is related to this `SpaceItem`. */
-  submitter: Maybe<User>;
-  submitterId: Maybe<Scalars['UUID']['output']>;
   updatedAt: Scalars['Datetime']['output'];
 };
 
@@ -1831,6 +1831,8 @@ export type Space = Node & {
   creatorId: Maybe<Scalars['UUID']['output']>;
   id: Scalars['UUID']['output'];
   isPublic: Scalars['Boolean']['output'];
+  /** Reads and enables pagination through a set of `SpaceItem`. */
+  items: SpaceItemsConnection;
   name: Scalars['String']['output'];
   /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
   nodeId: Scalars['ID']['output'];
@@ -1838,15 +1840,13 @@ export type Space = Node & {
   organization: Maybe<Organization>;
   organizationId: Scalars['UUID']['output'];
   slug: Scalars['String']['output'];
-  /** Reads and enables pagination through a set of `SpaceItem`. */
-  spaceItems: SpaceItemsConnection;
   /** Reads and enables pagination through a set of `SpaceSubscription`. */
   subscriptions: SpaceSubscriptionsConnection;
   updatedAt: Scalars['Datetime']['output'];
 };
 
 
-export type SpaceSpaceItemsArgs = {
+export type SpaceItemsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
   condition?: InputMaybe<SpaceItemCondition>;
@@ -3349,11 +3349,11 @@ export type CreateSpaceItemInput = {
 
 /** An input for mutations affecting `SpaceItem` */
 export type SpaceItemInput = {
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
   id?: InputMaybe<Scalars['UUID']['input']>;
   messageId: Scalars['UUID']['input'];
   revisionId: Scalars['UUID']['input'];
   spaceId: Scalars['UUID']['input'];
-  submitterId?: InputMaybe<Scalars['UUID']['input']>;
 };
 
 /** The output of our create `SpaceItem` mutation. */
@@ -3364,6 +3364,8 @@ export type CreateSpaceItemPayload = {
    * unchanged and unused. May be used by a client to track mutations.
    */
   clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `User` that is related to this `SpaceItem`. */
+  editor: Maybe<User>;
   /** Reads a single `MessageRevision` that is related to this `SpaceItem`. */
   messageRevision: Maybe<MessageRevision>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
@@ -3374,8 +3376,6 @@ export type CreateSpaceItemPayload = {
   spaceItem: Maybe<SpaceItem>;
   /** An edge for our `SpaceItem`. May be used by Relay 1. */
   spaceItemEdge: Maybe<SpaceItemsEdge>;
-  /** Reads a single `User` that is related to this `SpaceItem`. */
-  submitter: Maybe<User>;
 };
 
 
@@ -3710,6 +3710,8 @@ export type DeleteSpaceItemPayload = {
    */
   clientMutationId: Maybe<Scalars['String']['output']>;
   deletedSpaceItemNodeId: Maybe<Scalars['ID']['output']>;
+  /** Reads a single `User` that is related to this `SpaceItem`. */
+  editor: Maybe<User>;
   /** Reads a single `MessageRevision` that is related to this `SpaceItem`. */
   messageRevision: Maybe<MessageRevision>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
@@ -3720,8 +3722,6 @@ export type DeleteSpaceItemPayload = {
   spaceItem: Maybe<SpaceItem>;
   /** An edge for our `SpaceItem`. May be used by Relay 1. */
   spaceItemEdge: Maybe<SpaceItemsEdge>;
-  /** Reads a single `User` that is related to this `SpaceItem`. */
-  submitter: Maybe<User>;
 };
 
 
@@ -4513,6 +4513,8 @@ export type UpdateSpaceItemPayload = {
    * unchanged and unused. May be used by a client to track mutations.
    */
   clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `User` that is related to this `SpaceItem`. */
+  editor: Maybe<User>;
   /** Reads a single `MessageRevision` that is related to this `SpaceItem`. */
   messageRevision: Maybe<MessageRevision>;
   /** Our root query field type. Allows us to run any query from our mutation payload. */
@@ -4523,8 +4525,6 @@ export type UpdateSpaceItemPayload = {
   spaceItem: Maybe<SpaceItem>;
   /** An edge for our `SpaceItem`. May be used by Relay 1. */
   spaceItemEdge: Maybe<SpaceItemsEdge>;
-  /** Reads a single `User` that is related to this `SpaceItem`. */
-  submitter: Maybe<User>;
 };
 
 
@@ -4720,6 +4720,20 @@ export type ChangePasswordMutationVariables = Exact<{
 
 export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'ChangePasswordPayload', success: boolean | null } | null };
 
+export type CreateMessageRevisionMutationVariables = Exact<{
+  payload: MessageRevisionInput;
+}>;
+
+
+export type CreateMessageRevisionMutation = { __typename?: 'Mutation', createMessageRevision: { __typename?: 'CreateMessageRevisionPayload', messageRevision: { __typename?: 'MessageRevision', id: string, revisionId: string, createdAt: string } | null } | null };
+
+export type CreateSpaceItemMutationVariables = Exact<{
+  payload: SpaceItemInput;
+}>;
+
+
+export type CreateSpaceItemMutation = { __typename?: 'Mutation', createSpaceItem: { __typename?: 'CreateSpaceItemPayload', space: { __typename?: 'Space', id: string } | null, spaceItem: { __typename?: 'SpaceItem', id: string, createdAt: string } | null } | null };
+
 export type CreateSpaceMutationVariables = Exact<{
   space: SpaceInput;
 }>;
@@ -4750,6 +4764,13 @@ export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetCurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null, userEmails: { __typename?: 'UserEmailsConnection', nodes: Array<{ __typename?: 'UserEmail', id: string, isPrimary: boolean, email: string }> } } | null };
+
+export type GetSpaceQueryVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, createdAt: string, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null }> }, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
 
 export type GetUserByUsernameQueryVariables = Exact<{
   username: Scalars['String']['input'];
@@ -4820,6 +4841,30 @@ export const ChangePassword = gql`
   }
 }
     `;
+export const CreateMessageRevision = gql`
+    mutation CreateMessageRevision($payload: MessageRevisionInput!) {
+  createMessageRevision(input: {messageRevision: $payload}) {
+    messageRevision {
+      id
+      revisionId
+      createdAt
+    }
+  }
+}
+    `;
+export const CreateSpaceItem = gql`
+    mutation CreateSpaceItem($payload: SpaceItemInput!) {
+  createSpaceItem(input: {spaceItem: $payload}) {
+    space {
+      id
+    }
+    spaceItem {
+      id
+      createdAt
+    }
+  }
+}
+    `;
 export const CreateSpace = gql`
     mutation CreateSpace($space: SpaceInput!) {
   createSpace(input: {space: $space}) {
@@ -4866,6 +4911,47 @@ export const GetCurrentUser = gql`
         id
         isPrimary
         email
+      }
+    }
+  }
+}
+    ${ShortProfile}`;
+export const GetSpace = gql`
+    query GetSpace($id: UUID!) {
+  space(id: $id) {
+    id
+    name
+    isPublic
+    items(orderBy: [CREATED_AT_ASC], first: 10) {
+      pageInfo {
+        hasNextPage
+      }
+      nodes {
+        id
+        createdAt
+        editor {
+          id
+          ...ShortProfile
+        }
+        messageRevision {
+          id
+          editor {
+            id
+            ...ShortProfile
+          }
+          body
+        }
+      }
+    }
+    subscriptions {
+      totalCount
+      nodes {
+        id
+        createdAt
+        subscriber {
+          id
+          ...ShortProfile
+        }
       }
     }
   }
@@ -4954,6 +5040,38 @@ export const ChangePasswordDocument = gql`
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
 };
+export const CreateMessageRevisionDocument = gql`
+    mutation CreateMessageRevision($payload: MessageRevisionInput!) {
+  createMessageRevision(input: {messageRevision: $payload}) {
+    messageRevision {
+      id
+      revisionId
+      createdAt
+    }
+  }
+}
+    `;
+
+export function useCreateMessageRevisionMutation() {
+  return Urql.useMutation<CreateMessageRevisionMutation, CreateMessageRevisionMutationVariables>(CreateMessageRevisionDocument);
+};
+export const CreateSpaceItemDocument = gql`
+    mutation CreateSpaceItem($payload: SpaceItemInput!) {
+  createSpaceItem(input: {spaceItem: $payload}) {
+    space {
+      id
+    }
+    spaceItem {
+      id
+      createdAt
+    }
+  }
+}
+    `;
+
+export function useCreateSpaceItemMutation() {
+  return Urql.useMutation<CreateSpaceItemMutation, CreateSpaceItemMutationVariables>(CreateSpaceItemDocument);
+};
 export const CreateSpaceDocument = gql`
     mutation CreateSpace($space: SpaceInput!) {
   createSpace(input: {space: $space}) {
@@ -5020,6 +5138,51 @@ export const GetCurrentUserDocument = gql`
 
 export function useGetCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, GetCurrentUserQueryVariables>, 'query'>) {
   return Urql.useQuery<GetCurrentUserQuery, GetCurrentUserQueryVariables>({ query: GetCurrentUserDocument, ...options });
+};
+export const GetSpaceDocument = gql`
+    query GetSpace($id: UUID!) {
+  space(id: $id) {
+    id
+    name
+    isPublic
+    items(orderBy: [CREATED_AT_ASC], first: 10) {
+      pageInfo {
+        hasNextPage
+      }
+      nodes {
+        id
+        createdAt
+        editor {
+          id
+          ...ShortProfile
+        }
+        messageRevision {
+          id
+          editor {
+            id
+            ...ShortProfile
+          }
+          body
+        }
+      }
+    }
+    subscriptions {
+      totalCount
+      nodes {
+        id
+        createdAt
+        subscriber {
+          id
+          ...ShortProfile
+        }
+      }
+    }
+  }
+}
+    ${ShortProfileFragmentDoc}`;
+
+export function useGetSpaceQuery(options: Omit<Urql.UseQueryArgs<never, GetSpaceQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetSpaceQuery, GetSpaceQueryVariables>({ query: GetSpaceDocument, ...options });
 };
 export const GetUserByUsernameDocument = gql`
     query GetUserByUsername($username: String!) {

@@ -45,6 +45,7 @@ export default defineNuxtConfig({
     'dayjs-nuxt',
     '@vueuse/nuxt',
     '@nuxtjs/tailwindcss',
+    '@vee-validate/nuxt',
   ],
   // `proxy` is added by module @nuxt-alt/proxy, see https://github.com/nuxt-alt/proxy
   proxy: {
@@ -67,4 +68,15 @@ export default defineNuxtConfig({
     client: true,
   },
   ssr: true,
+  veeValidate: {
+    // disable or enable auto imports
+    autoImports: true,
+    // Use different names for components
+    componentNames: {
+      Form: 'VeeForm',
+      Field: 'VeeField',
+      FieldArray: 'VeeFieldArray',
+      ErrorMessage: 'VeeErrorMessage',
+    },
+  },
 })
