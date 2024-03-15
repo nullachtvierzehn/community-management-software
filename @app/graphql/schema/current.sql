@@ -2981,7 +2981,7 @@ CREATE TABLE app_public.organization_memberships (
 CREATE TABLE app_public.space_items (
     id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
     space_id uuid NOT NULL,
-    submitter_id uuid DEFAULT app_public.current_user_id(),
+    editor_id uuid DEFAULT app_public.current_user_id(),
     message_id uuid NOT NULL,
     revision_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
@@ -4092,6 +4092,13 @@ CREATE INDEX space_items_on_created_at ON app_public.space_items USING brin (cre
 
 
 --
+-- Name: space_items_on_editor_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX space_items_on_editor_id ON app_public.space_items USING btree (editor_id);
+
+
+--
 -- Name: space_items_on_message_id_revision_id; Type: INDEX; Schema: app_public; Owner: -
 --
 
@@ -4103,13 +4110,6 @@ CREATE INDEX space_items_on_message_id_revision_id ON app_public.space_items USI
 --
 
 CREATE INDEX space_items_on_space_id ON app_public.space_items USING btree (space_id);
-
-
---
--- Name: space_items_on_submitter_id; Type: INDEX; Schema: app_public; Owner: -
---
-
-CREATE INDEX space_items_on_submitter_id ON app_public.space_items USING btree (submitter_id);
 
 
 --
@@ -4558,6 +4558,14 @@ ALTER TABLE ONLY app_public.spaces
 
 
 --
+-- Name: space_items creator; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_items
+    ADD CONSTRAINT creator FOREIGN KEY (editor_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: message_revisions editor; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4655,11 +4663,10 @@ ALTER TABLE ONLY app_public.space_items
 
 
 --
--- Name: space_items submitter; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+-- Name: CONSTRAINT space ON space_items; Type: COMMENT; Schema: app_public; Owner: -
 --
 
-ALTER TABLE ONLY app_public.space_items
-    ADD CONSTRAINT submitter FOREIGN KEY (submitter_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+COMMENT ON CONSTRAINT space ON app_public.space_items IS '@foreignFieldName items';
 
 
 --
@@ -4948,6 +4955,13 @@ CREATE POLICY select_member ON app_public.organizations FOR SELECT USING ((id IN
 --
 
 CREATE POLICY select_mine ON app_public.message_revisions FOR SELECT TO null814_cms_app_users USING ((editor_id = app_public.current_user_id()));
+
+
+--
+-- Name: space_items select_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_own ON app_public.space_items FOR SELECT TO null814_cms_app_users USING ((editor_id = app_public.current_user_id()));
 
 
 --
@@ -5789,10 +5803,10 @@ GRANT INSERT(space_id) ON TABLE app_public.space_items TO null814_cms_app_users;
 
 
 --
--- Name: COLUMN space_items.submitter_id; Type: ACL; Schema: app_public; Owner: -
+-- Name: COLUMN space_items.editor_id; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(submitter_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+GRANT INSERT(editor_id) ON TABLE app_public.space_items TO null814_cms_app_users;
 
 
 --

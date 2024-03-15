@@ -698,20 +698,20 @@ type SpaceItem implements Node {
   nodeId: ID!
   id: UUID!
   spaceId: UUID!
-  submitterId: UUID
+  editorId: UUID
   messageId: UUID!
   revisionId: UUID!
   createdAt: Datetime!
   updatedAt: Datetime!
+
+  """Reads a single `User` that is related to this `SpaceItem`."""
+  editor: User
 
   """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
   messageRevision: MessageRevision
 
   """Reads a single `Space` that is related to this `SpaceItem`."""
   space: Space
-
-  """Reads a single `User` that is related to this `SpaceItem`."""
-  submitter: User
 }
 
 """
@@ -727,103 +727,6 @@ that do not conform to both ISO 8601 and RFC 3339 may be coerced, which may lead
 to unexpected results.
 """
 scalar Datetime
-
-type MessageRevision implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-  id: UUID!
-  revisionId: UUID!
-  parentRevisionId: UUID
-  editorId: UUID
-  createdAt: Datetime!
-  updatedAt: Datetime!
-  updateComment: String
-  subject: String
-  body: JSON
-
-  """Reads a single `User` that is related to this `MessageRevision`."""
-  editor: User
-
-  """
-  Reads a single `MessageRevision` that is related to this `MessageRevision`.
-  """
-  parentRevision: MessageRevision
-
-  """Reads and enables pagination through a set of `MessageRevision`."""
-  childRevisions(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `MessageRevision`."""
-    orderBy: [MessageRevisionsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: MessageRevisionCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: MessageRevisionFilter
-  ): MessageRevisionsConnection!
-
-  """Reads and enables pagination through a set of `SpaceItem`."""
-  spaceItems(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `SpaceItem`."""
-    orderBy: [SpaceItemsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: SpaceItemCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: SpaceItemFilter
-  ): SpaceItemsConnection!
-}
-
-"""
-Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
 
 """A user who can log in to the application."""
 type User implements Node {
@@ -1058,7 +961,7 @@ type User implements Node {
   ): SpaceSubscriptionsConnection!
 
   """Reads and enables pagination through a set of `SpaceItem`."""
-  spaceItemsBySubmitterId(
+  editedSpaceItems(
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -1571,11 +1474,11 @@ input UserFilter {
   """Some related `spaceSubscriptionsBySubscriberId` exist."""
   spaceSubscriptionsBySubscriberIdExist: Boolean
 
-  """Filter by the object’s `spaceItemsBySubmitterId` relation."""
-  spaceItemsBySubmitterId: UserToManySpaceItemFilter
+  """Filter by the object’s `editedSpaceItems` relation."""
+  editedSpaceItems: UserToManySpaceItemFilter
 
-  """Some related `spaceItemsBySubmitterId` exist."""
-  spaceItemsBySubmitterIdExist: Boolean
+  """Some related `editedSpaceItems` exist."""
+  editedSpaceItemsExist: Boolean
 
   """Checks for all expressions in this list."""
   and: [UserFilter!]
@@ -1721,6 +1624,11 @@ input JSONFilter {
   """Contained by the specified JSON."""
   containedBy: JSON
 }
+
+"""
+Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
 
 """
 A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
@@ -1998,11 +1906,11 @@ input SpaceFilter {
   """Some related `subscriptions` exist."""
   subscriptionsExist: Boolean
 
-  """Filter by the object’s `spaceItems` relation."""
-  spaceItems: SpaceToManySpaceItemFilter
+  """Filter by the object’s `items` relation."""
+  items: SpaceToManySpaceItemFilter
 
-  """Some related `spaceItems` exist."""
-  spaceItemsExist: Boolean
+  """Some related `items` exist."""
+  itemsExist: Boolean
 
   """Filter by the object’s `creator` relation."""
   creator: UserFilter
@@ -2126,8 +2034,8 @@ input SpaceItemFilter {
   """Filter by the object’s `spaceId` field."""
   spaceId: UUIDFilter
 
-  """Filter by the object’s `submitterId` field."""
-  submitterId: UUIDFilter
+  """Filter by the object’s `editorId` field."""
+  editorId: UUIDFilter
 
   """Filter by the object’s `messageId` field."""
   messageId: UUIDFilter
@@ -2141,17 +2049,17 @@ input SpaceItemFilter {
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
 
+  """Filter by the object’s `editor` relation."""
+  editor: UserFilter
+
+  """A related `editor` exists."""
+  editorExists: Boolean
+
   """Filter by the object’s `messageRevision` relation."""
   messageRevision: MessageRevisionFilter
 
   """Filter by the object’s `space` relation."""
   space: SpaceFilter
-
-  """Filter by the object’s `submitter` relation."""
-  submitter: UserFilter
-
-  """A related `submitter` exists."""
-  submitterExists: Boolean
 
   """Checks for all expressions in this list."""
   and: [SpaceItemFilter!]
@@ -2697,7 +2605,7 @@ type Space implements Node {
   ): SpaceSubscriptionsConnection!
 
   """Reads and enables pagination through a set of `SpaceItem`."""
-  spaceItems(
+  items(
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -2874,8 +2782,8 @@ enum SpaceItemsOrderBy {
   ID_DESC
   SPACE_ID_ASC
   SPACE_ID_DESC
-  SUBMITTER_ID_ASC
-  SUBMITTER_ID_DESC
+  EDITOR_ID_ASC
+  EDITOR_ID_DESC
   MESSAGE_ID_ASC
   MESSAGE_ID_DESC
   REVISION_ID_ASC
@@ -2897,8 +2805,8 @@ input SpaceItemCondition {
   """Checks for equality with the object’s `spaceId` field."""
   spaceId: UUID
 
-  """Checks for equality with the object’s `submitterId` field."""
-  submitterId: UUID
+  """Checks for equality with the object’s `editorId` field."""
+  editorId: UUID
 
   """Checks for equality with the object’s `messageId` field."""
   messageId: UUID
@@ -3002,13 +2910,96 @@ type MessageRevisionsConnection {
   totalCount: Int!
 }
 
-"""A `MessageRevision` edge in the connection."""
-type MessageRevisionsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
+type MessageRevision implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  revisionId: UUID!
+  parentRevisionId: UUID
+  editorId: UUID
+  createdAt: Datetime!
+  updatedAt: Datetime!
+  updateComment: String
+  subject: String
+  body: JSON
 
-  """The `MessageRevision` at the end of the edge."""
-  node: MessageRevision!
+  """Reads a single `User` that is related to this `MessageRevision`."""
+  editor: User
+
+  """
+  Reads a single `MessageRevision` that is related to this `MessageRevision`.
+  """
+  parentRevision: MessageRevision
+
+  """Reads and enables pagination through a set of `MessageRevision`."""
+  childRevisions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `MessageRevision`."""
+    orderBy: [MessageRevisionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MessageRevisionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MessageRevisionFilter
+  ): MessageRevisionsConnection!
+
+  """Reads and enables pagination through a set of `SpaceItem`."""
+  spaceItems(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceItem`."""
+    orderBy: [SpaceItemsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceItemFilter
+  ): SpaceItemsConnection!
 }
 
 """Methods to use when ordering `MessageRevision`."""
@@ -3067,6 +3058,15 @@ input MessageRevisionCondition {
 
   """Checks for equality with the object’s `body` field."""
   body: JSON
+}
+
+"""A `MessageRevision` edge in the connection."""
+type MessageRevisionsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `MessageRevision` at the end of the edge."""
+  node: MessageRevision!
 }
 
 type ActiveMessageRevision implements Node {
@@ -4584,14 +4584,14 @@ type CreateSpaceItemPayload {
     orderBy: [SpaceItemsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): SpaceItemsEdge
 
+  """Reads a single `User` that is related to this `SpaceItem`."""
+  editor: User
+
   """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
   messageRevision: MessageRevision
 
   """Reads a single `Space` that is related to this `SpaceItem`."""
   space: Space
-
-  """Reads a single `User` that is related to this `SpaceItem`."""
-  submitter: User
 }
 
 """All input for the create `SpaceItem` mutation."""
@@ -4610,7 +4610,7 @@ input CreateSpaceItemInput {
 input SpaceItemInput {
   id: UUID
   spaceId: UUID!
-  submitterId: UUID
+  editorId: UUID
   messageId: UUID!
   revisionId: UUID!
 }
@@ -4926,14 +4926,14 @@ type UpdateSpaceItemPayload {
     orderBy: [SpaceItemsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): SpaceItemsEdge
 
+  """Reads a single `User` that is related to this `SpaceItem`."""
+  editor: User
+
   """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
   messageRevision: MessageRevision
 
   """Reads a single `Space` that is related to this `SpaceItem`."""
   space: Space
-
-  """Reads a single `User` that is related to this `SpaceItem`."""
-  submitter: User
 }
 
 """All input for the `updateSpaceItemByNodeId` mutation."""
@@ -5557,14 +5557,14 @@ type DeleteSpaceItemPayload {
     orderBy: [SpaceItemsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): SpaceItemsEdge
 
+  """Reads a single `User` that is related to this `SpaceItem`."""
+  editor: User
+
   """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
   messageRevision: MessageRevision
 
   """Reads a single `Space` that is related to this `SpaceItem`."""
   space: Space
-
-  """Reads a single `User` that is related to this `SpaceItem`."""
-  submitter: User
 }
 
 """All input for the `deleteSpaceItemByNodeId` mutation."""

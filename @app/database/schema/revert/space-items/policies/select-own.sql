@@ -2,6 +2,7 @@
 
 BEGIN;
 
--- XXX Add DDLs here.
+drop policy select_own
+  on app_public.space_items;
 
 COMMIT;
