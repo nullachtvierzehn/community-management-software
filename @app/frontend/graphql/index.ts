@@ -4732,6 +4732,20 @@ export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null };
 
+export type FetchSpacesQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceCondition>;
+  filter?: InputMaybe<SpaceFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpacesOrderBy> | SpacesOrderBy>;
+}>;
+
+
+export type FetchSpacesQuery = { __typename?: 'Query', spaces: { __typename?: 'SpacesConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: any | null, endCursor: any | null }, nodes: Array<{ __typename?: 'Space', id: string, name: string, createdAt: string, isPublic: boolean }> } | null };
+
 export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -4823,6 +4837,25 @@ export const CurrentUser = gql`
   }
 }
     ${ShortProfile}`;
+export const FetchSpaces = gql`
+    query FetchSpaces($after: Cursor, $before: Cursor, $condition: SpaceCondition, $filter: SpaceFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [SpacesOrderBy!]) {
+  spaces(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    nodes {
+      id
+      name
+      createdAt
+      isPublic
+    }
+  }
+}
+    `;
 export const GetCurrentUser = gql`
     query GetCurrentUser {
   currentUser {
@@ -4945,6 +4978,29 @@ export const CurrentUserDocument = gql`
 
 export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, CurrentUserQueryVariables>, 'query'>) {
   return Urql.useQuery<CurrentUserQuery, CurrentUserQueryVariables>({ query: CurrentUserDocument, ...options });
+};
+export const FetchSpacesDocument = gql`
+    query FetchSpaces($after: Cursor, $before: Cursor, $condition: SpaceCondition, $filter: SpaceFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [SpacesOrderBy!]) {
+  spaces(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    nodes {
+      id
+      name
+      createdAt
+      isPublic
+    }
+  }
+}
+    `;
+
+export function useFetchSpacesQuery(options: Omit<Urql.UseQueryArgs<never, FetchSpacesQueryVariables>, 'query'>) {
+  return Urql.useQuery<FetchSpacesQuery, FetchSpacesQueryVariables>({ query: FetchSpacesDocument, ...options });
 };
 export const GetCurrentUserDocument = gql`
     query GetCurrentUser {

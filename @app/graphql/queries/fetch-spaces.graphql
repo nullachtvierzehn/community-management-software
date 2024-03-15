@@ -30,23 +30,6 @@ query FetchSpaces(
       name
       createdAt
       isPublic
-      latestPost {
-        id
-        createdAt
-        poster {
-          id
-          ...ShortProfile
-        }
-        nthPostSinceLastVisit
-      }
-      mySubscription {
-        id
-        ...ShortSpaceSubscription
-      }
-      nSubscriptions
-      hasSubscriptions
-      nPosts
-      nPostsSinceLastVisit
     }
   }
 }

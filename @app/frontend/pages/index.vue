@@ -2,22 +2,6 @@
   <template v-if="user">
     <h1>Hallo {{ user.username }}</h1>
     <p>Schön, dass Du vorbei schaust.</p>
-    <section v-if="subscribedRooms.length">
-      <h2>Meine Räume</h2>
-      <div class="grid gap-4">
-        <RoomAsListItem
-          v-for="room in subscribedRooms"
-          :key="room.id"
-          class="cursor-pointer"
-          :model-value="room"
-          @click="router.push({ name: 'room/items', params: { id: room.id } })"
-        />
-      </div>
-    </section>
-    <section v-else>
-      <h2>Noch keine Räume eingerichtet</h2>
-      <p>Wir melden uns, sobald wir Räume eingerichtet haben.</p>
-    </section>
   </template>
   <template v-else>
     <h1>Hallo und herzlich willkommen!</h1>
@@ -56,23 +40,9 @@
 </template>
 
 <script setup lang="ts">
-import { useFetchRoomsQuery } from '~/graphql'
-
 definePageMeta({
   layout: 'page',
 })
 
-const router = useRouter()
 const user = await useCurrentUser()
-
-const { data: dataOfSubscribedRooms } = await useFetchRoomsQuery({
-  variables: {
-    orderBy: ['LATEST_ACTIVITY_AT_DESC'],
-  },
-  requestPolicy: 'cache-and-network',
-})
-
-const subscribedRooms = computed(
-  () => dataOfSubscribedRooms.value?.rooms?.nodes ?? []
-)
 </script>
