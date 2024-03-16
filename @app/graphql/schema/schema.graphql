@@ -17,6 +17,9 @@ type Query implements Node {
     nodeId: ID!
   ): Node
 
+  """Get a single `SpaceSubmission`."""
+  spaceSubmission(id: UUID!): SpaceSubmission
+
   """Get a single `SpaceItem`."""
   spaceItem(id: UUID!): SpaceItem
 
@@ -220,6 +223,14 @@ type Query implements Node {
   currentUser: User
   organizationForInvitation(invitationId: UUID!, code: String): Organization
 
+  """Reads a single `SpaceSubmission` using its globally unique `ID`."""
+  spaceSubmissionByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `SpaceSubmission`.
+    """
+    nodeId: ID!
+  ): SpaceSubmission
+
   """Reads a single `SpaceItem` using its globally unique `ID`."""
   spaceItemByNodeId(
     """The globally unique `ID` to be used in selecting a single `SpaceItem`."""
@@ -303,6 +314,40 @@ type Query implements Node {
     """
     nodeId: ID!
   ): SpaceSubscription
+
+  """Reads and enables pagination through a set of `SpaceSubmission`."""
+  spaceSubmissions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubmission`."""
+    orderBy: [SpaceSubmissionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubmissionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubmissionFilter
+  ): SpaceSubmissionsConnection
 
   """Reads and enables pagination through a set of `SpaceItem`."""
   spaceItems(
@@ -691,27 +736,28 @@ interface Node {
   nodeId: ID!
 }
 
-type SpaceItem implements Node {
+type SpaceSubmission implements Node {
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
   id: UUID!
-  spaceId: UUID!
-  editorId: UUID
+  spaceItemId: UUID!
+  submitterId: UUID
   messageId: UUID!
   revisionId: UUID!
-  createdAt: Datetime!
-  updatedAt: Datetime!
+  submittedAt: Datetime!
 
-  """Reads a single `User` that is related to this `SpaceItem`."""
-  editor: User
-
-  """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
+  """
+  Reads a single `MessageRevision` that is related to this `SpaceSubmission`.
+  """
   messageRevision: MessageRevision
 
-  """Reads a single `Space` that is related to this `SpaceItem`."""
-  space: Space
+  """Reads a single `SpaceItem` that is related to this `SpaceSubmission`."""
+  spaceItem: SpaceItem
+
+  """Reads a single `User` that is related to this `SpaceSubmission`."""
+  submitter: User
 }
 
 """
@@ -727,6 +773,137 @@ that do not conform to both ISO 8601 and RFC 3339 may be coerced, which may lead
 to unexpected results.
 """
 scalar Datetime
+
+type MessageRevision implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  revisionId: UUID!
+  parentRevisionId: UUID
+  editorId: UUID
+  createdAt: Datetime!
+  updatedAt: Datetime!
+  updateComment: String
+  subject: String
+  body: JSON
+
+  """Reads a single `User` that is related to this `MessageRevision`."""
+  editor: User
+
+  """
+  Reads a single `MessageRevision` that is related to this `MessageRevision`.
+  """
+  parentRevision: MessageRevision
+
+  """Reads and enables pagination through a set of `MessageRevision`."""
+  childRevisions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `MessageRevision`."""
+    orderBy: [MessageRevisionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MessageRevisionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MessageRevisionFilter
+  ): MessageRevisionsConnection!
+
+  """Reads and enables pagination through a set of `SpaceItem`."""
+  spaceItems(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceItem`."""
+    orderBy: [SpaceItemsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceItemFilter
+  ): SpaceItemsConnection!
+
+  """Reads and enables pagination through a set of `SpaceSubmission`."""
+  spaceSubmissions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubmission`."""
+    orderBy: [SpaceSubmissionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubmissionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubmissionFilter
+  ): SpaceSubmissionsConnection!
+}
+
+"""
+Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
 
 """A user who can log in to the application."""
 type User implements Node {
@@ -993,6 +1170,40 @@ type User implements Node {
     """
     filter: SpaceItemFilter
   ): SpaceItemsConnection!
+
+  """Reads and enables pagination through a set of `SpaceSubmission`."""
+  spaceSubmissionsBySubmitterId(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubmission`."""
+    orderBy: [SpaceSubmissionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubmissionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubmissionFilter
+  ): SpaceSubmissionsConnection!
 }
 
 """A connection to a list of `UserEmail` values."""
@@ -1480,6 +1691,12 @@ input UserFilter {
   """Some related `editedSpaceItems` exist."""
   editedSpaceItemsExist: Boolean
 
+  """Filter by the object’s `spaceSubmissionsBySubmitterId` relation."""
+  spaceSubmissionsBySubmitterId: UserToManySpaceSubmissionFilter
+
+  """Some related `spaceSubmissionsBySubmitterId` exist."""
+  spaceSubmissionsBySubmitterIdExist: Boolean
+
   """Checks for all expressions in this list."""
   and: [UserFilter!]
 
@@ -1624,11 +1841,6 @@ input JSONFilter {
   """Contained by the specified JSON."""
   containedBy: JSON
 }
-
-"""
-Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
 
 """
 A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
@@ -2049,6 +2261,12 @@ input SpaceItemFilter {
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
 
+  """Filter by the object’s `item` relation."""
+  item: SpaceItemToManySpaceSubmissionFilter
+
+  """Some related `item` exist."""
+  itemExist: Boolean
+
   """Filter by the object’s `editor` relation."""
   editor: UserFilter
 
@@ -2069,6 +2287,70 @@ input SpaceItemFilter {
 
   """Negates the expression."""
   not: SpaceItemFilter
+}
+
+"""
+A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceItemToManySpaceSubmissionFilter {
+  """
+  Every related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceSubmissionFilter
+
+  """
+  Some related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceSubmissionFilter
+
+  """
+  No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceSubmissionFilter
+}
+
+"""
+A filter to be used against `SpaceSubmission` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceSubmissionFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `spaceItemId` field."""
+  spaceItemId: UUIDFilter
+
+  """Filter by the object’s `submitterId` field."""
+  submitterId: UUIDFilter
+
+  """Filter by the object’s `messageId` field."""
+  messageId: UUIDFilter
+
+  """Filter by the object’s `revisionId` field."""
+  revisionId: UUIDFilter
+
+  """Filter by the object’s `submittedAt` field."""
+  submittedAt: DatetimeFilter
+
+  """Filter by the object’s `messageRevision` relation."""
+  messageRevision: MessageRevisionFilter
+
+  """Filter by the object’s `spaceItem` relation."""
+  spaceItem: SpaceItemFilter
+
+  """Filter by the object’s `submitter` relation."""
+  submitter: UserFilter
+
+  """A related `submitter` exists."""
+  submitterExists: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [SpaceSubmissionFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [SpaceSubmissionFilter!]
+
+  """Negates the expression."""
+  not: SpaceSubmissionFilter
 }
 
 """
@@ -2113,6 +2395,12 @@ input MessageRevisionFilter {
 
   """Some related `spaceItems` exist."""
   spaceItemsExist: Boolean
+
+  """Filter by the object’s `spaceSubmissions` relation."""
+  spaceSubmissions: MessageRevisionToManySpaceSubmissionFilter
+
+  """Some related `spaceSubmissions` exist."""
+  spaceSubmissionsExist: Boolean
 
   """Filter by the object’s `editor` relation."""
   editor: UserFilter
@@ -2174,6 +2462,26 @@ input MessageRevisionToManySpaceItemFilter {
   No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   none: SpaceItemFilter
+}
+
+"""
+A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’
+"""
+input MessageRevisionToManySpaceSubmissionFilter {
+  """
+  Every related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceSubmissionFilter
+
+  """
+  Some related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceSubmissionFilter
+
+  """
+  No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceSubmissionFilter
 }
 
 """
@@ -2254,6 +2562,26 @@ input UserToManySpaceItemFilter {
   No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   none: SpaceItemFilter
+}
+
+"""
+A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManySpaceSubmissionFilter {
+  """
+  Every related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceSubmissionFilter
+
+  """
+  Some related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceSubmissionFilter
+
+  """
+  No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceSubmissionFilter
 }
 
 """A connection to a list of `UserAuthentication` values."""
@@ -2764,6 +3092,134 @@ type SpaceItemsConnection {
   totalCount: Int!
 }
 
+type SpaceItem implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  spaceId: UUID!
+  editorId: UUID
+  messageId: UUID!
+  revisionId: UUID!
+  createdAt: Datetime!
+  updatedAt: Datetime!
+
+  """Reads a single `User` that is related to this `SpaceItem`."""
+  editor: User
+
+  """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
+  messageRevision: MessageRevision
+
+  """Reads a single `Space` that is related to this `SpaceItem`."""
+  space: Space
+
+  """Reads and enables pagination through a set of `SpaceSubmission`."""
+  item(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubmission`."""
+    orderBy: [SpaceSubmissionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubmissionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubmissionFilter
+  ): SpaceSubmissionsConnection!
+}
+
+"""A connection to a list of `SpaceSubmission` values."""
+type SpaceSubmissionsConnection {
+  """A list of `SpaceSubmission` objects."""
+  nodes: [SpaceSubmission!]!
+
+  """
+  A list of edges which contains the `SpaceSubmission` and cursor to aid in pagination.
+  """
+  edges: [SpaceSubmissionsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `SpaceSubmission` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `SpaceSubmission` edge in the connection."""
+type SpaceSubmissionsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `SpaceSubmission` at the end of the edge."""
+  node: SpaceSubmission!
+}
+
+"""Methods to use when ordering `SpaceSubmission`."""
+enum SpaceSubmissionsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  SPACE_ITEM_ID_ASC
+  SPACE_ITEM_ID_DESC
+  SUBMITTER_ID_ASC
+  SUBMITTER_ID_DESC
+  MESSAGE_ID_ASC
+  MESSAGE_ID_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
+  SUBMITTED_AT_ASC
+  SUBMITTED_AT_DESC
+}
+
+"""
+A condition to be used against `SpaceSubmission` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input SpaceSubmissionCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `spaceItemId` field."""
+  spaceItemId: UUID
+
+  """Checks for equality with the object’s `submitterId` field."""
+  submitterId: UUID
+
+  """Checks for equality with the object’s `messageId` field."""
+  messageId: UUID
+
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: UUID
+
+  """Checks for equality with the object’s `submittedAt` field."""
+  submittedAt: Datetime
+}
+
 """A `SpaceItem` edge in the connection."""
 type SpaceItemsEdge {
   """A cursor for use in pagination."""
@@ -2910,96 +3366,13 @@ type MessageRevisionsConnection {
   totalCount: Int!
 }
 
-type MessageRevision implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-  id: UUID!
-  revisionId: UUID!
-  parentRevisionId: UUID
-  editorId: UUID
-  createdAt: Datetime!
-  updatedAt: Datetime!
-  updateComment: String
-  subject: String
-  body: JSON
+"""A `MessageRevision` edge in the connection."""
+type MessageRevisionsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
 
-  """Reads a single `User` that is related to this `MessageRevision`."""
-  editor: User
-
-  """
-  Reads a single `MessageRevision` that is related to this `MessageRevision`.
-  """
-  parentRevision: MessageRevision
-
-  """Reads and enables pagination through a set of `MessageRevision`."""
-  childRevisions(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `MessageRevision`."""
-    orderBy: [MessageRevisionsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: MessageRevisionCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: MessageRevisionFilter
-  ): MessageRevisionsConnection!
-
-  """Reads and enables pagination through a set of `SpaceItem`."""
-  spaceItems(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `SpaceItem`."""
-    orderBy: [SpaceItemsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: SpaceItemCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: SpaceItemFilter
-  ): SpaceItemsConnection!
+  """The `MessageRevision` at the end of the edge."""
+  node: MessageRevision!
 }
 
 """Methods to use when ordering `MessageRevision`."""
@@ -3058,15 +3431,6 @@ input MessageRevisionCondition {
 
   """Checks for equality with the object’s `body` field."""
   body: JSON
-}
-
-"""A `MessageRevision` edge in the connection."""
-type MessageRevisionsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `MessageRevision` at the end of the edge."""
-  node: MessageRevision!
 }
 
 type ActiveMessageRevision implements Node {
@@ -3754,6 +4118,14 @@ type Mutation {
     input: TransferOrganizationOwnershipInput!
   ): TransferOrganizationOwnershipPayload
 
+  """Creates a single `SpaceSubmission`."""
+  createSpaceSubmission(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateSpaceSubmissionInput!
+  ): CreateSpaceSubmissionPayload
+
   """Creates a single `SpaceItem`."""
   createSpaceItem(
     """
@@ -3983,6 +4355,22 @@ type Mutation {
     """
     input: UpdateSpaceSubscriptionBySubscriberIdAndSpaceIdInput!
   ): UpdateSpaceSubscriptionPayload
+
+  """Deletes a single `SpaceSubmission` using its globally unique id."""
+  deleteSpaceSubmissionByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteSpaceSubmissionByNodeIdInput!
+  ): DeleteSpaceSubmissionPayload
+
+  """Deletes a single `SpaceSubmission` using a unique key."""
+  deleteSpaceSubmission(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteSpaceSubmissionInput!
+  ): DeleteSpaceSubmissionPayload
 
   """Deletes a single `SpaceItem` using its globally unique id."""
   deleteSpaceItemByNodeId(
@@ -4562,6 +4950,61 @@ input TransferOrganizationOwnershipInput {
   userId: UUID!
 }
 
+"""The output of our create `SpaceSubmission` mutation."""
+type CreateSpaceSubmissionPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `SpaceSubmission` that was created by this mutation."""
+  spaceSubmission: SpaceSubmission
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `SpaceSubmission`. May be used by Relay 1."""
+  spaceSubmissionEdge(
+    """The method to use when ordering `SpaceSubmission`."""
+    orderBy: [SpaceSubmissionsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): SpaceSubmissionsEdge
+
+  """
+  Reads a single `MessageRevision` that is related to this `SpaceSubmission`.
+  """
+  messageRevision: MessageRevision
+
+  """Reads a single `SpaceItem` that is related to this `SpaceSubmission`."""
+  spaceItem: SpaceItem
+
+  """Reads a single `User` that is related to this `SpaceSubmission`."""
+  submitter: User
+}
+
+"""All input for the create `SpaceSubmission` mutation."""
+input CreateSpaceSubmissionInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `SpaceSubmission` to be created by this mutation."""
+  spaceSubmission: SpaceSubmissionInput!
+}
+
+"""An input for mutations affecting `SpaceSubmission`"""
+input SpaceSubmissionInput {
+  id: UUID
+  spaceItemId: UUID!
+  submitterId: UUID
+  messageId: UUID!
+  revisionId: UUID!
+}
+
 """The output of our create `SpaceItem` mutation."""
 type CreateSpaceItemPayload {
   """
@@ -4959,6 +5402,7 @@ input UpdateSpaceItemByNodeIdInput {
 Represents an update to a `SpaceItem`. Fields that are set will be updated.
 """
 input SpaceItemPatch {
+  editorId: UUID
   revisionId: UUID
 }
 
@@ -5532,6 +5976,65 @@ input UpdateSpaceSubscriptionBySubscriberIdAndSpaceIdInput {
   An object where the defined keys will be set on the `SpaceSubscription` being updated.
   """
   patch: SpaceSubscriptionPatch!
+}
+
+"""The output of our delete `SpaceSubmission` mutation."""
+type DeleteSpaceSubmissionPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `SpaceSubmission` that was deleted by this mutation."""
+  spaceSubmission: SpaceSubmission
+  deletedSpaceSubmissionNodeId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `SpaceSubmission`. May be used by Relay 1."""
+  spaceSubmissionEdge(
+    """The method to use when ordering `SpaceSubmission`."""
+    orderBy: [SpaceSubmissionsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): SpaceSubmissionsEdge
+
+  """
+  Reads a single `MessageRevision` that is related to this `SpaceSubmission`.
+  """
+  messageRevision: MessageRevision
+
+  """Reads a single `SpaceItem` that is related to this `SpaceSubmission`."""
+  spaceItem: SpaceItem
+
+  """Reads a single `User` that is related to this `SpaceSubmission`."""
+  submitter: User
+}
+
+"""All input for the `deleteSpaceSubmissionByNodeId` mutation."""
+input DeleteSpaceSubmissionByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `SpaceSubmission` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""All input for the `deleteSpaceSubmission` mutation."""
+input DeleteSpaceSubmissionInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
 }
 
 """The output of our delete `SpaceItem` mutation."""

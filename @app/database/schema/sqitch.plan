@@ -38,3 +38,5 @@ organizations/my-organization-ids [users/view-for-organization-abilities] 2024-0
 spaces/policies/can-manage-depending-on-abilities [spaces/my-space-ids organizations/my-organization-ids] 2024-03-14T15:13:46Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # manage spaces, depending on abilities
 spaces/policies/can-select-if-subscribed [spaces/my-space-ids organizations/my-organization-ids] 2024-03-14T15:08:41Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # show my subscribed spaces
 space-items/policies/can-insert-with-proper-abilities [users/view-for-space-abilities space-items] 2024-03-15T14:45:04Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # users can add space items if they have proper abilities
+space-submissions [space-items] 2024-03-15T17:05:23Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table for space submissions
+space-submissions/policies/can-insert-own-items [space-submissions users/view-for-space-abilities] 2024-03-16T05:29:53Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # users can submit their own items
