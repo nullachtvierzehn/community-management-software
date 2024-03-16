@@ -33,7 +33,7 @@ alter table app_public.space_items enable row level security;
 
 grant select on app_public.space_items to "$DATABASE_VISITOR";
 grant insert (id, space_id, editor_id, message_id, revision_id) on app_public.space_items to "$DATABASE_VISITOR";
-grant update (revision_id) on app_public.space_items to "$DATABASE_VISITOR";
+grant update (editor_id, revision_id) on app_public.space_items to "$DATABASE_VISITOR";
 grant delete on app_public.space_items to "$DATABASE_VISITOR";
 
 create index space_items_on_editor_id on app_public.space_items (editor_id);
