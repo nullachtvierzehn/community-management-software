@@ -24,7 +24,7 @@ create table app_public.space_submissions (
 );
 
 comment on constraint space_item on app_public.space_submissions
-  is E'@foreignFieldName item';
+  is E'@foreignFieldName submissions';
 
 alter table app_public.space_submissions enable row level security;
 
