@@ -4739,7 +4739,7 @@ ALTER TABLE ONLY app_public.space_submissions
 -- Name: CONSTRAINT space_item ON space_submissions; Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON CONSTRAINT space_item ON app_public.space_submissions IS '@foreignFieldName item';
+COMMENT ON CONSTRAINT space_item ON app_public.space_submissions IS '@foreignFieldName submissions';
 
 
 --
@@ -5085,6 +5085,16 @@ CREATE POLICY select_own ON app_public.user_authentications FOR SELECT USING ((u
 --
 
 CREATE POLICY select_own ON app_public.user_emails FOR SELECT USING ((user_id = app_public.current_user_id()));
+
+
+--
+-- Name: space_submissions select_submissions_that_i_can_review; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_submissions_that_i_can_review ON app_public.space_submissions FOR SELECT TO null814_cms_app_users USING ((EXISTS ( SELECT
+   FROM (app_public.space_items i
+     JOIN app_public.spaces s ON ((i.space_id = s.id)))
+  WHERE ((i.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{accept,manage}'::app_public.ability[]) AS my_space_ids)) OR (s.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{accept,manage}'::app_public.ability[]) AS my_organization_ids))))));
 
 
 --

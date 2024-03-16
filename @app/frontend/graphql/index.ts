@@ -110,6 +110,12 @@ export type Query = Node & {
   spaceItems: Maybe<SpaceItemsConnection>;
   /** Reads and enables pagination through a set of `Space`. */
   spaces: Maybe<SpacesConnection>;
+  /** Get a single `SpaceSubmission`. */
+  spaceSubmission: Maybe<SpaceSubmission>;
+  /** Reads a single `SpaceSubmission` using its globally unique `ID`. */
+  spaceSubmissionByNodeId: Maybe<SpaceSubmission>;
+  /** Reads and enables pagination through a set of `SpaceSubmission`. */
+  spaceSubmissions: Maybe<SpaceSubmissionsConnection>;
   /** Get a single `SpaceSubscription`. */
   spaceSubscription: Maybe<SpaceSubscription>;
   /** Reads a single `SpaceSubscription` using its globally unique `ID`. */
@@ -411,6 +417,31 @@ export type QuerySpacesArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<SpacesOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpaceSubmissionArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpaceSubmissionByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpaceSubmissionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceSubmissionCondition>;
+  filter?: InputMaybe<SpaceSubmissionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpaceSubmissionsOrderBy>>;
 };
 
 
@@ -977,6 +1008,8 @@ export type User = Node & {
   organizationMemberships: OrganizationMembershipsConnection;
   /** Reads and enables pagination through a set of `Space`. */
   spacesByCreatorId: SpacesConnection;
+  /** Reads and enables pagination through a set of `SpaceSubmission`. */
+  spaceSubmissionsBySubmitterId: SpaceSubmissionsConnection;
   /** Reads and enables pagination through a set of `SpaceSubscription`. */
   spaceSubscriptionsBySubscriberId: SpaceSubscriptionsConnection;
   updatedAt: Scalars['Datetime']['output'];
@@ -1038,6 +1071,19 @@ export type UserSpacesByCreatorIdArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<SpacesOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
+export type UserSpaceSubmissionsBySubmitterIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceSubmissionCondition>;
+  filter?: InputMaybe<SpaceSubmissionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpaceSubmissionsOrderBy>>;
 };
 
 
@@ -1140,6 +1186,10 @@ export type MessageRevisionFilter = {
   spaceItems?: InputMaybe<MessageRevisionToManySpaceItemFilter>;
   /** Some related `spaceItems` exist. */
   spaceItemsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `spaceSubmissions` relation. */
+  spaceSubmissions?: InputMaybe<MessageRevisionToManySpaceSubmissionFilter>;
+  /** Some related `spaceSubmissions` exist. */
+  spaceSubmissionsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `subject` field. */
   subject?: InputMaybe<StringFilter>;
   /** Filter by the object’s `updateComment` field. */
@@ -1196,6 +1246,10 @@ export type UserFilter = {
   spacesByCreatorId?: InputMaybe<UserToManySpaceFilter>;
   /** Some related `spacesByCreatorId` exist. */
   spacesByCreatorIdExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `spaceSubmissionsBySubmitterId` relation. */
+  spaceSubmissionsBySubmitterId?: InputMaybe<UserToManySpaceSubmissionFilter>;
+  /** Some related `spaceSubmissionsBySubmitterId` exist. */
+  spaceSubmissionsBySubmitterIdExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `spaceSubscriptionsBySubscriberId` relation. */
   spaceSubscriptionsBySubscriberId?: InputMaybe<UserToManySpaceSubscriptionFilter>;
   /** Some related `spaceSubscriptionsBySubscriberId` exist. */
@@ -1262,6 +1316,10 @@ export type SpaceItemFilter = {
   space?: InputMaybe<SpaceFilter>;
   /** Filter by the object’s `spaceId` field. */
   spaceId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `submissions` relation. */
+  submissions?: InputMaybe<SpaceItemToManySpaceSubmissionFilter>;
+  /** Some related `submissions` exist. */
+  submissionsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
 };
@@ -1536,6 +1594,46 @@ export type SpaceSubscriptionFilter = {
   updatedAt?: InputMaybe<DatetimeFilter>;
 };
 
+/** A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceItemToManySpaceSubmissionFilter = {
+  /** Every related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceSubmissionFilter>;
+  /** No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceSubmissionFilter>;
+  /** Some related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceSubmissionFilter>;
+};
+
+/** A filter to be used against `SpaceSubmission` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceSubmissionFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<SpaceSubmissionFilter>>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `messageId` field. */
+  messageId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `messageRevision` relation. */
+  messageRevision?: InputMaybe<MessageRevisionFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<SpaceSubmissionFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<SpaceSubmissionFilter>>;
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `spaceItem` relation. */
+  spaceItem?: InputMaybe<SpaceItemFilter>;
+  /** Filter by the object’s `spaceItemId` field. */
+  spaceItemId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `submittedAt` field. */
+  submittedAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `submitter` relation. */
+  submitter?: InputMaybe<UserFilter>;
+  /** A related `submitter` exists. */
+  submitterExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `submitterId` field. */
+  submitterId?: InputMaybe<UuidFilter>;
+};
+
 /** A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
 export type UserToManyOrganizationMembershipFilter = {
   /** Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -1554,6 +1652,16 @@ export type UserToManySpaceFilter = {
   none?: InputMaybe<SpaceFilter>;
   /** Some related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<SpaceFilter>;
+};
+
+/** A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManySpaceSubmissionFilter = {
+  /** Every related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceSubmissionFilter>;
+  /** No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceSubmissionFilter>;
+  /** Some related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceSubmissionFilter>;
 };
 
 /** A filter to be used against many `SpaceSubscription` object types. All fields are combined with a logical ‘and.’ */
@@ -1648,6 +1756,16 @@ export type MessageRevisionToManySpaceItemFilter = {
   some?: InputMaybe<SpaceItemFilter>;
 };
 
+/** A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’ */
+export type MessageRevisionToManySpaceSubmissionFilter = {
+  /** Every related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceSubmissionFilter>;
+  /** No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceSubmissionFilter>;
+  /** Some related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceSubmissionFilter>;
+};
+
 /** Methods to use when ordering `MessageRevision`. */
 export type MessageRevisionsOrderBy =
   | 'BODY_ASC'
@@ -1712,6 +1830,8 @@ export type MessageRevision = Node & {
   revisionId: Scalars['UUID']['output'];
   /** Reads and enables pagination through a set of `SpaceItem`. */
   spaceItems: SpaceItemsConnection;
+  /** Reads and enables pagination through a set of `SpaceSubmission`. */
+  spaceSubmissions: SpaceSubmissionsConnection;
   subject: Maybe<Scalars['String']['output']>;
   updateComment: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['Datetime']['output'];
@@ -1739,6 +1859,18 @@ export type MessageRevisionSpaceItemsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
+};
+
+
+export type MessageRevisionSpaceSubmissionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceSubmissionCondition>;
+  filter?: InputMaybe<SpaceSubmissionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpaceSubmissionsOrderBy>>;
 };
 
 /**
@@ -1820,7 +1952,21 @@ export type SpaceItem = Node & {
   /** Reads a single `Space` that is related to this `SpaceItem`. */
   space: Maybe<Space>;
   spaceId: Scalars['UUID']['output'];
+  /** Reads and enables pagination through a set of `SpaceSubmission`. */
+  submissions: SpaceSubmissionsConnection;
   updatedAt: Scalars['Datetime']['output'];
+};
+
+
+export type SpaceItemSubmissionsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceSubmissionCondition>;
+  filter?: InputMaybe<SpaceSubmissionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpaceSubmissionsOrderBy>>;
 };
 
 export type Space = Node & {
@@ -2140,6 +2286,83 @@ export type SpaceSubscription = Node & {
   subscriber: Maybe<User>;
   subscriberId: Maybe<Scalars['UUID']['output']>;
   updatedAt: Scalars['Datetime']['output'];
+};
+
+/**
+ * A condition to be used against `SpaceSubmission` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type SpaceSubmissionCondition = {
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `messageId` field. */
+  messageId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `spaceItemId` field. */
+  spaceItemId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `submittedAt` field. */
+  submittedAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `submitterId` field. */
+  submitterId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+/** Methods to use when ordering `SpaceSubmission`. */
+export type SpaceSubmissionsOrderBy =
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'MESSAGE_ID_ASC'
+  | 'MESSAGE_ID_DESC'
+  | 'NATURAL'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'REVISION_ID_ASC'
+  | 'REVISION_ID_DESC'
+  | 'SPACE_ITEM_ID_ASC'
+  | 'SPACE_ITEM_ID_DESC'
+  | 'SUBMITTED_AT_ASC'
+  | 'SUBMITTED_AT_DESC'
+  | 'SUBMITTER_ID_ASC'
+  | 'SUBMITTER_ID_DESC';
+
+/** A connection to a list of `SpaceSubmission` values. */
+export type SpaceSubmissionsConnection = {
+  __typename?: 'SpaceSubmissionsConnection';
+  /** A list of edges which contains the `SpaceSubmission` and cursor to aid in pagination. */
+  edges: Array<SpaceSubmissionsEdge>;
+  /** A list of `SpaceSubmission` objects. */
+  nodes: Array<SpaceSubmission>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `SpaceSubmission` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `SpaceSubmission` edge in the connection. */
+export type SpaceSubmissionsEdge = {
+  __typename?: 'SpaceSubmissionsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `SpaceSubmission` at the end of the edge. */
+  node: SpaceSubmission;
+};
+
+export type SpaceSubmission = Node & {
+  __typename?: 'SpaceSubmission';
+  id: Scalars['UUID']['output'];
+  messageId: Scalars['UUID']['output'];
+  /** Reads a single `MessageRevision` that is related to this `SpaceSubmission`. */
+  messageRevision: Maybe<MessageRevision>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  revisionId: Scalars['UUID']['output'];
+  /** Reads a single `SpaceItem` that is related to this `SpaceSubmission`. */
+  spaceItem: Maybe<SpaceItem>;
+  spaceItemId: Scalars['UUID']['output'];
+  submittedAt: Scalars['Datetime']['output'];
+  /** Reads a single `User` that is related to this `SpaceSubmission`. */
+  submitter: Maybe<User>;
+  submitterId: Maybe<Scalars['UUID']['output']>;
 };
 
 /**
@@ -2561,6 +2784,8 @@ export type Mutation = {
   createSpace: Maybe<CreateSpacePayload>;
   /** Creates a single `SpaceItem`. */
   createSpaceItem: Maybe<CreateSpaceItemPayload>;
+  /** Creates a single `SpaceSubmission`. */
+  createSpaceSubmission: Maybe<CreateSpaceSubmissionPayload>;
   /** Creates a single `SpaceSubscription`. */
   createSpaceSubscription: Maybe<CreateSpaceSubscriptionPayload>;
   /** Creates a single `UserEmail`. */
@@ -2588,6 +2813,10 @@ export type Mutation = {
   deleteSpaceItem: Maybe<DeleteSpaceItemPayload>;
   /** Deletes a single `SpaceItem` using its globally unique id. */
   deleteSpaceItemByNodeId: Maybe<DeleteSpaceItemPayload>;
+  /** Deletes a single `SpaceSubmission` using a unique key. */
+  deleteSpaceSubmission: Maybe<DeleteSpaceSubmissionPayload>;
+  /** Deletes a single `SpaceSubmission` using its globally unique id. */
+  deleteSpaceSubmissionByNodeId: Maybe<DeleteSpaceSubmissionPayload>;
   /** Deletes a single `SpaceSubscription` using a unique key. */
   deleteSpaceSubscription: Maybe<DeleteSpaceSubscriptionPayload>;
   /** Deletes a single `SpaceSubscription` using its globally unique id. */
@@ -2726,6 +2955,12 @@ export type MutationCreateSpaceItemArgs = {
 
 
 /** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateSpaceSubmissionArgs = {
+  input: CreateSpaceSubmissionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
 export type MutationCreateSpaceSubscriptionArgs = {
   input: CreateSpaceSubscriptionInput;
 };
@@ -2806,6 +3041,18 @@ export type MutationDeleteSpaceItemArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationDeleteSpaceItemByNodeIdArgs = {
   input: DeleteSpaceItemByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteSpaceSubmissionArgs = {
+  input: DeleteSpaceSubmissionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteSpaceSubmissionByNodeIdArgs = {
+  input: DeleteSpaceSubmissionByNodeIdInput;
 };
 
 
@@ -3384,6 +3631,54 @@ export type CreateSpaceItemPayloadSpaceItemEdgeArgs = {
   orderBy?: Array<SpaceItemsOrderBy>;
 };
 
+/** All input for the create `SpaceSubmission` mutation. */
+export type CreateSpaceSubmissionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `SpaceSubmission` to be created by this mutation. */
+  spaceSubmission: SpaceSubmissionInput;
+};
+
+/** An input for mutations affecting `SpaceSubmission` */
+export type SpaceSubmissionInput = {
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  messageId: Scalars['UUID']['input'];
+  revisionId: Scalars['UUID']['input'];
+  spaceItemId: Scalars['UUID']['input'];
+  submitterId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+/** The output of our create `SpaceSubmission` mutation. */
+export type CreateSpaceSubmissionPayload = {
+  __typename?: 'CreateSpaceSubmissionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Reads a single `MessageRevision` that is related to this `SpaceSubmission`. */
+  messageRevision: Maybe<MessageRevision>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `SpaceItem` that is related to this `SpaceSubmission`. */
+  spaceItem: Maybe<SpaceItem>;
+  /** The `SpaceSubmission` that was created by this mutation. */
+  spaceSubmission: Maybe<SpaceSubmission>;
+  /** An edge for our `SpaceSubmission`. May be used by Relay 1. */
+  spaceSubmissionEdge: Maybe<SpaceSubmissionsEdge>;
+  /** Reads a single `User` that is related to this `SpaceSubmission`. */
+  submitter: Maybe<User>;
+};
+
+
+/** The output of our create `SpaceSubmission` mutation. */
+export type CreateSpaceSubmissionPayloadSpaceSubmissionEdgeArgs = {
+  orderBy?: Array<SpaceSubmissionsOrderBy>;
+};
+
 /** All input for the create `SpaceSubscription` mutation. */
 export type CreateSpaceSubscriptionInput = {
   /**
@@ -3738,6 +4033,56 @@ export type DeleteSpaceItemByNodeIdInput = {
    */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   /** The globally unique `ID` which will identify a single `SpaceItem` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
+/** All input for the `deleteSpaceSubmission` mutation. */
+export type DeleteSpaceSubmissionInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `SpaceSubmission` mutation. */
+export type DeleteSpaceSubmissionPayload = {
+  __typename?: 'DeleteSpaceSubmissionPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedSpaceSubmissionNodeId: Maybe<Scalars['ID']['output']>;
+  /** Reads a single `MessageRevision` that is related to this `SpaceSubmission`. */
+  messageRevision: Maybe<MessageRevision>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `SpaceItem` that is related to this `SpaceSubmission`. */
+  spaceItem: Maybe<SpaceItem>;
+  /** The `SpaceSubmission` that was deleted by this mutation. */
+  spaceSubmission: Maybe<SpaceSubmission>;
+  /** An edge for our `SpaceSubmission`. May be used by Relay 1. */
+  spaceSubmissionEdge: Maybe<SpaceSubmissionsEdge>;
+  /** Reads a single `User` that is related to this `SpaceSubmission`. */
+  submitter: Maybe<User>;
+};
+
+
+/** The output of our delete `SpaceSubmission` mutation. */
+export type DeleteSpaceSubmissionPayloadSpaceSubmissionEdgeArgs = {
+  orderBy?: Array<SpaceSubmissionsOrderBy>;
+};
+
+/** All input for the `deleteSpaceSubmissionByNodeId` mutation. */
+export type DeleteSpaceSubmissionByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `SpaceSubmission` to be deleted. */
   nodeId: Scalars['ID']['input'];
 };
 
@@ -4502,6 +4847,7 @@ export type UpdateSpaceItemInput = {
 
 /** Represents an update to a `SpaceItem`. Fields that are set will be updated. */
 export type SpaceItemPatch = {
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
   revisionId?: InputMaybe<Scalars['UUID']['input']>;
 };
 

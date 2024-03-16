@@ -2261,11 +2261,11 @@ input SpaceItemFilter {
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
 
-  """Filter by the object’s `item` relation."""
-  item: SpaceItemToManySpaceSubmissionFilter
+  """Filter by the object’s `submissions` relation."""
+  submissions: SpaceItemToManySpaceSubmissionFilter
 
-  """Some related `item` exist."""
-  itemExist: Boolean
+  """Some related `submissions` exist."""
+  submissionsExist: Boolean
 
   """Filter by the object’s `editor` relation."""
   editor: UserFilter
@@ -3115,7 +3115,7 @@ type SpaceItem implements Node {
   space: Space
 
   """Reads and enables pagination through a set of `SpaceSubmission`."""
-  item(
+  submissions(
     """Only read the first `n` values of the set."""
     first: Int
 

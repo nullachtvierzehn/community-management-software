@@ -41,3 +41,4 @@ space-items/policies/can-insert-with-proper-abilities [users/view-for-space-abil
 space-submissions [space-items] 2024-03-15T17:05:23Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table for space submissions
 space-submissions/policies/can-insert-own-items [space-submissions users/view-for-space-abilities] 2024-03-16T05:29:53Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # users can submit their own items
 space-submissions/policies/select-own [space-submissions] 2024-03-16T05:47:35Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow users to see their own submissions
+space-submissions/policies/select-submissions-that-I-can-review [space-submissions] 2024-03-16T05:51:22Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # Select submissions that I can review

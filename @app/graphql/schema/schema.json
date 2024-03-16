@@ -8199,8 +8199,8 @@
               "defaultValue": null
             },
             {
-              "name": "item",
-              "description": "Filter by the object’s `item` relation.",
+              "name": "submissions",
+              "description": "Filter by the object’s `submissions` relation.",
               "type": {
                 "kind": "INPUT_OBJECT",
                 "name": "SpaceItemToManySpaceSubmissionFilter",
@@ -8209,8 +8209,8 @@
               "defaultValue": null
             },
             {
-              "name": "itemExist",
-              "description": "Some related `item` exist.",
+              "name": "submissionsExist",
+              "description": "Some related `submissions` exist.",
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
@@ -11688,7 +11688,7 @@
               "deprecationReason": null
             },
             {
-              "name": "item",
+              "name": "submissions",
               "description": "Reads and enables pagination through a set of `SpaceSubmission`.",
               "args": [
                 {
