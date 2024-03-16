@@ -5067,6 +5067,13 @@ CREATE POLICY select_own ON app_public.space_items FOR SELECT TO null814_cms_app
 
 
 --
+-- Name: space_submissions select_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_own ON app_public.space_submissions FOR SELECT TO null814_cms_app_users USING ((submitter_id = app_public.current_user_id()));
+
+
+--
 -- Name: user_authentications select_own; Type: POLICY; Schema: app_public; Owner: -
 --
 
