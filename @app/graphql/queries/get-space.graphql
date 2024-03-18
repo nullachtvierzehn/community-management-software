@@ -3,11 +3,14 @@ query GetSpace($id: UUID!) {
     id
     name
     isPublic
-    items(orderBy: [CREATED_AT_ASC], first: 10) {
+    items(orderBy: [CREATED_AT_ASC]) {
       pageInfo {
         hasNextPage
       }
       nodes {
+        times {
+          currentApprovalSince
+        }
         id
         createdAt
         editor {

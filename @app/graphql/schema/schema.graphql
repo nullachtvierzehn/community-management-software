@@ -50,6 +50,15 @@ type Query implements Node {
   """Get a single `User`."""
   userByUsername(username: String!): User
 
+  """Get a single `ActiveMessageRevision`."""
+  activeMessageRevision(id: UUID!, revisionId: UUID!): ActiveMessageRevision
+
+  """Get a single `CurrentMessageRevision`."""
+  currentMessageRevision(id: UUID!): CurrentMessageRevision
+
+  """Get a single `MessageRevision`."""
+  messageRevision(id: UUID!, revisionId: UUID!): MessageRevision
+
   """Get a single `UserAuthentication`."""
   userAuthentication(id: UUID!): UserAuthentication
 
@@ -62,20 +71,14 @@ type Query implements Node {
   """Get a single `Organization`."""
   organizationBySlug(slug: String!): Organization
 
-  """Get a single `ActiveMessageRevision`."""
-  activeMessageRevision(id: UUID!, revisionId: UUID!): ActiveMessageRevision
-
-  """Get a single `CurrentMessageRevision`."""
-  currentMessageRevision(id: UUID!): CurrentMessageRevision
-
-  """Get a single `MessageRevision`."""
-  messageRevision(id: UUID!, revisionId: UUID!): MessageRevision
-
   """Get a single `SpaceSubscription`."""
   spaceSubscription(id: UUID!): SpaceSubscription
 
   """Get a single `SpaceSubscription`."""
   spaceSubscriptionBySubscriberIdAndSpaceId(subscriberId: UUID!, spaceId: UUID!): SpaceSubscription
+
+  """Get a single `SpaceItemSubmissionAndApprovalTime`."""
+  spaceItemSubmissionAndApprovalTime(spaceItemId: UUID!): SpaceItemSubmissionAndApprovalTime
 
   """Handy method to get the current session ID."""
   currentSessionId: UUID
@@ -276,22 +279,6 @@ type Query implements Node {
     nodeId: ID!
   ): User
 
-  """Reads a single `UserAuthentication` using its globally unique `ID`."""
-  userAuthenticationByNodeId(
-    """
-    The globally unique `ID` to be used in selecting a single `UserAuthentication`.
-    """
-    nodeId: ID!
-  ): UserAuthentication
-
-  """Reads a single `Organization` using its globally unique `ID`."""
-  organizationByNodeId(
-    """
-    The globally unique `ID` to be used in selecting a single `Organization`.
-    """
-    nodeId: ID!
-  ): Organization
-
   """Reads a single `ActiveMessageRevision` using its globally unique `ID`."""
   activeMessageRevisionByNodeId(
     """
@@ -318,6 +305,22 @@ type Query implements Node {
     nodeId: ID!
   ): MessageRevision
 
+  """Reads a single `UserAuthentication` using its globally unique `ID`."""
+  userAuthenticationByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `UserAuthentication`.
+    """
+    nodeId: ID!
+  ): UserAuthentication
+
+  """Reads a single `Organization` using its globally unique `ID`."""
+  organizationByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `Organization`.
+    """
+    nodeId: ID!
+  ): Organization
+
   """Reads a single `SpaceSubscription` using its globally unique `ID`."""
   spaceSubscriptionByNodeId(
     """
@@ -325,6 +328,16 @@ type Query implements Node {
     """
     nodeId: ID!
   ): SpaceSubscription
+
+  """
+  Reads a single `SpaceItemSubmissionAndApprovalTime` using its globally unique `ID`.
+  """
+  spaceItemSubmissionAndApprovalTimeByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `SpaceItemSubmissionAndApprovalTime`.
+    """
+    nodeId: ID!
+  ): SpaceItemSubmissionAndApprovalTime
 
   """Reads and enables pagination through a set of `SpaceSubmission`."""
   spaceSubmissions(
@@ -566,74 +579,6 @@ type Query implements Node {
     filter: UserFilter
   ): UsersConnection
 
-  """Reads and enables pagination through a set of `UserAuthentication`."""
-  userAuthentications(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `UserAuthentication`."""
-    orderBy: [UserAuthenticationsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: UserAuthenticationCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: UserAuthenticationFilter
-  ): UserAuthenticationsConnection
-
-  """Reads and enables pagination through a set of `Organization`."""
-  organizations(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `Organization`."""
-    orderBy: [OrganizationsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: OrganizationCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: OrganizationFilter
-  ): OrganizationsConnection
-
   """Reads and enables pagination through a set of `ActiveMessageRevision`."""
   activeMessageRevisions(
     """Only read the first `n` values of the set."""
@@ -737,6 +682,74 @@ type Query implements Node {
     """
     filter: MessageRevisionFilter
   ): MessageRevisionsConnection
+
+  """Reads and enables pagination through a set of `UserAuthentication`."""
+  userAuthentications(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `UserAuthentication`."""
+    orderBy: [UserAuthenticationsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: UserAuthenticationCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserAuthenticationFilter
+  ): UserAuthenticationsConnection
+
+  """Reads and enables pagination through a set of `Organization`."""
+  organizations(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `Organization`."""
+    orderBy: [OrganizationsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: OrganizationCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: OrganizationFilter
+  ): OrganizationsConnection
 
   """Reads and enables pagination through a set of `SpaceSubscription`."""
   spaceSubscriptions(
@@ -2124,6 +2137,12 @@ input OrganizationFilter {
   """Some related `spaces` exist."""
   spacesExist: Boolean
 
+  """Filter by the object’s `spaceItemSubmissionAndApprovalTimes` relation."""
+  spaceItemSubmissionAndApprovalTimes: OrganizationToManySpaceItemSubmissionAndApprovalTimeFilter
+
+  """Some related `spaceItemSubmissionAndApprovalTimes` exist."""
+  spaceItemSubmissionAndApprovalTimesExist: Boolean
+
   """Checks for all expressions in this list."""
   and: [OrganizationFilter!]
 
@@ -2213,6 +2232,12 @@ input SpaceFilter {
 
   """Some related `items` exist."""
   itemsExist: Boolean
+
+  """Filter by the object’s `spaceItemSubmissionAndApprovalTimes` relation."""
+  spaceItemSubmissionAndApprovalTimes: SpaceToManySpaceItemSubmissionAndApprovalTimeFilter
+
+  """Some related `spaceItemSubmissionAndApprovalTimes` exist."""
+  spaceItemSubmissionAndApprovalTimesExist: Boolean
 
   """Filter by the object’s `creator` relation."""
   creator: UserFilter
@@ -2356,6 +2381,12 @@ input SpaceItemFilter {
 
   """Some related `submissions` exist."""
   submissionsExist: Boolean
+
+  """Filter by the object’s `times` relation."""
+  times: SpaceItemSubmissionAndApprovalTimeFilter
+
+  """A related `times` exists."""
+  timesExists: Boolean
 
   """Filter by the object’s `editor` relation."""
   editor: UserFilter
@@ -2667,6 +2698,111 @@ input MessageRevisionToManySpaceSubmissionFilter {
   No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   none: SpaceSubmissionFilter
+}
+
+"""
+A filter to be used against `SpaceItemSubmissionAndApprovalTime` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceItemSubmissionAndApprovalTimeFilter {
+  """Filter by the object’s `organizationId` field."""
+  organizationId: UUIDFilter
+
+  """Filter by the object’s `spaceId` field."""
+  spaceId: UUIDFilter
+
+  """Filter by the object’s `spaceItemId` field."""
+  spaceItemId: UUIDFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `editorId` field."""
+  editorId: UUIDFilter
+
+  """Filter by the object’s `firstSubmissionAt` field."""
+  firstSubmissionAt: DatetimeFilter
+
+  """Filter by the object’s `firstApprovalAt` field."""
+  firstApprovalAt: DatetimeFilter
+
+  """Filter by the object’s `currentSubmissionSince` field."""
+  currentSubmissionSince: DatetimeFilter
+
+  """Filter by the object’s `currentApprovalSince` field."""
+  currentApprovalSince: DatetimeFilter
+
+  """Filter by the object’s `lastSubmissionAt` field."""
+  lastSubmissionAt: DatetimeFilter
+
+  """Filter by the object’s `lastApprovalAt` field."""
+  lastApprovalAt: DatetimeFilter
+
+  """Filter by the object’s `item` relation."""
+  item: SpaceItemFilter
+
+  """Filter by the object’s `space` relation."""
+  space: SpaceFilter
+
+  """A related `space` exists."""
+  spaceExists: Boolean
+
+  """Filter by the object’s `organization` relation."""
+  organization: OrganizationFilter
+
+  """A related `organization` exists."""
+  organizationExists: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [SpaceItemSubmissionAndApprovalTimeFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [SpaceItemSubmissionAndApprovalTimeFilter!]
+
+  """Negates the expression."""
+  not: SpaceItemSubmissionAndApprovalTimeFilter
+}
+
+"""
+A filter to be used against many `SpaceItemSubmissionAndApprovalTime` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceToManySpaceItemSubmissionAndApprovalTimeFilter {
+  """
+  Every related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceItemSubmissionAndApprovalTimeFilter
+
+  """
+  Some related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceItemSubmissionAndApprovalTimeFilter
+
+  """
+  No related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceItemSubmissionAndApprovalTimeFilter
+}
+
+"""
+A filter to be used against many `SpaceItemSubmissionAndApprovalTime` object types. All fields are combined with a logical ‘and.’
+"""
+input OrganizationToManySpaceItemSubmissionAndApprovalTimeFilter {
+  """
+  Every related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceItemSubmissionAndApprovalTimeFilter
+
+  """
+  Some related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceItemSubmissionAndApprovalTimeFilter
+
+  """
+  No related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceItemSubmissionAndApprovalTimeFilter
 }
 
 """
@@ -3018,6 +3154,42 @@ type Organization implements Node {
     """
     filter: SpaceFilter
   ): SpacesConnection!
+
+  """
+  Reads and enables pagination through a set of `SpaceItemSubmissionAndApprovalTime`.
+  """
+  spaceItemSubmissionAndApprovalTimes(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceItemSubmissionAndApprovalTime`."""
+    orderBy: [SpaceItemSubmissionAndApprovalTimesOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceItemSubmissionAndApprovalTimeCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceItemSubmissionAndApprovalTimeFilter
+  ): SpaceItemSubmissionAndApprovalTimesConnection!
 }
 
 """Methods to use when ordering `OrganizationMembership`."""
@@ -3170,6 +3342,42 @@ type Space implements Node {
     """
     filter: SpaceItemFilter
   ): SpaceItemsConnection!
+
+  """
+  Reads and enables pagination through a set of `SpaceItemSubmissionAndApprovalTime`.
+  """
+  spaceItemSubmissionAndApprovalTimes(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceItemSubmissionAndApprovalTime`."""
+    orderBy: [SpaceItemSubmissionAndApprovalTimesOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceItemSubmissionAndApprovalTimeCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceItemSubmissionAndApprovalTimeFilter
+  ): SpaceItemSubmissionAndApprovalTimesConnection!
 }
 
 """A connection to a list of `SpaceSubscription` values."""
@@ -3352,6 +3560,11 @@ type SpaceItem implements Node {
     """
     filter: SpaceSubmissionFilter
   ): SpaceSubmissionsConnection!
+
+  """
+  Reads a single `SpaceItemSubmissionAndApprovalTime` that is related to this `SpaceItem`.
+  """
+  times: SpaceItemSubmissionAndApprovalTime
 }
 
 """A connection to a list of `SpaceSubmission` values."""
@@ -3425,6 +3638,40 @@ input SpaceSubmissionCondition {
   submittedAt: Datetime
 }
 
+type SpaceItemSubmissionAndApprovalTime implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  organizationId: UUID
+  spaceId: UUID
+  spaceItemId: UUID!
+  createdAt: Datetime
+  updatedAt: Datetime
+  editorId: UUID
+  firstSubmissionAt: Datetime
+  firstApprovalAt: Datetime
+  currentSubmissionSince: Datetime
+  currentApprovalSince: Datetime
+  lastSubmissionAt: Datetime
+  lastApprovalAt: Datetime
+
+  """
+  Reads a single `SpaceItem` that is related to this `SpaceItemSubmissionAndApprovalTime`.
+  """
+  item: SpaceItem
+
+  """
+  Reads a single `Space` that is related to this `SpaceItemSubmissionAndApprovalTime`.
+  """
+  space: Space
+
+  """
+  Reads a single `Organization` that is related to this `SpaceItemSubmissionAndApprovalTime`.
+  """
+  organization: Organization
+}
+
 """A `SpaceItem` edge in the connection."""
 type SpaceItemsEdge {
   """A cursor for use in pagination."""
@@ -3480,6 +3727,107 @@ input SpaceItemCondition {
 
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
+}
+
+"""A connection to a list of `SpaceItemSubmissionAndApprovalTime` values."""
+type SpaceItemSubmissionAndApprovalTimesConnection {
+  """A list of `SpaceItemSubmissionAndApprovalTime` objects."""
+  nodes: [SpaceItemSubmissionAndApprovalTime!]!
+
+  """
+  A list of edges which contains the `SpaceItemSubmissionAndApprovalTime` and cursor to aid in pagination.
+  """
+  edges: [SpaceItemSubmissionAndApprovalTimesEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `SpaceItemSubmissionAndApprovalTime` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `SpaceItemSubmissionAndApprovalTime` edge in the connection."""
+type SpaceItemSubmissionAndApprovalTimesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `SpaceItemSubmissionAndApprovalTime` at the end of the edge."""
+  node: SpaceItemSubmissionAndApprovalTime!
+}
+
+"""Methods to use when ordering `SpaceItemSubmissionAndApprovalTime`."""
+enum SpaceItemSubmissionAndApprovalTimesOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ORGANIZATION_ID_ASC
+  ORGANIZATION_ID_DESC
+  SPACE_ID_ASC
+  SPACE_ID_DESC
+  SPACE_ITEM_ID_ASC
+  SPACE_ITEM_ID_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  EDITOR_ID_ASC
+  EDITOR_ID_DESC
+  FIRST_SUBMISSION_AT_ASC
+  FIRST_SUBMISSION_AT_DESC
+  FIRST_APPROVAL_AT_ASC
+  FIRST_APPROVAL_AT_DESC
+  CURRENT_SUBMISSION_SINCE_ASC
+  CURRENT_SUBMISSION_SINCE_DESC
+  CURRENT_APPROVAL_SINCE_ASC
+  CURRENT_APPROVAL_SINCE_DESC
+  LAST_SUBMISSION_AT_ASC
+  LAST_SUBMISSION_AT_DESC
+  LAST_APPROVAL_AT_ASC
+  LAST_APPROVAL_AT_DESC
+}
+
+"""
+A condition to be used against `SpaceItemSubmissionAndApprovalTime` object
+types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input SpaceItemSubmissionAndApprovalTimeCondition {
+  """Checks for equality with the object’s `organizationId` field."""
+  organizationId: UUID
+
+  """Checks for equality with the object’s `spaceId` field."""
+  spaceId: UUID
+
+  """Checks for equality with the object’s `spaceItemId` field."""
+  spaceItemId: UUID
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `editorId` field."""
+  editorId: UUID
+
+  """Checks for equality with the object’s `firstSubmissionAt` field."""
+  firstSubmissionAt: Datetime
+
+  """Checks for equality with the object’s `firstApprovalAt` field."""
+  firstApprovalAt: Datetime
+
+  """Checks for equality with the object’s `currentSubmissionSince` field."""
+  currentSubmissionSince: Datetime
+
+  """Checks for equality with the object’s `currentApprovalSince` field."""
+  currentApprovalSince: Datetime
+
+  """Checks for equality with the object’s `lastSubmissionAt` field."""
+  lastSubmissionAt: Datetime
+
+  """Checks for equality with the object’s `lastApprovalAt` field."""
+  lastApprovalAt: Datetime
 }
 
 """A `Space` edge in the connection."""
@@ -3973,82 +4321,6 @@ input UserCondition {
   hasPassword: Boolean
 }
 
-"""A connection to a list of `Organization` values."""
-type OrganizationsConnection {
-  """A list of `Organization` objects."""
-  nodes: [Organization!]!
-
-  """
-  A list of edges which contains the `Organization` and cursor to aid in pagination.
-  """
-  edges: [OrganizationsEdge!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Organization` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Organization` edge in the connection."""
-type OrganizationsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Organization` at the end of the edge."""
-  node: Organization!
-}
-
-"""Methods to use when ordering `Organization`."""
-enum OrganizationsOrderBy {
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  ID_ASC
-  ID_DESC
-  SLUG_ASC
-  SLUG_DESC
-  NAME_ASC
-  NAME_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-}
-
-"""
-A condition to be used against `Organization` object types. All fields are
-tested for equality and combined with a logical ‘and.’
-"""
-input OrganizationCondition {
-  """Checks for equality with the object’s `id` field."""
-  id: UUID
-
-  """Checks for equality with the object’s `slug` field."""
-  slug: String
-
-  """Checks for equality with the object’s `name` field."""
-  name: String
-
-  """Checks for equality with the object’s `createdAt` field."""
-  createdAt: Datetime
-
-  """Checks for equality with the object’s `memberAbilities` field."""
-  memberAbilities: [Ability]
-
-  """Checks for equality with the object’s `ownerAbilities` field."""
-  ownerAbilities: [Ability]
-
-  """Checks for equality with the object’s `spaceCreatorAbilities` field."""
-  spaceCreatorAbilities: [Ability]
-
-  """
-  Checks for equality with the object’s `currentUserIsBillingContact` field.
-  """
-  currentUserIsBillingContact: Boolean
-
-  """Checks for equality with the object’s `currentUserIsOwner` field."""
-  currentUserIsOwner: Boolean
-}
-
 """A connection to a list of `ActiveMessageRevision` values."""
 type ActiveMessageRevisionsConnection {
   """A list of `ActiveMessageRevision` objects."""
@@ -4301,6 +4573,82 @@ input CurrentMessageRevisionFilter {
 
   """Negates the expression."""
   not: CurrentMessageRevisionFilter
+}
+
+"""A connection to a list of `Organization` values."""
+type OrganizationsConnection {
+  """A list of `Organization` objects."""
+  nodes: [Organization!]!
+
+  """
+  A list of edges which contains the `Organization` and cursor to aid in pagination.
+  """
+  edges: [OrganizationsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Organization` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Organization` edge in the connection."""
+type OrganizationsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Organization` at the end of the edge."""
+  node: Organization!
+}
+
+"""Methods to use when ordering `Organization`."""
+enum OrganizationsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  SLUG_ASC
+  SLUG_DESC
+  NAME_ASC
+  NAME_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+}
+
+"""
+A condition to be used against `Organization` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input OrganizationCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `slug` field."""
+  slug: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `memberAbilities` field."""
+  memberAbilities: [Ability]
+
+  """Checks for equality with the object’s `ownerAbilities` field."""
+  ownerAbilities: [Ability]
+
+  """Checks for equality with the object’s `spaceCreatorAbilities` field."""
+  spaceCreatorAbilities: [Ability]
+
+  """
+  Checks for equality with the object’s `currentUserIsBillingContact` field.
+  """
+  currentUserIsBillingContact: Boolean
+
+  """Checks for equality with the object’s `currentUserIsOwner` field."""
+  currentUserIsOwner: Boolean
 }
 
 """
@@ -4572,32 +4920,6 @@ type Mutation {
   ): UpdateUserPayload
 
   """
-  Updates a single `Organization` using its globally unique id and a patch.
-  """
-  updateOrganizationByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationByNodeIdInput!
-  ): UpdateOrganizationPayload
-
-  """Updates a single `Organization` using a unique key and a patch."""
-  updateOrganization(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationInput!
-  ): UpdateOrganizationPayload
-
-  """Updates a single `Organization` using a unique key and a patch."""
-  updateOrganizationBySlug(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateOrganizationBySlugInput!
-  ): UpdateOrganizationPayload
-
-  """
   Updates a single `ActiveMessageRevision` using its globally unique id and a patch.
   """
   updateActiveMessageRevisionByNodeId(
@@ -4654,6 +4976,32 @@ type Mutation {
     """
     input: UpdateMessageRevisionInput!
   ): UpdateMessageRevisionPayload
+
+  """
+  Updates a single `Organization` using its globally unique id and a patch.
+  """
+  updateOrganizationByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrganizationByNodeIdInput!
+  ): UpdateOrganizationPayload
+
+  """Updates a single `Organization` using a unique key and a patch."""
+  updateOrganization(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrganizationInput!
+  ): UpdateOrganizationPayload
+
+  """Updates a single `Organization` using a unique key and a patch."""
+  updateOrganizationBySlug(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateOrganizationBySlugInput!
+  ): UpdateOrganizationPayload
 
   """
   Updates a single `SpaceSubscription` using its globally unique id and a patch.
@@ -4777,30 +5125,6 @@ type Mutation {
     input: DeleteSpaceSubmissionReviewInput!
   ): DeleteSpaceSubmissionReviewPayload
 
-  """Deletes a single `UserAuthentication` using its globally unique id."""
-  deleteUserAuthenticationByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserAuthenticationByNodeIdInput!
-  ): DeleteUserAuthenticationPayload
-
-  """Deletes a single `UserAuthentication` using a unique key."""
-  deleteUserAuthentication(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserAuthenticationInput!
-  ): DeleteUserAuthenticationPayload
-
-  """Deletes a single `UserAuthentication` using a unique key."""
-  deleteUserAuthenticationByServiceAndIdentifier(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserAuthenticationByServiceAndIdentifierInput!
-  ): DeleteUserAuthenticationPayload
-
   """Deletes a single `ActiveMessageRevision` using its globally unique id."""
   deleteActiveMessageRevisionByNodeId(
     """
@@ -4850,6 +5174,30 @@ type Mutation {
     """
     input: DeleteMessageRevisionInput!
   ): DeleteMessageRevisionPayload
+
+  """Deletes a single `UserAuthentication` using its globally unique id."""
+  deleteUserAuthenticationByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserAuthenticationByNodeIdInput!
+  ): DeleteUserAuthenticationPayload
+
+  """Deletes a single `UserAuthentication` using a unique key."""
+  deleteUserAuthentication(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserAuthenticationInput!
+  ): DeleteUserAuthenticationPayload
+
+  """Deletes a single `UserAuthentication` using a unique key."""
+  deleteUserAuthenticationByServiceAndIdentifier(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserAuthenticationByServiceAndIdentifierInput!
+  ): DeleteUserAuthenticationPayload
 
   """Deletes a single `SpaceSubscription` using its globally unique id."""
   deleteSpaceSubscriptionByNodeId(
@@ -6064,86 +6412,6 @@ input UpdateUserByUsernameInput {
   patch: UserPatch!
 }
 
-"""The output of our update `Organization` mutation."""
-type UpdateOrganizationPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """The `Organization` that was updated by this mutation."""
-  organization: Organization
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our `Organization`. May be used by Relay 1."""
-  organizationEdge(
-    """The method to use when ordering `Organization`."""
-    orderBy: [OrganizationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): OrganizationsEdge
-}
-
-"""All input for the `updateOrganizationByNodeId` mutation."""
-input UpdateOrganizationByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `Organization` to be updated.
-  """
-  nodeId: ID!
-
-  """
-  An object where the defined keys will be set on the `Organization` being updated.
-  """
-  patch: OrganizationPatch!
-}
-
-"""
-Represents an update to a `Organization`. Fields that are set will be updated.
-"""
-input OrganizationPatch {
-  slug: String
-  name: String
-}
-
-"""All input for the `updateOrganization` mutation."""
-input UpdateOrganizationInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-
-  """
-  An object where the defined keys will be set on the `Organization` being updated.
-  """
-  patch: OrganizationPatch!
-}
-
-"""All input for the `updateOrganizationBySlug` mutation."""
-input UpdateOrganizationBySlugInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  slug: String!
-
-  """
-  An object where the defined keys will be set on the `Organization` being updated.
-  """
-  patch: OrganizationPatch!
-}
-
 """The output of our update `ActiveMessageRevision` mutation."""
 type UpdateActiveMessageRevisionPayload {
   """
@@ -6352,6 +6620,86 @@ input UpdateMessageRevisionInput {
   An object where the defined keys will be set on the `MessageRevision` being updated.
   """
   patch: MessageRevisionPatch!
+}
+
+"""The output of our update `Organization` mutation."""
+type UpdateOrganizationPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `Organization` that was updated by this mutation."""
+  organization: Organization
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `Organization`. May be used by Relay 1."""
+  organizationEdge(
+    """The method to use when ordering `Organization`."""
+    orderBy: [OrganizationsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): OrganizationsEdge
+}
+
+"""All input for the `updateOrganizationByNodeId` mutation."""
+input UpdateOrganizationByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `Organization` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the `Organization` being updated.
+  """
+  patch: OrganizationPatch!
+}
+
+"""
+Represents an update to a `Organization`. Fields that are set will be updated.
+"""
+input OrganizationPatch {
+  slug: String
+  name: String
+}
+
+"""All input for the `updateOrganization` mutation."""
+input UpdateOrganizationInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+
+  """
+  An object where the defined keys will be set on the `Organization` being updated.
+  """
+  patch: OrganizationPatch!
+}
+
+"""All input for the `updateOrganizationBySlug` mutation."""
+input UpdateOrganizationBySlugInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  slug: String!
+
+  """
+  An object where the defined keys will be set on the `Organization` being updated.
+  """
+  patch: OrganizationPatch!
 }
 
 """The output of our update `SpaceSubscription` mutation."""
@@ -6745,74 +7093,6 @@ input DeleteSpaceSubmissionReviewInput {
   spaceSubmissionId: UUID!
 }
 
-"""The output of our delete `UserAuthentication` mutation."""
-type DeleteUserAuthenticationPayload {
-  """
-  The exact same `clientMutationId` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """The `UserAuthentication` that was deleted by this mutation."""
-  userAuthentication: UserAuthentication
-  deletedUserAuthenticationNodeId: ID
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our `UserAuthentication`. May be used by Relay 1."""
-  userAuthenticationEdge(
-    """The method to use when ordering `UserAuthentication`."""
-    orderBy: [UserAuthenticationsOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UserAuthenticationsEdge
-
-  """Reads a single `User` that is related to this `UserAuthentication`."""
-  user: User
-}
-
-"""All input for the `deleteUserAuthenticationByNodeId` mutation."""
-input DeleteUserAuthenticationByNodeIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique `ID` which will identify a single `UserAuthentication` to be deleted.
-  """
-  nodeId: ID!
-}
-
-"""All input for the `deleteUserAuthentication` mutation."""
-input DeleteUserAuthenticationInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  id: UUID!
-}
-
-"""
-All input for the `deleteUserAuthenticationByServiceAndIdentifier` mutation.
-"""
-input DeleteUserAuthenticationByServiceAndIdentifierInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """The login service used, e.g. `twitter` or `github`."""
-  service: String!
-
-  """A unique identifier for the user within the login service."""
-  identifier: String!
-}
-
 """The output of our delete `ActiveMessageRevision` mutation."""
 type DeleteActiveMessageRevisionPayload {
   """
@@ -6965,6 +7245,74 @@ input DeleteMessageRevisionInput {
   clientMutationId: String
   id: UUID!
   revisionId: UUID!
+}
+
+"""The output of our delete `UserAuthentication` mutation."""
+type DeleteUserAuthenticationPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `UserAuthentication` that was deleted by this mutation."""
+  userAuthentication: UserAuthentication
+  deletedUserAuthenticationNodeId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `UserAuthentication`. May be used by Relay 1."""
+  userAuthenticationEdge(
+    """The method to use when ordering `UserAuthentication`."""
+    orderBy: [UserAuthenticationsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): UserAuthenticationsEdge
+
+  """Reads a single `User` that is related to this `UserAuthentication`."""
+  user: User
+}
+
+"""All input for the `deleteUserAuthenticationByNodeId` mutation."""
+input DeleteUserAuthenticationByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `UserAuthentication` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""All input for the `deleteUserAuthentication` mutation."""
+input DeleteUserAuthenticationInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+}
+
+"""
+All input for the `deleteUserAuthenticationByServiceAndIdentifier` mutation.
+"""
+input DeleteUserAuthenticationByServiceAndIdentifierInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The login service used, e.g. `twitter` or `github`."""
+  service: String!
+
+  """A unique identifier for the user within the login service."""
+  identifier: String!
 }
 
 """The output of our delete `SpaceSubscription` mutation."""

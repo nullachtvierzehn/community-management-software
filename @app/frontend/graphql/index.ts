@@ -108,6 +108,10 @@ export type Query = Node & {
   spaceItemByNodeId: Maybe<SpaceItem>;
   /** Reads and enables pagination through a set of `SpaceItem`. */
   spaceItems: Maybe<SpaceItemsConnection>;
+  /** Get a single `SpaceItemSubmissionAndApprovalTime`. */
+  spaceItemSubmissionAndApprovalTime: Maybe<SpaceItemSubmissionAndApprovalTime>;
+  /** Reads a single `SpaceItemSubmissionAndApprovalTime` using its globally unique `ID`. */
+  spaceItemSubmissionAndApprovalTimeByNodeId: Maybe<SpaceItemSubmissionAndApprovalTime>;
   /** Reads and enables pagination through a set of `Space`. */
   spaces: Maybe<SpacesConnection>;
   /** Get a single `SpaceSubmission`. */
@@ -410,6 +414,18 @@ export type QuerySpaceItemsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpaceItemSubmissionAndApprovalTimeArgs = {
+  spaceItemId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpaceItemSubmissionAndApprovalTimeByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
 };
 
 
@@ -1370,6 +1386,10 @@ export type SpaceItemFilter = {
   submissions?: InputMaybe<SpaceItemToManySpaceSubmissionFilter>;
   /** Some related `submissions` exist. */
   submissionsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `times` relation. */
+  times?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
+  /** A related `times` exists. */
+  timesExists?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
 };
@@ -1406,6 +1426,10 @@ export type SpaceFilter = {
   organizationId?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `slug` field. */
   slug?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `spaceItemSubmissionAndApprovalTimes` relation. */
+  spaceItemSubmissionAndApprovalTimes?: InputMaybe<SpaceToManySpaceItemSubmissionAndApprovalTimeFilter>;
+  /** Some related `spaceItemSubmissionAndApprovalTimes` exist. */
+  spaceItemSubmissionAndApprovalTimesExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `subscriptions` relation. */
   subscriptions?: InputMaybe<SpaceToManySpaceSubscriptionFilter>;
   /** Some related `subscriptions` exist. */
@@ -1480,6 +1504,10 @@ export type OrganizationFilter = {
   slug?: InputMaybe<StringFilter>;
   /** Filter by the object’s `spaceCreatorAbilities` field. */
   spaceCreatorAbilities?: InputMaybe<AbilityListFilter>;
+  /** Filter by the object’s `spaceItemSubmissionAndApprovalTimes` relation. */
+  spaceItemSubmissionAndApprovalTimes?: InputMaybe<OrganizationToManySpaceItemSubmissionAndApprovalTimeFilter>;
+  /** Some related `spaceItemSubmissionAndApprovalTimes` exist. */
+  spaceItemSubmissionAndApprovalTimesExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `spaces` relation. */
   spaces?: InputMaybe<OrganizationToManySpaceFilter>;
   /** Some related `spaces` exist. */
@@ -1588,6 +1616,60 @@ export type OrganizationMembershipFilter = {
   userId?: InputMaybe<UuidFilter>;
 };
 
+/** A filter to be used against many `SpaceItemSubmissionAndApprovalTime` object types. All fields are combined with a logical ‘and.’ */
+export type OrganizationToManySpaceItemSubmissionAndApprovalTimeFilter = {
+  /** Every related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
+  /** No related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
+  /** Some related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
+};
+
+/** A filter to be used against `SpaceItemSubmissionAndApprovalTime` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceItemSubmissionAndApprovalTimeFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<SpaceItemSubmissionAndApprovalTimeFilter>>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `currentApprovalSince` field. */
+  currentApprovalSince?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `currentSubmissionSince` field. */
+  currentSubmissionSince?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `editorId` field. */
+  editorId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `firstApprovalAt` field. */
+  firstApprovalAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `firstSubmissionAt` field. */
+  firstSubmissionAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `item` relation. */
+  item?: InputMaybe<SpaceItemFilter>;
+  /** Filter by the object’s `lastApprovalAt` field. */
+  lastApprovalAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `lastSubmissionAt` field. */
+  lastSubmissionAt?: InputMaybe<DatetimeFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<SpaceItemSubmissionAndApprovalTimeFilter>>;
+  /** Filter by the object’s `organization` relation. */
+  organization?: InputMaybe<OrganizationFilter>;
+  /** A related `organization` exists. */
+  organizationExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `organizationId` field. */
+  organizationId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `space` relation. */
+  space?: InputMaybe<SpaceFilter>;
+  /** A related `space` exists. */
+  spaceExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `spaceId` field. */
+  spaceId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `spaceItemId` field. */
+  spaceItemId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
 /** A filter to be used against many `Space` object types. All fields are combined with a logical ‘and.’ */
 export type OrganizationToManySpaceFilter = {
   /** Every related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -1596,6 +1678,16 @@ export type OrganizationToManySpaceFilter = {
   none?: InputMaybe<SpaceFilter>;
   /** Some related `Space` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<SpaceFilter>;
+};
+
+/** A filter to be used against many `SpaceItemSubmissionAndApprovalTime` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceToManySpaceItemSubmissionAndApprovalTimeFilter = {
+  /** Every related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
+  /** No related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
+  /** Some related `SpaceItemSubmissionAndApprovalTime` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
 };
 
 /** A filter to be used against many `SpaceSubscription` object types. All fields are combined with a logical ‘and.’ */
@@ -2077,6 +2169,8 @@ export type SpaceItem = Node & {
   spaceId: Scalars['UUID']['output'];
   /** Reads and enables pagination through a set of `SpaceSubmission`. */
   submissions: SpaceSubmissionsConnection;
+  /** Reads a single `SpaceItemSubmissionAndApprovalTime` that is related to this `SpaceItem`. */
+  times: Maybe<SpaceItemSubmissionAndApprovalTime>;
   updatedAt: Scalars['Datetime']['output'];
 };
 
@@ -2109,6 +2203,8 @@ export type Space = Node & {
   organization: Maybe<Organization>;
   organizationId: Scalars['UUID']['output'];
   slug: Scalars['String']['output'];
+  /** Reads and enables pagination through a set of `SpaceItemSubmissionAndApprovalTime`. */
+  spaceItemSubmissionAndApprovalTimes: SpaceItemSubmissionAndApprovalTimesConnection;
   /** Reads and enables pagination through a set of `SpaceSubscription`. */
   subscriptions: SpaceSubscriptionsConnection;
   updatedAt: Scalars['Datetime']['output'];
@@ -2124,6 +2220,18 @@ export type SpaceItemsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<SpaceItemsOrderBy>>;
+};
+
+
+export type SpaceSpaceItemSubmissionAndApprovalTimesArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceItemSubmissionAndApprovalTimeCondition>;
+  filter?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpaceItemSubmissionAndApprovalTimesOrderBy>>;
 };
 
 
@@ -2153,6 +2261,8 @@ export type Organization = Node & {
   ownerAbilities: Array<Maybe<Ability>>;
   slug: Scalars['String']['output'];
   spaceCreatorAbilities: Array<Maybe<Ability>>;
+  /** Reads and enables pagination through a set of `SpaceItemSubmissionAndApprovalTime`. */
+  spaceItemSubmissionAndApprovalTimes: SpaceItemSubmissionAndApprovalTimesConnection;
   /** Reads and enables pagination through a set of `Space`. */
   spaces: SpacesConnection;
 };
@@ -2167,6 +2277,18 @@ export type OrganizationOrganizationMembershipsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<OrganizationMembershipsOrderBy>>;
+};
+
+
+export type OrganizationSpaceItemSubmissionAndApprovalTimesArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceItemSubmissionAndApprovalTimeCondition>;
+  filter?: InputMaybe<SpaceItemSubmissionAndApprovalTimeFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpaceItemSubmissionAndApprovalTimesOrderBy>>;
 };
 
 
@@ -2257,6 +2379,113 @@ export type OrganizationMembership = Node & {
   /** Reads a single `User` that is related to this `OrganizationMembership`. */
   user: Maybe<User>;
   userId: Scalars['UUID']['output'];
+};
+
+/**
+ * A condition to be used against `SpaceItemSubmissionAndApprovalTime` object
+ * types. All fields are tested for equality and combined with a logical ‘and.’
+ */
+export type SpaceItemSubmissionAndApprovalTimeCondition = {
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `currentApprovalSince` field. */
+  currentApprovalSince?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `currentSubmissionSince` field. */
+  currentSubmissionSince?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `editorId` field. */
+  editorId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `firstApprovalAt` field. */
+  firstApprovalAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `firstSubmissionAt` field. */
+  firstSubmissionAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `lastApprovalAt` field. */
+  lastApprovalAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `lastSubmissionAt` field. */
+  lastSubmissionAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `organizationId` field. */
+  organizationId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `spaceId` field. */
+  spaceId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `spaceItemId` field. */
+  spaceItemId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `SpaceItemSubmissionAndApprovalTime`. */
+export type SpaceItemSubmissionAndApprovalTimesOrderBy =
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'CURRENT_APPROVAL_SINCE_ASC'
+  | 'CURRENT_APPROVAL_SINCE_DESC'
+  | 'CURRENT_SUBMISSION_SINCE_ASC'
+  | 'CURRENT_SUBMISSION_SINCE_DESC'
+  | 'EDITOR_ID_ASC'
+  | 'EDITOR_ID_DESC'
+  | 'FIRST_APPROVAL_AT_ASC'
+  | 'FIRST_APPROVAL_AT_DESC'
+  | 'FIRST_SUBMISSION_AT_ASC'
+  | 'FIRST_SUBMISSION_AT_DESC'
+  | 'LAST_APPROVAL_AT_ASC'
+  | 'LAST_APPROVAL_AT_DESC'
+  | 'LAST_SUBMISSION_AT_ASC'
+  | 'LAST_SUBMISSION_AT_DESC'
+  | 'NATURAL'
+  | 'ORGANIZATION_ID_ASC'
+  | 'ORGANIZATION_ID_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'SPACE_ID_ASC'
+  | 'SPACE_ID_DESC'
+  | 'SPACE_ITEM_ID_ASC'
+  | 'SPACE_ITEM_ID_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `SpaceItemSubmissionAndApprovalTime` values. */
+export type SpaceItemSubmissionAndApprovalTimesConnection = {
+  __typename?: 'SpaceItemSubmissionAndApprovalTimesConnection';
+  /** A list of edges which contains the `SpaceItemSubmissionAndApprovalTime` and cursor to aid in pagination. */
+  edges: Array<SpaceItemSubmissionAndApprovalTimesEdge>;
+  /** A list of `SpaceItemSubmissionAndApprovalTime` objects. */
+  nodes: Array<SpaceItemSubmissionAndApprovalTime>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `SpaceItemSubmissionAndApprovalTime` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `SpaceItemSubmissionAndApprovalTime` edge in the connection. */
+export type SpaceItemSubmissionAndApprovalTimesEdge = {
+  __typename?: 'SpaceItemSubmissionAndApprovalTimesEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `SpaceItemSubmissionAndApprovalTime` at the end of the edge. */
+  node: SpaceItemSubmissionAndApprovalTime;
+};
+
+export type SpaceItemSubmissionAndApprovalTime = Node & {
+  __typename?: 'SpaceItemSubmissionAndApprovalTime';
+  createdAt: Maybe<Scalars['Datetime']['output']>;
+  currentApprovalSince: Maybe<Scalars['Datetime']['output']>;
+  currentSubmissionSince: Maybe<Scalars['Datetime']['output']>;
+  editorId: Maybe<Scalars['UUID']['output']>;
+  firstApprovalAt: Maybe<Scalars['Datetime']['output']>;
+  firstSubmissionAt: Maybe<Scalars['Datetime']['output']>;
+  /** Reads a single `SpaceItem` that is related to this `SpaceItemSubmissionAndApprovalTime`. */
+  item: Maybe<SpaceItem>;
+  lastApprovalAt: Maybe<Scalars['Datetime']['output']>;
+  lastSubmissionAt: Maybe<Scalars['Datetime']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  /** Reads a single `Organization` that is related to this `SpaceItemSubmissionAndApprovalTime`. */
+  organization: Maybe<Organization>;
+  organizationId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `Space` that is related to this `SpaceItemSubmissionAndApprovalTime`. */
+  space: Maybe<Space>;
+  spaceId: Maybe<Scalars['UUID']['output']>;
+  spaceItemId: Scalars['UUID']['output'];
+  updatedAt: Maybe<Scalars['Datetime']['output']>;
 };
 
 /** A condition to be used against `Space` object types. All fields are tested for equality and combined with a logical ‘and.’ */
@@ -5550,7 +5779,7 @@ export type GetSpaceQueryVariables = Exact<{
 }>;
 
 
-export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, createdAt: string, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null }> }, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
+export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, createdAt: string, times: { __typename?: 'SpaceItemSubmissionAndApprovalTime', currentApprovalSince: string | null } | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null }> }, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
 
 export type GetUserByUsernameQueryVariables = Exact<{
   username: Scalars['String']['input'];
@@ -5776,11 +6005,14 @@ export const GetSpace = gql`
     id
     name
     isPublic
-    items(orderBy: [CREATED_AT_ASC], first: 10) {
+    items(orderBy: [CREATED_AT_ASC]) {
       pageInfo {
         hasNextPage
       }
       nodes {
+        times {
+          currentApprovalSince
+        }
         id
         createdAt
         editor {
@@ -6097,11 +6329,14 @@ export const GetSpaceDocument = gql`
     id
     name
     isPublic
-    items(orderBy: [CREATED_AT_ASC], first: 10) {
+    items(orderBy: [CREATED_AT_ASC]) {
       pageInfo {
         hasNextPage
       }
       nodes {
+        times {
+          currentApprovalSince
+        }
         id
         createdAt
         editor {

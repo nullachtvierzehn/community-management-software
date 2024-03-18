@@ -2751,6 +2751,96 @@ CREATE FUNCTION public.text_array_to_string(text[], text) RETURNS text
 
 
 --
+-- Name: space_items; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.space_items (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    space_id uuid NOT NULL,
+    editor_id uuid DEFAULT app_public.current_user_id(),
+    message_id uuid NOT NULL,
+    revision_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: space_submission_reviews; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.space_submission_reviews (
+    space_submission_id uuid NOT NULL,
+    reviewer_id uuid DEFAULT app_public.current_user_id(),
+    result app_public.review_result NOT NULL,
+    comment text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: space_submissions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.space_submissions (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    space_item_id uuid NOT NULL,
+    submitter_id uuid DEFAULT app_public.current_user_id(),
+    message_id uuid NOT NULL,
+    revision_id uuid NOT NULL,
+    submitted_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.spaces (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    organization_id uuid DEFAULT app_public.current_user_first_member_organization_id() NOT NULL,
+    creator_id uuid DEFAULT app_public.current_user_id(),
+    name text NOT NULL,
+    slug text NOT NULL,
+    is_public boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT is_valid_slug CHECK ((slug ~ '^[a-zA-Z0-9_-]+$'::text))
+);
+
+
+--
+-- Name: space_item_submission_and_approval_times; Type: VIEW; Schema: app_hidden; Owner: -
+--
+
+CREATE VIEW app_hidden.space_item_submission_and_approval_times AS
+ SELECT s.organization_id,
+    i.space_id,
+    i.id AS space_item_id,
+    i.created_at,
+    i.updated_at,
+    i.editor_id,
+    stats.first_submission_at,
+    stats.first_approval_at,
+    stats.current_submission_since,
+    stats.current_approval_since,
+    stats.last_submission_at,
+    stats.last_approval_at
+   FROM ((app_public.space_items i
+     JOIN app_public.spaces s ON ((i.space_id = s.id)))
+     LEFT JOIN LATERAL ( SELECT min(s_1.submitted_at) AS first_submission_at,
+            min(r.created_at) AS first_approval_at,
+            min(s_1.submitted_at) FILTER (WHERE (NOT ((i.message_id IS DISTINCT FROM s_1.message_id) OR (i.revision_id IS DISTINCT FROM s_1.revision_id)))) AS current_submission_since,
+            min(r.created_at) FILTER (WHERE (NOT ((i.message_id IS DISTINCT FROM s_1.message_id) OR (i.revision_id IS DISTINCT FROM s_1.revision_id)))) AS current_approval_since,
+            max(s_1.submitted_at) AS last_submission_at,
+            max(r.created_at) AS last_approval_at
+           FROM (app_public.space_submissions s_1
+             LEFT JOIN app_public.space_submission_reviews r ON (((s_1.id = r.space_submission_id) AND (r.result = 'approved'::app_public.review_result))))
+          WHERE (i.id = s_1.space_item_id)) stats ON (true));
+
+
+--
 -- Name: user_abilities_per_organization; Type: TABLE; Schema: app_hidden; Owner: -
 --
 
@@ -2986,46 +3076,39 @@ CREATE TABLE app_public.organization_memberships (
 
 
 --
--- Name: space_items; Type: TABLE; Schema: app_public; Owner: -
+-- Name: space_item_submission_and_approval_times; Type: VIEW; Schema: app_public; Owner: -
 --
 
-CREATE TABLE app_public.space_items (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    space_id uuid NOT NULL,
-    editor_id uuid DEFAULT app_public.current_user_id(),
-    message_id uuid NOT NULL,
-    revision_id uuid NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
---
--- Name: space_submission_reviews; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.space_submission_reviews (
-    space_submission_id uuid NOT NULL,
-    reviewer_id uuid DEFAULT app_public.current_user_id(),
-    result app_public.review_result NOT NULL,
-    comment text,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
+CREATE VIEW app_public.space_item_submission_and_approval_times AS
+ SELECT t.organization_id,
+    t.space_id,
+    t.space_item_id,
+    t.created_at,
+    t.updated_at,
+    t.editor_id,
+    t.first_submission_at,
+    t.first_approval_at,
+    t.current_submission_since,
+    t.current_approval_since,
+    t.last_submission_at,
+    t.last_approval_at
+   FROM ((app_hidden.space_item_submission_and_approval_times t
+     LEFT JOIN app_hidden.user_abilities_per_space sa ON (((t.space_id = sa.space_id) AND (sa.user_id = app_public.current_user_id()))))
+     LEFT JOIN app_hidden.user_abilities_per_organization oa ON (((t.organization_id = oa.organization_id) AND (oa.user_id = app_public.current_user_id()))))
+  WHERE (((t.current_approval_since IS NOT NULL) AND ((sa.abilities && '{view,manage}'::app_public.ability[]) OR (oa.abilities && '{view,manage}'::app_public.ability[]))) OR ((t.current_submission_since IS NOT NULL) AND ((sa.abilities && '{accept,manage}'::app_public.ability[]) OR (oa.abilities && '{accept,manage}'::app_public.ability[]))));
 
 
 --
--- Name: space_submissions; Type: TABLE; Schema: app_public; Owner: -
+-- Name: VIEW space_item_submission_and_approval_times; Type: COMMENT; Schema: app_public; Owner: -
 --
 
-CREATE TABLE app_public.space_submissions (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    space_item_id uuid NOT NULL,
-    submitter_id uuid DEFAULT app_public.current_user_id(),
-    message_id uuid NOT NULL,
-    revision_id uuid NOT NULL,
-    submitted_at timestamp with time zone DEFAULT now() NOT NULL
-);
+COMMENT ON VIEW app_public.space_item_submission_and_approval_times IS '
+  @primaryKey space_item_id
+  @foreignKey (space_item_id) references app_public.space_items (id)|@fieldName item|@foreignFieldName times
+  @foreignKey (space_id) references app_public.spaces (id)
+  @foreignKey (organization_id) references app_public.organizations (id)
+  @omit create,update,delete,all
+  ';
 
 
 --
@@ -3042,23 +3125,6 @@ CREATE TABLE app_public.space_subscriptions (
     last_notification_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
-
---
--- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.spaces (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    organization_id uuid DEFAULT app_public.current_user_first_member_organization_id() NOT NULL,
-    creator_id uuid DEFAULT app_public.current_user_id(),
-    name text NOT NULL,
-    slug text NOT NULL,
-    is_public boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT is_valid_slug CHECK ((slug ~ '^[a-zA-Z0-9_-]+$'::text))
 );
 
 
@@ -4074,6 +4140,13 @@ CREATE UNIQUE INDEX user_abilities_per_space_on_user_id_space_id ON app_hidden.u
 --
 
 CREATE INDEX sessions_user_id_idx ON app_private.sessions USING btree (user_id);
+
+
+--
+-- Name: approvals; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE UNIQUE INDEX approvals ON app_public.space_submission_reviews USING btree (space_submission_id, created_at DESC) INCLUDE (created_at, reviewer_id) WHERE (result = 'approved'::app_public.review_result);
 
 
 --
@@ -5819,6 +5892,181 @@ REVOKE ALL ON FUNCTION procrastinate.procrastinate_unlink_periodic_defers() FROM
 
 
 --
+-- Name: TABLE space_items; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.space_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(space_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.editor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.message_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(message_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(revision_id),UPDATE(revision_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE space_submission_reviews; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submission_reviews.space_submission_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(space_submission_id) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submission_reviews.reviewer_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(reviewer_id),UPDATE(reviewer_id) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submission_reviews.result; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(result),UPDATE(result) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submission_reviews.comment; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(comment),UPDATE(comment) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE space_submissions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.space_submissions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submissions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submissions.space_item_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(space_item_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submissions.submitter_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(submitter_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submissions.message_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(message_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submissions.revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(revision_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE spaces; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.organization_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.creator_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(creator_id) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.name; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(name),UPDATE(name) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.slug; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.is_public; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(is_public),UPDATE(is_public) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE space_item_submission_and_approval_times; Type: ACL; Schema: app_hidden; Owner: -
+--
+
+GRANT SELECT ON TABLE app_hidden.space_item_submission_and_approval_times TO null814_cms_app_users;
+
+
+--
 -- Name: TABLE user_abilities_per_organization; Type: ACL; Schema: app_hidden; Owner: -
 --
 
@@ -5980,122 +6228,10 @@ GRANT SELECT ON TABLE app_public.organization_memberships TO null814_cms_app_use
 
 
 --
--- Name: TABLE space_items; Type: ACL; Schema: app_public; Owner: -
+-- Name: TABLE space_item_submission_and_approval_times; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.space_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(space_id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.editor_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.message_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(message_id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.revision_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(revision_id),UPDATE(revision_id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: TABLE space_submission_reviews; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_submission_reviews.space_submission_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(space_submission_id) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_submission_reviews.reviewer_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(reviewer_id),UPDATE(reviewer_id) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_submission_reviews.result; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(result),UPDATE(result) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_submission_reviews.comment; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(comment),UPDATE(comment) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
-
-
---
--- Name: TABLE space_submissions; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.space_submissions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_submissions.id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_submissions.space_item_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(space_item_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_submissions.submitter_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(submitter_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_submissions.message_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(message_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_submissions.revision_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(revision_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
+GRANT SELECT ON TABLE app_public.space_item_submission_and_approval_times TO null814_cms_app_users;
 
 
 --
@@ -6145,55 +6281,6 @@ GRANT INSERT(is_receiving_notifications),UPDATE(is_receiving_notifications) ON T
 --
 
 GRANT INSERT(last_visit_at),UPDATE(last_visit_at) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
-
-
---
--- Name: TABLE spaces; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(id) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.organization_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.creator_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(creator_id) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.name; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(name),UPDATE(name) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.slug; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.is_public; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(is_public),UPDATE(is_public) ON TABLE app_public.spaces TO null814_cms_app_users;
 
 
 --
