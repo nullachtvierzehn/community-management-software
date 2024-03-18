@@ -1,38 +1,63 @@
 <template>
-  <article v-if="!space">Raum nicht gefunden.</article>
-  <article v-else>
-    <h1>Raum {{ space.name }}</h1>
+  <NuxtLayout name="page">
+    <template #header><div class="absolute"></div></template>
+    <template v-if="space" #default>
+      <h1>Raum {{ space.name }}</h1>
 
-    <!-- show members -->
-    <details>
-      <summary>{{ space.subscriptions.totalCount }} Mitglieder</summary>
-      <ul>
-        <li
-          v-for="subscription in space.subscriptions.nodes"
-          :key="subscription.id"
-        >
-          {{ subscription.subscriber?.username }}
-        </li>
-      </ul>
-    </details>
+      <!-- show members -->
+      <details class="mb-4">
+        <summary>{{ space.subscriptions.totalCount }} Mitglieder</summary>
+        <ul>
+          <li
+            v-for="subscription in space.subscriptions.nodes"
+            :key="subscription.id"
+          >
+            {{ subscription.subscriber?.username }}
+          </li>
+        </ul>
+      </details>
 
-    <!-- show items -->
-    <section id="items">
-      <div v-for="item in items" :key="item.id">
-        <TiptapViewer
-          v-if="item.messageRevision"
-          :content="item.messageRevision.body"
-        />
-        <template v-else>
-          <pre>Fehler: Art von Item {{ item.id }} unbekannt.</pre>
-        </template>
-      </div>
-    </section>
+      <!-- show items -->
+      <section id="items">
+        <div v-for="item in items" :key="item.id" class="bg-gray-200 p-2 mb-2">
+          <div class="flex justify-between align-baseline">
+            <UserName
+              v-if="item.editor"
+              :profile="item.editor"
+              class="font-bold"
+            />
+            <div v-if="item.times?.currentApprovalSince" class="text-sm">
+              {{ formatDateFromNow(item.times.currentApprovalSince) }}
+            </div>
+          </div>
 
-    <!-- add message -->
-    <TiptapEditor v-model:json="bodyOfNewMessage" />
-    <button @click="sendMessage()">send new message</button>
-  </article>
+          <!-- body of message revision -->
+          <TiptapViewer
+            v-if="item.messageRevision"
+            :content="item.messageRevision.body"
+          />
+          <template v-else>
+            <pre>Fehler: Art von Item {{ item.id }} unbekannt.</pre>
+          </template>
+        </div>
+      </section>
+
+      <!-- add message -->
+      <section id="add-message" class="absolute bottom-8 left-0 right-0">
+        <div class="mx-auto container p-4">
+          <TiptapEditor v-model:json="bodyOfNewMessage" class="shadow-xl" />
+          <div class="text-right">
+            <button
+              class="mt-4 shadow-xl p-2 bg-indigo-600 text-white rounded-md"
+              @click="sendMessage()"
+            >
+              absenden
+            </button>
+          </div>
+        </div>
+      </section>
+    </template>
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
@@ -155,3 +180,35 @@ async function sendMessage() {
   if (!review) throw new Error('failed to create review')
 }
 </script>
+
+<style lang="postcss" scoped>
+#items {
+  & :deep(.tiptap-contents p:first-child) {
+    @apply mt-1;
+  }
+  & :deep(.tiptap-contents p:last-child) {
+    @apply mb-1;
+  }
+}
+
+#add-message {
+  & :deep(.tiptap-editor__menu-bar) {
+    @apply m-1.5;
+  }
+  & :deep(.tiptap-editor__content) {
+    @apply m-1.5 overflow-y-scroll max-h-[280px];
+    & *:first-child {
+      @apply mt-0;
+    }
+    & *:last-child {
+      @apply mb-0;
+    }
+  }
+  & :deep(.tiptap-editor__menu-item) {
+    @apply text-gray-700;
+  }
+  & :deep(.tiptap-editor__menu-item.is-active) {
+    @apply bg-gray-700 text-white;
+  }
+}
+</style>

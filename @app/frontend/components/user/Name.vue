@@ -2,7 +2,7 @@
 <template>
   <component :is="tag" v-if="profile">
     <span class="short-profile__username">{{ profile.username }}</span
-    >&nbsp;<span v-if="isMe">(ich)</span>
+    >&nbsp;<span v-if="isMe && tagMine">(ich)</span>
   </component>
   <component
     :is="tag"
@@ -19,6 +19,7 @@ import { type ShortProfileFragment } from '~/graphql'
 const props = withDefaults(
   defineProps<{
     profile?: ShortProfileFragment | null
+    tagMine?: boolean
     tag?: string
   }>(),
   { tag: 'div', profile: null }
