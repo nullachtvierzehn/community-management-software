@@ -159,6 +159,17 @@ CREATE TYPE app_public.ability AS ENUM (
 
 
 --
+-- Name: review_result; Type: TYPE; Schema: app_public; Owner: -
+--
+
+CREATE TYPE app_public.review_result AS ENUM (
+    'declined',
+    'commented',
+    'approved'
+);
+
+
+--
 -- Name: procrastinate_job_event_type; Type: TYPE; Schema: procrastinate; Owner: -
 --
 
@@ -2990,6 +3001,20 @@ CREATE TABLE app_public.space_items (
 
 
 --
+-- Name: space_submission_reviews; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.space_submission_reviews (
+    space_submission_id uuid NOT NULL,
+    reviewer_id uuid DEFAULT app_public.current_user_id(),
+    result app_public.review_result NOT NULL,
+    comment text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: space_submissions; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -3822,6 +3847,14 @@ ALTER TABLE ONLY app_public.organizations
 
 ALTER TABLE ONLY app_public.space_items
     ADD CONSTRAINT space_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: space_submission_reviews space_submission_reviews_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submission_reviews
+    ADD CONSTRAINT space_submission_reviews_pkey PRIMARY KEY (space_submission_id);
 
 
 --
@@ -4698,6 +4731,14 @@ COMMENT ON CONSTRAINT parent_revision ON app_public.message_revisions IS '
 
 
 --
+-- Name: space_submission_reviews reviewer; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submission_reviews
+    ADD CONSTRAINT reviewer FOREIGN KEY (reviewer_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: space_subscriptions space; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4740,6 +4781,14 @@ ALTER TABLE ONLY app_public.space_submissions
 --
 
 COMMENT ON CONSTRAINT space_item ON app_public.space_submissions IS '@foreignFieldName submissions';
+
+
+--
+-- Name: space_submission_reviews space_submission; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submission_reviews
+    ADD CONSTRAINT space_submission FOREIGN KEY (space_submission_id) REFERENCES app_public.space_submissions(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -4896,13 +4945,24 @@ CREATE POLICY can_delete_my_subscriptions ON app_public.space_subscriptions FOR 
 
 
 --
+-- Name: space_submission_reviews can_insert; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY can_insert ON app_public.space_submission_reviews TO null814_cms_app_users WITH CHECK ((EXISTS ( SELECT
+   FROM ((app_public.space_submissions sub
+     JOIN app_public.space_items i ON ((sub.space_item_id = i.id)))
+     JOIN app_public.spaces s ON ((i.space_id = s.id)))
+  WHERE ((space_submission_reviews.space_submission_id = sub.id) AND ((i.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{manage,accept}'::app_public.ability[]) AS my_space_ids)) OR (s.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{manage,accept}'::app_public.ability[]) AS my_organization_ids)))))));
+
+
+--
 -- Name: space_submissions can_insert_own_items; Type: POLICY; Schema: app_public; Owner: -
 --
 
 CREATE POLICY can_insert_own_items ON app_public.space_submissions FOR INSERT TO null814_cms_app_users WITH CHECK ((EXISTS ( SELECT
    FROM (app_public.space_items i
      JOIN app_public.spaces s ON ((i.space_id = s.id)))
-  WHERE ((space_submissions.space_item_id = i.id) AND (space_submissions.submitter_id = i.editor_id) AND (NOT (space_submissions.message_id IS DISTINCT FROM i.message_id)) AND ((i.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{manage,submit}'::app_public.ability[]) AS my_space_ids)) OR (s.organization_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{manage,submit}'::app_public.ability[]) AS my_space_ids)))))));
+  WHERE ((space_submissions.space_item_id = i.id) AND (space_submissions.submitter_id = i.editor_id) AND (NOT (space_submissions.message_id IS DISTINCT FROM i.message_id)) AND ((i.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{manage,submit}'::app_public.ability[]) AS my_space_ids)) OR (s.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{manage,submit}'::app_public.ability[]) AS my_organization_ids)))))));
 
 
 --
@@ -5067,6 +5127,13 @@ CREATE POLICY select_own ON app_public.space_items FOR SELECT TO null814_cms_app
 
 
 --
+-- Name: space_submission_reviews select_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_own ON app_public.space_submission_reviews FOR SELECT TO null814_cms_app_users USING ((reviewer_id = app_public.current_user_id()));
+
+
+--
 -- Name: space_submissions select_own; Type: POLICY; Schema: app_public; Owner: -
 --
 
@@ -5102,6 +5169,12 @@ CREATE POLICY select_submissions_that_i_can_review ON app_public.space_submissio
 --
 
 ALTER TABLE app_public.space_items ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: space_submission_reviews; Type: ROW SECURITY; Schema: app_public; Owner: -
+--
+
+ALTER TABLE app_public.space_submission_reviews ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: space_submissions; Type: ROW SECURITY; Schema: app_public; Owner: -
@@ -5946,6 +6019,41 @@ GRANT INSERT(message_id) ON TABLE app_public.space_items TO null814_cms_app_user
 --
 
 GRANT INSERT(revision_id),UPDATE(revision_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE space_submission_reviews; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submission_reviews.space_submission_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(space_submission_id) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submission_reviews.reviewer_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(reviewer_id),UPDATE(reviewer_id) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submission_reviews.result; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(result),UPDATE(result) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submission_reviews.comment; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(comment),UPDATE(comment) ON TABLE app_public.space_submission_reviews TO null814_cms_app_users;
 
 
 --

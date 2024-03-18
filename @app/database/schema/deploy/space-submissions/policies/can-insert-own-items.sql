@@ -19,7 +19,7 @@ with check (exists(
     -- Submissions must be allowed to the current user.
     and (
       i.space_id in (select app_public.my_space_ids(with_any_abilities => '{manage,submit}'))
-      or s.organization_id in (select app_public.my_space_ids(with_any_abilities => '{manage,submit}'))
+      or s.organization_id in (select app_public.my_organization_ids(with_any_abilities => '{manage,submit}'))
     )
 ));
 
