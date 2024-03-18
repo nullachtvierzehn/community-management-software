@@ -1,0 +1,10 @@
+mutation DeleteMessageRevision($id: UUID!, $revisionId: UUID!) {
+  deleteMessageRevision(input: { id: $id, revisionId: $revisionId }) {
+    messageRevision {
+      id
+    }
+    parentRevision {
+      id
+    }
+  }
+}

@@ -36,9 +36,18 @@
 </template>
 
 <script setup lang="ts">
+import { type JSONContent } from '@tiptap/core'
+import type { CombinedError } from '@urql/vue'
+import { useStorage } from '@vueuse/core'
+
 import {
   useCreateMessageRevisionMutation,
   useCreateSpaceItemMutation,
+  useCreateSpaceSubmissionMutation,
+  useCreateSpaceSubmissionReviewMutation,
+  useDeleteMessageRevisionMutation,
+  useDeleteSpaceItemMutation,
+  useDeleteSpaceSubmissionMutation,
   useGetSpaceQuery,
 } from '~/graphql'
 
@@ -56,10 +65,22 @@ const space = computed(() => data.value?.space)
 const items = computed(() => data.value?.space?.items.nodes ?? [])
 
 // create new messages
-const bodyOfNewMessage = ref({})
+const bodyOfNewMessage = useStorage<JSONContent>(
+  'bodyOfNewMessageIn:' + toValue(route.params.id),
+  {}
+)
+
 const { executeMutation: createMessageRevision } =
   useCreateMessageRevisionMutation()
 const { executeMutation: createSpaceItem } = useCreateSpaceItemMutation()
+const { executeMutation: submitSpaceItem } = useCreateSpaceSubmissionMutation()
+const { executeMutation: approveSpaceItem } =
+  useCreateSpaceSubmissionReviewMutation()
+const { executeMutation: deleteMessageRevision } =
+  useDeleteMessageRevisionMutation()
+const { executeMutation: deleteSpaceItem } = useDeleteSpaceItemMutation()
+const { executeMutation: deleteSpaceSubmission } =
+  useDeleteSpaceSubmissionMutation()
 
 async function sendMessage() {
   const currentSpace = toValue(space)
@@ -74,16 +95,63 @@ async function sendMessage() {
     })
   const message = messageData?.createMessageRevision?.messageRevision
   if (messageError) throw messageError
-  if (!message) throw new Error('failed to load message')
+  if (!message) throw new Error('failed to create message')
+
+  // prepare to revert message creation and other upcoming steps.
+  const revertSteps: Array<() => Promise<{ error?: CombinedError }>> = [
+    () =>
+      deleteMessageRevision({
+        id: message.id,
+        revisionId: message.revisionId,
+      }),
+  ]
+
+  async function revert() {
+    for (const step of revertSteps) {
+      const { error } = await step()
+      if (error) console.error('failed revert step', error)
+    }
+  }
 
   // create space item
-  const { error: itemError } = await createSpaceItem({
+  const { data: itemData, error: itemError } = await createSpaceItem({
     payload: {
       messageId: message.id,
       revisionId: message.revisionId,
       spaceId: currentSpace.id,
     },
   })
+  const item = itemData?.createSpaceItem?.spaceItem
+  if (itemError || !item) await revert()
   if (itemError) throw itemError
+  if (!item) throw new Error('failed to create item')
+  revertSteps.push(() => deleteSpaceItem({ id: item.id }))
+
+  // create space submission
+  const { data: submissionData, error: submissionError } =
+    await submitSpaceItem({
+      payload: {
+        spaceItemId: item.id,
+        messageId: message.id,
+        revisionId: message.revisionId,
+      },
+    })
+  const submission = submissionData?.createSpaceSubmission?.spaceSubmission
+  if (submissionError || !submission) await revert()
+  if (submissionError) throw submissionError
+  if (!submission) throw new Error('failed to create submission')
+  revertSteps.push(() => deleteSpaceSubmission({ id: submission.id }))
+
+  // approve submission
+  const { data: reviewData, error: reviewError } = await approveSpaceItem({
+    payload: {
+      spaceSubmissionId: submission.id,
+      result: 'APPROVED',
+    },
+  })
+  const review = reviewData?.createSpaceSubmissionReview?.spaceSubmissionReview
+  if (reviewError || !review) await revert()
+  if (reviewError) throw reviewError
+  if (!review) throw new Error('failed to create review')
 }
 </script>

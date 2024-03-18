@@ -114,6 +114,12 @@ export type Query = Node & {
   spaceSubmission: Maybe<SpaceSubmission>;
   /** Reads a single `SpaceSubmission` using its globally unique `ID`. */
   spaceSubmissionByNodeId: Maybe<SpaceSubmission>;
+  /** Get a single `SpaceSubmissionReview`. */
+  spaceSubmissionReview: Maybe<SpaceSubmissionReview>;
+  /** Reads a single `SpaceSubmissionReview` using its globally unique `ID`. */
+  spaceSubmissionReviewByNodeId: Maybe<SpaceSubmissionReview>;
+  /** Reads and enables pagination through a set of `SpaceSubmissionReview`. */
+  spaceSubmissionReviews: Maybe<SpaceSubmissionReviewsConnection>;
   /** Reads and enables pagination through a set of `SpaceSubmission`. */
   spaceSubmissions: Maybe<SpaceSubmissionsConnection>;
   /** Get a single `SpaceSubscription`. */
@@ -429,6 +435,31 @@ export type QuerySpaceSubmissionArgs = {
 /** The root query type which gives access points into the data universe. */
 export type QuerySpaceSubmissionByNodeIdArgs = {
   nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpaceSubmissionReviewArgs = {
+  spaceSubmissionId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpaceSubmissionReviewByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySpaceSubmissionReviewsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceSubmissionReviewCondition>;
+  filter?: InputMaybe<SpaceSubmissionReviewFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpaceSubmissionReviewsOrderBy>>;
 };
 
 
@@ -1006,6 +1037,8 @@ export type User = Node & {
   nodeId: Scalars['ID']['output'];
   /** Reads and enables pagination through a set of `OrganizationMembership`. */
   organizationMemberships: OrganizationMembershipsConnection;
+  /** Reads and enables pagination through a set of `SpaceSubmissionReview`. */
+  reviewedSpaceSubmissionReviews: SpaceSubmissionReviewsConnection;
   /** Reads and enables pagination through a set of `Space`. */
   spacesByCreatorId: SpacesConnection;
   /** Reads and enables pagination through a set of `SpaceSubmission`. */
@@ -1058,6 +1091,19 @@ export type UserOrganizationMembershipsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<OrganizationMembershipsOrderBy>>;
+};
+
+
+/** A user who can log in to the application. */
+export type UserReviewedSpaceSubmissionReviewsArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<SpaceSubmissionReviewCondition>;
+  filter?: InputMaybe<SpaceSubmissionReviewFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<SpaceSubmissionReviewsOrderBy>>;
 };
 
 
@@ -1242,6 +1288,10 @@ export type UserFilter = {
   organizationMemberships?: InputMaybe<UserToManyOrganizationMembershipFilter>;
   /** Some related `organizationMemberships` exist. */
   organizationMembershipsExist?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `reviewedSpaceSubmissionReviews` relation. */
+  reviewedSpaceSubmissionReviews?: InputMaybe<UserToManySpaceSubmissionReviewFilter>;
+  /** Some related `reviewedSpaceSubmissionReviews` exist. */
+  reviewedSpaceSubmissionReviewsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `spacesByCreatorId` relation. */
   spacesByCreatorId?: InputMaybe<UserToManySpaceFilter>;
   /** Some related `spacesByCreatorId` exist. */
@@ -1624,6 +1674,10 @@ export type SpaceSubmissionFilter = {
   spaceItem?: InputMaybe<SpaceItemFilter>;
   /** Filter by the object’s `spaceItemId` field. */
   spaceItemId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `spaceSubmissionReview` relation. */
+  spaceSubmissionReview?: InputMaybe<SpaceSubmissionReviewFilter>;
+  /** A related `spaceSubmissionReview` exists. */
+  spaceSubmissionReviewExists?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `submittedAt` field. */
   submittedAt?: InputMaybe<DatetimeFilter>;
   /** Filter by the object’s `submitter` relation. */
@@ -1634,6 +1688,65 @@ export type SpaceSubmissionFilter = {
   submitterId?: InputMaybe<UuidFilter>;
 };
 
+/** A filter to be used against `SpaceSubmissionReview` object types. All fields are combined with a logical ‘and.’ */
+export type SpaceSubmissionReviewFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<SpaceSubmissionReviewFilter>>;
+  /** Filter by the object’s `comment` field. */
+  comment?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<SpaceSubmissionReviewFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<SpaceSubmissionReviewFilter>>;
+  /** Filter by the object’s `result` field. */
+  result?: InputMaybe<ReviewResultFilter>;
+  /** Filter by the object’s `reviewer` relation. */
+  reviewer?: InputMaybe<UserFilter>;
+  /** A related `reviewer` exists. */
+  reviewerExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `reviewerId` field. */
+  reviewerId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `spaceSubmission` relation. */
+  spaceSubmission?: InputMaybe<SpaceSubmissionFilter>;
+  /** Filter by the object’s `spaceSubmissionId` field. */
+  spaceSubmissionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against ReviewResult fields. All fields are combined with a logical ‘and.’ */
+export type ReviewResultFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<ReviewResult>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<ReviewResult>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<ReviewResult>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<ReviewResult>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<ReviewResult>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<ReviewResult>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<ReviewResult>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<ReviewResult>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<ReviewResult>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<ReviewResult>>;
+};
+
+export type ReviewResult =
+  | 'APPROVED'
+  | 'COMMENTED'
+  | 'DECLINED';
+
 /** A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’ */
 export type UserToManyOrganizationMembershipFilter = {
   /** Every related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -1642,6 +1755,16 @@ export type UserToManyOrganizationMembershipFilter = {
   none?: InputMaybe<OrganizationMembershipFilter>;
   /** Some related `OrganizationMembership` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<OrganizationMembershipFilter>;
+};
+
+/** A filter to be used against many `SpaceSubmissionReview` object types. All fields are combined with a logical ‘and.’ */
+export type UserToManySpaceSubmissionReviewFilter = {
+  /** Every related `SpaceSubmissionReview` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceSubmissionReviewFilter>;
+  /** No related `SpaceSubmissionReview` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceSubmissionReviewFilter>;
+  /** Some related `SpaceSubmissionReview` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceSubmissionReviewFilter>;
 };
 
 /** A filter to be used against many `Space` object types. All fields are combined with a logical ‘and.’ */
@@ -2359,10 +2482,87 @@ export type SpaceSubmission = Node & {
   /** Reads a single `SpaceItem` that is related to this `SpaceSubmission`. */
   spaceItem: Maybe<SpaceItem>;
   spaceItemId: Scalars['UUID']['output'];
+  /** Reads a single `SpaceSubmissionReview` that is related to this `SpaceSubmission`. */
+  spaceSubmissionReview: Maybe<SpaceSubmissionReview>;
   submittedAt: Scalars['Datetime']['output'];
   /** Reads a single `User` that is related to this `SpaceSubmission`. */
   submitter: Maybe<User>;
   submitterId: Maybe<Scalars['UUID']['output']>;
+};
+
+export type SpaceSubmissionReview = Node & {
+  __typename?: 'SpaceSubmissionReview';
+  comment: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Datetime']['output'];
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  result: ReviewResult;
+  /** Reads a single `User` that is related to this `SpaceSubmissionReview`. */
+  reviewer: Maybe<User>;
+  reviewerId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `SpaceSubmission` that is related to this `SpaceSubmissionReview`. */
+  spaceSubmission: Maybe<SpaceSubmission>;
+  spaceSubmissionId: Scalars['UUID']['output'];
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+/**
+ * A condition to be used against `SpaceSubmissionReview` object types. All fields
+ * are tested for equality and combined with a logical ‘and.’
+ */
+export type SpaceSubmissionReviewCondition = {
+  /** Checks for equality with the object’s `comment` field. */
+  comment?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `result` field. */
+  result?: InputMaybe<ReviewResult>;
+  /** Checks for equality with the object’s `reviewerId` field. */
+  reviewerId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `spaceSubmissionId` field. */
+  spaceSubmissionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `SpaceSubmissionReview`. */
+export type SpaceSubmissionReviewsOrderBy =
+  | 'COMMENT_ASC'
+  | 'COMMENT_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'NATURAL'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'RESULT_ASC'
+  | 'RESULT_DESC'
+  | 'REVIEWER_ID_ASC'
+  | 'REVIEWER_ID_DESC'
+  | 'SPACE_SUBMISSION_ID_ASC'
+  | 'SPACE_SUBMISSION_ID_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `SpaceSubmissionReview` values. */
+export type SpaceSubmissionReviewsConnection = {
+  __typename?: 'SpaceSubmissionReviewsConnection';
+  /** A list of edges which contains the `SpaceSubmissionReview` and cursor to aid in pagination. */
+  edges: Array<SpaceSubmissionReviewsEdge>;
+  /** A list of `SpaceSubmissionReview` objects. */
+  nodes: Array<SpaceSubmissionReview>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `SpaceSubmissionReview` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `SpaceSubmissionReview` edge in the connection. */
+export type SpaceSubmissionReviewsEdge = {
+  __typename?: 'SpaceSubmissionReviewsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `SpaceSubmissionReview` at the end of the edge. */
+  node: SpaceSubmissionReview;
 };
 
 /**
@@ -2786,6 +2986,8 @@ export type Mutation = {
   createSpaceItem: Maybe<CreateSpaceItemPayload>;
   /** Creates a single `SpaceSubmission`. */
   createSpaceSubmission: Maybe<CreateSpaceSubmissionPayload>;
+  /** Creates a single `SpaceSubmissionReview`. */
+  createSpaceSubmissionReview: Maybe<CreateSpaceSubmissionReviewPayload>;
   /** Creates a single `SpaceSubscription`. */
   createSpaceSubscription: Maybe<CreateSpaceSubscriptionPayload>;
   /** Creates a single `UserEmail`. */
@@ -2817,6 +3019,10 @@ export type Mutation = {
   deleteSpaceSubmission: Maybe<DeleteSpaceSubmissionPayload>;
   /** Deletes a single `SpaceSubmission` using its globally unique id. */
   deleteSpaceSubmissionByNodeId: Maybe<DeleteSpaceSubmissionPayload>;
+  /** Deletes a single `SpaceSubmissionReview` using a unique key. */
+  deleteSpaceSubmissionReview: Maybe<DeleteSpaceSubmissionReviewPayload>;
+  /** Deletes a single `SpaceSubmissionReview` using its globally unique id. */
+  deleteSpaceSubmissionReviewByNodeId: Maybe<DeleteSpaceSubmissionReviewPayload>;
   /** Deletes a single `SpaceSubscription` using a unique key. */
   deleteSpaceSubscription: Maybe<DeleteSpaceSubscriptionPayload>;
   /** Deletes a single `SpaceSubscription` using its globally unique id. */
@@ -2883,6 +3089,10 @@ export type Mutation = {
   updateSpaceItem: Maybe<UpdateSpaceItemPayload>;
   /** Updates a single `SpaceItem` using its globally unique id and a patch. */
   updateSpaceItemByNodeId: Maybe<UpdateSpaceItemPayload>;
+  /** Updates a single `SpaceSubmissionReview` using a unique key and a patch. */
+  updateSpaceSubmissionReview: Maybe<UpdateSpaceSubmissionReviewPayload>;
+  /** Updates a single `SpaceSubmissionReview` using its globally unique id and a patch. */
+  updateSpaceSubmissionReviewByNodeId: Maybe<UpdateSpaceSubmissionReviewPayload>;
   /** Updates a single `SpaceSubscription` using a unique key and a patch. */
   updateSpaceSubscription: Maybe<UpdateSpaceSubscriptionPayload>;
   /** Updates a single `SpaceSubscription` using its globally unique id and a patch. */
@@ -2957,6 +3167,12 @@ export type MutationCreateSpaceItemArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationCreateSpaceSubmissionArgs = {
   input: CreateSpaceSubmissionInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationCreateSpaceSubmissionReviewArgs = {
+  input: CreateSpaceSubmissionReviewInput;
 };
 
 
@@ -3053,6 +3269,18 @@ export type MutationDeleteSpaceSubmissionArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationDeleteSpaceSubmissionByNodeIdArgs = {
   input: DeleteSpaceSubmissionByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteSpaceSubmissionReviewArgs = {
+  input: DeleteSpaceSubmissionReviewInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationDeleteSpaceSubmissionReviewByNodeIdArgs = {
+  input: DeleteSpaceSubmissionReviewByNodeIdInput;
 };
 
 
@@ -3257,6 +3485,18 @@ export type MutationUpdateSpaceItemArgs = {
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationUpdateSpaceItemByNodeIdArgs = {
   input: UpdateSpaceItemByNodeIdInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateSpaceSubmissionReviewArgs = {
+  input: UpdateSpaceSubmissionReviewInput;
+};
+
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationUpdateSpaceSubmissionReviewByNodeIdArgs = {
+  input: UpdateSpaceSubmissionReviewByNodeIdInput;
 };
 
 
@@ -3679,6 +3919,51 @@ export type CreateSpaceSubmissionPayloadSpaceSubmissionEdgeArgs = {
   orderBy?: Array<SpaceSubmissionsOrderBy>;
 };
 
+/** All input for the create `SpaceSubmissionReview` mutation. */
+export type CreateSpaceSubmissionReviewInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The `SpaceSubmissionReview` to be created by this mutation. */
+  spaceSubmissionReview: SpaceSubmissionReviewInput;
+};
+
+/** An input for mutations affecting `SpaceSubmissionReview` */
+export type SpaceSubmissionReviewInput = {
+  comment?: InputMaybe<Scalars['String']['input']>;
+  result: ReviewResult;
+  reviewerId?: InputMaybe<Scalars['UUID']['input']>;
+  spaceSubmissionId: Scalars['UUID']['input'];
+};
+
+/** The output of our create `SpaceSubmissionReview` mutation. */
+export type CreateSpaceSubmissionReviewPayload = {
+  __typename?: 'CreateSpaceSubmissionReviewPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `User` that is related to this `SpaceSubmissionReview`. */
+  reviewer: Maybe<User>;
+  /** Reads a single `SpaceSubmission` that is related to this `SpaceSubmissionReview`. */
+  spaceSubmission: Maybe<SpaceSubmission>;
+  /** The `SpaceSubmissionReview` that was created by this mutation. */
+  spaceSubmissionReview: Maybe<SpaceSubmissionReview>;
+  /** An edge for our `SpaceSubmissionReview`. May be used by Relay 1. */
+  spaceSubmissionReviewEdge: Maybe<SpaceSubmissionReviewsEdge>;
+};
+
+
+/** The output of our create `SpaceSubmissionReview` mutation. */
+export type CreateSpaceSubmissionReviewPayloadSpaceSubmissionReviewEdgeArgs = {
+  orderBy?: Array<SpaceSubmissionReviewsOrderBy>;
+};
+
 /** All input for the create `SpaceSubscription` mutation. */
 export type CreateSpaceSubscriptionInput = {
   /**
@@ -4083,6 +4368,54 @@ export type DeleteSpaceSubmissionByNodeIdInput = {
    */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   /** The globally unique `ID` which will identify a single `SpaceSubmission` to be deleted. */
+  nodeId: Scalars['ID']['input'];
+};
+
+/** All input for the `deleteSpaceSubmissionReview` mutation. */
+export type DeleteSpaceSubmissionReviewInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  spaceSubmissionId: Scalars['UUID']['input'];
+};
+
+/** The output of our delete `SpaceSubmissionReview` mutation. */
+export type DeleteSpaceSubmissionReviewPayload = {
+  __typename?: 'DeleteSpaceSubmissionReviewPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  deletedSpaceSubmissionReviewNodeId: Maybe<Scalars['ID']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `User` that is related to this `SpaceSubmissionReview`. */
+  reviewer: Maybe<User>;
+  /** Reads a single `SpaceSubmission` that is related to this `SpaceSubmissionReview`. */
+  spaceSubmission: Maybe<SpaceSubmission>;
+  /** The `SpaceSubmissionReview` that was deleted by this mutation. */
+  spaceSubmissionReview: Maybe<SpaceSubmissionReview>;
+  /** An edge for our `SpaceSubmissionReview`. May be used by Relay 1. */
+  spaceSubmissionReviewEdge: Maybe<SpaceSubmissionReviewsEdge>;
+};
+
+
+/** The output of our delete `SpaceSubmissionReview` mutation. */
+export type DeleteSpaceSubmissionReviewPayloadSpaceSubmissionReviewEdgeArgs = {
+  orderBy?: Array<SpaceSubmissionReviewsOrderBy>;
+};
+
+/** All input for the `deleteSpaceSubmissionReviewByNodeId` mutation. */
+export type DeleteSpaceSubmissionReviewByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `SpaceSubmissionReview` to be deleted. */
   nodeId: Scalars['ID']['input'];
 };
 
@@ -4892,6 +5225,64 @@ export type UpdateSpaceItemByNodeIdInput = {
   patch: SpaceItemPatch;
 };
 
+/** All input for the `updateSpaceSubmissionReview` mutation. */
+export type UpdateSpaceSubmissionReviewInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** An object where the defined keys will be set on the `SpaceSubmissionReview` being updated. */
+  patch: SpaceSubmissionReviewPatch;
+  spaceSubmissionId: Scalars['UUID']['input'];
+};
+
+/** Represents an update to a `SpaceSubmissionReview`. Fields that are set will be updated. */
+export type SpaceSubmissionReviewPatch = {
+  comment?: InputMaybe<Scalars['String']['input']>;
+  result?: InputMaybe<ReviewResult>;
+  reviewerId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+/** The output of our update `SpaceSubmissionReview` mutation. */
+export type UpdateSpaceSubmissionReviewPayload = {
+  __typename?: 'UpdateSpaceSubmissionReviewPayload';
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId: Maybe<Scalars['String']['output']>;
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query: Maybe<Query>;
+  /** Reads a single `User` that is related to this `SpaceSubmissionReview`. */
+  reviewer: Maybe<User>;
+  /** Reads a single `SpaceSubmission` that is related to this `SpaceSubmissionReview`. */
+  spaceSubmission: Maybe<SpaceSubmission>;
+  /** The `SpaceSubmissionReview` that was updated by this mutation. */
+  spaceSubmissionReview: Maybe<SpaceSubmissionReview>;
+  /** An edge for our `SpaceSubmissionReview`. May be used by Relay 1. */
+  spaceSubmissionReviewEdge: Maybe<SpaceSubmissionReviewsEdge>;
+};
+
+
+/** The output of our update `SpaceSubmissionReview` mutation. */
+export type UpdateSpaceSubmissionReviewPayloadSpaceSubmissionReviewEdgeArgs = {
+  orderBy?: Array<SpaceSubmissionReviewsOrderBy>;
+};
+
+/** All input for the `updateSpaceSubmissionReviewByNodeId` mutation. */
+export type UpdateSpaceSubmissionReviewByNodeIdInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The globally unique `ID` which will identify a single `SpaceSubmissionReview` to be updated. */
+  nodeId: Scalars['ID']['input'];
+  /** An object where the defined keys will be set on the `SpaceSubmissionReview` being updated. */
+  patch: SpaceSubmissionReviewPatch;
+};
+
 /** All input for the `updateSpaceSubscription` mutation. */
 export type UpdateSpaceSubscriptionInput = {
   /**
@@ -5080,6 +5471,20 @@ export type CreateSpaceItemMutationVariables = Exact<{
 
 export type CreateSpaceItemMutation = { __typename?: 'Mutation', createSpaceItem: { __typename?: 'CreateSpaceItemPayload', space: { __typename?: 'Space', id: string } | null, spaceItem: { __typename?: 'SpaceItem', id: string, createdAt: string } | null } | null };
 
+export type CreateSpaceSubmissionReviewMutationVariables = Exact<{
+  payload: SpaceSubmissionReviewInput;
+}>;
+
+
+export type CreateSpaceSubmissionReviewMutation = { __typename?: 'Mutation', createSpaceSubmissionReview: { __typename?: 'CreateSpaceSubmissionReviewPayload', spaceSubmissionReview: { __typename?: 'SpaceSubmissionReview', spaceSubmissionId: string, result: ReviewResult, createdAt: string, spaceSubmission: { __typename?: 'SpaceSubmission', id: string } | null } | null } | null };
+
+export type CreateSpaceSubmissionMutationVariables = Exact<{
+  payload: SpaceSubmissionInput;
+}>;
+
+
+export type CreateSpaceSubmissionMutation = { __typename?: 'Mutation', createSpaceSubmission: { __typename?: 'CreateSpaceSubmissionPayload', spaceItem: { __typename?: 'SpaceItem', id: string } | null, spaceSubmission: { __typename?: 'SpaceSubmission', id: string, submittedAt: string } | null } | null };
+
 export type CreateSpaceMutationVariables = Exact<{
   space: SpaceInput;
 }>;
@@ -5091,6 +5496,35 @@ export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null };
+
+export type DeleteMessageRevisionMutationVariables = Exact<{
+  id: Scalars['UUID']['input'];
+  revisionId: Scalars['UUID']['input'];
+}>;
+
+
+export type DeleteMessageRevisionMutation = { __typename?: 'Mutation', deleteMessageRevision: { __typename?: 'DeleteMessageRevisionPayload', messageRevision: { __typename?: 'MessageRevision', id: string } | null, parentRevision: { __typename?: 'MessageRevision', id: string } | null } | null };
+
+export type DeleteSpaceItemMutationVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type DeleteSpaceItemMutation = { __typename?: 'Mutation', deleteSpaceItem: { __typename?: 'DeleteSpaceItemPayload', space: { __typename?: 'Space', id: string } | null, messageRevision: { __typename?: 'MessageRevision', id: string, revisionId: string } | null } | null };
+
+export type DeleteSpaceSubmissionReviewMutationVariables = Exact<{
+  spaceSubmissionId: Scalars['UUID']['input'];
+}>;
+
+
+export type DeleteSpaceSubmissionReviewMutation = { __typename?: 'Mutation', deleteSpaceSubmissionReview: { __typename?: 'DeleteSpaceSubmissionReviewPayload', spaceSubmission: { __typename?: 'SpaceSubmission', id: string } | null } | null };
+
+export type DeleteSpaceSubmissionMutationVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type DeleteSpaceSubmissionMutation = { __typename?: 'Mutation', deleteSpaceSubmission: { __typename?: 'DeleteSpaceSubmissionPayload', spaceItem: { __typename?: 'SpaceItem', id: string } | null, messageRevision: { __typename?: 'MessageRevision', id: string, revisionId: string } | null } | null };
 
 export type FetchSpacesQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>;
@@ -5211,6 +5645,33 @@ export const CreateSpaceItem = gql`
   }
 }
     `;
+export const CreateSpaceSubmissionReview = gql`
+    mutation CreateSpaceSubmissionReview($payload: SpaceSubmissionReviewInput!) {
+  createSpaceSubmissionReview(input: {spaceSubmissionReview: $payload}) {
+    spaceSubmissionReview {
+      spaceSubmissionId
+      result
+      createdAt
+      spaceSubmission {
+        id
+      }
+    }
+  }
+}
+    `;
+export const CreateSpaceSubmission = gql`
+    mutation CreateSpaceSubmission($payload: SpaceSubmissionInput!) {
+  createSpaceSubmission(input: {spaceSubmission: $payload}) {
+    spaceItem {
+      id
+    }
+    spaceSubmission {
+      id
+      submittedAt
+    }
+  }
+}
+    `;
 export const CreateSpace = gql`
     mutation CreateSpace($space: SpaceInput!) {
   createSpace(input: {space: $space}) {
@@ -5228,6 +5689,53 @@ export const CurrentUser = gql`
   }
 }
     ${ShortProfile}`;
+export const DeleteMessageRevision = gql`
+    mutation DeleteMessageRevision($id: UUID!, $revisionId: UUID!) {
+  deleteMessageRevision(input: {id: $id, revisionId: $revisionId}) {
+    messageRevision {
+      id
+    }
+    parentRevision {
+      id
+    }
+  }
+}
+    `;
+export const DeleteSpaceItem = gql`
+    mutation DeleteSpaceItem($id: UUID!) {
+  deleteSpaceItem(input: {id: $id}) {
+    space {
+      id
+    }
+    messageRevision {
+      id
+      revisionId
+    }
+  }
+}
+    `;
+export const DeleteSpaceSubmissionReview = gql`
+    mutation DeleteSpaceSubmissionReview($spaceSubmissionId: UUID!) {
+  deleteSpaceSubmissionReview(input: {spaceSubmissionId: $spaceSubmissionId}) {
+    spaceSubmission {
+      id
+    }
+  }
+}
+    `;
+export const DeleteSpaceSubmission = gql`
+    mutation DeleteSpaceSubmission($id: UUID!) {
+  deleteSpaceSubmission(input: {id: $id}) {
+    spaceItem {
+      id
+    }
+    messageRevision {
+      id
+      revisionId
+    }
+  }
+}
+    `;
 export const FetchSpaces = gql`
     query FetchSpaces($after: Cursor, $before: Cursor, $condition: SpaceCondition, $filter: SpaceFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [SpacesOrderBy!]) {
   spaces(after: $after, before: $before, condition: $condition, filter: $filter, first: $first, last: $last, offset: $offset, orderBy: $orderBy) {
@@ -5418,6 +5926,41 @@ export const CreateSpaceItemDocument = gql`
 export function useCreateSpaceItemMutation() {
   return Urql.useMutation<CreateSpaceItemMutation, CreateSpaceItemMutationVariables>(CreateSpaceItemDocument);
 };
+export const CreateSpaceSubmissionReviewDocument = gql`
+    mutation CreateSpaceSubmissionReview($payload: SpaceSubmissionReviewInput!) {
+  createSpaceSubmissionReview(input: {spaceSubmissionReview: $payload}) {
+    spaceSubmissionReview {
+      spaceSubmissionId
+      result
+      createdAt
+      spaceSubmission {
+        id
+      }
+    }
+  }
+}
+    `;
+
+export function useCreateSpaceSubmissionReviewMutation() {
+  return Urql.useMutation<CreateSpaceSubmissionReviewMutation, CreateSpaceSubmissionReviewMutationVariables>(CreateSpaceSubmissionReviewDocument);
+};
+export const CreateSpaceSubmissionDocument = gql`
+    mutation CreateSpaceSubmission($payload: SpaceSubmissionInput!) {
+  createSpaceSubmission(input: {spaceSubmission: $payload}) {
+    spaceItem {
+      id
+    }
+    spaceSubmission {
+      id
+      submittedAt
+    }
+  }
+}
+    `;
+
+export function useCreateSpaceSubmissionMutation() {
+  return Urql.useMutation<CreateSpaceSubmissionMutation, CreateSpaceSubmissionMutationVariables>(CreateSpaceSubmissionDocument);
+};
 export const CreateSpaceDocument = gql`
     mutation CreateSpace($space: SpaceInput!) {
   createSpace(input: {space: $space}) {
@@ -5442,6 +5985,69 @@ export const CurrentUserDocument = gql`
 
 export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<never, CurrentUserQueryVariables>, 'query'>) {
   return Urql.useQuery<CurrentUserQuery, CurrentUserQueryVariables>({ query: CurrentUserDocument, ...options });
+};
+export const DeleteMessageRevisionDocument = gql`
+    mutation DeleteMessageRevision($id: UUID!, $revisionId: UUID!) {
+  deleteMessageRevision(input: {id: $id, revisionId: $revisionId}) {
+    messageRevision {
+      id
+    }
+    parentRevision {
+      id
+    }
+  }
+}
+    `;
+
+export function useDeleteMessageRevisionMutation() {
+  return Urql.useMutation<DeleteMessageRevisionMutation, DeleteMessageRevisionMutationVariables>(DeleteMessageRevisionDocument);
+};
+export const DeleteSpaceItemDocument = gql`
+    mutation DeleteSpaceItem($id: UUID!) {
+  deleteSpaceItem(input: {id: $id}) {
+    space {
+      id
+    }
+    messageRevision {
+      id
+      revisionId
+    }
+  }
+}
+    `;
+
+export function useDeleteSpaceItemMutation() {
+  return Urql.useMutation<DeleteSpaceItemMutation, DeleteSpaceItemMutationVariables>(DeleteSpaceItemDocument);
+};
+export const DeleteSpaceSubmissionReviewDocument = gql`
+    mutation DeleteSpaceSubmissionReview($spaceSubmissionId: UUID!) {
+  deleteSpaceSubmissionReview(input: {spaceSubmissionId: $spaceSubmissionId}) {
+    spaceSubmission {
+      id
+    }
+  }
+}
+    `;
+
+export function useDeleteSpaceSubmissionReviewMutation() {
+  return Urql.useMutation<DeleteSpaceSubmissionReviewMutation, DeleteSpaceSubmissionReviewMutationVariables>(DeleteSpaceSubmissionReviewDocument);
+};
+export const DeleteSpaceSubmissionDocument = gql`
+    mutation DeleteSpaceSubmission($id: UUID!) {
+  deleteSpaceSubmission(input: {id: $id}) {
+    spaceItem {
+      id
+    }
+    messageRevision {
+      id
+      revisionId
+    }
+  }
+}
+    `;
+
+export function useDeleteSpaceSubmissionMutation() {
+  return Urql.useMutation<DeleteSpaceSubmissionMutation, DeleteSpaceSubmissionMutationVariables>(DeleteSpaceSubmissionDocument);
 };
 export const FetchSpacesDocument = gql`
     query FetchSpaces($after: Cursor, $before: Cursor, $condition: SpaceCondition, $filter: SpaceFilter, $first: Int, $last: Int, $offset: Int, $orderBy: [SpacesOrderBy!]) {

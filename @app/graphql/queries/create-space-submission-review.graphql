@@ -1,0 +1,12 @@
+mutation CreateSpaceSubmissionReview($payload: SpaceSubmissionReviewInput!) {
+  createSpaceSubmissionReview(input: { spaceSubmissionReview: $payload }) {
+    spaceSubmissionReview {
+      spaceSubmissionId
+      result
+      createdAt
+      spaceSubmission {
+        id
+      }
+    }
+  }
+}

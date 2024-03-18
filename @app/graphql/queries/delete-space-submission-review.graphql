@@ -1,0 +1,9 @@
+mutation DeleteSpaceSubmissionReview($spaceSubmissionId: UUID!) {
+  deleteSpaceSubmissionReview(
+    input: { spaceSubmissionId: $spaceSubmissionId }
+  ) {
+    spaceSubmission {
+      id
+    }
+  }
+}

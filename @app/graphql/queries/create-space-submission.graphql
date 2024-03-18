@@ -1,0 +1,11 @@
+mutation CreateSpaceSubmission($payload: SpaceSubmissionInput!) {
+  createSpaceSubmission(input: { spaceSubmission: $payload }) {
+    spaceItem {
+      id
+    }
+    spaceSubmission {
+      id
+      submittedAt
+    }
+  }
+}

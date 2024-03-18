@@ -41,6 +41,9 @@ type Query implements Node {
   """Get a single `OrganizationMembership`."""
   organizationMembershipByOrganizationIdAndUserId(organizationId: UUID!, userId: UUID!): OrganizationMembership
 
+  """Get a single `SpaceSubmissionReview`."""
+  spaceSubmissionReview(spaceSubmissionId: UUID!): SpaceSubmissionReview
+
   """Get a single `User`."""
   user(id: UUID!): User
 
@@ -258,6 +261,14 @@ type Query implements Node {
     """
     nodeId: ID!
   ): OrganizationMembership
+
+  """Reads a single `SpaceSubmissionReview` using its globally unique `ID`."""
+  spaceSubmissionReviewByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `SpaceSubmissionReview`.
+    """
+    nodeId: ID!
+  ): SpaceSubmissionReview
 
   """Reads a single `User` using its globally unique `ID`."""
   userByNodeId(
@@ -486,6 +497,40 @@ type Query implements Node {
     """
     filter: OrganizationMembershipFilter
   ): OrganizationMembershipsConnection
+
+  """Reads and enables pagination through a set of `SpaceSubmissionReview`."""
+  spaceSubmissionReviews(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubmissionReview`."""
+    orderBy: [SpaceSubmissionReviewsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubmissionReviewCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubmissionReviewFilter
+  ): SpaceSubmissionReviewsConnection
 
   """Reads and enables pagination through a set of `User`."""
   users(
@@ -758,6 +803,11 @@ type SpaceSubmission implements Node {
 
   """Reads a single `User` that is related to this `SpaceSubmission`."""
   submitter: User
+
+  """
+  Reads a single `SpaceSubmissionReview` that is related to this `SpaceSubmission`.
+  """
+  spaceSubmissionReview: SpaceSubmissionReview
 }
 
 """
@@ -1204,6 +1254,40 @@ type User implements Node {
     """
     filter: SpaceSubmissionFilter
   ): SpaceSubmissionsConnection!
+
+  """Reads and enables pagination through a set of `SpaceSubmissionReview`."""
+  reviewedSpaceSubmissionReviews(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubmissionReview`."""
+    orderBy: [SpaceSubmissionReviewsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubmissionReviewCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubmissionReviewFilter
+  ): SpaceSubmissionReviewsConnection!
 }
 
 """A connection to a list of `UserEmail` values."""
@@ -1696,6 +1780,12 @@ input UserFilter {
 
   """Some related `spaceSubmissionsBySubmitterId` exist."""
   spaceSubmissionsBySubmitterIdExist: Boolean
+
+  """Filter by the object’s `reviewedSpaceSubmissionReviews` relation."""
+  reviewedSpaceSubmissionReviews: UserToManySpaceSubmissionReviewFilter
+
+  """Some related `reviewedSpaceSubmissionReviews` exist."""
+  reviewedSpaceSubmissionReviewsExist: Boolean
 
   """Checks for all expressions in this list."""
   and: [UserFilter!]
@@ -2331,6 +2421,12 @@ input SpaceSubmissionFilter {
   """Filter by the object’s `submittedAt` field."""
   submittedAt: DatetimeFilter
 
+  """Filter by the object’s `spaceSubmissionReview` relation."""
+  spaceSubmissionReview: SpaceSubmissionReviewFilter
+
+  """A related `spaceSubmissionReview` exists."""
+  spaceSubmissionReviewExists: Boolean
+
   """Filter by the object’s `messageRevision` relation."""
   messageRevision: MessageRevisionFilter
 
@@ -2351,6 +2447,95 @@ input SpaceSubmissionFilter {
 
   """Negates the expression."""
   not: SpaceSubmissionFilter
+}
+
+"""
+A filter to be used against `SpaceSubmissionReview` object types. All fields are combined with a logical ‘and.’
+"""
+input SpaceSubmissionReviewFilter {
+  """Filter by the object’s `spaceSubmissionId` field."""
+  spaceSubmissionId: UUIDFilter
+
+  """Filter by the object’s `reviewerId` field."""
+  reviewerId: UUIDFilter
+
+  """Filter by the object’s `result` field."""
+  result: ReviewResultFilter
+
+  """Filter by the object’s `comment` field."""
+  comment: StringFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `reviewer` relation."""
+  reviewer: UserFilter
+
+  """A related `reviewer` exists."""
+  reviewerExists: Boolean
+
+  """Filter by the object’s `spaceSubmission` relation."""
+  spaceSubmission: SpaceSubmissionFilter
+
+  """Checks for all expressions in this list."""
+  and: [SpaceSubmissionReviewFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [SpaceSubmissionReviewFilter!]
+
+  """Negates the expression."""
+  not: SpaceSubmissionReviewFilter
+}
+
+"""
+A filter to be used against ReviewResult fields. All fields are combined with a logical ‘and.’
+"""
+input ReviewResultFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: ReviewResult
+
+  """Not equal to the specified value."""
+  notEqualTo: ReviewResult
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: ReviewResult
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: ReviewResult
+
+  """Included in the specified list."""
+  in: [ReviewResult!]
+
+  """Not included in the specified list."""
+  notIn: [ReviewResult!]
+
+  """Less than the specified value."""
+  lessThan: ReviewResult
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: ReviewResult
+
+  """Greater than the specified value."""
+  greaterThan: ReviewResult
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: ReviewResult
+}
+
+enum ReviewResult {
+  DECLINED
+  COMMENTED
+  APPROVED
 }
 
 """
@@ -2582,6 +2767,26 @@ input UserToManySpaceSubmissionFilter {
   No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   none: SpaceSubmissionFilter
+}
+
+"""
+A filter to be used against many `SpaceSubmissionReview` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManySpaceSubmissionReviewFilter {
+  """
+  Every related `SpaceSubmissionReview` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceSubmissionReviewFilter
+
+  """
+  Some related `SpaceSubmissionReview` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceSubmissionReviewFilter
+
+  """
+  No related `SpaceSubmissionReview` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceSubmissionReviewFilter
 }
 
 """A connection to a list of `UserAuthentication` values."""
@@ -3433,6 +3638,98 @@ input MessageRevisionCondition {
   body: JSON
 }
 
+"""A connection to a list of `SpaceSubmissionReview` values."""
+type SpaceSubmissionReviewsConnection {
+  """A list of `SpaceSubmissionReview` objects."""
+  nodes: [SpaceSubmissionReview!]!
+
+  """
+  A list of edges which contains the `SpaceSubmissionReview` and cursor to aid in pagination.
+  """
+  edges: [SpaceSubmissionReviewsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `SpaceSubmissionReview` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+type SpaceSubmissionReview implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  spaceSubmissionId: UUID!
+  reviewerId: UUID
+  result: ReviewResult!
+  comment: String
+  createdAt: Datetime!
+  updatedAt: Datetime!
+
+  """Reads a single `User` that is related to this `SpaceSubmissionReview`."""
+  reviewer: User
+
+  """
+  Reads a single `SpaceSubmission` that is related to this `SpaceSubmissionReview`.
+  """
+  spaceSubmission: SpaceSubmission
+}
+
+"""A `SpaceSubmissionReview` edge in the connection."""
+type SpaceSubmissionReviewsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `SpaceSubmissionReview` at the end of the edge."""
+  node: SpaceSubmissionReview!
+}
+
+"""Methods to use when ordering `SpaceSubmissionReview`."""
+enum SpaceSubmissionReviewsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  SPACE_SUBMISSION_ID_ASC
+  SPACE_SUBMISSION_ID_DESC
+  REVIEWER_ID_ASC
+  REVIEWER_ID_DESC
+  RESULT_ASC
+  RESULT_DESC
+  COMMENT_ASC
+  COMMENT_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+A condition to be used against `SpaceSubmissionReview` object types. All fields
+are tested for equality and combined with a logical ‘and.’
+"""
+input SpaceSubmissionReviewCondition {
+  """Checks for equality with the object’s `spaceSubmissionId` field."""
+  spaceSubmissionId: UUID
+
+  """Checks for equality with the object’s `reviewerId` field."""
+  reviewerId: UUID
+
+  """Checks for equality with the object’s `result` field."""
+  result: ReviewResult
+
+  """Checks for equality with the object’s `comment` field."""
+  comment: String
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
 type ActiveMessageRevision implements Node {
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
@@ -4150,6 +4447,14 @@ type Mutation {
     input: CreateSpaceInput!
   ): CreateSpacePayload
 
+  """Creates a single `SpaceSubmissionReview`."""
+  createSpaceSubmissionReview(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateSpaceSubmissionReviewInput!
+  ): CreateSpaceSubmissionReviewPayload
+
   """Creates a single `ActiveMessageRevision`."""
   createActiveMessageRevision(
     """
@@ -4221,6 +4526,26 @@ type Mutation {
     """
     input: UpdateSpaceByOrganizationIdAndSlugInput!
   ): UpdateSpacePayload
+
+  """
+  Updates a single `SpaceSubmissionReview` using its globally unique id and a patch.
+  """
+  updateSpaceSubmissionReviewByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateSpaceSubmissionReviewByNodeIdInput!
+  ): UpdateSpaceSubmissionReviewPayload
+
+  """
+  Updates a single `SpaceSubmissionReview` using a unique key and a patch.
+  """
+  updateSpaceSubmissionReview(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateSpaceSubmissionReviewInput!
+  ): UpdateSpaceSubmissionReviewPayload
 
   """Updates a single `User` using its globally unique id and a patch."""
   updateUserByNodeId(
@@ -4435,6 +4760,22 @@ type Mutation {
     """
     input: DeleteSpaceByOrganizationIdAndSlugInput!
   ): DeleteSpacePayload
+
+  """Deletes a single `SpaceSubmissionReview` using its globally unique id."""
+  deleteSpaceSubmissionReviewByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteSpaceSubmissionReviewByNodeIdInput!
+  ): DeleteSpaceSubmissionReviewPayload
+
+  """Deletes a single `SpaceSubmissionReview` using a unique key."""
+  deleteSpaceSubmissionReview(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteSpaceSubmissionReviewInput!
+  ): DeleteSpaceSubmissionReviewPayload
 
   """Deletes a single `UserAuthentication` using its globally unique id."""
   deleteUserAuthenticationByNodeId(
@@ -5153,6 +5494,57 @@ input SpaceInput {
   isPublic: Boolean
 }
 
+"""The output of our create `SpaceSubmissionReview` mutation."""
+type CreateSpaceSubmissionReviewPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `SpaceSubmissionReview` that was created by this mutation."""
+  spaceSubmissionReview: SpaceSubmissionReview
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `SpaceSubmissionReview`. May be used by Relay 1."""
+  spaceSubmissionReviewEdge(
+    """The method to use when ordering `SpaceSubmissionReview`."""
+    orderBy: [SpaceSubmissionReviewsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): SpaceSubmissionReviewsEdge
+
+  """Reads a single `User` that is related to this `SpaceSubmissionReview`."""
+  reviewer: User
+
+  """
+  Reads a single `SpaceSubmission` that is related to this `SpaceSubmissionReview`.
+  """
+  spaceSubmission: SpaceSubmission
+}
+
+"""All input for the create `SpaceSubmissionReview` mutation."""
+input CreateSpaceSubmissionReviewInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `SpaceSubmissionReview` to be created by this mutation."""
+  spaceSubmissionReview: SpaceSubmissionReviewInput!
+}
+
+"""An input for mutations affecting `SpaceSubmissionReview`"""
+input SpaceSubmissionReviewInput {
+  spaceSubmissionId: UUID!
+  reviewerId: UUID
+  result: ReviewResult!
+  comment: String
+}
+
 """The output of our create `ActiveMessageRevision` mutation."""
 type CreateActiveMessageRevisionPayload {
   """
@@ -5508,6 +5900,80 @@ input UpdateSpaceByOrganizationIdAndSlugInput {
   An object where the defined keys will be set on the `Space` being updated.
   """
   patch: SpacePatch!
+}
+
+"""The output of our update `SpaceSubmissionReview` mutation."""
+type UpdateSpaceSubmissionReviewPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `SpaceSubmissionReview` that was updated by this mutation."""
+  spaceSubmissionReview: SpaceSubmissionReview
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `SpaceSubmissionReview`. May be used by Relay 1."""
+  spaceSubmissionReviewEdge(
+    """The method to use when ordering `SpaceSubmissionReview`."""
+    orderBy: [SpaceSubmissionReviewsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): SpaceSubmissionReviewsEdge
+
+  """Reads a single `User` that is related to this `SpaceSubmissionReview`."""
+  reviewer: User
+
+  """
+  Reads a single `SpaceSubmission` that is related to this `SpaceSubmissionReview`.
+  """
+  spaceSubmission: SpaceSubmission
+}
+
+"""All input for the `updateSpaceSubmissionReviewByNodeId` mutation."""
+input UpdateSpaceSubmissionReviewByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `SpaceSubmissionReview` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the `SpaceSubmissionReview` being updated.
+  """
+  patch: SpaceSubmissionReviewPatch!
+}
+
+"""
+Represents an update to a `SpaceSubmissionReview`. Fields that are set will be updated.
+"""
+input SpaceSubmissionReviewPatch {
+  reviewerId: UUID
+  result: ReviewResult
+  comment: String
+}
+
+"""All input for the `updateSpaceSubmissionReview` mutation."""
+input UpdateSpaceSubmissionReviewInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  spaceSubmissionId: UUID!
+
+  """
+  An object where the defined keys will be set on the `SpaceSubmissionReview` being updated.
+  """
+  patch: SpaceSubmissionReviewPatch!
 }
 
 """The output of our update `User` mutation."""
@@ -6221,6 +6687,62 @@ input DeleteSpaceByOrganizationIdAndSlugInput {
   clientMutationId: String
   organizationId: UUID!
   slug: String!
+}
+
+"""The output of our delete `SpaceSubmissionReview` mutation."""
+type DeleteSpaceSubmissionReviewPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `SpaceSubmissionReview` that was deleted by this mutation."""
+  spaceSubmissionReview: SpaceSubmissionReview
+  deletedSpaceSubmissionReviewNodeId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `SpaceSubmissionReview`. May be used by Relay 1."""
+  spaceSubmissionReviewEdge(
+    """The method to use when ordering `SpaceSubmissionReview`."""
+    orderBy: [SpaceSubmissionReviewsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): SpaceSubmissionReviewsEdge
+
+  """Reads a single `User` that is related to this `SpaceSubmissionReview`."""
+  reviewer: User
+
+  """
+  Reads a single `SpaceSubmission` that is related to this `SpaceSubmissionReview`.
+  """
+  spaceSubmission: SpaceSubmission
+}
+
+"""All input for the `deleteSpaceSubmissionReviewByNodeId` mutation."""
+input DeleteSpaceSubmissionReviewByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `SpaceSubmissionReview` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""All input for the `deleteSpaceSubmissionReview` mutation."""
+input DeleteSpaceSubmissionReviewInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  spaceSubmissionId: UUID!
 }
 
 """The output of our delete `UserAuthentication` mutation."""

@@ -1,0 +1,11 @@
+mutation DeleteSpaceSubmission($id: UUID!) {
+  deleteSpaceSubmission(input: { id: $id }) {
+    spaceItem {
+      id
+    }
+    messageRevision {
+      id
+      revisionId
+    }
+  }
+}
