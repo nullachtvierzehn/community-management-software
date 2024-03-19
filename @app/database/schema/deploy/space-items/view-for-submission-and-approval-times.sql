@@ -18,8 +18,8 @@ left join lateral (
   select
     min(s.submitted_at) as first_submission_at,
     min(r.created_at) as first_approval_at,
-    min(s.submitted_at) filter (where (i.message_id, i.revision_id) is not distinct from (s.message_id, s.revision_id)) as current_submission_since,
-    min(r.created_at) filter (where (i.message_id, i.revision_id) is not distinct from (s.message_id, s.revision_id)) as current_approval_since,
+    min(s.submitted_at) filter (where i.revision_id = s.revision_id) as current_submission_since,
+    min(r.created_at) filter (where i.revision_id = s.revision_id) as current_approval_since,
     max(s.submitted_at) as last_submission_at,
     max(r.created_at) as last_approval_at
   from app_public.space_submissions as s

@@ -49,7 +49,7 @@ create index message_revisions_on_updated_at on app_public.message_revisions usi
 
 grant select on app_public.message_revisions to "$DATABASE_VISITOR";
 grant update ("subject", body, update_comment) on app_public.message_revisions to "$DATABASE_VISITOR";
-grant insert (id, parent_revision_id, editor_id, "subject", body, update_comment) on app_public.message_revisions to "$DATABASE_VISITOR";
+grant insert (id, revision_id, parent_revision_id, editor_id, "subject", body, update_comment) on app_public.message_revisions to "$DATABASE_VISITOR";
 grant delete on app_public.message_revisions to "$DATABASE_VISITOR";
 
 -- auto-update updated_at

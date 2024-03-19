@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.1
--- Dumped by pg_dump version 16.1
+-- Dumped from database version 16.2
+-- Dumped by pg_dump version 16.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2758,10 +2758,12 @@ CREATE TABLE app_public.space_items (
     id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
     space_id uuid NOT NULL,
     editor_id uuid DEFAULT app_public.current_user_id(),
-    message_id uuid NOT NULL,
+    message_id uuid,
+    file_id uuid,
     revision_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ensure_non_overlapping_types CHECK ((num_nonnulls(message_id, file_id) = 1))
 );
 
 
@@ -2787,9 +2789,11 @@ CREATE TABLE app_public.space_submissions (
     id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
     space_item_id uuid NOT NULL,
     submitter_id uuid DEFAULT app_public.current_user_id(),
-    message_id uuid NOT NULL,
+    message_id uuid,
+    file_id uuid,
     revision_id uuid NOT NULL,
-    submitted_at timestamp with time zone DEFAULT now() NOT NULL
+    submitted_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ensure_non_overlapping_types CHECK ((num_nonnulls(message_id, file_id) = 1))
 );
 
 
@@ -2831,8 +2835,8 @@ CREATE VIEW app_hidden.space_item_submission_and_approval_times AS
      JOIN app_public.spaces s ON ((i.space_id = s.id)))
      LEFT JOIN LATERAL ( SELECT min(s_1.submitted_at) AS first_submission_at,
             min(r.created_at) AS first_approval_at,
-            min(s_1.submitted_at) FILTER (WHERE (NOT ((i.message_id IS DISTINCT FROM s_1.message_id) OR (i.revision_id IS DISTINCT FROM s_1.revision_id)))) AS current_submission_since,
-            min(r.created_at) FILTER (WHERE (NOT ((i.message_id IS DISTINCT FROM s_1.message_id) OR (i.revision_id IS DISTINCT FROM s_1.revision_id)))) AS current_approval_since,
+            min(s_1.submitted_at) FILTER (WHERE (i.revision_id = s_1.revision_id)) AS current_submission_since,
+            min(r.created_at) FILTER (WHERE (i.revision_id = s_1.revision_id)) AS current_approval_since,
             max(s_1.submitted_at) AS last_submission_at,
             max(r.created_at) AS last_approval_at
            FROM (app_public.space_submissions s_1
@@ -3043,6 +3047,27 @@ CREATE VIEW app_public.current_message_revisions WITH (security_barrier='true', 
 COMMENT ON VIEW app_public.current_message_revisions IS '
   @primaryKey id
   ';
+
+
+--
+-- Name: file_revisions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.file_revisions (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    revision_id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    parent_revision_id uuid,
+    editor_id uuid DEFAULT app_public.current_user_id(),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    update_comment text,
+    uploaded_bytes integer,
+    total_bytes integer,
+    filename text,
+    path_on_storage text,
+    mime_type text,
+    sha256 text
+);
 
 
 --
@@ -3836,6 +3861,14 @@ ALTER TABLE ONLY app_private.user_secrets
 
 
 --
+-- Name: file_revisions file_revisions_pk; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.file_revisions
+    ADD CONSTRAINT file_revisions_pk PRIMARY KEY (id, revision_id);
+
+
+--
 -- Name: message_revisions message_revisions_pk; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4143,13 +4176,6 @@ CREATE INDEX sessions_user_id_idx ON app_private.sessions USING btree (user_id);
 
 
 --
--- Name: approvals; Type: INDEX; Schema: app_public; Owner: -
---
-
-CREATE UNIQUE INDEX approvals ON app_public.space_submission_reviews USING btree (space_submission_id, created_at DESC) INCLUDE (created_at, reviewer_id) WHERE (result = 'approved'::app_public.review_result);
-
-
---
 -- Name: idx_user_emails_primary; Type: INDEX; Schema: app_public; Owner: -
 --
 
@@ -4227,10 +4253,24 @@ CREATE INDEX space_items_on_editor_id ON app_public.space_items USING btree (edi
 
 
 --
+-- Name: space_items_on_file_id_revision_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX space_items_on_file_id_revision_id ON app_public.space_items USING btree (file_id, revision_id);
+
+
+--
 -- Name: space_items_on_message_id_revision_id; Type: INDEX; Schema: app_public; Owner: -
 --
 
 CREATE INDEX space_items_on_message_id_revision_id ON app_public.space_items USING btree (message_id, revision_id);
+
+
+--
+-- Name: space_items_on_revision_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX space_items_on_revision_id ON app_public.space_items USING btree (revision_id);
 
 
 --
@@ -4259,6 +4299,13 @@ CREATE INDEX space_submissions_on_created_at ON app_public.space_submissions USI
 --
 
 CREATE INDEX space_submissions_on_editor_id ON app_public.space_submissions USING btree (submitter_id);
+
+
+--
+-- Name: space_submissions_on_file_id_revision_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX space_submissions_on_file_id_revision_id ON app_public.space_submissions USING btree (file_id, revision_id);
 
 
 --
@@ -4385,6 +4432,13 @@ CREATE TRIGGER _800_refresh_user_abilities_per_space_after_insert AFTER INSERT O
 --
 
 CREATE TRIGGER _800_refresh_user_abilities_per_space_after_update AFTER UPDATE ON app_hidden.user_abilities_per_organization REFERENCING OLD TABLE AS old_memberships NEW TABLE AS new_memberships FOR EACH STATEMENT EXECUTE FUNCTION app_hidden.refresh_user_abilities_per_space_when_memberships_change();
+
+
+--
+-- Name: file_revisions _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.file_revisions FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
 
 
 --
@@ -4730,6 +4784,30 @@ ALTER TABLE ONLY app_public.message_revisions
 
 
 --
+-- Name: file_revisions editor; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.file_revisions
+    ADD CONSTRAINT editor FOREIGN KEY (editor_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: space_items file_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_items
+    ADD CONSTRAINT file_revision FOREIGN KEY (file_id, revision_id) REFERENCES app_public.file_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: space_submissions file_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.space_submissions
+    ADD CONSTRAINT file_revision FOREIGN KEY (file_id, revision_id) REFERENCES app_public.file_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: space_items message_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4801,6 +4879,14 @@ COMMENT ON CONSTRAINT parent_revision ON app_public.message_revisions IS '
   @fieldName parentRevision
   @foreignFieldName childRevisions
   ';
+
+
+--
+-- Name: file_revisions parent_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.file_revisions
+    ADD CONSTRAINT parent_revision FOREIGN KEY (id, parent_revision_id) REFERENCES app_public.message_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5109,6 +5195,12 @@ CREATE POLICY delete_own ON app_public.user_authentications FOR DELETE USING ((u
 
 CREATE POLICY delete_own ON app_public.user_emails FOR DELETE USING ((user_id = app_public.current_user_id()));
 
+
+--
+-- Name: file_revisions; Type: ROW SECURITY; Schema: app_public; Owner: -
+--
+
+ALTER TABLE app_public.file_revisions ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: message_revisions insert_mine_if_active; Type: POLICY; Schema: app_public; Owner: -
@@ -5927,6 +6019,13 @@ GRANT INSERT(message_id) ON TABLE app_public.space_items TO null814_cms_app_user
 
 
 --
+-- Name: COLUMN space_items.file_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(file_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
 -- Name: COLUMN space_items.revision_id; Type: ACL; Schema: app_public; Owner: -
 --
 
@@ -6218,6 +6317,62 @@ GRANT INSERT(subject),UPDATE(subject) ON TABLE app_public.current_message_revisi
 --
 
 GRANT INSERT(body),UPDATE(body) ON TABLE app_public.current_message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE file_revisions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.file_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN file_revisions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.file_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN file_revisions.revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(revision_id) ON TABLE app_public.file_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN file_revisions.parent_revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(parent_revision_id) ON TABLE app_public.file_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN file_revisions.uploaded_bytes; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(uploaded_bytes),UPDATE(uploaded_bytes) ON TABLE app_public.file_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN file_revisions.total_bytes; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(total_bytes),UPDATE(total_bytes) ON TABLE app_public.file_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN file_revisions.filename; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(filename),UPDATE(filename) ON TABLE app_public.file_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN file_revisions.mime_type; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(mime_type),UPDATE(mime_type) ON TABLE app_public.file_revisions TO null814_cms_app_users;
 
 
 --
