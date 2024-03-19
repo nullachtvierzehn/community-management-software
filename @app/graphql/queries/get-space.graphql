@@ -25,6 +25,10 @@ query GetSpace($id: UUID!) {
           }
           body
         }
+        fileRevision {
+          id
+          mimeType
+        }
       }
     }
     subscriptions {
