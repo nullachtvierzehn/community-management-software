@@ -47,3 +47,4 @@ space-submission-reviews [space-submissions] 2024-03-17T14:57:20Z Timo Stolz <ti
 space-submission-reviews/policies/select-own [space-submission-reviews] 2024-03-17T15:12:26Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow users to select their own reviews
 space-submission-reviews/policies/can-insert [spaces/my-space-ids organizations/my-organization-ids] 2024-03-17T15:16:58Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow users to add reviews
 space-items/view-for-submission-and-approval-times [space-submission-reviews] 2024-03-18T12:15:31Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add a view for submission and approval times
+file-revisions/policies/manage-mine [file-revisions] 2024-03-19T06:13:43Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # manage own file revisions

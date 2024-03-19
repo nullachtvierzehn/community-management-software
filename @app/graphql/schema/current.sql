@@ -5219,6 +5219,13 @@ CREATE POLICY insert_own ON app_public.user_emails FOR INSERT WITH CHECK ((user_
 
 
 --
+-- Name: file_revisions manage_mine; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY manage_mine ON app_public.file_revisions TO null814_cms_app_users USING ((editor_id = app_public.current_user_id()));
+
+
+--
 -- Name: message_revisions; Type: ROW SECURITY; Schema: app_public; Owner: -
 --
 
@@ -6184,6 +6191,13 @@ GRANT SELECT,DELETE ON TABLE app_public.message_revisions TO null814_cms_app_use
 --
 
 GRANT INSERT(id) ON TABLE app_public.message_revisions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN message_revisions.revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(revision_id) ON TABLE app_public.message_revisions TO null814_cms_app_users;
 
 
 --
