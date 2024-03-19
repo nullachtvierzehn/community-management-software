@@ -6,6 +6,9 @@ mutation CreateSpaceItem($payload: SpaceItemInput!) {
     spaceItem {
       id
       createdAt
+      fileId
+      messageId
+      revisionId
     }
   }
 }

@@ -8,7 +8,8 @@ create table app_public.file_revisions (
   id uuid not null
     default uuid_generate_v1mc(),
   revision_id uuid not null
-    default uuid_generate_v1mc(),
+    default uuid_generate_v1mc()
+    constraint unique_file_revision unique,
   constraint file_revisions_pk
     primary key (id, revision_id),
 

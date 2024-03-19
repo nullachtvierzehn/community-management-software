@@ -13,7 +13,7 @@ const { open, onChange } = useFileDialog({
 
 const fileRef = ref<File | undefined | null>()
 
-onChange((filelist) => (fileRef.value = filelist?.item(0)))
+onChange((files) => (fileRef.value = files?.item(0)))
 
 function upload() {
   const file = toValue(fileRef)
@@ -27,7 +27,7 @@ function upload() {
     ).toString(),
     // Retry delays will enable tus-js-client to automatically retry on errors
     retryDelays: [0, 3000, 5000, 10000, 20000],
-    // Attach additional meta data about the file for the server
+    // Attach additional meta-data about the file for the server
     metadata: {
       filename: file.name,
       filetype: file.type,

@@ -1,0 +1,7 @@
+mutation DeleteFileRevision($id: UUID!, $revisionId: UUID!) {
+  deleteFileRevision(input: { id: $id, revisionId: $revisionId }) {
+    fileRevision {
+      id
+    }
+  }
+}

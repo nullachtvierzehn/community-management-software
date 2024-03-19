@@ -59,6 +59,9 @@ type Query implements Node {
   """Get a single `MessageRevision`."""
   messageRevision(id: UUID!, revisionId: UUID!): MessageRevision
 
+  """Get a single `MessageRevision`."""
+  messageRevisionByRevisionId(revisionId: UUID!): MessageRevision
+
   """Get a single `UserAuthentication`."""
   userAuthentication(id: UUID!): UserAuthentication
 
@@ -79,6 +82,12 @@ type Query implements Node {
 
   """Get a single `SpaceItemSubmissionAndApprovalTime`."""
   spaceItemSubmissionAndApprovalTime(spaceItemId: UUID!): SpaceItemSubmissionAndApprovalTime
+
+  """Get a single `FileRevision`."""
+  fileRevision(id: UUID!, revisionId: UUID!): FileRevision
+
+  """Get a single `FileRevision`."""
+  fileRevisionByRevisionId(revisionId: UUID!): FileRevision
 
   """Handy method to get the current session ID."""
   currentSessionId: UUID
@@ -338,6 +347,14 @@ type Query implements Node {
     """
     nodeId: ID!
   ): SpaceItemSubmissionAndApprovalTime
+
+  """Reads a single `FileRevision` using its globally unique `ID`."""
+  fileRevisionByNodeId(
+    """
+    The globally unique `ID` to be used in selecting a single `FileRevision`.
+    """
+    nodeId: ID!
+  ): FileRevision
 
   """Reads and enables pagination through a set of `SpaceSubmission`."""
   spaceSubmissions(
@@ -784,6 +801,40 @@ type Query implements Node {
     """
     filter: SpaceSubscriptionFilter
   ): SpaceSubscriptionsConnection
+
+  """Reads and enables pagination through a set of `FileRevision`."""
+  fileRevisions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `FileRevision`."""
+    orderBy: [FileRevisionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: FileRevisionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: FileRevisionFilter
+  ): FileRevisionsConnection
 }
 
 """An object with a globally unique `ID`."""
@@ -802,9 +853,15 @@ type SpaceSubmission implements Node {
   id: UUID!
   spaceItemId: UUID!
   submitterId: UUID
-  messageId: UUID!
+  messageId: UUID
+  fileId: UUID
   revisionId: UUID!
   submittedAt: Datetime!
+
+  """
+  Reads a single `FileRevision` that is related to this `SpaceSubmission`.
+  """
+  fileRevision: FileRevision
 
   """
   Reads a single `MessageRevision` that is related to this `SpaceSubmission`.
@@ -837,7 +894,7 @@ to unexpected results.
 """
 scalar Datetime
 
-type MessageRevision implements Node {
+type FileRevision implements Node {
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
@@ -849,19 +906,21 @@ type MessageRevision implements Node {
   createdAt: Datetime!
   updatedAt: Datetime!
   updateComment: String
-  subject: String
-  body: JSON
+  uploadedBytes: Int
+  totalBytes: Int
+  filename: String
+  pathOnStorage: String
+  mimeType: String
+  sha256: String
 
-  """Reads a single `User` that is related to this `MessageRevision`."""
+  """Reads a single `User` that is related to this `FileRevision`."""
   editor: User
 
-  """
-  Reads a single `MessageRevision` that is related to this `MessageRevision`.
-  """
-  parentRevision: MessageRevision
+  """Reads a single `FileRevision` that is related to this `FileRevision`."""
+  fileRevision: FileRevision
 
-  """Reads and enables pagination through a set of `MessageRevision`."""
-  childRevisions(
+  """Reads and enables pagination through a set of `FileRevision`."""
+  fileRevisionsByIdAndParentRevisionId(
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -880,19 +939,19 @@ type MessageRevision implements Node {
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
-    """The method to use when ordering `MessageRevision`."""
-    orderBy: [MessageRevisionsOrderBy!] = [PRIMARY_KEY_ASC]
+    """The method to use when ordering `FileRevision`."""
+    orderBy: [FileRevisionsOrderBy!] = [PRIMARY_KEY_ASC]
 
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: MessageRevisionCondition
+    condition: FileRevisionCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: MessageRevisionFilter
-  ): MessageRevisionsConnection!
+    filter: FileRevisionFilter
+  ): FileRevisionsConnection!
 
   """Reads and enables pagination through a set of `SpaceItem`."""
   spaceItems(
@@ -962,11 +1021,6 @@ type MessageRevision implements Node {
     filter: SpaceSubmissionFilter
   ): SpaceSubmissionsConnection!
 }
-
-"""
-Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
 
 """A user who can log in to the application."""
 type User implements Node {
@@ -1199,6 +1253,40 @@ type User implements Node {
     """
     filter: SpaceSubscriptionFilter
   ): SpaceSubscriptionsConnection!
+
+  """Reads and enables pagination through a set of `FileRevision`."""
+  editedFileRevisions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `FileRevision`."""
+    orderBy: [FileRevisionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: FileRevisionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: FileRevisionFilter
+  ): FileRevisionsConnection!
 
   """Reads and enables pagination through a set of `SpaceItem`."""
   editedSpaceItems(
@@ -1782,6 +1870,12 @@ input UserFilter {
   """Some related `spaceSubscriptionsBySubscriberId` exist."""
   spaceSubscriptionsBySubscriberIdExist: Boolean
 
+  """Filter by the object’s `editedFileRevisions` relation."""
+  editedFileRevisions: UserToManyFileRevisionFilter
+
+  """Some related `editedFileRevisions` exist."""
+  editedFileRevisionsExist: Boolean
+
   """Filter by the object’s `editedSpaceItems` relation."""
   editedSpaceItems: UserToManySpaceItemFilter
 
@@ -1944,6 +2038,11 @@ input JSONFilter {
   """Contained by the specified JSON."""
   containedBy: JSON
 }
+
+"""
+Represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
 
 """
 A filter to be used against many `OrganizationMembership` object types. All fields are combined with a logical ‘and.’
@@ -2367,6 +2466,9 @@ input SpaceItemFilter {
   """Filter by the object’s `messageId` field."""
   messageId: UUIDFilter
 
+  """Filter by the object’s `fileId` field."""
+  fileId: UUIDFilter
+
   """Filter by the object’s `revisionId` field."""
   revisionId: UUIDFilter
 
@@ -2394,8 +2496,17 @@ input SpaceItemFilter {
   """A related `editor` exists."""
   editorExists: Boolean
 
+  """Filter by the object’s `fileRevision` relation."""
+  fileRevision: FileRevisionFilter
+
+  """A related `fileRevision` exists."""
+  fileRevisionExists: Boolean
+
   """Filter by the object’s `messageRevision` relation."""
   messageRevision: MessageRevisionFilter
+
+  """A related `messageRevision` exists."""
+  messageRevisionExists: Boolean
 
   """Filter by the object’s `space` relation."""
   space: SpaceFilter
@@ -2446,6 +2557,9 @@ input SpaceSubmissionFilter {
   """Filter by the object’s `messageId` field."""
   messageId: UUIDFilter
 
+  """Filter by the object’s `fileId` field."""
+  fileId: UUIDFilter
+
   """Filter by the object’s `revisionId` field."""
   revisionId: UUIDFilter
 
@@ -2458,8 +2572,17 @@ input SpaceSubmissionFilter {
   """A related `spaceSubmissionReview` exists."""
   spaceSubmissionReviewExists: Boolean
 
+  """Filter by the object’s `fileRevision` relation."""
+  fileRevision: FileRevisionFilter
+
+  """A related `fileRevision` exists."""
+  fileRevisionExists: Boolean
+
   """Filter by the object’s `messageRevision` relation."""
   messageRevision: MessageRevisionFilter
+
+  """A related `messageRevision` exists."""
+  messageRevisionExists: Boolean
 
   """Filter by the object’s `spaceItem` relation."""
   spaceItem: SpaceItemFilter
@@ -2567,6 +2690,193 @@ enum ReviewResult {
   DECLINED
   COMMENTED
   APPROVED
+}
+
+"""
+A filter to be used against `FileRevision` object types. All fields are combined with a logical ‘and.’
+"""
+input FileRevisionFilter {
+  """Filter by the object’s `id` field."""
+  id: UUIDFilter
+
+  """Filter by the object’s `revisionId` field."""
+  revisionId: UUIDFilter
+
+  """Filter by the object’s `parentRevisionId` field."""
+  parentRevisionId: UUIDFilter
+
+  """Filter by the object’s `editorId` field."""
+  editorId: UUIDFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: DatetimeFilter
+
+  """Filter by the object’s `updatedAt` field."""
+  updatedAt: DatetimeFilter
+
+  """Filter by the object’s `updateComment` field."""
+  updateComment: StringFilter
+
+  """Filter by the object’s `uploadedBytes` field."""
+  uploadedBytes: IntFilter
+
+  """Filter by the object’s `totalBytes` field."""
+  totalBytes: IntFilter
+
+  """Filter by the object’s `filename` field."""
+  filename: StringFilter
+
+  """Filter by the object’s `pathOnStorage` field."""
+  pathOnStorage: StringFilter
+
+  """Filter by the object’s `mimeType` field."""
+  mimeType: StringFilter
+
+  """Filter by the object’s `sha256` field."""
+  sha256: StringFilter
+
+  """
+  Filter by the object’s `fileRevisionsByIdAndParentRevisionId` relation.
+  """
+  fileRevisionsByIdAndParentRevisionId: FileRevisionToManyFileRevisionFilter
+
+  """Some related `fileRevisionsByIdAndParentRevisionId` exist."""
+  fileRevisionsByIdAndParentRevisionIdExist: Boolean
+
+  """Filter by the object’s `spaceItems` relation."""
+  spaceItems: FileRevisionToManySpaceItemFilter
+
+  """Some related `spaceItems` exist."""
+  spaceItemsExist: Boolean
+
+  """Filter by the object’s `spaceSubmissions` relation."""
+  spaceSubmissions: FileRevisionToManySpaceSubmissionFilter
+
+  """Some related `spaceSubmissions` exist."""
+  spaceSubmissionsExist: Boolean
+
+  """Filter by the object’s `editor` relation."""
+  editor: UserFilter
+
+  """A related `editor` exists."""
+  editorExists: Boolean
+
+  """Filter by the object’s `fileRevision` relation."""
+  fileRevision: FileRevisionFilter
+
+  """A related `fileRevision` exists."""
+  fileRevisionExists: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [FileRevisionFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [FileRevisionFilter!]
+
+  """Negates the expression."""
+  not: FileRevisionFilter
+}
+
+"""
+A filter to be used against Int fields. All fields are combined with a logical ‘and.’
+"""
+input IntFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Int
+
+  """Not equal to the specified value."""
+  notEqualTo: Int
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Int
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Int
+
+  """Included in the specified list."""
+  in: [Int!]
+
+  """Not included in the specified list."""
+  notIn: [Int!]
+
+  """Less than the specified value."""
+  lessThan: Int
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Int
+
+  """Greater than the specified value."""
+  greaterThan: Int
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Int
+}
+
+"""
+A filter to be used against many `FileRevision` object types. All fields are combined with a logical ‘and.’
+"""
+input FileRevisionToManyFileRevisionFilter {
+  """
+  Every related `FileRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: FileRevisionFilter
+
+  """
+  Some related `FileRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: FileRevisionFilter
+
+  """
+  No related `FileRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: FileRevisionFilter
+}
+
+"""
+A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’
+"""
+input FileRevisionToManySpaceItemFilter {
+  """
+  Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceItemFilter
+
+  """
+  Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceItemFilter
+
+  """
+  No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceItemFilter
+}
+
+"""
+A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’
+"""
+input FileRevisionToManySpaceSubmissionFilter {
+  """
+  Every related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SpaceSubmissionFilter
+
+  """
+  Some related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SpaceSubmissionFilter
+
+  """
+  No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SpaceSubmissionFilter
 }
 
 """
@@ -2863,6 +3173,26 @@ input UserToManySpaceSubscriptionFilter {
   No related `SpaceSubscription` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   none: SpaceSubscriptionFilter
+}
+
+"""
+A filter to be used against many `FileRevision` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyFileRevisionFilter {
+  """
+  Every related `FileRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: FileRevisionFilter
+
+  """
+  Some related `FileRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: FileRevisionFilter
+
+  """
+  No related `FileRevision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: FileRevisionFilter
 }
 
 """
@@ -3513,13 +3843,17 @@ type SpaceItem implements Node {
   id: UUID!
   spaceId: UUID!
   editorId: UUID
-  messageId: UUID!
+  messageId: UUID
+  fileId: UUID
   revisionId: UUID!
   createdAt: Datetime!
   updatedAt: Datetime!
 
   """Reads a single `User` that is related to this `SpaceItem`."""
   editor: User
+
+  """Reads a single `FileRevision` that is related to this `SpaceItem`."""
+  fileRevision: FileRevision
 
   """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
   messageRevision: MessageRevision
@@ -3567,6 +3901,271 @@ type SpaceItem implements Node {
   times: SpaceItemSubmissionAndApprovalTime
 }
 
+type MessageRevision implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: UUID!
+  revisionId: UUID!
+  parentRevisionId: UUID
+  editorId: UUID
+  createdAt: Datetime!
+  updatedAt: Datetime!
+  updateComment: String
+  subject: String
+  body: JSON
+
+  """Reads a single `User` that is related to this `MessageRevision`."""
+  editor: User
+
+  """
+  Reads a single `MessageRevision` that is related to this `MessageRevision`.
+  """
+  parentRevision: MessageRevision
+
+  """Reads and enables pagination through a set of `MessageRevision`."""
+  childRevisions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `MessageRevision`."""
+    orderBy: [MessageRevisionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MessageRevisionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MessageRevisionFilter
+  ): MessageRevisionsConnection!
+
+  """Reads and enables pagination through a set of `SpaceItem`."""
+  spaceItems(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceItem`."""
+    orderBy: [SpaceItemsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceItemFilter
+  ): SpaceItemsConnection!
+
+  """Reads and enables pagination through a set of `SpaceSubmission`."""
+  spaceSubmissions(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `SpaceSubmission`."""
+    orderBy: [SpaceSubmissionsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SpaceSubmissionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SpaceSubmissionFilter
+  ): SpaceSubmissionsConnection!
+}
+
+"""A connection to a list of `MessageRevision` values."""
+type MessageRevisionsConnection {
+  """A list of `MessageRevision` objects."""
+  nodes: [MessageRevision!]!
+
+  """
+  A list of edges which contains the `MessageRevision` and cursor to aid in pagination.
+  """
+  edges: [MessageRevisionsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `MessageRevision` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `MessageRevision` edge in the connection."""
+type MessageRevisionsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `MessageRevision` at the end of the edge."""
+  node: MessageRevision!
+}
+
+"""Methods to use when ordering `MessageRevision`."""
+enum MessageRevisionsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
+  PARENT_REVISION_ID_ASC
+  PARENT_REVISION_ID_DESC
+  EDITOR_ID_ASC
+  EDITOR_ID_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+  UPDATE_COMMENT_ASC
+  UPDATE_COMMENT_DESC
+  SUBJECT_ASC
+  SUBJECT_DESC
+  BODY_ASC
+  BODY_DESC
+}
+
+"""
+A condition to be used against `MessageRevision` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input MessageRevisionCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: UUID
+
+  """Checks for equality with the object’s `parentRevisionId` field."""
+  parentRevisionId: UUID
+
+  """Checks for equality with the object’s `editorId` field."""
+  editorId: UUID
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+
+  """Checks for equality with the object’s `updateComment` field."""
+  updateComment: String
+
+  """Checks for equality with the object’s `subject` field."""
+  subject: String
+
+  """Checks for equality with the object’s `body` field."""
+  body: JSON
+}
+
+"""Methods to use when ordering `SpaceItem`."""
+enum SpaceItemsOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  ID_ASC
+  ID_DESC
+  SPACE_ID_ASC
+  SPACE_ID_DESC
+  EDITOR_ID_ASC
+  EDITOR_ID_DESC
+  MESSAGE_ID_ASC
+  MESSAGE_ID_DESC
+  FILE_ID_ASC
+  FILE_ID_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  UPDATED_AT_ASC
+  UPDATED_AT_DESC
+}
+
+"""
+A condition to be used against `SpaceItem` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input SpaceItemCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: UUID
+
+  """Checks for equality with the object’s `spaceId` field."""
+  spaceId: UUID
+
+  """Checks for equality with the object’s `editorId` field."""
+  editorId: UUID
+
+  """Checks for equality with the object’s `messageId` field."""
+  messageId: UUID
+
+  """Checks for equality with the object’s `fileId` field."""
+  fileId: UUID
+
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: UUID
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: Datetime
+
+  """Checks for equality with the object’s `updatedAt` field."""
+  updatedAt: Datetime
+}
+
 """A connection to a list of `SpaceSubmission` values."""
 type SpaceSubmissionsConnection {
   """A list of `SpaceSubmission` objects."""
@@ -3608,6 +4207,8 @@ enum SpaceSubmissionsOrderBy {
   SUBMITTER_ID_DESC
   MESSAGE_ID_ASC
   MESSAGE_ID_DESC
+  FILE_ID_ASC
+  FILE_ID_DESC
   REVISION_ID_ASC
   REVISION_ID_DESC
   SUBMITTED_AT_ASC
@@ -3630,6 +4231,9 @@ input SpaceSubmissionCondition {
 
   """Checks for equality with the object’s `messageId` field."""
   messageId: UUID
+
+  """Checks for equality with the object’s `fileId` field."""
+  fileId: UUID
 
   """Checks for equality with the object’s `revisionId` field."""
   revisionId: UUID
@@ -3679,54 +4283,6 @@ type SpaceItemsEdge {
 
   """The `SpaceItem` at the end of the edge."""
   node: SpaceItem!
-}
-
-"""Methods to use when ordering `SpaceItem`."""
-enum SpaceItemsOrderBy {
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  ID_ASC
-  ID_DESC
-  SPACE_ID_ASC
-  SPACE_ID_DESC
-  EDITOR_ID_ASC
-  EDITOR_ID_DESC
-  MESSAGE_ID_ASC
-  MESSAGE_ID_DESC
-  REVISION_ID_ASC
-  REVISION_ID_DESC
-  CREATED_AT_ASC
-  CREATED_AT_DESC
-  UPDATED_AT_ASC
-  UPDATED_AT_DESC
-}
-
-"""
-A condition to be used against `SpaceItem` object types. All fields are tested
-for equality and combined with a logical ‘and.’
-"""
-input SpaceItemCondition {
-  """Checks for equality with the object’s `id` field."""
-  id: UUID
-
-  """Checks for equality with the object’s `spaceId` field."""
-  spaceId: UUID
-
-  """Checks for equality with the object’s `editorId` field."""
-  editorId: UUID
-
-  """Checks for equality with the object’s `messageId` field."""
-  messageId: UUID
-
-  """Checks for equality with the object’s `revisionId` field."""
-  revisionId: UUID
-
-  """Checks for equality with the object’s `createdAt` field."""
-  createdAt: Datetime
-
-  """Checks for equality with the object’s `updatedAt` field."""
-  updatedAt: Datetime
 }
 
 """A connection to a list of `SpaceItemSubmissionAndApprovalTime` values."""
@@ -3900,36 +4456,34 @@ type OrganizationMembershipsEdge {
   node: OrganizationMembership!
 }
 
-"""A connection to a list of `MessageRevision` values."""
-type MessageRevisionsConnection {
-  """A list of `MessageRevision` objects."""
-  nodes: [MessageRevision!]!
+"""A connection to a list of `FileRevision` values."""
+type FileRevisionsConnection {
+  """A list of `FileRevision` objects."""
+  nodes: [FileRevision!]!
 
   """
-  A list of edges which contains the `MessageRevision` and cursor to aid in pagination.
+  A list of edges which contains the `FileRevision` and cursor to aid in pagination.
   """
-  edges: [MessageRevisionsEdge!]!
+  edges: [FileRevisionsEdge!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
-  """
-  The count of *all* `MessageRevision` you could get from the connection.
-  """
+  """The count of *all* `FileRevision` you could get from the connection."""
   totalCount: Int!
 }
 
-"""A `MessageRevision` edge in the connection."""
-type MessageRevisionsEdge {
+"""A `FileRevision` edge in the connection."""
+type FileRevisionsEdge {
   """A cursor for use in pagination."""
   cursor: Cursor
 
-  """The `MessageRevision` at the end of the edge."""
-  node: MessageRevision!
+  """The `FileRevision` at the end of the edge."""
+  node: FileRevision!
 }
 
-"""Methods to use when ordering `MessageRevision`."""
-enum MessageRevisionsOrderBy {
+"""Methods to use when ordering `FileRevision`."""
+enum FileRevisionsOrderBy {
   NATURAL
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
@@ -3947,17 +4501,25 @@ enum MessageRevisionsOrderBy {
   UPDATED_AT_DESC
   UPDATE_COMMENT_ASC
   UPDATE_COMMENT_DESC
-  SUBJECT_ASC
-  SUBJECT_DESC
-  BODY_ASC
-  BODY_DESC
+  UPLOADED_BYTES_ASC
+  UPLOADED_BYTES_DESC
+  TOTAL_BYTES_ASC
+  TOTAL_BYTES_DESC
+  FILENAME_ASC
+  FILENAME_DESC
+  PATH_ON_STORAGE_ASC
+  PATH_ON_STORAGE_DESC
+  MIME_TYPE_ASC
+  MIME_TYPE_DESC
+  SHA256_ASC
+  SHA256_DESC
 }
 
 """
-A condition to be used against `MessageRevision` object types. All fields are
+A condition to be used against `FileRevision` object types. All fields are
 tested for equality and combined with a logical ‘and.’
 """
-input MessageRevisionCondition {
+input FileRevisionCondition {
   """Checks for equality with the object’s `id` field."""
   id: UUID
 
@@ -3979,11 +4541,23 @@ input MessageRevisionCondition {
   """Checks for equality with the object’s `updateComment` field."""
   updateComment: String
 
-  """Checks for equality with the object’s `subject` field."""
-  subject: String
+  """Checks for equality with the object’s `uploadedBytes` field."""
+  uploadedBytes: Int
 
-  """Checks for equality with the object’s `body` field."""
-  body: JSON
+  """Checks for equality with the object’s `totalBytes` field."""
+  totalBytes: Int
+
+  """Checks for equality with the object’s `filename` field."""
+  filename: String
+
+  """Checks for equality with the object’s `pathOnStorage` field."""
+  pathOnStorage: String
+
+  """Checks for equality with the object’s `mimeType` field."""
+  mimeType: String
+
+  """Checks for equality with the object’s `sha256` field."""
+  sha256: String
 }
 
 """A connection to a list of `SpaceSubmissionReview` values."""
@@ -4835,6 +5409,14 @@ type Mutation {
     input: CreateSpaceSubscriptionInput!
   ): CreateSpaceSubscriptionPayload
 
+  """Creates a single `FileRevision`."""
+  createFileRevision(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateFileRevisionInput!
+  ): CreateFileRevisionPayload
+
   """Updates a single `SpaceItem` using its globally unique id and a patch."""
   updateSpaceItemByNodeId(
     """
@@ -4977,6 +5559,14 @@ type Mutation {
     input: UpdateMessageRevisionInput!
   ): UpdateMessageRevisionPayload
 
+  """Updates a single `MessageRevision` using a unique key and a patch."""
+  updateMessageRevisionByRevisionId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateMessageRevisionByRevisionIdInput!
+  ): UpdateMessageRevisionPayload
+
   """
   Updates a single `Organization` using its globally unique id and a patch.
   """
@@ -5028,6 +5618,32 @@ type Mutation {
     """
     input: UpdateSpaceSubscriptionBySubscriberIdAndSpaceIdInput!
   ): UpdateSpaceSubscriptionPayload
+
+  """
+  Updates a single `FileRevision` using its globally unique id and a patch.
+  """
+  updateFileRevisionByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateFileRevisionByNodeIdInput!
+  ): UpdateFileRevisionPayload
+
+  """Updates a single `FileRevision` using a unique key and a patch."""
+  updateFileRevision(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateFileRevisionInput!
+  ): UpdateFileRevisionPayload
+
+  """Updates a single `FileRevision` using a unique key and a patch."""
+  updateFileRevisionByRevisionId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateFileRevisionByRevisionIdInput!
+  ): UpdateFileRevisionPayload
 
   """Deletes a single `SpaceSubmission` using its globally unique id."""
   deleteSpaceSubmissionByNodeId(
@@ -5175,6 +5791,14 @@ type Mutation {
     input: DeleteMessageRevisionInput!
   ): DeleteMessageRevisionPayload
 
+  """Deletes a single `MessageRevision` using a unique key."""
+  deleteMessageRevisionByRevisionId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteMessageRevisionByRevisionIdInput!
+  ): DeleteMessageRevisionPayload
+
   """Deletes a single `UserAuthentication` using its globally unique id."""
   deleteUserAuthenticationByNodeId(
     """
@@ -5222,6 +5846,30 @@ type Mutation {
     """
     input: DeleteSpaceSubscriptionBySubscriberIdAndSpaceIdInput!
   ): DeleteSpaceSubscriptionPayload
+
+  """Deletes a single `FileRevision` using its globally unique id."""
+  deleteFileRevisionByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteFileRevisionByNodeIdInput!
+  ): DeleteFileRevisionPayload
+
+  """Deletes a single `FileRevision` using a unique key."""
+  deleteFileRevision(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteFileRevisionInput!
+  ): DeleteFileRevisionPayload
+
+  """Deletes a single `FileRevision` using a unique key."""
+  deleteFileRevisionByRevisionId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteFileRevisionByRevisionIdInput!
+  ): DeleteFileRevisionPayload
 
   """
   Use this mutation to create an account on our system. This may only be used if you are logged out.
@@ -5662,6 +6310,11 @@ type CreateSpaceSubmissionPayload {
   ): SpaceSubmissionsEdge
 
   """
+  Reads a single `FileRevision` that is related to this `SpaceSubmission`.
+  """
+  fileRevision: FileRevision
+
+  """
   Reads a single `MessageRevision` that is related to this `SpaceSubmission`.
   """
   messageRevision: MessageRevision
@@ -5690,7 +6343,8 @@ input SpaceSubmissionInput {
   id: UUID
   spaceItemId: UUID!
   submitterId: UUID
-  messageId: UUID!
+  messageId: UUID
+  fileId: UUID
   revisionId: UUID!
 }
 
@@ -5719,6 +6373,9 @@ type CreateSpaceItemPayload {
   """Reads a single `User` that is related to this `SpaceItem`."""
   editor: User
 
+  """Reads a single `FileRevision` that is related to this `SpaceItem`."""
+  fileRevision: FileRevision
+
   """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
   messageRevision: MessageRevision
 
@@ -5743,7 +6400,8 @@ input SpaceItemInput {
   id: UUID
   spaceId: UUID!
   editorId: UUID
-  messageId: UUID!
+  messageId: UUID
+  fileId: UUID
   revisionId: UUID!
 }
 
@@ -6029,6 +6687,7 @@ input CreateMessageRevisionInput {
 """An input for mutations affecting `MessageRevision`"""
 input MessageRevisionInput {
   id: UUID
+  revisionId: UUID
   parentRevisionId: UUID
   editorId: UUID
   updateComment: String
@@ -6087,6 +6746,55 @@ input SpaceSubscriptionInput {
   lastVisitAt: Datetime
 }
 
+"""The output of our create `FileRevision` mutation."""
+type CreateFileRevisionPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `FileRevision` that was created by this mutation."""
+  fileRevision: FileRevision
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `FileRevision`. May be used by Relay 1."""
+  fileRevisionEdge(
+    """The method to use when ordering `FileRevision`."""
+    orderBy: [FileRevisionsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): FileRevisionsEdge
+
+  """Reads a single `User` that is related to this `FileRevision`."""
+  editor: User
+}
+
+"""All input for the create `FileRevision` mutation."""
+input CreateFileRevisionInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `FileRevision` to be created by this mutation."""
+  fileRevision: FileRevisionInput!
+}
+
+"""An input for mutations affecting `FileRevision`"""
+input FileRevisionInput {
+  id: UUID
+  revisionId: UUID
+  parentRevisionId: UUID
+  uploadedBytes: Int
+  totalBytes: Int
+  filename: String
+  mimeType: String
+}
+
 """The output of our update `SpaceItem` mutation."""
 type UpdateSpaceItemPayload {
   """
@@ -6111,6 +6819,9 @@ type UpdateSpaceItemPayload {
 
   """Reads a single `User` that is related to this `SpaceItem`."""
   editor: User
+
+  """Reads a single `FileRevision` that is related to this `SpaceItem`."""
+  fileRevision: FileRevision
 
   """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
   messageRevision: MessageRevision
@@ -6622,6 +7333,21 @@ input UpdateMessageRevisionInput {
   patch: MessageRevisionPatch!
 }
 
+"""All input for the `updateMessageRevisionByRevisionId` mutation."""
+input UpdateMessageRevisionByRevisionIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  revisionId: UUID!
+
+  """
+  An object where the defined keys will be set on the `MessageRevision` being updated.
+  """
+  patch: MessageRevisionPatch!
+}
+
 """The output of our update `Organization` mutation."""
 type UpdateOrganizationPayload {
   """
@@ -6792,6 +7518,92 @@ input UpdateSpaceSubscriptionBySubscriberIdAndSpaceIdInput {
   patch: SpaceSubscriptionPatch!
 }
 
+"""The output of our update `FileRevision` mutation."""
+type UpdateFileRevisionPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `FileRevision` that was updated by this mutation."""
+  fileRevision: FileRevision
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `FileRevision`. May be used by Relay 1."""
+  fileRevisionEdge(
+    """The method to use when ordering `FileRevision`."""
+    orderBy: [FileRevisionsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): FileRevisionsEdge
+
+  """Reads a single `User` that is related to this `FileRevision`."""
+  editor: User
+}
+
+"""All input for the `updateFileRevisionByNodeId` mutation."""
+input UpdateFileRevisionByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `FileRevision` to be updated.
+  """
+  nodeId: ID!
+
+  """
+  An object where the defined keys will be set on the `FileRevision` being updated.
+  """
+  patch: FileRevisionPatch!
+}
+
+"""
+Represents an update to a `FileRevision`. Fields that are set will be updated.
+"""
+input FileRevisionPatch {
+  uploadedBytes: Int
+  totalBytes: Int
+  filename: String
+  mimeType: String
+}
+
+"""All input for the `updateFileRevision` mutation."""
+input UpdateFileRevisionInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+  revisionId: UUID!
+
+  """
+  An object where the defined keys will be set on the `FileRevision` being updated.
+  """
+  patch: FileRevisionPatch!
+}
+
+"""All input for the `updateFileRevisionByRevisionId` mutation."""
+input UpdateFileRevisionByRevisionIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  revisionId: UUID!
+
+  """
+  An object where the defined keys will be set on the `FileRevision` being updated.
+  """
+  patch: FileRevisionPatch!
+}
+
 """The output of our delete `SpaceSubmission` mutation."""
 type DeleteSpaceSubmissionPayload {
   """
@@ -6814,6 +7626,11 @@ type DeleteSpaceSubmissionPayload {
     """The method to use when ordering `SpaceSubmission`."""
     orderBy: [SpaceSubmissionsOrderBy!]! = [PRIMARY_KEY_ASC]
   ): SpaceSubmissionsEdge
+
+  """
+  Reads a single `FileRevision` that is related to this `SpaceSubmission`.
+  """
+  fileRevision: FileRevision
 
   """
   Reads a single `MessageRevision` that is related to this `SpaceSubmission`.
@@ -6876,6 +7693,9 @@ type DeleteSpaceItemPayload {
 
   """Reads a single `User` that is related to this `SpaceItem`."""
   editor: User
+
+  """Reads a single `FileRevision` that is related to this `SpaceItem`."""
+  fileRevision: FileRevision
 
   """Reads a single `MessageRevision` that is related to this `SpaceItem`."""
   messageRevision: MessageRevision
@@ -7247,6 +8067,16 @@ input DeleteMessageRevisionInput {
   revisionId: UUID!
 }
 
+"""All input for the `deleteMessageRevisionByRevisionId` mutation."""
+input DeleteMessageRevisionByRevisionIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  revisionId: UUID!
+}
+
 """The output of our delete `UserAuthentication` mutation."""
 type DeleteUserAuthenticationPayload {
   """
@@ -7380,6 +8210,68 @@ input DeleteSpaceSubscriptionBySubscriberIdAndSpaceIdInput {
   clientMutationId: String
   subscriberId: UUID!
   spaceId: UUID!
+}
+
+"""The output of our delete `FileRevision` mutation."""
+type DeleteFileRevisionPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `FileRevision` that was deleted by this mutation."""
+  fileRevision: FileRevision
+  deletedFileRevisionNodeId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our `FileRevision`. May be used by Relay 1."""
+  fileRevisionEdge(
+    """The method to use when ordering `FileRevision`."""
+    orderBy: [FileRevisionsOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): FileRevisionsEdge
+
+  """Reads a single `User` that is related to this `FileRevision`."""
+  editor: User
+}
+
+"""All input for the `deleteFileRevisionByNodeId` mutation."""
+input DeleteFileRevisionByNodeIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `FileRevision` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""All input for the `deleteFileRevision` mutation."""
+input DeleteFileRevisionInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: UUID!
+  revisionId: UUID!
+}
+
+"""All input for the `deleteFileRevisionByRevisionId` mutation."""
+input DeleteFileRevisionByRevisionIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  revisionId: UUID!
 }
 
 type RegisterPayload {

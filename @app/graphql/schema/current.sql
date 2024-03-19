@@ -4025,6 +4025,22 @@ ALTER TABLE ONLY app_public.user_authentications
 
 
 --
+-- Name: file_revisions unique_file_revision; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.file_revisions
+    ADD CONSTRAINT unique_file_revision UNIQUE (revision_id);
+
+
+--
+-- Name: message_revisions unique_message_revision; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.message_revisions
+    ADD CONSTRAINT unique_message_revision UNIQUE (revision_id);
+
+
+--
 -- Name: spaces unique_slug_per_organization; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4349,6 +4365,13 @@ CREATE INDEX space_submissions_on_file_id_revision_id ON app_public.space_submis
 --
 
 CREATE INDEX space_submissions_on_message_id_revision_id ON app_public.space_submissions USING btree (message_id, revision_id);
+
+
+--
+-- Name: space_submissions_on_revision_id; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX space_submissions_on_revision_id ON app_public.space_submissions USING btree (revision_id);
 
 
 --
@@ -6166,6 +6189,13 @@ GRANT INSERT(submitter_id) ON TABLE app_public.space_submissions TO null814_cms_
 --
 
 GRANT INSERT(message_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_submissions.file_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(file_id) ON TABLE app_public.space_submissions TO null814_cms_app_users;
 
 
 --

@@ -64,7 +64,7 @@ export const server = new Server({
     }
     await runAsUser(req.session, async (client) => {
       await client.query(
-        `INSERT INTO app_public.files (id, "filename", mime_type, total_bytes) VALUES ($1, $2, $3, $4)`,
+        `INSERT INTO app_public.file_revisions (revision_id, "filename", mime_type, total_bytes) VALUES ($1, $2, $3, $4)`,
         [
           upload.id,
           upload.metadata?.filename,
@@ -81,7 +81,7 @@ export const server = new Server({
     }
     await runAsUser(req.session, async (client) => {
       await client.query(
-        'UPDATE app_public.files SET uploaded_bytes = $1 WHERE id = $2',
+        'UPDATE app_public.file_revisions SET uploaded_bytes = $1 WHERE revision_id = $2',
         [upload.offset, upload.id]
       )
     })
@@ -95,7 +95,7 @@ server.on('POST_RECEIVE', async (req, res, upload) => {
   }
   await runAsUser(req.session, async (client) => {
     await client.query(
-      'UPDATE app_public.files SET uploaded_bytes = $1 WHERE id = $2',
+      'UPDATE app_public.file_revisions SET uploaded_bytes = $1 WHERE revision_id = $2',
       [upload.offset, upload.id]
     )
   })
@@ -129,7 +129,7 @@ app.get(
       return reply.status(404).send({ error: 'Not found' })
     }
 
-    // fetch file entry from database
+    // Fetch file entry from the database.
     const file = await runAsUser(req.session, async (client) => {
       const {
         rows: [file],
@@ -138,7 +138,7 @@ app.get(
         total_bytes: number | null
         mime_type: string | null
       }>(
-        'SELECT id, total_bytes, mime_type FROM app_public.files WHERE id = $1',
+        'SELECT id, total_bytes, mime_type FROM app_public.file_revisions WHERE revision_id = $1',
         [req.params.id]
       )
 
@@ -149,7 +149,7 @@ app.get(
       return reply.status(404).send({ error: 'Not found in database' })
     }
 
-    // fetch file from disk
+    // Fetch file from disk.
     const stream = datastore.read(file.id)
     if (!stream) {
       return reply.status(404).send({ error: 'Not found in folder' })
@@ -165,7 +165,7 @@ app.get(
 
 /**
  * let tus handle preparation and filehandling requests
- * fastify exposes raw nodejs http req/res via .raw property
+ * Fastify exposes raw Node.js http req/res via .raw property
  * @see https://www.fastify.io/docs/latest/Reference/Request/
  * @see https://www.fastify.io/docs/latest/Reference/Reply/#raw
  */

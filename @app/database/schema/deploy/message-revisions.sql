@@ -8,7 +8,8 @@ create table app_public.message_revisions (
   id uuid not null
     default uuid_generate_v1mc(),
   revision_id uuid not null 
-    default uuid_generate_v1mc(),
+    default uuid_generate_v1mc()
+    constraint unique_message_revision unique,
   constraint message_revisions_pk
     primary key (id, revision_id),
 

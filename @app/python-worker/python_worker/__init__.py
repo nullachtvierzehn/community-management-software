@@ -45,7 +45,7 @@ async def process_pdf(file_id: str):
         cur, IsolationLevel.read_committed
     ) as tr:
         # fetch file from database
-        await cur.execute("SELECT * FROM app_public.files WHERE id = %s", (file_id,))
+        await cur.execute("SELECT * FROM app_public.file_revisions WHERE id = %s", (file_id,))
         file_row = await cur.fetchone()
 
         # fetch file from upload folder
@@ -65,7 +65,7 @@ async def process_pdf(file_id: str):
 
         await cur.execute(
             """
-            INSERT INTO app_public.files (id, uploaded_bytes, total_bytes, mime_type, contributor_id) 
+            INSERT INTO app_public.file_revisions (id, uploaded_bytes, total_bytes, mime_type, editor_id) 
             VALUES (%(id)s, %(bytes)s, %(bytes)s, %(mime_type)s, %(contributor_id)s)
             RETURNING *
             """,
@@ -84,22 +84,25 @@ async def process_pdf(file_id: str):
 
         await cur.execute(
             """
-            INSERT INTO app_public.pdf_files (id, title, pages, metadata, content_as_plain_text, thumbnail_id)
-            VALUES (%(id)s, %(title)s, %(pages)s, %(metadata)s, %(plain_text)s, %(thumbnail_id)s)
-            ON CONFLICT (id) DO UPDATE SET
+            INSERT INTO app_public.pdf_file_revisions (id, revision_id, title, pages, metadata, content_as_plain_text, thumbnail_id, thumbnail_revision_id)
+            VALUES (%(id)s, %(revision_id)s, %(title)s, %(pages)s, %(metadata)s, %(plain_text)s, %(thumbnail_id)s, %(thumbnail_revision_id)s)
+            ON CONFLICT (id, revision_id) DO UPDATE SET
                 title = EXCLUDED.title, 
                 pages = EXCLUDED.pages, 
                 metadata = EXCLUDED.metadata, 
                 content_as_plain_text = EXCLUDED.content_as_plain_text, 
-                thumbnail_id = EXCLUDED.thumbnail_id
+                thumbnail_id = EXCLUDED.thumbnail_id,
+                thumbnail_revision_id = EXCLUDED.thumbnail_revision_id
             RETURNING *
             """,
             dict(
                 id=file_row.get("id"),
+                revision_id=file_row.get("revision_id"),
                 title=metadata.get("Title", file_row.get("filename")),
                 pages=len(pdf),
                 metadata=Json(metadata),
                 plain_text=plain_text,
                 thumbnail_id=thumbnail_id,
+                thumbnail_revision_id=file_row.get("thumbnail_revision_id"),
             ),
         )

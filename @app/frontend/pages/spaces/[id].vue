@@ -1,5 +1,5 @@
 <template>
-  <NuxtLayout name="page">
+  <NuxtLayout ref="pageRef" name="page">
     <template #header><div class="absolute"></div></template>
     <template v-if="space" #default>
       <h1>Raum {{ space.name }}</h1>
@@ -42,6 +42,21 @@
         </div>
       </section>
 
+      <!-- uploads -->
+      <section id="uploads">
+        <!-- drop indicator -->
+        <div v-if="isOverDropZone" class="bg-red-600">
+          <span v-if="draggedFiles">{{ draggedFiles.length }}</span> Datei(en)
+          hochladen
+        </div>
+
+        <!-- running uploads -->
+        <div v-for="f in uploadingFiles" :key="f.name">
+          <div>Datei: {{ f.name }}</div>
+          <TusUpload :file="f" @complete="handleUploadCompletion" />
+        </div>
+      </section>
+
       <!-- add message -->
       <section id="add-message" class="absolute bottom-8 left-0 right-0">
         <div class="mx-auto container p-4">
@@ -63,13 +78,18 @@
 <script setup lang="ts">
 import { type JSONContent } from '@tiptap/core'
 import type { CombinedError } from '@urql/vue'
-import { useStorage } from '@vueuse/core'
+import { useDropZone, useStorage } from '@vueuse/core'
+import type { Upload } from 'tus-js-client'
 
 import {
+  GetFileRevisionByRevisionIdDocument,
+  type GetFileRevisionByRevisionIdQuery,
+  type GetFileRevisionByRevisionIdQueryVariables,
   useCreateMessageRevisionMutation,
   useCreateSpaceItemMutation,
   useCreateSpaceSubmissionMutation,
   useCreateSpaceSubmissionReviewMutation,
+  useDeleteFileRevisionMutation,
   useDeleteMessageRevisionMutation,
   useDeleteSpaceItemMutation,
   useDeleteSpaceSubmissionMutation,
@@ -95,6 +115,27 @@ const bodyOfNewMessage = useStorage<JSONContent>(
   {}
 )
 
+const pageRef = ref<HTMLElement>()
+const app = useNuxtApp()
+
+const draggedFiles = ref<File[] | null>(null)
+const uploadingFiles = ref<File[]>([])
+const { isOverDropZone } = useDropZone(pageRef, {
+  onDrop: (files: File[] | null) => {
+    console.log('select files for upload ', files)
+    if (files) uploadingFiles.value = uploadingFiles.value.concat(files)
+  },
+  onEnter(files) {
+    console.log('enter with ', files)
+    draggedFiles.value = files
+  },
+  onLeave() {
+    draggedFiles.value = null
+  },
+  // specify the types of data to be received.
+  dataTypes: ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'],
+})
+
 const { executeMutation: createMessageRevision } =
   useCreateMessageRevisionMutation()
 const { executeMutation: createSpaceItem } = useCreateSpaceItemMutation()
@@ -106,31 +147,16 @@ const { executeMutation: deleteMessageRevision } =
 const { executeMutation: deleteSpaceItem } = useDeleteSpaceItemMutation()
 const { executeMutation: deleteSpaceSubmission } =
   useDeleteSpaceSubmissionMutation()
+const { executeMutation: deleteFileRevision } = useDeleteFileRevisionMutation()
 
-async function sendMessage() {
-  const currentSpace = toValue(space)
-  if (!currentSpace) {
-    throw new Error('Unknown current space.')
-  }
-
-  // create message revision
-  const { data: messageData, error: messageError } =
-    await createMessageRevision({
-      payload: { body: toValue(bodyOfNewMessage) },
-    })
-  const message = messageData?.createMessageRevision?.messageRevision
-  if (messageError) throw messageError
-  if (!message) throw new Error('failed to create message')
-
-  // prepare to revert message creation and other upcoming steps.
-  const revertSteps: Array<() => Promise<{ error?: CombinedError }>> = [
-    () =>
-      deleteMessageRevision({
-        id: message.id,
-        revisionId: message.revisionId,
-      }),
-  ]
-
+async function submitMessageOrFile(
+  messageOrFile: {
+    __typename?: 'MessageRevision' | 'FileRevision'
+    id: string
+    revisionId: string
+  },
+  revertSteps: Array<() => Promise<{ error?: CombinedError }>>
+) {
   async function revert() {
     for (const step of revertSteps) {
       const { error } = await step()
@@ -138,11 +164,18 @@ async function sendMessage() {
     }
   }
 
+  // Submissions depend on the current space.
+  const currentSpace = toValue(space)
+  if (!currentSpace) {
+    throw new Error('Unknown current space.')
+  }
+
   // create space item
   const { data: itemData, error: itemError } = await createSpaceItem({
     payload: {
-      messageId: message.id,
-      revisionId: message.revisionId,
+      [messageOrFile.__typename === 'FileRevision' ? 'fileId' : 'messageId']:
+        messageOrFile.id,
+      revisionId: messageOrFile.revisionId,
       spaceId: currentSpace.id,
     },
   })
@@ -157,8 +190,9 @@ async function sendMessage() {
     await submitSpaceItem({
       payload: {
         spaceItemId: item.id,
-        messageId: message.id,
-        revisionId: message.revisionId,
+        messageId: item.messageId,
+        fileId: item.fileId,
+        revisionId: item.revisionId,
       },
     })
   const submission = submissionData?.createSpaceSubmission?.spaceSubmission
@@ -178,6 +212,56 @@ async function sendMessage() {
   if (reviewError || !review) await revert()
   if (reviewError) throw reviewError
   if (!review) throw new Error('failed to create review')
+}
+
+async function handleUploadCompletion(upload: Upload) {
+  // Extract revision id from URL of the uploaded file.
+  const match = upload.url?.match(/.*\/([a-fA-F0-9-]+)$/)
+  if (!match) throw new Error(`Invalid url of uploaded file: ${upload.url}`)
+
+  // Fetch the uploaded file
+  const revisionId = match[1]
+  const { data, error } = await app.$urql.query<
+    GetFileRevisionByRevisionIdQuery,
+    GetFileRevisionByRevisionIdQueryVariables
+  >(
+    GetFileRevisionByRevisionIdDocument,
+    { revisionId },
+    { requestPolicy: 'cache-and-network' }
+  )
+  if (error) throw error
+  if (!data?.fileRevisionByRevisionId)
+    throw new Error(
+      `Unable to fetch file revision by revision id: ${revisionId}`
+    )
+  const fileRevision = data.fileRevisionByRevisionId
+  await submitMessageOrFile(fileRevision, [
+    () =>
+      deleteFileRevision({
+        id: fileRevision.id,
+        revisionId: fileRevision.revisionId,
+      }),
+  ])
+}
+
+async function sendMessage() {
+  // create message revision
+  const { data: messageData, error: messageError } =
+    await createMessageRevision({
+      payload: { body: toValue(bodyOfNewMessage) },
+    })
+  const message = messageData?.createMessageRevision?.messageRevision
+  if (messageError) throw messageError
+  if (!message) throw new Error('failed to create message')
+
+  // prepare to revert message creation and other upcoming steps.
+  await submitMessageOrFile(message, [
+    () =>
+      deleteMessageRevision({
+        id: message.id,
+        revisionId: message.revisionId,
+      }),
+  ])
 }
 </script>
 

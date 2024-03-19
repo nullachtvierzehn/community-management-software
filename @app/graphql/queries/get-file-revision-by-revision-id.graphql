@@ -1,0 +1,8 @@
+query GetFileRevisionByRevisionId($revisionId: UUID!) {
+  fileRevisionByRevisionId(revisionId: $revisionId) {
+    id
+    revisionId
+    createdAt
+    updatedAt
+  }
+}

@@ -36,13 +36,14 @@ comment on constraint space_item on app_public.space_submissions
 alter table app_public.space_submissions enable row level security;
 
 grant select on app_public.space_submissions to "$DATABASE_VISITOR";
-grant insert (id, space_item_id, submitter_id, message_id, revision_id) on app_public.space_submissions to "$DATABASE_VISITOR";
+grant insert (id, space_item_id, submitter_id, message_id, file_id, revision_id) on app_public.space_submissions to "$DATABASE_VISITOR";
 grant delete on app_public.space_submissions to "$DATABASE_VISITOR";
 
 create index space_submissions_on_editor_id on app_public.space_submissions (submitter_id);
 create index space_submissions_on_space_item_id on app_public.space_submissions (space_item_id);
 create index space_submissions_on_message_id_revision_id on app_public.space_submissions (message_id, revision_id);
 create index space_submissions_on_file_id_revision_id on app_public.space_submissions (file_id, revision_id);
+create index space_submissions_on_revision_id on app_public.space_submissions (revision_id);
 create index space_submissions_on_created_at on app_public.space_submissions using brin (submitted_at);
 
 COMMIT;
