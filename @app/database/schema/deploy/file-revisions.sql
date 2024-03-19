@@ -3,7 +3,7 @@
 
 BEGIN;
 
-create table app_public.file_revisions(
+create table app_public.file_revisions (
   -- two-column primary key with id and revision_id
   id uuid not null
     default uuid_generate_v1mc(),
@@ -16,7 +16,7 @@ create table app_public.file_revisions(
   parent_revision_id uuid,
   constraint parent_revision
     foreign key (id, parent_revision_id)
-    references app_public.message_revisions (id, revision_id)
+    references app_public.file_revisions (id, revision_id)
     on update cascade on delete set null,
 
   -- editing user, might be different, depending on revision.

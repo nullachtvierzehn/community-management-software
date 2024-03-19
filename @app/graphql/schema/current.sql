@@ -3101,6 +3101,34 @@ CREATE TABLE app_public.organization_memberships (
 
 
 --
+-- Name: pdf_file_revisions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.pdf_file_revisions (
+    id uuid NOT NULL,
+    revision_id uuid NOT NULL,
+    title text,
+    pages smallint NOT NULL,
+    metadata jsonb,
+    content_as_plain_text text,
+    fulltext_index_column tsvector GENERATED ALWAYS AS (to_tsvector('german'::regconfig, content_as_plain_text)) STORED,
+    thumbnail_id uuid,
+    thumbnail_revision_id uuid,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE pdf_file_revisions; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.pdf_file_revisions IS '
+  @omit select,all
+  ';
+
+
+--
 -- Name: space_item_submission_and_approval_times; Type: VIEW; Schema: app_public; Owner: -
 --
 
@@ -3941,6 +3969,14 @@ ALTER TABLE ONLY app_public.organizations
 
 
 --
+-- Name: pdf_file_revisions pdf_file_revisions_pk; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.pdf_file_revisions
+    ADD CONSTRAINT pdf_file_revisions_pk PRIMARY KEY (id, revision_id);
+
+
+--
 -- Name: space_items space_items_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4449,6 +4485,13 @@ CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.message_rev
 
 
 --
+-- Name: pdf_file_revisions _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.pdf_file_revisions FOR EACH ROW EXECUTE FUNCTION app_private.tg__timestamps();
+
+
+--
 -- Name: space_items _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -4808,6 +4851,14 @@ ALTER TABLE ONLY app_public.space_submissions
 
 
 --
+-- Name: pdf_file_revisions file_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.pdf_file_revisions
+    ADD CONSTRAINT file_revision FOREIGN KEY (id, revision_id) REFERENCES app_public.file_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: space_items message_revision; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -4886,7 +4937,7 @@ COMMENT ON CONSTRAINT parent_revision ON app_public.message_revisions IS '
 --
 
 ALTER TABLE ONLY app_public.file_revisions
-    ADD CONSTRAINT parent_revision FOREIGN KEY (id, parent_revision_id) REFERENCES app_public.message_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT parent_revision FOREIGN KEY (id, parent_revision_id) REFERENCES app_public.file_revisions(id, revision_id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -4964,6 +5015,14 @@ ALTER TABLE ONLY app_public.space_submissions
 
 ALTER TABLE ONLY app_public.space_subscriptions
     ADD CONSTRAINT subscriber FOREIGN KEY (subscriber_id) REFERENCES app_public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: pdf_file_revisions thumbnail; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.pdf_file_revisions
+    ADD CONSTRAINT thumbnail FOREIGN KEY (thumbnail_id, thumbnail_revision_id) REFERENCES app_public.file_revisions(id, revision_id) MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -6394,6 +6453,13 @@ GRANT INSERT(mime_type),UPDATE(mime_type) ON TABLE app_public.file_revisions TO 
 --
 
 GRANT SELECT ON TABLE app_public.organization_memberships TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE pdf_file_revisions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT ON TABLE app_public.pdf_file_revisions TO null814_cms_app_users;
 
 
 --
