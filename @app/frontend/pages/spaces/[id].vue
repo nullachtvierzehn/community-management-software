@@ -201,11 +201,10 @@ async function submitMessageOrFile(
     }
   }
 
+  try {
   // Submissions depend on the current space.
   const currentSpace = toValue(space)
-  if (!currentSpace) {
-    throw new Error('Unknown current space.')
-  }
+    if (!currentSpace) throw new Error('Unknown current space.')
 
   // create space item
   const { data: itemData, error: itemError } = await createSpaceItem({
@@ -217,7 +216,6 @@ async function submitMessageOrFile(
     },
   })
   const item = itemData?.createSpaceItem?.spaceItem
-  if (itemError || !item) await revert()
   if (itemError) throw itemError
   if (!item) throw new Error('failed to create item')
   revertSteps.push(() => deleteSpaceItem({ id: item.id }))
@@ -233,7 +231,6 @@ async function submitMessageOrFile(
       },
     })
   const submission = submissionData?.createSpaceSubmission?.spaceSubmission
-  if (submissionError || !submission) await revert()
   if (submissionError) throw submissionError
   if (!submission) throw new Error('failed to create submission')
   revertSteps.push(() => deleteSpaceSubmission({ id: submission.id }))
@@ -245,10 +242,14 @@ async function submitMessageOrFile(
       result: 'APPROVED',
     },
   })
-  const review = reviewData?.createSpaceSubmissionReview?.spaceSubmissionReview
-  if (reviewError || !review) await revert()
+    const review =
+      reviewData?.createSpaceSubmissionReview?.spaceSubmissionReview
   if (reviewError) throw reviewError
   if (!review) throw new Error('failed to create review')
+  } catch (e) {
+    await revert()
+    throw e
+  }
 }
 
 async function handleUploadCompletion(upload: Upload) {
