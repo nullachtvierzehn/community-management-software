@@ -1,5 +1,16 @@
 <template>
-  <div ref="pageRef" name="page" class="container mx-auto p-4">
+  <div
+    ref="pageRef"
+    name="page"
+    class="container mx-auto p-4"
+    :style="{
+      marginBottom:
+        windowSize.height -
+        floatingEditorBounding.bottom +
+        floatingEditorBounding.height +
+        'px',
+    }"
+  >
     <template v-if="space">
       <h1 class="text-4xl font-bold mb-4">Raum {{ space.name }}</h1>
 
@@ -83,7 +94,7 @@
 
       <!-- add message -->
       <section id="add-message" class="fixed bottom-8 left-0 right-0">
-        <div class="mx-auto container p-4">
+        <div ref="floatingEditorRef" class="mx-auto container p-4">
           <TiptapEditor
             v-model:json="bodyOfNewMessage"
             class="bg-white shadow-xl"
@@ -105,6 +116,7 @@
 <script setup lang="ts">
 import { type JSONContent } from '@tiptap/core'
 import type { CombinedError } from '@urql/vue'
+import { vElementSize } from '@vueuse/components'
 import { useDropZone, useStorage } from '@vueuse/core'
 import type { Upload } from 'tus-js-client'
 
@@ -129,6 +141,11 @@ definePageMeta({
 })
 
 const route = useRoute()
+const pageRef = ref<HTMLElement>()
+const floatingEditorRef = ref<HTMLElement>()
+
+const windowSize = reactive(useWindowSize())
+const floatingEditorBounding = reactive(useElementBounding(floatingEditorRef))
 
 const { data } = await useGetSpaceQuery({
   variables: computed(() => ({ id: toValue(route.params.id) as string })),
@@ -143,7 +160,6 @@ const bodyOfNewMessage = useStorage<JSONContent>(
   {}
 )
 
-const pageRef = ref<HTMLElement>()
 const app = useNuxtApp()
 
 const uploadingFiles = ref<File[]>([])

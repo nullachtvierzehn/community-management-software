@@ -52,6 +52,7 @@
     "@vee-validate/nuxt": "^4.12.6",
     "@vee-validate/zod": "^4.12.2",
     "@vueform/multiselect": "^2.6.6",
+    "@vueuse/components": "^10.9.0",
     "@vueuse/core": "^10.6.1",
     "@vueuse/math": "^10.6.1",
     "@vueuse/nuxt": "^10.6.1",
