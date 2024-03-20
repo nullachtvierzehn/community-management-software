@@ -71,7 +71,6 @@
 
       <!-- uploads -->
       <section id="uploads">
-        {{ isOverDropZone }}
         <!-- drop indicator -->
         <div v-if="isOverDropZone" class="bg-red-600">Datei(en) hochladen</div>
 
@@ -83,9 +82,12 @@
       </section>
 
       <!-- add message -->
-      <section id="add-message" class="absolute bottom-8 left-0 right-0">
+      <section id="add-message" class="fixed bottom-8 left-0 right-0">
         <div class="mx-auto container p-4">
-          <TiptapEditor v-model:json="bodyOfNewMessage" class="shadow-xl" />
+          <TiptapEditor
+            v-model:json="bodyOfNewMessage"
+            class="bg-white shadow-xl"
+          />
           <div class="text-right">
             <button
               class="mt-4 shadow-xl p-2 bg-indigo-600 text-white rounded-md"
@@ -202,50 +204,50 @@ async function submitMessageOrFile(
   }
 
   try {
-  // Submissions depend on the current space.
-  const currentSpace = toValue(space)
+    // Submissions depend on the current space.
+    const currentSpace = toValue(space)
     if (!currentSpace) throw new Error('Unknown current space.')
 
-  // create space item
-  const { data: itemData, error: itemError } = await createSpaceItem({
-    payload: {
-      [messageOrFile.__typename === 'FileRevision' ? 'fileId' : 'messageId']:
-        messageOrFile.id,
-      revisionId: messageOrFile.revisionId,
-      spaceId: currentSpace.id,
-    },
-  })
-  const item = itemData?.createSpaceItem?.spaceItem
-  if (itemError) throw itemError
-  if (!item) throw new Error('failed to create item')
-  revertSteps.push(() => deleteSpaceItem({ id: item.id }))
-
-  // create space submission
-  const { data: submissionData, error: submissionError } =
-    await submitSpaceItem({
+    // create space item
+    const { data: itemData, error: itemError } = await createSpaceItem({
       payload: {
-        spaceItemId: item.id,
-        messageId: item.messageId,
-        fileId: item.fileId,
-        revisionId: item.revisionId,
+        [messageOrFile.__typename === 'FileRevision' ? 'fileId' : 'messageId']:
+          messageOrFile.id,
+        revisionId: messageOrFile.revisionId,
+        spaceId: currentSpace.id,
       },
     })
-  const submission = submissionData?.createSpaceSubmission?.spaceSubmission
-  if (submissionError) throw submissionError
-  if (!submission) throw new Error('failed to create submission')
-  revertSteps.push(() => deleteSpaceSubmission({ id: submission.id }))
+    const item = itemData?.createSpaceItem?.spaceItem
+    if (itemError) throw itemError
+    if (!item) throw new Error('failed to create item')
+    revertSteps.push(() => deleteSpaceItem({ id: item.id }))
 
-  // approve submission
-  const { data: reviewData, error: reviewError } = await approveSpaceItem({
-    payload: {
-      spaceSubmissionId: submission.id,
-      result: 'APPROVED',
-    },
-  })
+    // create space submission
+    const { data: submissionData, error: submissionError } =
+      await submitSpaceItem({
+        payload: {
+          spaceItemId: item.id,
+          messageId: item.messageId,
+          fileId: item.fileId,
+          revisionId: item.revisionId,
+        },
+      })
+    const submission = submissionData?.createSpaceSubmission?.spaceSubmission
+    if (submissionError) throw submissionError
+    if (!submission) throw new Error('failed to create submission')
+    revertSteps.push(() => deleteSpaceSubmission({ id: submission.id }))
+
+    // approve submission
+    const { data: reviewData, error: reviewError } = await approveSpaceItem({
+      payload: {
+        spaceSubmissionId: submission.id,
+        result: 'APPROVED',
+      },
+    })
     const review =
       reviewData?.createSpaceSubmissionReview?.spaceSubmissionReview
-  if (reviewError) throw reviewError
-  if (!review) throw new Error('failed to create review')
+    if (reviewError) throw reviewError
+    if (!review) throw new Error('failed to create review')
   } catch (e) {
     await revert()
     throw e
@@ -300,6 +302,8 @@ async function sendMessage() {
         revisionId: message.revisionId,
       }),
   ])
+
+  bodyOfNewMessage.value = { type: 'doc', content: [] }
 }
 </script>
 
