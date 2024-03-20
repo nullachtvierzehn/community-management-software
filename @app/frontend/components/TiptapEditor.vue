@@ -48,6 +48,13 @@ const editor = useEditor({
     emit('blur', blurEvent)
   },
 })
+
+watch(
+  () => props.json,
+  (json, oldJson) => {
+    if (json !== oldJson) editor.value?.commands.setContent(json, false)
+  }
+)
 </script>
 
 <style>
