@@ -6445,7 +6445,7 @@ export type GetSpaceQueryVariables = Exact<{
 }>;
 
 
-export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, createdAt: string, times: { __typename?: 'SpaceItemSubmissionAndApprovalTime', currentApprovalSince: string | null } | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null }> }, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
+export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, createdAt: string, times: { __typename?: 'SpaceItemSubmissionAndApprovalTime', currentApprovalSince: string | null } | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, fileRevision: { __typename?: 'FileRevision', id: string, revisionId: string, mimeType: string | null } | null }> }, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
 
 export type GetUserByUsernameQueryVariables = Exact<{
   username: Scalars['String']['input'];
@@ -6717,6 +6717,11 @@ export const GetSpace = gql`
             ...ShortProfile
           }
           body
+        }
+        fileRevision {
+          id
+          revisionId
+          mimeType
         }
       }
     }
@@ -7074,6 +7079,11 @@ export const GetSpaceDocument = gql`
             ...ShortProfile
           }
           body
+        }
+        fileRevision {
+          id
+          revisionId
+          mimeType
         }
       }
     }

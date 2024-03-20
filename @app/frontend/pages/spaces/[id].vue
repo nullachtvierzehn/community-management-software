@@ -1,8 +1,7 @@
 <template>
-  <NuxtLayout ref="pageRef" name="page">
-    <template #header><div class="absolute"></div></template>
-    <template v-if="space" #default>
-      <h1>Raum {{ space.name }}</h1>
+  <div ref="pageRef" name="page" class="container mx-auto p-4">
+    <template v-if="space">
+      <h1 class="text-4xl font-bold mb-4">Raum {{ space.name }}</h1>
 
       <!-- show members -->
       <details class="mb-4">
@@ -21,11 +20,18 @@
       <section id="items">
         <div v-for="item in items" :key="item.id" class="bg-gray-200 p-2 mb-2">
           <div class="flex justify-between align-baseline">
-            <UserName
+            <div v-if="item.editor">
+              {{ item.editor.username }}
+            </div>
+            <div v-else>[[ gelöscht ]]</div>
+            <!--
+
+              <UserName
               v-if="item.editor"
               :profile="item.editor"
               class="font-bold"
-            />
+              />
+            -->
             <div v-if="item.times?.currentApprovalSince" class="text-sm">
               {{ formatDateFromNow(item.times.currentApprovalSince) }}
             </div>
@@ -36,6 +42,27 @@
             v-if="item.messageRevision"
             :content="item.messageRevision.body"
           />
+          <template
+            v-else-if="item.fileRevision?.mimeType?.startsWith('image/')"
+          >
+            <img :src="`/backend/files/${item.fileRevision.revisionId}`" />
+          </template>
+          <template
+            v-else-if="item.fileRevision?.mimeType?.startsWith('audio/')"
+          >
+            <audio
+              :src="`/backend/files/${item.fileRevision.revisionId}`"
+              controls
+            />
+          </template>
+          <template
+            v-else-if="item.fileRevision?.mimeType?.startsWith('video/')"
+          >
+            <video
+              :src="`/backend/files/${item.fileRevision.revisionId}`"
+              controls
+            />
+          </template>
           <template v-else>
             <pre>Fehler: Art von Item {{ item.id }} unbekannt.</pre>
           </template>
@@ -44,11 +71,9 @@
 
       <!-- uploads -->
       <section id="uploads">
+        {{ isOverDropZone }}
         <!-- drop indicator -->
-        <div v-if="isOverDropZone" class="bg-red-600">
-          <span v-if="draggedFiles">{{ draggedFiles.length }}</span> Datei(en)
-          hochladen
-        </div>
+        <div v-if="isOverDropZone" class="bg-red-600">Datei(en) hochladen</div>
 
         <!-- running uploads -->
         <div v-for="f in uploadingFiles" :key="f.name">
@@ -72,7 +97,7 @@
         </div>
       </section>
     </template>
-  </NuxtLayout>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -97,6 +122,7 @@ import {
 } from '~/graphql'
 
 definePageMeta({
+  layout: false,
   name: 'space/by-id',
 })
 
@@ -118,22 +144,33 @@ const bodyOfNewMessage = useStorage<JSONContent>(
 const pageRef = ref<HTMLElement>()
 const app = useNuxtApp()
 
-const draggedFiles = ref<File[] | null>(null)
 const uploadingFiles = ref<File[]>([])
 const { isOverDropZone } = useDropZone(pageRef, {
   onDrop: (files: File[] | null) => {
     console.log('select files for upload ', files)
     if (files) uploadingFiles.value = uploadingFiles.value.concat(files)
   },
-  onEnter(files) {
-    console.log('enter with ', files)
-    draggedFiles.value = files
-  },
-  onLeave() {
-    draggedFiles.value = null
-  },
   // specify the types of data to be received.
-  dataTypes: ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'],
+  dataTypes: [
+    // images
+    'image/png',
+    'image/jpeg',
+    'image/webp',
+    // documents
+    'application/pdf',
+    // audio
+    'audio/mpeg',
+    'audio/mp4',
+    'audio/ogg',
+    'audio/aac',
+    'audio/opus',
+    'audio/webm',
+    // video
+    'video/mp4',
+    'video/mpeg',
+    'video/ogg',
+    'video/webm',
+  ],
 })
 
 const { executeMutation: createMessageRevision } =

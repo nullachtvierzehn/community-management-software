@@ -135,10 +135,11 @@ app.get(
         rows: [file],
       } = await client.query<{
         id: string
+        revision_id: string
         total_bytes: number | null
         mime_type: string | null
       }>(
-        'SELECT id, total_bytes, mime_type FROM app_public.file_revisions WHERE revision_id = $1',
+        'SELECT id, revision_id, total_bytes, mime_type FROM app_public.file_revisions WHERE revision_id = $1',
         [req.params.id]
       )
 
@@ -150,7 +151,7 @@ app.get(
     }
 
     // Fetch file from disk.
-    const stream = datastore.read(file.id)
+    const stream = datastore.read(file.revision_id)
     if (!stream) {
       return reply.status(404).send({ error: 'Not found in folder' })
     }
