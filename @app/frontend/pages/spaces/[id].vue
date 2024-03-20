@@ -86,10 +86,40 @@
         <div v-if="isOverDropZone" class="bg-red-600">Datei(en) hochladen</div>
 
         <!-- running uploads -->
-        <div v-for="f in uploadingFiles" :key="f.name">
-          <div>Datei: {{ f.name }}</div>
-          <TusUpload :file="f" @complete="handleUploadCompletion" />
-        </div>
+        <TusUpload
+          v-for="file in uploadingFiles"
+          :key="fingerprintFile(file)"
+          v-slot="{ cancel, progress }"
+          :file="file"
+          @complete="handleUploadCompletion"
+          @cancel="handleUploadCancel"
+        >
+          <div class="bg-gray-200 p-2 mb-3 relative">
+            <div
+              class="flex justify-between items-center"
+              :style="{ '--progress': (progress?.toFixed(0) ?? 0) + '%' }"
+            >
+              <div>{{ file.name }}</div>
+              <div class="flex justify-between gap-2 items-center">
+                <div v-if="progress">{{ progress.toFixed(0) }} %</div>
+                <button
+                  class="p-2 bg-indigo-600 text-white rounded-md"
+                  @click="cancel()"
+                >
+                  abbrechen
+                </button>
+              </div>
+            </div>
+            <!-- progress bar -->
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-400">
+              <div
+                v-if="progress"
+                class="bg-indigo-600 h-full"
+                :style="{ width: progress.toFixed(0) + '%' }"
+              ></div>
+            </div>
+          </div>
+        </TusUpload>
       </section>
 
       <!-- add message -->
@@ -116,7 +146,6 @@
 <script setup lang="ts">
 import { type JSONContent } from '@tiptap/core'
 import type { CombinedError } from '@urql/vue'
-import { vElementSize } from '@vueuse/components'
 import { useDropZone, useStorage } from '@vueuse/core'
 import type { Upload } from 'tus-js-client'
 
@@ -204,6 +233,10 @@ const { executeMutation: deleteSpaceSubmission } =
   useDeleteSpaceSubmissionMutation()
 const { executeMutation: deleteFileRevision } = useDeleteFileRevisionMutation()
 
+function fingerprintFile(file: File) {
+  return [file.name, file.type, file.size, file.lastModified].join('-')
+}
+
 async function submitMessageOrFile(
   messageOrFile: {
     __typename?: 'MessageRevision' | 'FileRevision'
@@ -270,10 +303,16 @@ async function submitMessageOrFile(
   }
 }
 
-async function handleUploadCompletion(upload: Upload) {
+async function handleUploadCancel({ file }: Upload) {
+  // Remove files from running uploads when completed.
+  const index = uploadingFiles.value.findIndex((e) => e === file)
+  if (index >= 0) uploadingFiles.value.splice(index, 1)
+}
+
+async function handleUploadCompletion({ url, file }: Upload) {
   // Extract revision id from URL of the uploaded file.
-  const match = upload.url?.match(/.*\/([a-fA-F0-9-]+)$/)
-  if (!match) throw new Error(`Invalid url of uploaded file: ${upload.url}`)
+  const match = url?.match(/.*\/([a-fA-F0-9-]+)$/)
+  if (!match) throw new Error(`Invalid url of uploaded file: ${url}`)
 
   // Fetch the uploaded file
   const revisionId = match[1]
@@ -298,6 +337,10 @@ async function handleUploadCompletion(upload: Upload) {
         revisionId: fileRevision.revisionId,
       }),
   ])
+
+  // Remove files from running uploads when completed.
+  const index = uploadingFiles.value.findIndex((e) => e === file)
+  if (index >= 0) uploadingFiles.value.splice(index, 1)
 }
 
 async function sendMessage() {

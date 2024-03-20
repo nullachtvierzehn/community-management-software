@@ -1,13 +1,15 @@
 <template>
-  <div>
-    <div>Datei: {{ file.name }}</div>
-    <meter
-      v-if="progress"
-      min="0"
-      max="100"
-      :value="progress.toFixed(0)"
-    ></meter>
-  </div>
+  <slot v-bind="{ upload, progress, error, cancel, file }">
+    <div>
+      <div>Datei: {{ file.name }}</div>
+      <meter
+        v-if="progress"
+        min="0"
+        max="100"
+        :value="progress.toFixed(0)"
+      ></meter>
+    </div>
+  </slot>
 </template>
 
 <script setup lang="ts">
@@ -21,11 +23,22 @@ const emit = defineEmits<{
   (e: 'complete', upload: Upload): void
   (e: 'error', error?: Error | DetailedError): void
   (e: 'progress', percentage?: number): void
+  (e: 'cancel', upload: Upload): void
 }>()
 
 const upload = ref<Upload>()
 const progress = ref<number>()
 const error = ref<Error | DetailedError>()
+
+async function cancel() {
+  const u = toValue(upload)
+  if (u) {
+    await u.abort(true)
+    emit('cancel', u)
+  } else {
+    console.warn('No upload running.')
+  }
+}
 
 watch(upload, (newUpload) => {
   progress.value = newUpload ? 0 : undefined
