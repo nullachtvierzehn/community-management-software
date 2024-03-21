@@ -14,7 +14,7 @@ as $$
     where
       item_id = i.id
       and item_is_submitted
-      and submission_is_active
+      and submission_is_latest_active
   )
 $$;
 
