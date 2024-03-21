@@ -4000,6 +4000,7 @@ type SpaceItem implements Node {
   isReviewed: Boolean
   isSubmitted: Boolean
   latestReviewResult: ReviewResult
+  latestActiveSubmission: SpaceSubmission
   id: UUID!
   spaceId: UUID!
   editorId: UUID

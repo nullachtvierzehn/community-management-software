@@ -2596,6 +2596,7 @@ export type SpaceItem = Node & {
   id: Scalars['UUID']['output'];
   isReviewed: Maybe<Scalars['Boolean']['output']>;
   isSubmitted: Maybe<Scalars['Boolean']['output']>;
+  latestActiveSubmission: Maybe<SpaceSubmission>;
   latestReviewResult: Maybe<ReviewResult>;
   messageId: Maybe<Scalars['UUID']['output']>;
   /** Reads a single `MessageRevision` that is related to this `SpaceItem`. */
@@ -2623,6 +2624,29 @@ export type SpaceItemSubmissionsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<SpaceSubmissionsOrderBy>>;
+};
+
+export type SpaceSubmission = Node & {
+  __typename?: 'SpaceSubmission';
+  fileId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `FileRevision` that is related to this `SpaceSubmission`. */
+  fileRevision: Maybe<FileRevision>;
+  id: Scalars['UUID']['output'];
+  messageId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `MessageRevision` that is related to this `SpaceSubmission`. */
+  messageRevision: Maybe<MessageRevision>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  revisionId: Scalars['UUID']['output'];
+  /** Reads a single `SpaceItem` that is related to this `SpaceSubmission`. */
+  spaceItem: Maybe<SpaceItem>;
+  spaceItemId: Scalars['UUID']['output'];
+  /** Reads a single `SpaceSubmissionReview` that is related to this `SpaceSubmission`. */
+  spaceSubmissionReview: Maybe<SpaceSubmissionReview>;
+  submittedAt: Scalars['Datetime']['output'];
+  /** Reads a single `User` that is related to this `SpaceSubmission`. */
+  submitter: Maybe<User>;
+  submitterId: Maybe<Scalars['UUID']['output']>;
 };
 
 export type MessageRevision = Node & {
@@ -2818,29 +2842,6 @@ export type SpaceSubmissionsEdge = {
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `SpaceSubmission` at the end of the edge. */
   node: SpaceSubmission;
-};
-
-export type SpaceSubmission = Node & {
-  __typename?: 'SpaceSubmission';
-  fileId: Maybe<Scalars['UUID']['output']>;
-  /** Reads a single `FileRevision` that is related to this `SpaceSubmission`. */
-  fileRevision: Maybe<FileRevision>;
-  id: Scalars['UUID']['output'];
-  messageId: Maybe<Scalars['UUID']['output']>;
-  /** Reads a single `MessageRevision` that is related to this `SpaceSubmission`. */
-  messageRevision: Maybe<MessageRevision>;
-  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
-  nodeId: Scalars['ID']['output'];
-  revisionId: Scalars['UUID']['output'];
-  /** Reads a single `SpaceItem` that is related to this `SpaceSubmission`. */
-  spaceItem: Maybe<SpaceItem>;
-  spaceItemId: Scalars['UUID']['output'];
-  /** Reads a single `SpaceSubmissionReview` that is related to this `SpaceSubmission`. */
-  spaceSubmissionReview: Maybe<SpaceSubmissionReview>;
-  submittedAt: Scalars['Datetime']['output'];
-  /** Reads a single `User` that is related to this `SpaceSubmission`. */
-  submitter: Maybe<User>;
-  submitterId: Maybe<Scalars['UUID']['output']>;
 };
 
 export type SpaceSubmissionReview = Node & {
@@ -6655,7 +6656,7 @@ export type GetSpaceQueryVariables = Exact<{
 }>;
 
 
-export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, isSubmitted: boolean | null, latestReviewResult: ReviewResult | null, createdAt: string, times: { __typename?: 'SpaceItemSubmissionAndApprovalTime', currentApprovalSince: string | null } | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, fileRevision: { __typename?: 'FileRevision', id: string, revisionId: string, mimeType: string | null } | null }> }, mySubscription: { __typename?: 'SpaceSubscription', id: string, allAbilities: Array<Ability | null> | null } | null, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
+export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, messageId: string | null, revisionId: string, fileId: string | null, isSubmitted: boolean | null, latestReviewResult: ReviewResult | null, createdAt: string, times: { __typename?: 'SpaceItemSubmissionAndApprovalTime', currentApprovalSince: string | null } | null, latestActiveSubmission: { __typename?: 'SpaceSubmission', id: string } | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, fileRevision: { __typename?: 'FileRevision', id: string, revisionId: string, mimeType: string | null } | null }> }, mySubscription: { __typename?: 'SpaceSubscription', id: string, allAbilities: Array<Ability | null> | null } | null, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
 
 export type GetUserByUsernameQueryVariables = Exact<{
   username: Scalars['String']['input'];
@@ -6915,7 +6916,13 @@ export const GetSpace = gql`
           currentApprovalSince
         }
         id
+        messageId
+        revisionId
+        fileId
         isSubmitted
+        latestActiveSubmission {
+          id
+        }
         latestReviewResult
         createdAt
         editor {
@@ -7283,7 +7290,13 @@ export const GetSpaceDocument = gql`
           currentApprovalSince
         }
         id
+        messageId
+        revisionId
+        fileId
         isSubmitted
+        latestActiveSubmission {
+          id
+        }
         latestReviewResult
         createdAt
         editor {

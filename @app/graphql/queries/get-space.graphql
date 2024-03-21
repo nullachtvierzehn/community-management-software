@@ -12,7 +12,13 @@ query GetSpace($id: UUID!) {
           currentApprovalSince
         }
         id
+        messageId
+        revisionId
+        fileId
         isSubmitted
+        latestActiveSubmission {
+          id
+        }
         latestReviewResult
         createdAt
         editor {

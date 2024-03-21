@@ -89,24 +89,39 @@
             "
             class="bg-gray-300 -mx-2 -mb-2 p-2 text-right"
           >
-            <button class="p-2 bg-indigo-600 text-white rounded-md text-xs">
+            <button
+              class="p-2 bg-indigo-600 text-white rounded-md text-xs"
+              @click="submitItem(item)"
+            >
               einreichen
             </button>
           </div>
           <div
             v-else-if="
               !item.latestReviewResult &&
+              item.latestActiveSubmission &&
               (hasAbility('ACCEPT') || hasAbility('MANAGE'))
             "
             class="bg-gray-300 -mx-2 -mb-2 p-2 flex gap-1 justify-end"
           >
-            <button class="p-2 bg-indigo-600 text-white rounded-md text-xs">
+            <button
+              class="p-2 bg-indigo-600 text-white rounded-md text-xs"
+              @click="reviewSubmission(item.latestActiveSubmission, 'DECLINED')"
+            >
               ablehnen
             </button>
-            <button class="p-2 bg-indigo-600 text-white rounded-md text-xs">
+            <button
+              class="p-2 bg-indigo-600 text-white rounded-md text-xs"
+              @click="
+                reviewSubmission(item.latestActiveSubmission, 'COMMENTED')
+              "
+            >
               kommentieren
             </button>
-            <button class="p-2 bg-indigo-600 text-white rounded-md text-xs">
+            <button
+              class="p-2 bg-indigo-600 text-white rounded-md text-xs"
+              @click="reviewSubmission(item.latestActiveSubmission, 'APPROVED')"
+            >
               veröffentlichen
             </button>
           </div>
@@ -191,6 +206,7 @@ import {
   GetFileRevisionByRevisionIdDocument,
   type GetFileRevisionByRevisionIdQuery,
   type GetFileRevisionByRevisionIdQueryVariables,
+  type ReviewResult,
   useCreateMessageRevisionMutation,
   useCreateSpaceItemMutation,
   useCreateSpaceSubmissionMutation,
@@ -282,6 +298,43 @@ function fingerprintFile(file: File) {
   return [file.name, file.type, file.size, file.lastModified].join('-')
 }
 
+async function submitItem(item: {
+  id: string
+  revisionId: string
+  fileId: string | null
+  messageId: string | null
+}) {
+  const { data: submissionData, error: submissionError } =
+    await submitSpaceItem({
+      payload: {
+        spaceItemId: item.id,
+        messageId: item.messageId,
+        fileId: item.fileId,
+        revisionId: item.revisionId,
+      },
+    })
+  const submission = submissionData?.createSpaceSubmission?.spaceSubmission
+  if (submissionError) throw submissionError
+  if (!submission) throw new Error('failed to create submission')
+  return submission
+}
+
+async function reviewSubmission(
+  submission: { id: string },
+  result: ReviewResult
+) {
+  const { data: reviewData, error: reviewError } = await approveSpaceItem({
+    payload: {
+      spaceSubmissionId: submission.id,
+      result,
+    },
+  })
+  const review = reviewData?.createSpaceSubmissionReview?.spaceSubmissionReview
+  if (reviewError) throw reviewError
+  if (!review) throw new Error('failed to create review')
+  return review
+}
+
 async function submitMessageOrFile(
   messageOrFile: {
     __typename?: 'MessageRevision' | 'FileRevision'
@@ -318,34 +371,12 @@ async function submitMessageOrFile(
 
     // create space submission
     if (!hasAbility('SUBMIT') && !hasAbility('MANAGE')) return
-
-    const { data: submissionData, error: submissionError } =
-      await submitSpaceItem({
-        payload: {
-          spaceItemId: item.id,
-          messageId: item.messageId,
-          fileId: item.fileId,
-          revisionId: item.revisionId,
-        },
-      })
-    const submission = submissionData?.createSpaceSubmission?.spaceSubmission
-    if (submissionError) throw submissionError
-    if (!submission) throw new Error('failed to create submission')
+    const submission = await submitItem(item)
     revertSteps.push(() => deleteSpaceSubmission({ id: submission.id }))
 
     // approve submission
     if (!hasAbility('ACCEPT') && !hasAbility('MANAGE')) return
-
-    const { data: reviewData, error: reviewError } = await approveSpaceItem({
-      payload: {
-        spaceSubmissionId: submission.id,
-        result: 'APPROVED',
-      },
-    })
-    const review =
-      reviewData?.createSpaceSubmissionReview?.spaceSubmissionReview
-    if (reviewError) throw reviewError
-    if (!review) throw new Error('failed to create review')
+    await reviewSubmission(submission, 'APPROVED')
   } catch (e) {
     await revert()
     throw e
