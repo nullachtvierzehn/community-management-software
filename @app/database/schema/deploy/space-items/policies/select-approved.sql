@@ -9,12 +9,12 @@ create policy select_approved
 on app_public.space_items
 for select
 to "$DATABASE_VISITOR"
-using ('approved' = any (
-  select review_result
+using (id in (
+  select item_id
   from app_hidden.space_item_submissions_and_reviews
   where
-    submission_is_active
-    and item_id = space_items.id
+    submission_is_latest_active
+    and review_result = 'approved'
     and (
       space_id in (select app_public.my_space_ids(with_any_abilities => '{view,manage}'))
       or organization_id in (select app_public.my_organization_ids(with_any_abilities => '{view,manage}'))
