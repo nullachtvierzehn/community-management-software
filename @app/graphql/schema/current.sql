@@ -2845,6 +2845,34 @@ CREATE VIEW app_hidden.space_item_submission_and_approval_times AS
 
 
 --
+-- Name: space_item_submissions_and_reviews; Type: VIEW; Schema: app_hidden; Owner: -
+--
+
+CREATE VIEW app_hidden.space_item_submissions_and_reviews AS
+ SELECT s.organization_id,
+    i.space_id,
+    i.id AS item_id,
+    i.created_at,
+    i.updated_at,
+    sub.id AS submission_id,
+    sub.submitter_id,
+    sub.submitted_at,
+    r.reviewer_id,
+    r.created_at AS reviewed_at,
+    r.result AS review_result,
+    (i.editor_id = sub.submitter_id) AS is_submitted_by_editor,
+    (i.editor_id = r.reviewer_id) AS is_reviewed_by_editor,
+    (sub.revision_id = i.revision_id) AS submission_is_active,
+    ((sub.revision_id = i.revision_id) AND (sub.submitted_at = max(sub.submitted_at) FILTER (WHERE (sub.revision_id = i.revision_id)) OVER (PARTITION BY sub.space_item_id))) AS submission_is_latest_active,
+    (sub.submitted_at > max(sub.submitted_at) FILTER (WHERE (sub.revision_id = i.revision_id)) OVER (PARTITION BY sub.space_item_id)) AS submission_is_update,
+    (r.space_submission_id IS NOT NULL) AS submission_is_reviewed
+   FROM (((app_public.space_items i
+     JOIN app_public.spaces s ON ((i.space_id = s.id)))
+     LEFT JOIN app_public.space_submissions sub ON ((i.id = sub.space_item_id)))
+     LEFT JOIN app_public.space_submission_reviews r ON ((sub.id = r.space_submission_id)));
+
+
+--
 -- Name: user_abilities_per_organization; Type: TABLE; Schema: app_hidden; Owner: -
 --
 
