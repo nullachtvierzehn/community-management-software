@@ -12,6 +12,8 @@ query GetSpace($id: UUID!) {
           currentApprovalSince
         }
         id
+        isSubmitted
+        latestReviewResult
         createdAt
         editor {
           id

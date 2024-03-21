@@ -63,3 +63,4 @@ file-revisions/policies/select-along-with-space-items [space-items file-revision
 space-items/policies/delete-own [space-items] 2024-03-21T16:39:04Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # delete own policies
 space-items/is-submitted [space-items/view-for-submissions-and-reviews] 2024-03-21T20:15:35Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add isSubmitted for space items
 space-items/is-reviewed [space-items/view-for-submissions-and-reviews] 2024-03-21T20:27:18Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add isReviewed for space items
+space-items/latest-review-result [space-items/view-for-submissions-and-reviews] 2024-03-21T20:35:34Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add latestReviewResult for space items

@@ -2110,6 +2110,30 @@ CREATE TABLE app_public.space_items (
 
 
 --
+-- Name: space_items_is_reviewed(app_public.space_items); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.space_items_is_reviewed(i app_public.space_items) RETURNS boolean
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select exists (
+    select from app_hidden.space_item_submissions_and_reviews
+    where
+      item_id = i.id
+      and submission_is_reviewed
+      and submission_is_latest_active
+  )
+$$;
+
+
+--
+-- Name: FUNCTION space_items_is_reviewed(i app_public.space_items); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.space_items_is_reviewed(i app_public.space_items) IS '@behavior +filterBy +orderBy +typeField';
+
+
+--
 -- Name: space_items_is_submitted(app_public.space_items); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -2121,7 +2145,7 @@ CREATE FUNCTION app_public.space_items_is_submitted(i app_public.space_items) RE
     where
       item_id = i.id
       and item_is_submitted
-      and submission_is_active
+      and submission_is_latest_active
   )
 $$;
 
@@ -2131,6 +2155,29 @@ $$;
 --
 
 COMMENT ON FUNCTION app_public.space_items_is_submitted(i app_public.space_items) IS '@behavior +filterBy +orderBy +typeField';
+
+
+--
+-- Name: space_items_latest_review_result(app_public.space_items); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.space_items_latest_review_result(i app_public.space_items) RETURNS app_public.review_result
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select review_result
+  from app_hidden.space_item_submissions_and_reviews
+  where
+    item_id = i.id
+    and submission_is_reviewed
+    and submission_is_latest_active
+$$;
+
+
+--
+-- Name: FUNCTION space_items_latest_review_result(i app_public.space_items); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.space_items_latest_review_result(i app_public.space_items) IS '@behavior +filterBy +orderBy +typeField';
 
 
 --
@@ -5486,9 +5533,9 @@ CREATE POLICY select_along_with_space_items ON app_public.message_revisions FOR 
 -- Name: space_items select_approved; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY select_approved ON app_public.space_items FOR SELECT TO null814_cms_app_users USING (('approved'::app_public.review_result IN ( SELECT space_item_submissions_and_reviews.review_result
+CREATE POLICY select_approved ON app_public.space_items FOR SELECT TO null814_cms_app_users USING ((id IN ( SELECT space_item_submissions_and_reviews.item_id
    FROM app_hidden.space_item_submissions_and_reviews
-  WHERE (space_item_submissions_and_reviews.submission_is_active AND (space_item_submissions_and_reviews.item_id = space_items.id) AND ((space_item_submissions_and_reviews.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_space_ids)) OR (space_item_submissions_and_reviews.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_organization_ids)))))));
+  WHERE (space_item_submissions_and_reviews.submission_is_latest_active AND (space_item_submissions_and_reviews.review_result = 'approved'::app_public.review_result) AND ((space_item_submissions_and_reviews.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_space_ids)) OR (space_item_submissions_and_reviews.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_organization_ids)))))));
 
 
 --
@@ -6263,11 +6310,27 @@ GRANT INSERT(revision_id),UPDATE(revision_id) ON TABLE app_public.space_items TO
 
 
 --
+-- Name: FUNCTION space_items_is_reviewed(i app_public.space_items); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.space_items_is_reviewed(i app_public.space_items) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.space_items_is_reviewed(i app_public.space_items) TO null814_cms_app_users;
+
+
+--
 -- Name: FUNCTION space_items_is_submitted(i app_public.space_items); Type: ACL; Schema: app_public; Owner: -
 --
 
 REVOKE ALL ON FUNCTION app_public.space_items_is_submitted(i app_public.space_items) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.space_items_is_submitted(i app_public.space_items) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION space_items_latest_review_result(i app_public.space_items); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.space_items_latest_review_result(i app_public.space_items) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.space_items_latest_review_result(i app_public.space_items) TO null814_cms_app_users;
 
 
 --
