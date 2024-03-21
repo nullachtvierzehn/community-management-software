@@ -50,3 +50,4 @@ space-items/view-for-submission-and-approval-times [space-submission-reviews] 20
 file-revisions/policies/manage-mine [file-revisions] 2024-03-19T06:13:43Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # manage own file revisions
 pdf-file-revisions [file-revisions] 2024-03-19T06:28:27Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add table pdf_file_revisions
 space-items/view-for-submissions-and-reviews [space-submission-reviews] 2024-03-21T09:00:24Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add view space_item_submissions_and_reviews in app_hidden
+space-items/policies/select-approved [space-items/view-for-submissions-and-reviews spaces/my-space-ids organizations/my-organization-ids] 2024-03-21T09:15:06Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # select approved items
