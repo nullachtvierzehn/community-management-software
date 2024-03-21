@@ -5385,9 +5385,7 @@ ALTER TABLE app_public.file_revisions ENABLE ROW LEVEL SECURITY;
 -- Name: message_revisions insert_mine_if_active; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY insert_mine_if_active ON app_public.message_revisions FOR INSERT TO null814_cms_app_users WITH CHECK (((editor_id = app_public.current_user_id()) AND (NOT (EXISTS ( SELECT
-   FROM app_public.message_revisions children
-  WHERE (children.parent_revision_id = message_revisions.revision_id))))));
+CREATE POLICY insert_mine_if_active ON app_public.message_revisions FOR INSERT TO null814_cms_app_users WITH CHECK ((editor_id = app_public.current_user_id()));
 
 
 --
