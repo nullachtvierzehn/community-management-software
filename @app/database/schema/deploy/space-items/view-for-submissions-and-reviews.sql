@@ -20,22 +20,28 @@ select
   (i.editor_id = r.reviewer_id) as is_reviewed_by_editor,
   (sub.revision_id = i.revision_id) as submission_is_active,
   (
+    sub.submitted_at
+    < min (sub.submitted_at)
+      filter (where sub.revision_id = i.revision_id) -- is active
+      over (partition by sub.space_item_id) -- latest submission per space item
+  ) as submission_is_old,
+  (
     sub.revision_id = i.revision_id
     and sub.submitted_at
-    = min(sub.submitted_at)
+    = min (sub.submitted_at)
       filter (where sub.revision_id = i.revision_id)
       over (partition by sub.space_item_id)
   ) as submission_is_first_active,
   (
     sub.revision_id = i.revision_id
     and sub.submitted_at
-    = max(sub.submitted_at)
+    = max (sub.submitted_at)
       filter (where sub.revision_id = i.revision_id)
       over (partition by sub.space_item_id)
   ) as submission_is_latest_active,
   (
     sub.submitted_at
-    > max(sub.submitted_at)
+    > max (sub.submitted_at)
       filter (where sub.revision_id = i.revision_id) -- is active
       over (partition by sub.space_item_id) -- latest submission per space item
   ) as submission_is_update,

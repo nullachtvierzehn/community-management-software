@@ -13,7 +13,7 @@ using (id in (
   select submission_id
   from app_hidden.space_item_submissions_and_reviews
   where
-    submission_is_active
+    (submission_is_active or submission_is_old)
     and review_result = 'approved'
     and (
       space_id in (select app_public.my_space_ids(with_any_abilities => '{view,manage}'))
