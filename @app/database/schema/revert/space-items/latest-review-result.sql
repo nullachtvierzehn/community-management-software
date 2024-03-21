@@ -2,6 +2,6 @@
 
 BEGIN;
 
--- XXX Add DDLs here.
+drop function app_public.space_items_latest_review_result(i app_public.space_items);
 
 COMMIT;

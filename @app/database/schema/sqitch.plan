@@ -64,3 +64,4 @@ space-items/policies/delete-own [space-items] 2024-03-21T16:39:04Z Timo Stolz <t
 space-items/is-submitted [space-items/view-for-submissions-and-reviews] 2024-03-21T20:15:35Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add isSubmitted for space items
 space-items/is-reviewed [space-items/view-for-submissions-and-reviews] 2024-03-21T20:27:18Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add isReviewed for space items
 space-items/latest-review-result [space-items/view-for-submissions-and-reviews] 2024-03-21T20:35:34Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add latestReviewResult for space items
+space-items/latest-active-submission [space-items/view-for-submissions-and-reviews] 2024-03-21T21:01:43Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add latestActiveSubmission for space items
