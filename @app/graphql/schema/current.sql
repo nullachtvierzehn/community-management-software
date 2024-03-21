@@ -5436,6 +5436,24 @@ CREATE POLICY select_all ON app_public.users FOR SELECT USING (true);
 
 
 --
+-- Name: file_revisions select_along_with_space_items; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_along_with_space_items ON app_public.file_revisions FOR SELECT TO null814_cms_app_users USING (((id, revision_id) IN ( SELECT space_items.file_id,
+    space_items.revision_id
+   FROM app_public.space_items)));
+
+
+--
+-- Name: message_revisions select_along_with_space_items; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_along_with_space_items ON app_public.message_revisions FOR SELECT TO null814_cms_app_users USING (((id, revision_id) IN ( SELECT space_items.message_id,
+    space_items.revision_id
+   FROM app_public.space_items)));
+
+
+--
 -- Name: space_items select_approved; Type: POLICY; Schema: app_public; Owner: -
 --
 
