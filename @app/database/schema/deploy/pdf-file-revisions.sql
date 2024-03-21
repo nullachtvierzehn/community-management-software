@@ -30,7 +30,7 @@ create table app_public.pdf_file_revisions (
 );
 
 comment on table app_public.pdf_file_revisions is $$
-  @omit select,all
+  @omit all
   $$;
 
 grant select on app_public.pdf_file_revisions to "$DATABASE_VISITOR";
