@@ -1823,6 +1823,62 @@ $$;
 
 
 --
+-- Name: space_subscriptions; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.space_subscriptions (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    space_id uuid,
+    subscriber_id uuid,
+    abilities app_public.ability[] DEFAULT '{view}'::app_public.ability[] NOT NULL,
+    is_receiving_notifications boolean DEFAULT false NOT NULL,
+    last_visit_at timestamp with time zone,
+    last_notification_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.spaces (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    organization_id uuid DEFAULT app_public.current_user_first_member_organization_id() NOT NULL,
+    creator_id uuid DEFAULT app_public.current_user_id(),
+    name text NOT NULL,
+    slug text NOT NULL,
+    is_public boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT is_valid_slug CHECK ((slug ~ '^[a-zA-Z0-9_-]+$'::text))
+);
+
+
+--
+-- Name: my_subscription(app_public.spaces); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.my_subscription(s app_public.spaces) RETURNS app_public.space_subscriptions
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select *
+  from app_public.space_subscriptions
+  where
+    space_id = s.id
+    and subscriber_id = app_public.current_user_id()
+$$;
+
+
+--
+-- Name: FUNCTION my_subscription(s app_public.spaces); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.my_subscription(s app_public.spaces) IS '@behavior +typeField +filterBy +proc:filterBy';
+
+
+--
 -- Name: organization_for_invitation(uuid, text); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -2034,6 +2090,50 @@ $$;
 --
 
 COMMENT ON FUNCTION app_public.resend_email_verification_code(email_id uuid) IS 'If you didn''t receive the verification code for this email, we can resend it. We silently cap the rate of resends on the backend, so calls to this function may not result in another email being sent if it has been called recently.';
+
+
+--
+-- Name: space_subscriptions_all_abilities(app_public.space_subscriptions); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.space_subscriptions_all_abilities(s app_public.space_subscriptions) RETURNS app_public.ability[]
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select abilities
+  from app_hidden.user_abilities_per_space
+  where
+    space_id = s.id
+    and user_id = app_public.current_user_id()
+$$;
+
+
+--
+-- Name: FUNCTION space_subscriptions_all_abilities(s app_public.space_subscriptions); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.space_subscriptions_all_abilities(s app_public.space_subscriptions) IS '@behavior +typeField +filterBy +proc:filterBy';
+
+
+--
+-- Name: space_subscriptions_all_abilities_with_grant_option(app_public.space_subscriptions); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.space_subscriptions_all_abilities_with_grant_option(s app_public.space_subscriptions) RETURNS app_public.ability[]
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select abilities_with_grant_option
+  from app_hidden.user_abilities_per_space
+  where
+    space_id = s.id
+    and user_id = app_public.current_user_id()
+$$;
+
+
+--
+-- Name: FUNCTION space_subscriptions_all_abilities_with_grant_option(s app_public.space_subscriptions); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.space_subscriptions_all_abilities_with_grant_option(s app_public.space_subscriptions) IS '@behavior +typeField +filterBy +proc:filterBy';
 
 
 --
@@ -2798,23 +2898,6 @@ CREATE TABLE app_public.space_submissions (
 
 
 --
--- Name: spaces; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.spaces (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    organization_id uuid DEFAULT app_public.current_user_first_member_organization_id() NOT NULL,
-    creator_id uuid DEFAULT app_public.current_user_id(),
-    name text NOT NULL,
-    slug text NOT NULL,
-    is_public boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT is_valid_slug CHECK ((slug ~ '^[a-zA-Z0-9_-]+$'::text))
-);
-
-
---
 -- Name: space_item_submission_and_approval_times; Type: VIEW; Schema: app_hidden; Owner: -
 --
 
@@ -3155,7 +3238,7 @@ CREATE TABLE app_public.pdf_file_revisions (
 --
 
 COMMENT ON TABLE app_public.pdf_file_revisions IS '
-  @omit select,all
+  @omit all
   ';
 
 
@@ -3193,23 +3276,6 @@ COMMENT ON VIEW app_public.space_item_submission_and_approval_times IS '
   @foreignKey (organization_id) references app_public.organizations (id)
   @omit create,update,delete,all
   ';
-
-
---
--- Name: space_subscriptions; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.space_subscriptions (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    space_id uuid,
-    subscriber_id uuid,
-    abilities app_public.ability[] DEFAULT '{view}'::app_public.ability[] NOT NULL,
-    is_receiving_notifications boolean DEFAULT false NOT NULL,
-    last_visit_at timestamp with time zone,
-    last_notification_at timestamp with time zone,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
 
 
 --
@@ -5264,7 +5330,7 @@ CREATE POLICY can_select_if_newly_created ON app_public.spaces FOR SELECT TO nul
 -- Name: spaces can_select_if_public; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY can_select_if_public ON app_public.spaces FOR SELECT USING (is_public);
+CREATE POLICY can_select_if_public ON app_public.spaces FOR SELECT TO null814_cms_app_users USING (is_public);
 
 
 --
@@ -5947,6 +6013,112 @@ GRANT ALL ON FUNCTION app_public.my_space_subscription_ids() TO null814_cms_app_
 
 
 --
+-- Name: TABLE space_subscriptions; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.space_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(space_id) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.subscriber_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(subscriber_id) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.abilities; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(abilities),UPDATE(abilities) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.is_receiving_notifications; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(is_receiving_notifications),UPDATE(is_receiving_notifications) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_subscriptions.last_visit_at; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(last_visit_at),UPDATE(last_visit_at) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE spaces; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.organization_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.creator_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(creator_id) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.name; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(name),UPDATE(name) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.slug; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN spaces.is_public; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(is_public),UPDATE(is_public) ON TABLE app_public.spaces TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION my_subscription(s app_public.spaces); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.my_subscription(s app_public.spaces) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.my_subscription(s app_public.spaces) TO null814_cms_app_users;
+
+
+--
 -- Name: FUNCTION organization_for_invitation(invitation_id uuid, code text); Type: ACL; Schema: app_public; Owner: -
 --
 
@@ -5992,6 +6164,22 @@ GRANT ALL ON FUNCTION app_public.request_account_deletion() TO null814_cms_app_u
 
 REVOKE ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) FROM PUBLIC;
 GRANT ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION space_subscriptions_all_abilities(s app_public.space_subscriptions); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.space_subscriptions_all_abilities(s app_public.space_subscriptions) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.space_subscriptions_all_abilities(s app_public.space_subscriptions) TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION space_subscriptions_all_abilities_with_grant_option(s app_public.space_subscriptions); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.space_subscriptions_all_abilities_with_grant_option(s app_public.space_subscriptions) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.space_subscriptions_all_abilities_with_grant_option(s app_public.space_subscriptions) TO null814_cms_app_users;
 
 
 --
@@ -6291,59 +6479,17 @@ GRANT INSERT(revision_id) ON TABLE app_public.space_submissions TO null814_cms_a
 
 
 --
--- Name: TABLE spaces; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(id) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.organization_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(organization_id),UPDATE(organization_id) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.creator_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(creator_id) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.name; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(name),UPDATE(name) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.slug; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(slug),UPDATE(slug) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
--- Name: COLUMN spaces.is_public; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(is_public),UPDATE(is_public) ON TABLE app_public.spaces TO null814_cms_app_users;
-
-
---
 -- Name: TABLE space_item_submission_and_approval_times; Type: ACL; Schema: app_hidden; Owner: -
 --
 
 GRANT SELECT ON TABLE app_hidden.space_item_submission_and_approval_times TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE space_item_submissions_and_reviews; Type: ACL; Schema: app_hidden; Owner: -
+--
+
+GRANT SELECT ON TABLE app_hidden.space_item_submissions_and_reviews TO null814_cms_app_users;
 
 
 --
@@ -6582,55 +6728,6 @@ GRANT SELECT ON TABLE app_public.pdf_file_revisions TO null814_cms_app_users;
 --
 
 GRANT SELECT ON TABLE app_public.space_item_submission_and_approval_times TO null814_cms_app_users;
-
-
---
--- Name: TABLE space_subscriptions; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_subscriptions.id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(id) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_subscriptions.space_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(space_id) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_subscriptions.subscriber_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(subscriber_id) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_subscriptions.abilities; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(abilities),UPDATE(abilities) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_subscriptions.is_receiving_notifications; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(is_receiving_notifications),UPDATE(is_receiving_notifications) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_subscriptions.last_visit_at; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(last_visit_at),UPDATE(last_visit_at) ON TABLE app_public.space_subscriptions TO null814_cms_app_users;
 
 
 --

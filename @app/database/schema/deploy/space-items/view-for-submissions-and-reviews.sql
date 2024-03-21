@@ -52,4 +52,6 @@ join app_public.spaces as s on (i.space_id = s.id)
 left join app_public.space_submissions as sub on (i.id = sub.space_item_id)
 left join app_public.space_submission_reviews as r on (sub.id = r.space_submission_id);
 
+grant select on app_hidden.space_item_submissions_and_reviews to "$DATABASE_VISITOR";
+
 COMMIT;

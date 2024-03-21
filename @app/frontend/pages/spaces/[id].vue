@@ -11,7 +11,10 @@
         'px',
     }"
   >
-    <template v-if="space">
+    <template v-if="!space">
+      Der Space wurde nicht gefunden. {{ querySpaceError }}
+    </template>
+    <template v-else>
       <h1 class="text-4xl font-bold mb-4">Raum {{ space.name }}</h1>
 
       <!-- show members -->
@@ -176,8 +179,9 @@ const floatingEditorRef = ref<HTMLElement>()
 const windowSize = reactive(useWindowSize())
 const floatingEditorBounding = reactive(useElementBounding(floatingEditorRef))
 
-const { data } = await useGetSpaceQuery({
+const { data, error: querySpaceError } = await useGetSpaceQuery({
   variables: computed(() => ({ id: toValue(route.params.id) as string })),
+  requestPolicy: 'network-only',
 })
 
 const space = computed(() => data.value?.space)

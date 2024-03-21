@@ -32,6 +32,10 @@ query GetSpace($id: UUID!) {
         }
       }
     }
+    mySubscription {
+      id
+      allAbilities
+    }
     subscriptions {
       totalCount
       nodes {

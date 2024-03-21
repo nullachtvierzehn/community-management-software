@@ -101,6 +101,10 @@ export type Query = Node & {
   organizationMemberships: Maybe<OrganizationMembershipsConnection>;
   /** Reads and enables pagination through a set of `Organization`. */
   organizations: Maybe<OrganizationsConnection>;
+  /** Get a single `PdfFileRevision`. */
+  pdfFileRevision: Maybe<PdfFileRevision>;
+  /** Reads a single `PdfFileRevision` using its globally unique `ID`. */
+  pdfFileRevisionByNodeId: Maybe<PdfFileRevision>;
   /**
    * Exposes the root query type nested one level down. This is helpful for Relay 1
    * which can only query top level fields if they are in a particular form.
@@ -418,6 +422,19 @@ export type QueryOrganizationsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<OrganizationsOrderBy>>;
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryPdfFileRevisionArgs = {
+  id: Scalars['UUID']['input'];
+  revisionId: Scalars['UUID']['input'];
+};
+
+
+/** The root query type which gives access points into the data universe. */
+export type QueryPdfFileRevisionByNodeIdArgs = {
+  nodeId: Scalars['ID']['input'];
 };
 
 
@@ -1317,6 +1334,14 @@ export type FileRevisionFilter = {
   parentRevisionId?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `pathOnStorage` field. */
   pathOnStorage?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `pdfFileRevision` relation. */
+  pdfFileRevision?: InputMaybe<PdfFileRevisionFilter>;
+  /** A related `pdfFileRevision` exists. */
+  pdfFileRevisionExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `pdfFileRevisionsByThumbnailIdAndThumbnailRevisionId` relation. */
+  pdfFileRevisionsByThumbnailIdAndThumbnailRevisionId?: InputMaybe<FileRevisionToManyPdfFileRevisionFilter>;
+  /** Some related `pdfFileRevisionsByThumbnailIdAndThumbnailRevisionId` exist. */
+  pdfFileRevisionsByThumbnailIdAndThumbnailRevisionIdExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `revisionId` field. */
   revisionId?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `sha256` field. */
@@ -1853,6 +1878,10 @@ export type SpaceToManySpaceSubscriptionFilter = {
 export type SpaceSubscriptionFilter = {
   /** Filter by the object’s `abilities` field. */
   abilities?: InputMaybe<AbilityListFilter>;
+  /** Filter by the object’s `allAbilities` field. */
+  allAbilities?: InputMaybe<AbilityListFilter>;
+  /** Filter by the object’s `allAbilitiesWithGrantOption` field. */
+  allAbilitiesWithGrantOption?: InputMaybe<AbilityListFilter>;
   /** Checks for all expressions in this list. */
   and?: InputMaybe<Array<SpaceSubscriptionFilter>>;
   /** Filter by the object’s `createdAt` field. */
@@ -2148,24 +2177,40 @@ export type FileRevisionToManyFileRevisionFilter = {
   some?: InputMaybe<FileRevisionFilter>;
 };
 
-/** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
-export type FileRevisionToManySpaceItemFilter = {
-  /** Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SpaceItemFilter>;
-  /** No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SpaceItemFilter>;
-  /** Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SpaceItemFilter>;
-};
-
-/** A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’ */
-export type FileRevisionToManySpaceSubmissionFilter = {
-  /** Every related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SpaceSubmissionFilter>;
-  /** No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SpaceSubmissionFilter>;
-  /** Some related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SpaceSubmissionFilter>;
+/** A filter to be used against `PdfFileRevision` object types. All fields are combined with a logical ‘and.’ */
+export type PdfFileRevisionFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<PdfFileRevisionFilter>>;
+  /** Filter by the object’s `contentAsPlainText` field. */
+  contentAsPlainText?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `createdAt` field. */
+  createdAt?: InputMaybe<DatetimeFilter>;
+  /** Filter by the object’s `fileRevision` relation. */
+  fileRevision?: InputMaybe<FileRevisionFilter>;
+  /** Filter by the object’s `id` field. */
+  id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `metadata` field. */
+  metadata?: InputMaybe<JsonFilter>;
+  /** Negates the expression. */
+  not?: InputMaybe<PdfFileRevisionFilter>;
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<PdfFileRevisionFilter>>;
+  /** Filter by the object’s `pages` field. */
+  pages?: InputMaybe<IntFilter>;
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `thumbnailId` field. */
+  thumbnailId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `thumbnailRevisionId` field. */
+  thumbnailRevisionId?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `thumbnailThumbnailRevision` relation. */
+  thumbnailThumbnailRevision?: InputMaybe<FileRevisionFilter>;
+  /** A related `thumbnailThumbnailRevision` exists. */
+  thumbnailThumbnailRevisionExists?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by the object’s `title` field. */
+  title?: InputMaybe<StringFilter>;
+  /** Filter by the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<DatetimeFilter>;
 };
 
 /** A filter to be used against Int fields. All fields are combined with a logical ‘and.’ */
@@ -2192,6 +2237,36 @@ export type IntFilter = {
   notEqualTo?: InputMaybe<Scalars['Int']['input']>;
   /** Not included in the specified list. */
   notIn?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
+/** A filter to be used against many `PdfFileRevision` object types. All fields are combined with a logical ‘and.’ */
+export type FileRevisionToManyPdfFileRevisionFilter = {
+  /** Every related `PdfFileRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<PdfFileRevisionFilter>;
+  /** No related `PdfFileRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<PdfFileRevisionFilter>;
+  /** Some related `PdfFileRevision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<PdfFileRevisionFilter>;
+};
+
+/** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
+export type FileRevisionToManySpaceItemFilter = {
+  /** Every related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceItemFilter>;
+  /** No related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceItemFilter>;
+  /** Some related `SpaceItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceItemFilter>;
+};
+
+/** A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’ */
+export type FileRevisionToManySpaceSubmissionFilter = {
+  /** Every related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<SpaceSubmissionFilter>;
+  /** No related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<SpaceSubmissionFilter>;
+  /** Some related `SpaceSubmission` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<SpaceSubmissionFilter>;
 };
 
 /** Methods to use when ordering `FileRevision`. */
@@ -2265,6 +2340,10 @@ export type FileRevision = Node & {
   nodeId: Scalars['ID']['output'];
   parentRevisionId: Maybe<Scalars['UUID']['output']>;
   pathOnStorage: Maybe<Scalars['String']['output']>;
+  /** Reads a single `PdfFileRevision` that is related to this `FileRevision`. */
+  pdfFileRevision: Maybe<PdfFileRevision>;
+  /** Reads and enables pagination through a set of `PdfFileRevision`. */
+  pdfFileRevisionsByThumbnailIdAndThumbnailRevisionId: PdfFileRevisionsConnection;
   revisionId: Scalars['UUID']['output'];
   sha256: Maybe<Scalars['String']['output']>;
   /** Reads and enables pagination through a set of `SpaceItem`. */
@@ -2290,6 +2369,18 @@ export type FileRevisionFileRevisionsByIdAndParentRevisionIdArgs = {
 };
 
 
+export type FileRevisionPdfFileRevisionsByThumbnailIdAndThumbnailRevisionIdArgs = {
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+  condition?: InputMaybe<PdfFileRevisionCondition>;
+  filter?: InputMaybe<PdfFileRevisionFilter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Array<PdfFileRevisionsOrderBy>>;
+};
+
+
 export type FileRevisionSpaceItemsArgs = {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -2311,6 +2402,101 @@ export type FileRevisionSpaceSubmissionsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<SpaceSubmissionsOrderBy>>;
+};
+
+export type PdfFileRevision = Node & {
+  __typename?: 'PdfFileRevision';
+  contentAsPlainText: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Datetime']['output'];
+  /** Reads a single `FileRevision` that is related to this `PdfFileRevision`. */
+  fileRevision: Maybe<FileRevision>;
+  id: Scalars['UUID']['output'];
+  metadata: Maybe<Scalars['JSON']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  pages: Scalars['Int']['output'];
+  revisionId: Scalars['UUID']['output'];
+  thumbnailId: Maybe<Scalars['UUID']['output']>;
+  thumbnailRevisionId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `FileRevision` that is related to this `PdfFileRevision`. */
+  thumbnailThumbnailRevision: Maybe<FileRevision>;
+  title: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['Datetime']['output'];
+};
+
+/**
+ * A condition to be used against `PdfFileRevision` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type PdfFileRevisionCondition = {
+  /** Checks for equality with the object’s `contentAsPlainText` field. */
+  contentAsPlainText?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `createdAt` field. */
+  createdAt?: InputMaybe<Scalars['Datetime']['input']>;
+  /** Checks for equality with the object’s `id` field. */
+  id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `metadata` field. */
+  metadata?: InputMaybe<Scalars['JSON']['input']>;
+  /** Checks for equality with the object’s `pages` field. */
+  pages?: InputMaybe<Scalars['Int']['input']>;
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `thumbnailId` field. */
+  thumbnailId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `thumbnailRevisionId` field. */
+  thumbnailRevisionId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `title` field. */
+  title?: InputMaybe<Scalars['String']['input']>;
+  /** Checks for equality with the object’s `updatedAt` field. */
+  updatedAt?: InputMaybe<Scalars['Datetime']['input']>;
+};
+
+/** Methods to use when ordering `PdfFileRevision`. */
+export type PdfFileRevisionsOrderBy =
+  | 'CONTENT_AS_PLAIN_TEXT_ASC'
+  | 'CONTENT_AS_PLAIN_TEXT_DESC'
+  | 'CREATED_AT_ASC'
+  | 'CREATED_AT_DESC'
+  | 'ID_ASC'
+  | 'ID_DESC'
+  | 'METADATA_ASC'
+  | 'METADATA_DESC'
+  | 'NATURAL'
+  | 'PAGES_ASC'
+  | 'PAGES_DESC'
+  | 'PRIMARY_KEY_ASC'
+  | 'PRIMARY_KEY_DESC'
+  | 'REVISION_ID_ASC'
+  | 'REVISION_ID_DESC'
+  | 'THUMBNAIL_ID_ASC'
+  | 'THUMBNAIL_ID_DESC'
+  | 'THUMBNAIL_REVISION_ID_ASC'
+  | 'THUMBNAIL_REVISION_ID_DESC'
+  | 'TITLE_ASC'
+  | 'TITLE_DESC'
+  | 'UPDATED_AT_ASC'
+  | 'UPDATED_AT_DESC';
+
+/** A connection to a list of `PdfFileRevision` values. */
+export type PdfFileRevisionsConnection = {
+  __typename?: 'PdfFileRevisionsConnection';
+  /** A list of edges which contains the `PdfFileRevision` and cursor to aid in pagination. */
+  edges: Array<PdfFileRevisionsEdge>;
+  /** A list of `PdfFileRevision` objects. */
+  nodes: Array<PdfFileRevision>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+  /** The count of *all* `PdfFileRevision` you could get from the connection. */
+  totalCount: Scalars['Int']['output'];
+};
+
+/** A `PdfFileRevision` edge in the connection. */
+export type PdfFileRevisionsEdge = {
+  __typename?: 'PdfFileRevisionsEdge';
+  /** A cursor for use in pagination. */
+  cursor: Maybe<Scalars['Cursor']['output']>;
+  /** The `PdfFileRevision` at the end of the edge. */
+  node: PdfFileRevision;
 };
 
 /**
@@ -2662,6 +2848,7 @@ export type Space = Node & {
   isPublic: Scalars['Boolean']['output'];
   /** Reads and enables pagination through a set of `SpaceItem`. */
   items: SpaceItemsConnection;
+  mySubscription: Maybe<SpaceSubscription>;
   name: Scalars['String']['output'];
   /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
   nodeId: Scalars['ID']['output'];
@@ -2710,6 +2897,27 @@ export type SpaceSubscriptionsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Array<SpaceSubscriptionsOrderBy>>;
+};
+
+export type SpaceSubscription = Node & {
+  __typename?: 'SpaceSubscription';
+  abilities: Array<Maybe<Ability>>;
+  allAbilities: Maybe<Array<Maybe<Ability>>>;
+  allAbilitiesWithGrantOption: Maybe<Array<Maybe<Ability>>>;
+  createdAt: Scalars['Datetime']['output'];
+  id: Scalars['UUID']['output'];
+  isReceivingNotifications: Scalars['Boolean']['output'];
+  lastNotificationAt: Maybe<Scalars['Datetime']['output']>;
+  lastVisitAt: Maybe<Scalars['Datetime']['output']>;
+  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
+  nodeId: Scalars['ID']['output'];
+  /** Reads a single `Space` that is related to this `SpaceSubscription`. */
+  space: Maybe<Space>;
+  spaceId: Maybe<Scalars['UUID']['output']>;
+  /** Reads a single `User` that is related to this `SpaceSubscription`. */
+  subscriber: Maybe<User>;
+  subscriberId: Maybe<Scalars['UUID']['output']>;
+  updatedAt: Scalars['Datetime']['output'];
 };
 
 export type Organization = Node & {
@@ -3085,25 +3293,6 @@ export type SpaceSubscriptionsEdge = {
   cursor: Maybe<Scalars['Cursor']['output']>;
   /** The `SpaceSubscription` at the end of the edge. */
   node: SpaceSubscription;
-};
-
-export type SpaceSubscription = Node & {
-  __typename?: 'SpaceSubscription';
-  abilities: Array<Maybe<Ability>>;
-  createdAt: Scalars['Datetime']['output'];
-  id: Scalars['UUID']['output'];
-  isReceivingNotifications: Scalars['Boolean']['output'];
-  lastNotificationAt: Maybe<Scalars['Datetime']['output']>;
-  lastVisitAt: Maybe<Scalars['Datetime']['output']>;
-  /** A globally unique identifier. Can be used in various places throughout the system to identify this single value. */
-  nodeId: Scalars['ID']['output'];
-  /** Reads a single `Space` that is related to this `SpaceSubscription`. */
-  space: Maybe<Space>;
-  spaceId: Maybe<Scalars['UUID']['output']>;
-  /** Reads a single `User` that is related to this `SpaceSubscription`. */
-  subscriber: Maybe<User>;
-  subscriberId: Maybe<Scalars['UUID']['output']>;
-  updatedAt: Scalars['Datetime']['output'];
 };
 
 /**
@@ -6445,7 +6634,7 @@ export type GetSpaceQueryVariables = Exact<{
 }>;
 
 
-export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, createdAt: string, times: { __typename?: 'SpaceItemSubmissionAndApprovalTime', currentApprovalSince: string | null } | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, fileRevision: { __typename?: 'FileRevision', id: string, revisionId: string, mimeType: string | null } | null }> }, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
+export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, createdAt: string, times: { __typename?: 'SpaceItemSubmissionAndApprovalTime', currentApprovalSince: string | null } | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, fileRevision: { __typename?: 'FileRevision', id: string, revisionId: string, mimeType: string | null } | null }> }, mySubscription: { __typename?: 'SpaceSubscription', id: string, allAbilities: Array<Ability | null> | null } | null, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
 
 export type GetUserByUsernameQueryVariables = Exact<{
   username: Scalars['String']['input'];
@@ -6724,6 +6913,10 @@ export const GetSpace = gql`
           mimeType
         }
       }
+    }
+    mySubscription {
+      id
+      allAbilities
     }
     subscriptions {
       totalCount
@@ -7086,6 +7279,10 @@ export const GetSpaceDocument = gql`
           mimeType
         }
       }
+    }
+    mySubscription {
+      id
+      allAbilities
     }
     subscriptions {
       totalCount
