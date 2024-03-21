@@ -5362,6 +5362,13 @@ CREATE POLICY delete_mine ON app_public.message_revisions FOR DELETE TO null814_
 
 
 --
+-- Name: space_items delete_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY delete_own ON app_public.space_items FOR DELETE TO null814_cms_app_users USING ((editor_id = app_public.current_user_id()));
+
+
+--
 -- Name: user_authentications delete_own; Type: POLICY; Schema: app_public; Owner: -
 --
 

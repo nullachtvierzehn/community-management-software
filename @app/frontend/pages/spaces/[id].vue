@@ -4,11 +4,12 @@
     name="page"
     class="container mx-auto p-4"
     :style="{
-      marginBottom:
-        windowSize.height -
-        floatingEditorBounding.bottom +
-        floatingEditorBounding.height +
-        'px',
+      marginBottom: hasAbility('CREATE')
+        ? windowSize.height -
+          floatingEditorBounding.bottom +
+          floatingEditorBounding.height +
+          'px'
+        : 'none',
     }"
   >
     <template v-if="!space">
@@ -126,7 +127,11 @@
       </section>
 
       <!-- add message -->
-      <section id="add-message" class="fixed bottom-8 left-0 right-0">
+      <section
+        v-if="hasAbility('CREATE')"
+        id="add-message"
+        class="fixed bottom-8 left-0 right-0"
+      >
         <div ref="floatingEditorRef" class="mx-auto container p-4">
           <TiptapEditor
             v-model:json="bodyOfNewMessage"
@@ -153,6 +158,7 @@ import { useDropZone, useStorage } from '@vueuse/core'
 import type { Upload } from 'tus-js-client'
 
 import {
+  type Ability,
   GetFileRevisionByRevisionIdDocument,
   type GetFileRevisionByRevisionIdQuery,
   type GetFileRevisionByRevisionIdQueryVariables,
@@ -181,11 +187,17 @@ const floatingEditorBounding = reactive(useElementBounding(floatingEditorRef))
 
 const { data, error: querySpaceError } = await useGetSpaceQuery({
   variables: computed(() => ({ id: toValue(route.params.id) as string })),
-  requestPolicy: 'network-only',
 })
 
 const space = computed(() => data.value?.space)
 const items = computed(() => data.value?.space?.items.nodes ?? [])
+const myAbilities = computed(
+  () => data.value?.space?.mySubscription?.allAbilities ?? []
+)
+
+function hasAbility(ability: Ability) {
+  return myAbilities.value.includes(ability)
+}
 
 // create new messages
 const bodyOfNewMessage = useStorage<JSONContent>(
