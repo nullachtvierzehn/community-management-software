@@ -38,6 +38,9 @@ alter table app_hidden.user_abilities_per_space
     references app_public.spaces (id)
     on update cascade on delete cascade;
 
+grant select on app_hidden.user_abilities_per_space to "$DATABASE_VISITOR";
+
+
 -- Create indices.
 create unique index if not exists user_abilities_per_space_on_user_id_space_id
   on app_hidden.user_abilities_per_space ("user_id", space_id) include (abilities);

@@ -2102,8 +2102,8 @@ CREATE FUNCTION app_public.space_subscriptions_all_abilities(s app_public.space_
   select abilities
   from app_hidden.user_abilities_per_space
   where
-    space_id = s.id
-    and user_id = app_public.current_user_id()
+    space_id = s.space_id
+    and "user_id" = s.subscriber_id
 $$;
 
 
@@ -2124,8 +2124,8 @@ CREATE FUNCTION app_public.space_subscriptions_all_abilities_with_grant_option(s
   select abilities_with_grant_option
   from app_hidden.user_abilities_per_space
   where
-    space_id = s.id
-    and user_id = app_public.current_user_id()
+    space_id = s.space_id
+    and "user_id" = s.subscriber_id
 $$;
 
 
@@ -5330,7 +5330,7 @@ CREATE POLICY can_select_if_newly_created ON app_public.spaces FOR SELECT TO nul
 -- Name: spaces can_select_if_public; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY can_select_if_public ON app_public.spaces FOR SELECT TO null814_cms_app_users USING (is_public);
+CREATE POLICY can_select_if_public ON app_public.spaces FOR SELECT USING (is_public);
 
 
 --
@@ -6497,6 +6497,13 @@ GRANT SELECT ON TABLE app_hidden.space_item_submissions_and_reviews TO null814_c
 --
 
 GRANT SELECT ON TABLE app_hidden.user_abilities_per_organization TO null814_cms_app_users;
+
+
+--
+-- Name: TABLE user_abilities_per_space; Type: ACL; Schema: app_hidden; Owner: -
+--
+
+GRANT SELECT ON TABLE app_hidden.user_abilities_per_space TO null814_cms_app_users;
 
 
 --

@@ -22,6 +22,8 @@ select
 from app_public.organization_memberships as m
 join app_public.organizations as o on (m.organization_id = o.id);
 
+grant select on app_hidden.user_abilities_per_organization to "$DATABASE_VISITOR";
+
 
 alter table app_hidden.user_abilities_per_organization
   add constraint organization_membership
