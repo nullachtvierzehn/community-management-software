@@ -39,6 +39,7 @@ select
       filter (where sub.revision_id = i.revision_id) -- is active
       over (partition by sub.space_item_id) -- latest submission per space item
   ) as submission_is_update,
+  (sub.id is not null) as item_is_submitted,
   (r.space_submission_id is not null) as submission_is_reviewed
 from app_public.space_items as i
 join app_public.spaces as s on (i.space_id = s.id)

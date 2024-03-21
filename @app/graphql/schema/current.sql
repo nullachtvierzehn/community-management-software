@@ -2866,6 +2866,7 @@ CREATE VIEW app_hidden.space_item_submissions_and_reviews AS
     ((sub.revision_id = i.revision_id) AND (sub.submitted_at = min(sub.submitted_at) FILTER (WHERE (sub.revision_id = i.revision_id)) OVER (PARTITION BY sub.space_item_id))) AS submission_is_first_active,
     ((sub.revision_id = i.revision_id) AND (sub.submitted_at = max(sub.submitted_at) FILTER (WHERE (sub.revision_id = i.revision_id)) OVER (PARTITION BY sub.space_item_id))) AS submission_is_latest_active,
     (sub.submitted_at > max(sub.submitted_at) FILTER (WHERE (sub.revision_id = i.revision_id)) OVER (PARTITION BY sub.space_item_id)) AS submission_is_update,
+    (sub.id IS NOT NULL) AS item_is_submitted,
     (r.space_submission_id IS NOT NULL) AS submission_is_reviewed
    FROM (((app_public.space_items i
      JOIN app_public.spaces s ON ((i.space_id = s.id)))
@@ -5454,6 +5455,15 @@ CREATE POLICY select_submissions_that_i_can_review ON app_public.space_submissio
    FROM (app_public.space_items i
      JOIN app_public.spaces s ON ((i.space_id = s.id)))
   WHERE ((i.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{accept,manage}'::app_public.ability[]) AS my_space_ids)) OR (s.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{accept,manage}'::app_public.ability[]) AS my_organization_ids))))));
+
+
+--
+-- Name: space_items select_submitted; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_submitted ON app_public.space_items FOR SELECT TO null814_cms_app_users USING ((id IN ( SELECT space_item_submissions_and_reviews.item_id
+   FROM app_hidden.space_item_submissions_and_reviews
+  WHERE ((space_item_submissions_and_reviews.submission_id IS NOT NULL) AND ((space_item_submissions_and_reviews.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{accept,manage}'::app_public.ability[]) AS my_space_ids)) OR (space_item_submissions_and_reviews.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{accept,manage}'::app_public.ability[]) AS my_organization_ids)))))));
 
 
 --
