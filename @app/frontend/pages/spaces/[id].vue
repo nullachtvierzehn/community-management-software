@@ -82,6 +82,34 @@
           <template v-else>
             <pre>Fehler: Art von Item {{ item.id }} unbekannt.</pre>
           </template>
+          <div
+            v-if="
+              !item.isSubmitted &&
+              (hasAbility('SUBMIT') || hasAbility('MANAGE'))
+            "
+            class="bg-gray-300 -mx-2 -mb-2 p-2 text-right"
+          >
+            <button class="p-2 bg-indigo-600 text-white rounded-md text-xs">
+              einreichen
+            </button>
+          </div>
+          <div
+            v-else-if="
+              !item.latestReviewResult &&
+              (hasAbility('ACCEPT') || hasAbility('MANAGE'))
+            "
+            class="bg-gray-300 -mx-2 -mb-2 p-2 flex gap-1 justify-end"
+          >
+            <button class="p-2 bg-indigo-600 text-white rounded-md text-xs">
+              ablehnen
+            </button>
+            <button class="p-2 bg-indigo-600 text-white rounded-md text-xs">
+              kommentieren
+            </button>
+            <button class="p-2 bg-indigo-600 text-white rounded-md text-xs">
+              veröffentlichen
+            </button>
+          </div>
         </div>
       </section>
 

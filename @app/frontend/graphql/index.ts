@@ -1540,8 +1540,12 @@ export type SpaceItemFilter = {
   fileRevisionExists?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `id` field. */
   id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isReviewed` field. */
+  isReviewed?: InputMaybe<BooleanFilter>;
   /** Filter by the object’s `isSubmitted` field. */
   isSubmitted?: InputMaybe<BooleanFilter>;
+  /** Filter by the object’s `latestReviewResult` field. */
+  latestReviewResult?: InputMaybe<ReviewResultFilter>;
   /** Filter by the object’s `messageId` field. */
   messageId?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `messageRevision` relation. */
@@ -1595,6 +1599,37 @@ export type BooleanFilter = {
   /** Not included in the specified list. */
   notIn?: InputMaybe<Array<Scalars['Boolean']['input']>>;
 };
+
+/** A filter to be used against ReviewResult fields. All fields are combined with a logical ‘and.’ */
+export type ReviewResultFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<ReviewResult>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<ReviewResult>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<ReviewResult>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<ReviewResult>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<ReviewResult>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<ReviewResult>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<ReviewResult>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<ReviewResult>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<ReviewResult>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<ReviewResult>>;
+};
+
+export type ReviewResult =
+  | 'APPROVED'
+  | 'COMMENTED'
+  | 'DECLINED';
 
 /** A filter to be used against `Space` object types. All fields are combined with a logical ‘and.’ */
 export type SpaceFilter = {
@@ -1995,37 +2030,6 @@ export type SpaceSubmissionReviewFilter = {
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
 };
-
-/** A filter to be used against ReviewResult fields. All fields are combined with a logical ‘and.’ */
-export type ReviewResultFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<ReviewResult>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<ReviewResult>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<ReviewResult>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<ReviewResult>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<ReviewResult>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<ReviewResult>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<ReviewResult>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<ReviewResult>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<ReviewResult>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<ReviewResult>>;
-};
-
-export type ReviewResult =
-  | 'APPROVED'
-  | 'COMMENTED'
-  | 'DECLINED';
 
 /** A filter to be used against many `SpaceSubmission` object types. All fields are combined with a logical ‘and.’ */
 export type MessageRevisionToManySpaceSubmissionFilter = {
@@ -2514,8 +2518,12 @@ export type SpaceItemCondition = {
   fileId?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `id` field. */
   id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `isReviewed` field. */
+  isReviewed?: InputMaybe<Scalars['Boolean']['input']>;
   /** Checks for equality with the object’s `isSubmitted` field. */
   isSubmitted?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Checks for equality with the object’s `latestReviewResult` field. */
+  latestReviewResult?: InputMaybe<ReviewResult>;
   /** Checks for equality with the object’s `messageId` field. */
   messageId?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `revisionId` field. */
@@ -2536,8 +2544,12 @@ export type SpaceItemsOrderBy =
   | 'FILE_ID_DESC'
   | 'ID_ASC'
   | 'ID_DESC'
+  | 'IS_REVIEWED_ASC'
+  | 'IS_REVIEWED_DESC'
   | 'IS_SUBMITTED_ASC'
   | 'IS_SUBMITTED_DESC'
+  | 'LATEST_REVIEW_RESULT_ASC'
+  | 'LATEST_REVIEW_RESULT_DESC'
   | 'MESSAGE_ID_ASC'
   | 'MESSAGE_ID_DESC'
   | 'NATURAL'
@@ -2582,7 +2594,9 @@ export type SpaceItem = Node & {
   /** Reads a single `FileRevision` that is related to this `SpaceItem`. */
   fileRevision: Maybe<FileRevision>;
   id: Scalars['UUID']['output'];
+  isReviewed: Maybe<Scalars['Boolean']['output']>;
   isSubmitted: Maybe<Scalars['Boolean']['output']>;
+  latestReviewResult: Maybe<ReviewResult>;
   messageId: Maybe<Scalars['UUID']['output']>;
   /** Reads a single `MessageRevision` that is related to this `SpaceItem`. */
   messageRevision: Maybe<MessageRevision>;
@@ -6641,7 +6655,7 @@ export type GetSpaceQueryVariables = Exact<{
 }>;
 
 
-export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, createdAt: string, times: { __typename?: 'SpaceItemSubmissionAndApprovalTime', currentApprovalSince: string | null } | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, fileRevision: { __typename?: 'FileRevision', id: string, revisionId: string, mimeType: string | null } | null }> }, mySubscription: { __typename?: 'SpaceSubscription', id: string, allAbilities: Array<Ability | null> | null } | null, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
+export type GetSpaceQuery = { __typename?: 'Query', space: { __typename?: 'Space', id: string, name: string, isPublic: boolean, items: { __typename?: 'SpaceItemsConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, nodes: Array<{ __typename?: 'SpaceItem', id: string, isSubmitted: boolean | null, latestReviewResult: ReviewResult | null, createdAt: string, times: { __typename?: 'SpaceItemSubmissionAndApprovalTime', currentApprovalSince: string | null } | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null, messageRevision: { __typename?: 'MessageRevision', id: string, body: any | null, editor: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null } | null, fileRevision: { __typename?: 'FileRevision', id: string, revisionId: string, mimeType: string | null } | null }> }, mySubscription: { __typename?: 'SpaceSubscription', id: string, allAbilities: Array<Ability | null> | null } | null, subscriptions: { __typename?: 'SpaceSubscriptionsConnection', totalCount: number, nodes: Array<{ __typename?: 'SpaceSubscription', id: string, createdAt: string, subscriber: { __typename?: 'User', id: string, isAdmin: boolean, isVerified: boolean, username: string, avatarUrl: string | null } | null }> } } | null };
 
 export type GetUserByUsernameQueryVariables = Exact<{
   username: Scalars['String']['input'];
@@ -6901,6 +6915,8 @@ export const GetSpace = gql`
           currentApprovalSince
         }
         id
+        isSubmitted
+        latestReviewResult
         createdAt
         editor {
           id
@@ -7267,6 +7283,8 @@ export const GetSpaceDocument = gql`
           currentApprovalSince
         }
         id
+        isSubmitted
+        latestReviewResult
         createdAt
         editor {
           id
