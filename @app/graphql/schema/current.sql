@@ -5387,6 +5387,15 @@ CREATE POLICY select_approved ON app_public.space_submissions FOR SELECT TO null
 
 
 --
+-- Name: space_submissions select_as_reviewer; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_as_reviewer ON app_public.space_submissions FOR SELECT TO null814_cms_app_users USING ((id IN ( SELECT space_item_submissions_and_reviews.submission_id
+   FROM app_hidden.space_item_submissions_and_reviews
+  WHERE ((space_item_submissions_and_reviews.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{accept,manage}'::app_public.ability[]) AS my_space_ids)) OR (space_item_submissions_and_reviews.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{accept,manage}'::app_public.ability[]) AS my_organization_ids))))));
+
+
+--
 -- Name: organization_memberships select_invited; Type: POLICY; Schema: app_public; Owner: -
 --
 
