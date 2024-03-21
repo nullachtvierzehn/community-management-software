@@ -1540,6 +1540,8 @@ export type SpaceItemFilter = {
   fileRevisionExists?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `id` field. */
   id?: InputMaybe<UuidFilter>;
+  /** Filter by the object’s `isSubmitted` field. */
+  isSubmitted?: InputMaybe<BooleanFilter>;
   /** Filter by the object’s `messageId` field. */
   messageId?: InputMaybe<UuidFilter>;
   /** Filter by the object’s `messageRevision` relation. */
@@ -1566,6 +1568,32 @@ export type SpaceItemFilter = {
   timesExists?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
+};
+
+/** A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’ */
+export type BooleanFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<Scalars['Boolean']['input']>>;
 };
 
 /** A filter to be used against `Space` object types. All fields are combined with a logical ‘and.’ */
@@ -1610,32 +1638,6 @@ export type SpaceFilter = {
   subscriptionsExist?: InputMaybe<Scalars['Boolean']['input']>;
   /** Filter by the object’s `updatedAt` field. */
   updatedAt?: InputMaybe<DatetimeFilter>;
-};
-
-/** A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’ */
-export type BooleanFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<Scalars['Boolean']['input']>>;
 };
 
 /** A filter to be used against many `SpaceItem` object types. All fields are combined with a logical ‘and.’ */
@@ -2512,6 +2514,8 @@ export type SpaceItemCondition = {
   fileId?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `id` field. */
   id?: InputMaybe<Scalars['UUID']['input']>;
+  /** Checks for equality with the object’s `isSubmitted` field. */
+  isSubmitted?: InputMaybe<Scalars['Boolean']['input']>;
   /** Checks for equality with the object’s `messageId` field. */
   messageId?: InputMaybe<Scalars['UUID']['input']>;
   /** Checks for equality with the object’s `revisionId` field. */
@@ -2532,6 +2536,8 @@ export type SpaceItemsOrderBy =
   | 'FILE_ID_DESC'
   | 'ID_ASC'
   | 'ID_DESC'
+  | 'IS_SUBMITTED_ASC'
+  | 'IS_SUBMITTED_DESC'
   | 'MESSAGE_ID_ASC'
   | 'MESSAGE_ID_DESC'
   | 'NATURAL'
@@ -2576,6 +2582,7 @@ export type SpaceItem = Node & {
   /** Reads a single `FileRevision` that is related to this `SpaceItem`. */
   fileRevision: Maybe<FileRevision>;
   id: Scalars['UUID']['output'];
+  isSubmitted: Maybe<Scalars['Boolean']['output']>;
   messageId: Maybe<Scalars['UUID']['output']>;
   /** Reads a single `MessageRevision` that is related to this `SpaceItem`. */
   messageRevision: Maybe<MessageRevision>;

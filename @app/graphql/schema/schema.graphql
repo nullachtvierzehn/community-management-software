@@ -2534,6 +2534,9 @@ input SpaceItemFilter {
   """Filter by the object’s `updatedAt` field."""
   updatedAt: DatetimeFilter
 
+  """Filter by the object’s `isSubmitted` field."""
+  isSubmitted: BooleanFilter
+
   """Filter by the object’s `submissions` relation."""
   submissions: SpaceItemToManySpaceSubmissionFilter
 
@@ -3988,6 +3991,7 @@ type SpaceItem implements Node {
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
+  isSubmitted: Boolean
   id: UUID!
   spaceId: UUID!
   editorId: UUID
@@ -4264,6 +4268,8 @@ input MessageRevisionCondition {
 """Methods to use when ordering `SpaceItem`."""
 enum SpaceItemsOrderBy {
   NATURAL
+  IS_SUBMITTED_ASC
+  IS_SUBMITTED_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
   ID_ASC
@@ -4312,6 +4318,9 @@ input SpaceItemCondition {
 
   """Checks for equality with the object’s `updatedAt` field."""
   updatedAt: Datetime
+
+  """Checks for equality with the object’s `isSubmitted` field."""
+  isSubmitted: Boolean
 }
 
 """A connection to a list of `SpaceSubmission` values."""

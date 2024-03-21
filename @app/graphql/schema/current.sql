@@ -2093,6 +2093,47 @@ COMMENT ON FUNCTION app_public.resend_email_verification_code(email_id uuid) IS 
 
 
 --
+-- Name: space_items; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.space_items (
+    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
+    space_id uuid NOT NULL,
+    editor_id uuid DEFAULT app_public.current_user_id(),
+    message_id uuid,
+    file_id uuid,
+    revision_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ensure_non_overlapping_types CHECK ((num_nonnulls(message_id, file_id) = 1))
+);
+
+
+--
+-- Name: space_items_is_submitted(app_public.space_items); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.space_items_is_submitted(i app_public.space_items) RETURNS boolean
+    LANGUAGE sql STABLE PARALLEL SAFE
+    AS $$
+  select exists (
+    select from app_hidden.space_item_submissions_and_reviews
+    where
+      item_id = i.id
+      and item_is_submitted
+      and submission_is_active
+  )
+$$;
+
+
+--
+-- Name: FUNCTION space_items_is_submitted(i app_public.space_items); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.space_items_is_submitted(i app_public.space_items) IS '@behavior +filterBy +orderBy +typeField';
+
+
+--
 -- Name: space_subscriptions_all_abilities(app_public.space_subscriptions); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -2848,23 +2889,6 @@ $$;
 CREATE FUNCTION public.text_array_to_string(text[], text) RETURNS text
     LANGUAGE internal IMMUTABLE STRICT PARALLEL SAFE
     AS $$array_to_text$$;
-
-
---
--- Name: space_items; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.space_items (
-    id uuid DEFAULT public.uuid_generate_v1mc() NOT NULL,
-    space_id uuid NOT NULL,
-    editor_id uuid DEFAULT app_public.current_user_id(),
-    message_id uuid,
-    file_id uuid,
-    revision_id uuid NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT ensure_non_overlapping_types CHECK ((num_nonnulls(message_id, file_id) = 1))
-);
 
 
 --
@@ -5462,9 +5486,9 @@ CREATE POLICY select_along_with_space_items ON app_public.message_revisions FOR 
 -- Name: space_items select_approved; Type: POLICY; Schema: app_public; Owner: -
 --
 
-CREATE POLICY select_approved ON app_public.space_items FOR SELECT TO null814_cms_app_users USING ((id IN ( SELECT space_item_submissions_and_reviews.item_id
+CREATE POLICY select_approved ON app_public.space_items FOR SELECT TO null814_cms_app_users USING (('approved'::app_public.review_result IN ( SELECT space_item_submissions_and_reviews.review_result
    FROM app_hidden.space_item_submissions_and_reviews
-  WHERE ((space_item_submissions_and_reviews.submission_is_active OR space_item_submissions_and_reviews.submission_is_old) AND (space_item_submissions_and_reviews.review_result = 'approved'::app_public.review_result) AND ((space_item_submissions_and_reviews.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_space_ids)) OR (space_item_submissions_and_reviews.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_organization_ids)))))));
+  WHERE (space_item_submissions_and_reviews.submission_is_active AND (space_item_submissions_and_reviews.item_id = space_items.id) AND ((space_item_submissions_and_reviews.space_id IN ( SELECT app_public.my_space_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_space_ids)) OR (space_item_submissions_and_reviews.organization_id IN ( SELECT app_public.my_organization_ids(with_any_abilities => '{view,manage}'::app_public.ability[]) AS my_organization_ids)))))));
 
 
 --
@@ -6190,6 +6214,63 @@ GRANT ALL ON FUNCTION app_public.resend_email_verification_code(email_id uuid) T
 
 
 --
+-- Name: TABLE space_items; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.space_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(space_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.editor_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.message_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(message_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.file_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(file_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: COLUMN space_items.revision_id; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(revision_id),UPDATE(revision_id) ON TABLE app_public.space_items TO null814_cms_app_users;
+
+
+--
+-- Name: FUNCTION space_items_is_submitted(i app_public.space_items); Type: ACL; Schema: app_public; Owner: -
+--
+
+REVOKE ALL ON FUNCTION app_public.space_items_is_submitted(i app_public.space_items) FROM PUBLIC;
+GRANT ALL ON FUNCTION app_public.space_items_is_submitted(i app_public.space_items) TO null814_cms_app_users;
+
+
+--
 -- Name: FUNCTION space_subscriptions_all_abilities(s app_public.space_subscriptions); Type: ACL; Schema: app_public; Owner: -
 --
 
@@ -6366,55 +6447,6 @@ REVOKE ALL ON FUNCTION procrastinate.procrastinate_trigger_status_events_procedu
 --
 
 REVOKE ALL ON FUNCTION procrastinate.procrastinate_unlink_periodic_defers() FROM PUBLIC;
-
-
---
--- Name: TABLE space_items; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.space_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(space_id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.editor_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(editor_id),UPDATE(editor_id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.message_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(message_id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.file_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(file_id) ON TABLE app_public.space_items TO null814_cms_app_users;
-
-
---
--- Name: COLUMN space_items.revision_id; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT INSERT(revision_id),UPDATE(revision_id) ON TABLE app_public.space_items TO null814_cms_app_users;
 
 
 --

@@ -61,3 +61,4 @@ spaces/my-subscription [space-subscriptions] 2024-03-21T10:43:35Z Timo Stolz <ti
 message-revisions/policies/select-along-with-space-items [space-items message-revisions] 2024-03-21T16:14:56Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow to select message-revisions along with space-items
 file-revisions/policies/select-along-with-space-items [space-items file-revisions] 2024-03-21T16:20:43Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow to select file-revisions along with space-items
 space-items/policies/delete-own [space-items] 2024-03-21T16:39:04Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # delete own policies
+space-items/is-submitted [space-items/view-for-submissions-and-reviews] 2024-03-21T20:15:35Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add isSubmitted for space items
