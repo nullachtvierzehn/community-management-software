@@ -2863,6 +2863,7 @@ CREATE VIEW app_hidden.space_item_submissions_and_reviews AS
     (i.editor_id = sub.submitter_id) AS is_submitted_by_editor,
     (i.editor_id = r.reviewer_id) AS is_reviewed_by_editor,
     (sub.revision_id = i.revision_id) AS submission_is_active,
+    ((sub.revision_id = i.revision_id) AND (sub.submitted_at = min(sub.submitted_at) FILTER (WHERE (sub.revision_id = i.revision_id)) OVER (PARTITION BY sub.space_item_id))) AS submission_is_first_active,
     ((sub.revision_id = i.revision_id) AND (sub.submitted_at = max(sub.submitted_at) FILTER (WHERE (sub.revision_id = i.revision_id)) OVER (PARTITION BY sub.space_item_id))) AS submission_is_latest_active,
     (sub.submitted_at > max(sub.submitted_at) FILTER (WHERE (sub.revision_id = i.revision_id)) OVER (PARTITION BY sub.space_item_id)) AS submission_is_update,
     (r.space_submission_id IS NOT NULL) AS submission_is_reviewed
