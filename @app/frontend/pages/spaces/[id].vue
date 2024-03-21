@@ -4,12 +4,13 @@
     name="page"
     class="container mx-auto p-4"
     :style="{
-      marginBottom: hasAbility('CREATE')
-        ? windowSize.height -
-          floatingEditorBounding.bottom +
-          floatingEditorBounding.height +
-          'px'
-        : 'none',
+      marginBottom:
+        hasAbility('CREATE') || hasAbility('MANAGE')
+          ? windowSize.height -
+            floatingEditorBounding.bottom +
+            floatingEditorBounding.height +
+            'px'
+          : 'none',
     }"
   >
     <template v-if="!space">
@@ -128,7 +129,7 @@
 
       <!-- add message -->
       <section
-        v-if="hasAbility('CREATE')"
+        v-if="hasAbility('CREATE') || hasAbility('MANAGE')"
         id="add-message"
         class="fixed bottom-8 left-0 right-0"
       >
@@ -262,7 +263,7 @@ async function submitMessageOrFile(
   revertSteps: Array<() => Promise<{ error?: CombinedError }>>
 ) {
   async function revert() {
-    for (const step of revertSteps) {
+    for (const step of [...revertSteps].reverse()) {
       const { error } = await step()
       if (error) console.error('failed revert step', error)
     }
@@ -288,6 +289,8 @@ async function submitMessageOrFile(
     revertSteps.push(() => deleteSpaceItem({ id: item.id }))
 
     // create space submission
+    if (!hasAbility('SUBMIT') && !hasAbility('MANAGE')) return
+
     const { data: submissionData, error: submissionError } =
       await submitSpaceItem({
         payload: {
@@ -303,6 +306,8 @@ async function submitMessageOrFile(
     revertSteps.push(() => deleteSpaceSubmission({ id: submission.id }))
 
     // approve submission
+    if (!hasAbility('ACCEPT') && !hasAbility('MANAGE')) return
+
     const { data: reviewData, error: reviewError } = await approveSpaceItem({
       payload: {
         spaceSubmissionId: submission.id,
