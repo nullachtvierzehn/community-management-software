@@ -58,3 +58,4 @@ space-submission-reviews/policies/select-as-reviewer [space-items/view-for-submi
 space-submission-reviews/policies/select-approved-if-active [space-items/view-for-submissions-and-reviews spaces/my-space-ids organizations/my-organization-ids] 2024-03-21T10:05:42Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # select approving reviews of active submissions
 space-subscriptions/all-abilities [users/view-for-space-abilities] 2024-03-21T10:27:40Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add allAbilities to space subscriptions
 spaces/my-subscription [space-subscriptions] 2024-03-21T10:43:35Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # add mySubscription to spaces
+message-revisions/policies/select-along-with-space-items [space-items message-revisions] 2024-03-21T16:14:56Z Timo Stolz <timo.stolz@nullachtvierzehn.de> # allow to select message-revisions along with space-items
