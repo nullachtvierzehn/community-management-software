@@ -11,10 +11,25 @@ grafservInstance.addTo(app).catch((e: any) => {
 })
 
 // Run cleanup-jobs when the app is closed.
-app.addHook('onClose', async () => {
+app.addHook('onClose', (_instance, done) => {
   // Then, disconnect the database pools.
-  await Promise.all([pool.end(), ownerPool.end()]).then(() =>
-    console.log('database pools disconnected')
+  Promise.allSettled([pool.end(), ownerPool.end()]).then(
+    ([poolEnded, ownerPoolEnded]) => {
+      console.log('database pools disconnected')
+      if (poolEnded.status === 'rejected')
+        done(
+          new Error(
+            `Failed to end database pool: ${poolEnded.reason.toString()}`
+          )
+        )
+      else if (ownerPoolEnded.status === 'rejected')
+        done(
+          new Error(
+            `Failed to end database pool (owner): ${ownerPoolEnded.reason.toString()}`
+          )
+        )
+      else done()
+    }
   )
 })
 

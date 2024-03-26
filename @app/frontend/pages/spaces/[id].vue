@@ -17,7 +17,7 @@
       Der Space wurde nicht gefunden. {{ querySpaceError }}
     </template>
     <template v-else>
-      <h1 class="text-4xl font-bold mb-4">Raum {{ space.name }}</h1>
+      <h1 class="text-4xl font-bold mb-4">Raum {{ space.name }}  {{  connected }}</h1>
 
       <!-- show members -->
       <details class="mb-4">
@@ -199,7 +199,8 @@
 import { type JSONContent } from '@tiptap/core'
 import type { CombinedError } from '@urql/vue'
 import { useDropZone, useStorage } from '@vueuse/core'
-import type { Upload } from 'tus-js-client'
+import { type Upload } from 'tus-js-client'
+import { io } from "socket.io-client";
 
 import {
   type Ability,
@@ -226,6 +227,21 @@ definePageMeta({
 const route = useRoute()
 const pageRef = ref<HTMLElement>()
 const floatingEditorRef = ref<HTMLElement>()
+
+const connected = useState(() => false)
+
+if (process.client ) {
+  const socket = io('localhost:3000', {  withCredentials: true  });
+  socket.on("connect", () => {
+    connected.value = true
+  });
+  
+  socket.on("disconnect", () => { connected.value = false })
+  onUnmounted(() => {
+    socket.disconnect()
+  })
+}
+
 
 const windowSize = reactive(useWindowSize())
 const floatingEditorBounding = reactive(useElementBounding(floatingEditorRef))
